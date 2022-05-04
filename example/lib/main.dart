@@ -1,5 +1,7 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:chessground/chessground.dart' as cg;
+import 'package:chess/chess.dart' as ch;
 
 void main() {
   runApp(const MyApp());
@@ -49,7 +51,30 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final initialFen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR';
+  String fen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR';
+
+  @override
+  void initState() {
+    super.initState();
+    playRandomGame();
+  }
+
+  playRandomGame() async {
+    ch.Chess chess = ch.Chess();
+    while (!chess.game_over) {
+      // debugPrint('position: ' + chess.fen);
+      // debugPrint(chess.ascii);
+      var moves = chess.moves();
+      moves.shuffle();
+      var move = moves[0];
+      chess.move(move);
+      // debugPrint('move: ' + move);
+      await Future.delayed(Duration(milliseconds: Random().nextInt(750) + 450));
+      setState(() {
+        fen = chess.fen;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -67,7 +92,7 @@ class _MyHomePageState extends State<MyHomePage> {
         child: cg.Board(
           size: screenWidth,
           orientation: cg.Color.white,
-          fen: initialFen,
+          fen: fen,
         ),
       ),
     );
