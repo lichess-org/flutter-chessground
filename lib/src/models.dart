@@ -1,3 +1,4 @@
+import 'dart:ui' show hashValues;
 import 'package:meta/meta.dart';
 
 enum Color { white, black }
@@ -17,6 +18,11 @@ class Coord {
     required this.y,
   })  : assert(x >= 0 && x <= 7),
         assert(y >= 0 && y <= 7);
+
+  @override
+  toString() {
+    return '($x, $y)';
+  }
 }
 
 @immutable
@@ -44,4 +50,24 @@ class Piece {
       promoted: promoted ?? this.promoted,
     );
   }
+
+  @override
+  bool operator ==(Object other) {
+    return other.runtimeType == runtimeType && hashCode == other.hashCode;
+  }
+
+  @override
+  int get hashCode => hashValues(color, role);
+}
+
+class PositionedPiece {
+  final Piece piece;
+  final SquareId squareId;
+  final Coord coord;
+
+  const PositionedPiece({
+    required this.piece,
+    required this.squareId,
+    required this.coord,
+  });
 }
