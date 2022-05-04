@@ -5,18 +5,18 @@ class BoardPositioned extends StatelessWidget {
   final Widget child;
   final double size;
   final cg.Color orientation;
-  final String position;
+  final cg.SquareId squareId;
 
   const BoardPositioned({
     Key? key,
     required this.child,
     required this.size,
     required this.orientation,
-    required this.position,
+    required this.squareId,
   }) : super(key: key);
 
-  String get file => position.substring(0, 1);
-  String get rank => position.substring(1);
+  String get file => squareId.substring(0, 1);
+  String get rank => squareId.substring(1);
   int get xCoord {
     final i = file.codeUnitAt(0) - 97;
     return orientation == cg.Color.black ? 7 - i : i;

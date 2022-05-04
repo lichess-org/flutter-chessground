@@ -3,6 +3,7 @@ import 'background.dart';
 import 'piece.dart';
 import 'models.dart' as cg;
 import 'position.dart';
+import 'fen.dart';
 
 const lightSquare = Color(0xfff0d9b6);
 const darkSquare = Color(0xffb58863);
@@ -13,19 +14,20 @@ class Board extends StatelessWidget {
 
   // board state
   final cg.Color orientation;
-  final Map<String, cg.Piece> pieces;
+  final String fen;
 
   const Board({
     Key? key,
     required this.size,
     required this.orientation,
-    required this.pieces,
+    required this.fen,
   }) : super(key: key);
 
   double get squareSize => size / 8;
 
   @override
   Widget build(BuildContext context) {
+    final pieces = readFen(fen);
     return SizedBox.square(
       dimension: size,
       child: Stack(
@@ -36,7 +38,7 @@ class Board extends StatelessWidget {
               return BoardPositioned(
                 size: squareSize,
                 orientation: orientation,
-                position: entry.key,
+                squareId: entry.key,
                 child: UIPiece(
                   piece: entry.value,
                   size: squareSize,

@@ -49,11 +49,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final pieces = const {
-    'a1': cg.Piece(color: cg.Color.white, role: cg.PieceRole.knight),
-    'a2': cg.Piece(color: cg.Color.white, role: cg.PieceRole.pawn),
-    'f7': cg.Piece(color: cg.Color.black, role: cg.PieceRole.queen),
-  };
+  final initialFen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR';
 
   @override
   Widget build(BuildContext context) {
@@ -71,7 +67,7 @@ class _MyHomePageState extends State<MyHomePage> {
         child: cg.Board(
           size: screenWidth,
           orientation: cg.Color.white,
-          pieces: pieces,
+          fen: initialFen,
         ),
       ),
     );
