@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'models.dart' as cg;
 
-class MoveAnimation extends StatefulWidget {
+class PieceAnimation extends StatefulWidget {
   final Widget child;
   final cg.Coord fromCoord;
   final cg.Coord toCoord;
@@ -9,7 +9,7 @@ class MoveAnimation extends StatefulWidget {
   final Duration duration;
   final Curve curve;
 
-  const MoveAnimation({
+  const PieceAnimation({
     Key? key,
     required this.child,
     required this.fromCoord,
@@ -26,10 +26,10 @@ class MoveAnimation extends StatefulWidget {
   double get dy => (toCoord.y - fromCoord.y).toDouble() * orientationFactor;
 
   @override
-  State<MoveAnimation> createState() => _MoveAnimationState();
+  State<PieceAnimation> createState() => _PieceAnimationState();
 }
 
-class _MoveAnimationState extends State<MoveAnimation>
+class _PieceAnimationState extends State<PieceAnimation>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller = AnimationController(
     duration: widget.duration,

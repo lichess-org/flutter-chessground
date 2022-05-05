@@ -4,7 +4,7 @@ import 'background.dart';
 import 'piece.dart';
 import 'models.dart' as cg;
 import 'position.dart';
-import 'move_animation.dart';
+import 'piece_animation.dart';
 import 'fen.dart';
 import 'utils.dart';
 
@@ -96,7 +96,7 @@ class _BoardState extends State<Board> {
                   orientation: widget.orientation,
                   squareId: entry.key,
                   child: animatedPieces.containsKey(entry.key)
-                      ? MoveAnimation(
+                      ? PieceAnimation(
                           child: UIPiece(
                             piece: entry.value,
                             size: widget.squareSize,
