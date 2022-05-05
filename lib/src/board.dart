@@ -92,6 +92,7 @@ class _BoardState extends State<Board> {
             children: [
               for (final entry in pieces.entries)
                 BoardPositioned(
+                  key: ValueKey(entry.key + entry.value.kind),
                   size: widget.squareSize,
                   orientation: widget.orientation,
                   squareId: entry.key,

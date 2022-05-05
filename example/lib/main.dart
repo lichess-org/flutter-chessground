@@ -69,7 +69,7 @@ class _MyHomePageState extends State<MyHomePage> {
       var move = moves[0];
       chess.move(move);
       // debugPrint('move: ' + move);
-      await Future.delayed(Duration(milliseconds: Random().nextInt(750) + 450));
+      await Future.delayed(Duration(milliseconds: Random().nextInt(450) + 250));
       setState(() {
         fen = chess.fen;
       });
