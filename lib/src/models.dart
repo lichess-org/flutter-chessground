@@ -60,6 +60,7 @@ class Piece {
   int get hashCode => hashValues(color, role);
 }
 
+@immutable
 class PositionedPiece {
   final Piece piece;
   final SquareId squareId;
@@ -69,5 +70,20 @@ class PositionedPiece {
     required this.piece,
     required this.squareId,
     required this.coord,
+  });
+}
+
+@immutable
+class Move {
+  final SquareId from;
+  final SquareId to;
+  final Piece? promotion;
+
+  List<SquareId> get squares => List.unmodifiable([from, to]);
+
+  const Move({
+    required this.from,
+    required this.to,
+    this.promotion,
   });
 }

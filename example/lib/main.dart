@@ -52,6 +52,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   String fen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR';
+  cg.Move? lastMove;
 
   @override
   void initState() {
@@ -68,10 +69,17 @@ class _MyHomePageState extends State<MyHomePage> {
       moves.shuffle();
       var move = moves[0];
       chess.move(move);
-      // debugPrint('move: ' + move);
-      await Future.delayed(Duration(milliseconds: Random().nextInt(450) + 250));
+      final history = chess.getHistory({ 'verbose': true });
+      await Future.delayed(Duration(milliseconds: Random().nextInt(950) + 200));
       setState(() {
         fen = chess.fen;
+        if (history.isNotEmpty) {
+          final lm = history[history.length-1];
+          lastMove = cg.Move(
+            from: lm['from'],
+            to: lm['to'],
+          );
+        }
       });
     }
   }
@@ -93,6 +101,7 @@ class _MyHomePageState extends State<MyHomePage> {
           size: screenWidth,
           orientation: cg.Color.white,
           fen: fen,
+          lastMove: lastMove,
         ),
       ),
     );

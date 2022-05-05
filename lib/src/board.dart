@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:tuple/tuple.dart';
 import 'background.dart';
 import 'piece.dart';
+import 'highlight.dart';
 import 'models.dart' as cg;
 import 'position.dart';
 import 'animation.dart';
@@ -11,20 +12,22 @@ import 'utils.dart';
 const lightSquare = Color(0xfff0d9b6);
 const darkSquare = Color(0xffb58863);
 const animationDuration = Duration(milliseconds: 200);
+const lastMoveColor = Color(0x809cc700);
 
 @immutable
 class Board extends StatefulWidget {
   final double size;
 
-  // board state
   final cg.Color orientation;
   final String fen;
+  final cg.Move? lastMove;
 
   const Board({
     Key? key,
     required this.size,
     required this.orientation,
     required this.fen,
+    this.lastMove,
   }) : super(key: key);
 
   double get squareSize => size / 8;
@@ -100,6 +103,18 @@ class _BoardState extends State<Board> {
           const Background(lightSquare: lightSquare, darkSquare: darkSquare),
           Stack(
             children: [
+              if (widget.lastMove != null)
+                for (final squareId in widget.lastMove!.squares)
+                  BoardPositioned(
+                    key: ValueKey('lastMove' + squareId),
+                    size: widget.squareSize,
+                    orientation: widget.orientation,
+                    squareId: squareId,
+                    child: Highlight(
+                      size: widget.squareSize,
+                      color: lastMoveColor,
+                    ),
+                  ),
               for (final entry in fadingPieces.entries)
                 BoardPositioned(
                   key: ValueKey('fading' + entry.key + entry.value.kind),
