@@ -58,28 +58,36 @@ class _PieceTranslationState extends State<PieceTranslation>
   }
 }
 
-class PieceFading extends StatefulWidget {
+class PieceFade extends StatefulWidget {
   final Widget child;
+  final Duration duration;
+  final Curve curve;
 
-  const PieceFading({
+  const PieceFade({
     Key? key,
     required this.child,
-  }) : super(key: key);
+    Duration? duration,
+    Curve? curve,
+  })  : duration = duration ?? const Duration(milliseconds: 150),
+        curve = curve ?? Curves.easeInCubic,
+        super(key: key);
 
   @override
-  State<PieceFading> createState() => _PieceFadingState();
+  State<PieceFade> createState() => _PieceFadeState();
 }
 
-class _PieceFadingState extends State<PieceFading>
-    with TickerProviderStateMixin {
+class _PieceFadeState extends State<PieceFade> with TickerProviderStateMixin {
   late final AnimationController _controller = AnimationController(
-    duration: const Duration(milliseconds: 200),
+    duration: widget.duration,
     vsync: this,
-  )..reverse();
-  late final Animation<double> _animation = CurvedAnimation(
+  )..forward();
+  late final Animation<double> _animation = Tween<double>(
+    begin: 1.0,
+    end: 0.0,
+  ).animate(CurvedAnimation(
     parent: _controller,
-    curve: Curves.easeInCubic,
-  );
+    curve: widget.curve,
+  ));
 
   @override
   void dispose() {

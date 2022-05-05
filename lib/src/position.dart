@@ -21,10 +21,12 @@ class BoardPositioned extends StatelessWidget {
     final i = file.codeUnitAt(0) - 97;
     return orientation == cg.Color.black ? 7 - i : i;
   }
+
   int get yCoord {
     final i = int.parse(rank) - 1;
     return orientation == cg.Color.black ? i : 7 - i;
   }
+
   double get x => xCoord * size;
   double get y => yCoord * size;
 

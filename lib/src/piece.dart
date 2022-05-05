@@ -71,4 +71,3 @@ const Map<String, AssetImage> pieceSet = {
     package: 'chessground',
   ),
 };
-

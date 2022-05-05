@@ -10,6 +10,7 @@ import 'utils.dart';
 
 const lightSquare = Color(0xfff0d9b6);
 const darkSquare = Color(0xffb58863);
+const animationDuration = Duration(milliseconds: 200);
 
 @immutable
 class Board extends StatefulWidget {
@@ -105,7 +106,9 @@ class _BoardState extends State<Board> {
                   size: widget.squareSize,
                   orientation: widget.orientation,
                   squareId: entry.key,
-                  child: PieceFading(
+                  child: PieceFade(
+                    curve: Curves.easeInCubic,
+                    duration: animationDuration,
                     child: UIPiece(
                       piece: entry.value,
                       size: widget.squareSize,
@@ -127,6 +130,7 @@ class _BoardState extends State<Board> {
                           fromCoord: translatingPieces[entry.key]!.item1,
                           toCoord: translatingPieces[entry.key]!.item2,
                           orientation: widget.orientation,
+                          duration: animationDuration,
                         )
                       : UIPiece(
                           piece: entry.value,
