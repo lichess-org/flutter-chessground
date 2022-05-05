@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'models.dart' as cg;
 
-class PieceAnimation extends StatefulWidget {
+class PieceTranslation extends StatefulWidget {
   final Widget child;
   final cg.Coord fromCoord;
   final cg.Coord toCoord;
@@ -9,7 +9,7 @@ class PieceAnimation extends StatefulWidget {
   final Duration duration;
   final Curve curve;
 
-  const PieceAnimation({
+  const PieceTranslation({
     Key? key,
     required this.child,
     required this.fromCoord,
@@ -26,10 +26,10 @@ class PieceAnimation extends StatefulWidget {
   double get dy => (toCoord.y - fromCoord.y).toDouble() * orientationFactor;
 
   @override
-  State<PieceAnimation> createState() => _PieceAnimationState();
+  State<PieceTranslation> createState() => _PieceTranslationState();
 }
 
-class _PieceAnimationState extends State<PieceAnimation>
+class _PieceTranslationState extends State<PieceTranslation>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller = AnimationController(
     duration: widget.duration,
@@ -53,6 +53,44 @@ class _PieceAnimationState extends State<PieceAnimation>
   Widget build(BuildContext context) {
     return SlideTransition(
       position: _offsetAnimation,
+      child: widget.child,
+    );
+  }
+}
+
+class PieceFading extends StatefulWidget {
+  final Widget child;
+
+  const PieceFading({
+    Key? key,
+    required this.child,
+  }) : super(key: key);
+
+  @override
+  State<PieceFading> createState() => _PieceFadingState();
+}
+
+class _PieceFadingState extends State<PieceFading>
+    with TickerProviderStateMixin {
+  late final AnimationController _controller = AnimationController(
+    duration: const Duration(milliseconds: 200),
+    vsync: this,
+  )..reverse();
+  late final Animation<double> _animation = CurvedAnimation(
+    parent: _controller,
+    curve: Curves.easeInCubic,
+  );
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeTransition(
+      opacity: _animation,
       child: widget.child,
     );
   }

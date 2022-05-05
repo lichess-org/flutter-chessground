@@ -4,7 +4,7 @@ import 'background.dart';
 import 'piece.dart';
 import 'models.dart' as cg;
 import 'position.dart';
-import 'piece_animation.dart';
+import 'animation.dart';
 import 'fen.dart';
 import 'utils.dart';
 
@@ -34,7 +34,8 @@ class Board extends StatefulWidget {
 
 class _BoardState extends State<Board> {
   late cg.Pieces pieces;
-  Map<String, Tuple2<cg.Coord, cg.Coord>> animatedPieces = {};
+  Map<String, Tuple2<cg.Coord, cg.Coord>> translatingPieces = {};
+  Map<String, cg.Piece> fadingPieces = {};
 
   @override
   void initState() {
@@ -44,10 +45,13 @@ class _BoardState extends State<Board> {
 
   @override
   void didUpdateWidget(Board oldBoard) {
-    animatedPieces = {};
+    super.didUpdateWidget(oldBoard);
+    translatingPieces = {};
+    fadingPieces = {};
     final newPieces = readFen(widget.fen);
     final List<cg.PositionedPiece> newOnSquare = [];
     final List<cg.PositionedPiece> missingOnSquare = [];
+    final Set<String> animatedOrigins = {};
     for (final s in allSquares) {
       final oldP = pieces[s];
       final newP = newPieces[s];
@@ -74,11 +78,16 @@ class _BoardState extends State<Board> {
           n, missingOnSquare.where((m) => m.piece == n.piece).toList());
       if (fromP != null) {
         final t = Tuple2<cg.Coord, cg.Coord>(fromP.coord, n.coord);
-        animatedPieces[n.squareId] = t;
+        translatingPieces[n.squareId] = t;
+        animatedOrigins.add(fromP.squareId);
+      }
+    }
+    for (final m in missingOnSquare) {
+      if (!animatedOrigins.contains(m.squareId)) {
+        fadingPieces[m.squareId] = m.piece;
       }
     }
     pieces = newPieces;
-    super.didUpdateWidget(oldBoard);
   }
 
   @override
@@ -90,20 +99,33 @@ class _BoardState extends State<Board> {
           const Background(lightSquare: lightSquare, darkSquare: darkSquare),
           Stack(
             children: [
+              for (final entry in fadingPieces.entries)
+                BoardPositioned(
+                  key: ValueKey('fading' + entry.key + entry.value.kind),
+                  size: widget.squareSize,
+                  orientation: widget.orientation,
+                  squareId: entry.key,
+                  child: PieceFading(
+                    child: UIPiece(
+                      piece: entry.value,
+                      size: widget.squareSize,
+                    ),
+                  ),
+                ),
               for (final entry in pieces.entries)
                 BoardPositioned(
                   key: ValueKey(entry.key + entry.value.kind),
                   size: widget.squareSize,
                   orientation: widget.orientation,
                   squareId: entry.key,
-                  child: animatedPieces.containsKey(entry.key)
-                      ? PieceAnimation(
+                  child: translatingPieces.containsKey(entry.key)
+                      ? PieceTranslation(
                           child: UIPiece(
                             piece: entry.value,
                             size: widget.squareSize,
                           ),
-                          fromCoord: animatedPieces[entry.key]!.item1,
-                          toCoord: animatedPieces[entry.key]!.item2,
+                          fromCoord: translatingPieces[entry.key]!.item1,
+                          toCoord: translatingPieces[entry.key]!.item2,
                           orientation: widget.orientation,
                         )
                       : UIPiece(
