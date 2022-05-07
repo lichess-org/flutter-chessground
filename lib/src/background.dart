@@ -10,7 +10,7 @@ class Background extends StatelessWidget {
     Key? key,
     required this.lightSquare,
     required this.darkSquare,
-    this.coordinates = true,
+    this.coordinates = false,
     this.orientation = cg.Color.white,
   }) : super(key: key);
 
