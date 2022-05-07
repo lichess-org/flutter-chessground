@@ -100,7 +100,7 @@ class _BoardState extends State<Board> {
       dimension: widget.size,
       child: Stack(
         children: [
-          const Background(lightSquare: lightSquare, darkSquare: darkSquare),
+          widget.orientation == cg.Color.white ? Background.brownWhiteCoords : Background.brownBlackCoords,
           Stack(
             children: [
               if (widget.lastMove != null)
