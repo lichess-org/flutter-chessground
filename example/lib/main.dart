@@ -69,12 +69,12 @@ class _MyHomePageState extends State<MyHomePage> {
       moves.shuffle();
       var move = moves[0];
       chess.move(move);
-      final history = chess.getHistory({ 'verbose': true });
+      final history = chess.getHistory({'verbose': true});
       await Future.delayed(Duration(milliseconds: Random().nextInt(950) + 200));
       setState(() {
         fen = chess.fen;
         if (history.isNotEmpty) {
-          final lm = history[history.length-1];
+          final lm = history[history.length - 1];
           lastMove = cg.Move(
             from: lm['from'],
             to: lm['to'],
@@ -98,6 +98,9 @@ class _MyHomePageState extends State<MyHomePage> {
         // Center is a layout widget. It takes a single child and positions it
         // in the middle of the parent.
         child: cg.Board(
+          settings: const cg.Settings(
+            interactable: false,
+          ),
           size: screenWidth,
           orientation: cg.Color.white,
           fen: fen,

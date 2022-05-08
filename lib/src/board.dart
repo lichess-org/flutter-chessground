@@ -8,15 +8,16 @@ import 'position.dart';
 import 'animation.dart';
 import 'fen.dart';
 import 'utils.dart';
+import 'settings.dart';
 
 const lightSquare = Color(0xfff0d9b6);
 const darkSquare = Color(0xffb58863);
-const animationDuration = Duration(milliseconds: 200);
 const lastMoveColor = Color(0x809cc700);
 
 @immutable
 class Board extends StatefulWidget {
   final double size;
+  final Settings settings;
 
   final cg.Color orientation;
   final String fen;
@@ -24,6 +25,7 @@ class Board extends StatefulWidget {
 
   const Board({
     Key? key,
+    this.settings = const Settings(),
     required this.size,
     required this.orientation,
     required this.fen,
@@ -100,10 +102,14 @@ class _BoardState extends State<Board> {
       dimension: widget.size,
       child: Stack(
         children: [
-          widget.orientation == cg.Color.white ? Background.brownWhiteCoords : Background.brownBlackCoords,
+          widget.settings.enableCoordinates
+              ? widget.orientation == cg.Color.white
+                  ? Background.brownWhiteCoords
+                  : Background.brownBlackCoords
+              : Background.brown,
           Stack(
             children: [
-              if (widget.lastMove != null)
+              if (widget.settings.showLastMove && widget.lastMove != null)
                 for (final squareId in widget.lastMove!.squares)
                   BoardPositioned(
                     key: ValueKey('lastMove' + squareId),
@@ -123,7 +129,7 @@ class _BoardState extends State<Board> {
                   squareId: entry.key,
                   child: PieceFade(
                     curve: Curves.easeInCubic,
-                    duration: animationDuration,
+                    duration: widget.settings.animationDuration,
                     child: UIPiece(
                       piece: entry.value,
                       size: widget.squareSize,
@@ -145,7 +151,7 @@ class _BoardState extends State<Board> {
                           fromCoord: translatingPieces[entry.key]!.item1,
                           toCoord: translatingPieces[entry.key]!.item2,
                           orientation: widget.orientation,
-                          duration: animationDuration,
+                          duration: widget.settings.animationDuration,
                         )
                       : UIPiece(
                           piece: entry.value,
