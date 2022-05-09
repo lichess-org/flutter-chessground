@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:tuple/tuple.dart';
-import 'background.dart';
 import 'piece.dart';
 import 'highlight.dart';
 import 'models.dart' as cg;
@@ -9,15 +8,13 @@ import 'animation.dart';
 import 'fen.dart';
 import 'utils.dart';
 import 'settings.dart';
-
-const lightSquare = Color(0xfff0d9b6);
-const darkSquare = Color(0xffb58863);
-const lastMoveColor = Color(0x809cc700);
+import 'theme.dart';
 
 @immutable
 class Board extends StatefulWidget {
   final double size;
   final Settings settings;
+  final BoardTheme theme;
 
   final cg.Color orientation;
   final String fen;
@@ -26,6 +23,7 @@ class Board extends StatefulWidget {
   const Board({
     Key? key,
     this.settings = const Settings(),
+    this.theme = BoardTheme.brown,
     required this.size,
     required this.orientation,
     required this.fen,
@@ -104,9 +102,9 @@ class _BoardState extends State<Board> {
         children: [
           widget.settings.enableCoordinates
               ? widget.orientation == cg.Color.white
-                  ? Background.brownWhiteCoords
-                  : Background.brownBlackCoords
-              : Background.brown,
+                  ? widget.theme.whiteCoordBackground
+                  : widget.theme.blackCoordBackground
+              : widget.theme.background,
           Stack(
             children: [
               if (widget.settings.showLastMove && widget.lastMove != null)
@@ -118,7 +116,7 @@ class _BoardState extends State<Board> {
                     squareId: squareId,
                     child: Highlight(
                       size: widget.squareSize,
-                      color: lastMoveColor,
+                      color: widget.theme.lastMove,
                     ),
                   ),
               for (final entry in fadingPieces.entries)

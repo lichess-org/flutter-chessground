@@ -24,15 +24,49 @@ class Background extends StatelessWidget {
     darkSquare: Color(0xffb58863),
   );
   static const brownWhiteCoords = Background(
-      lightSquare: Color(0xfff0d9b6),
-      darkSquare: Color(0xffb58863),
-      coordinates: true,
-      orientation: cg.Color.white);
+    lightSquare: Color(0xfff0d9b6),
+    darkSquare: Color(0xffb58863),
+    coordinates: true,
+    orientation: cg.Color.white,
+  );
   static const brownBlackCoords = Background(
-      lightSquare: Color(0xfff0d9b6),
-      darkSquare: Color(0xffb58863),
-      coordinates: true,
-      orientation: cg.Color.black);
+    lightSquare: Color(0xfff0d9b6),
+    darkSquare: Color(0xffb58863),
+    coordinates: true,
+    orientation: cg.Color.black,
+  );
+  static const blue = Background(
+    lightSquare: Color(0xffdee3e6),
+    darkSquare: Color(0xff8ca2ad),
+  );
+  static const blueWhiteCoords = Background(
+    lightSquare: Color(0xffdee3e6),
+    darkSquare: Color(0xff8ca2ad),
+    coordinates: true,
+    orientation: cg.Color.white,
+  );
+  static const blueBlackCoords = Background(
+    lightSquare: Color(0xffdee3e6),
+    darkSquare: Color(0xff8ca2ad),
+    coordinates: true,
+    orientation: cg.Color.black,
+  );
+  static const green = Background(
+    lightSquare: Color(0xffffffdd),
+    darkSquare: Color(0xff86a666),
+  );
+  static const greenWhiteCoords = Background(
+    lightSquare: Color(0xffffffdd),
+    darkSquare: Color(0xff86a666),
+    coordinates: true,
+    orientation: cg.Color.white,
+  );
+  static const greenBlackCoords = Background(
+    lightSquare: Color(0xffffffdd),
+    darkSquare: Color(0xff86a666),
+    coordinates: true,
+    orientation: cg.Color.black,
+  );
 
   @override
   Widget build(BuildContext context) {
