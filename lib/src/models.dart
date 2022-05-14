@@ -2,6 +2,7 @@ import 'dart:ui' show hashValues;
 import 'package:meta/meta.dart';
 
 enum Color { white, black }
+
 enum PieceRole { king, queen, knight, bishop, rook, pawn }
 
 typedef SquareId = String;

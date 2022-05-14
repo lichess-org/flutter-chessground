@@ -22,7 +22,7 @@ class Settings {
   final bool interactable;
 
   /// Which color is allowed to move? If null it means both colors are allowed
-  final cg.Color? interactableColor = null;
+  final cg.Color? interactableColor;
 
   const Settings({
     // visual settings
@@ -32,5 +32,6 @@ class Settings {
     this.showValidMoves = true,
     // behavior settings
     this.interactable = true,
+    this.interactableColor,
   });
 }

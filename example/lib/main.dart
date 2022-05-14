@@ -57,7 +57,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
-    playRandomGame();
+    // playRandomGame();
   }
 
   playRandomGame() async {
@@ -99,7 +99,8 @@ class _MyHomePageState extends State<MyHomePage> {
         // in the middle of the parent.
         child: cg.Board(
           settings: const cg.Settings(
-            interactable: false,
+            interactable: true,
+            interactableColor: cg.Color.white,
           ),
           size: screenWidth,
           orientation: cg.Color.white,
