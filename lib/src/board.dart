@@ -3,7 +3,7 @@ import 'package:tuple/tuple.dart';
 import 'piece.dart';
 import 'highlight.dart';
 import 'models.dart' as cg;
-import 'position.dart';
+import 'positioned_square.dart';
 import 'animation.dart';
 import 'fen.dart';
 import 'utils.dart';
@@ -109,7 +109,7 @@ class _BoardState extends State<Board> {
             children: [
               if (widget.settings.showLastMove && widget.lastMove != null)
                 for (final squareId in widget.lastMove!.squares)
-                  BoardPositioned(
+                  PositionedSquare(
                     key: ValueKey('lastMove' + squareId),
                     size: widget.squareSize,
                     orientation: widget.orientation,
@@ -120,7 +120,7 @@ class _BoardState extends State<Board> {
                     ),
                   ),
               for (final entry in fadingPieces.entries)
-                BoardPositioned(
+                PositionedSquare(
                   key: ValueKey('fading' + entry.key + entry.value.kind),
                   size: widget.squareSize,
                   orientation: widget.orientation,
@@ -135,7 +135,7 @@ class _BoardState extends State<Board> {
                   ),
                 ),
               for (final entry in pieces.entries)
-                BoardPositioned(
+                PositionedSquare(
                   key: ValueKey(entry.key + entry.value.kind),
                   size: widget.squareSize,
                   orientation: widget.orientation,

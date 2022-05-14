@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'models.dart' as cg;
 
-class BoardPositioned extends StatelessWidget {
+class PositionedSquare extends StatelessWidget {
   final Widget child;
   final double size;
   final cg.Color orientation;
   final cg.SquareId squareId;
 
-  const BoardPositioned({
+  const PositionedSquare({
     Key? key,
     required this.child,
     required this.size,
