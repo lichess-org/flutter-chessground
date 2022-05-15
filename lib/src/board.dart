@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/gestures.dart';
 import 'package:tuple/tuple.dart';
 import 'piece.dart';
 import 'highlight.dart';
@@ -19,10 +20,15 @@ class Board extends StatefulWidget {
   final Settings settings;
   final BoardTheme theme;
 
+  // board state
   final cg.Color orientation;
   final cg.Color turnColor;
   final String fen;
   final cg.Move? lastMove;
+  final cg.ValidMoves? validMoves;
+
+  // handlers
+  final Function(cg.Move)? onMove;
 
   const Board({
     Key? key,
@@ -33,6 +39,8 @@ class Board extends StatefulWidget {
     required this.fen,
     this.turnColor = cg.Color.white,
     this.lastMove,
+    this.validMoves,
+    this.onMove,
   }) : super(key: key);
 
   double get squareSize => size / 8;
@@ -113,20 +121,19 @@ class _BoardState extends State<Board> {
     }
   }
 
-  Offset _coord2LocalOffset(
-      cg.Coord coord, double squareSize, cg.Color orientation) {
-    final dx =
-        (orientation == cg.Color.black ? 7 - coord.x : coord.x) * squareSize;
-    final dy =
-        (orientation == cg.Color.black ? coord.y : 7 - coord.y) * squareSize;
+  Offset _coord2LocalOffset(cg.Coord coord) {
+    final dx = (widget.orientation == cg.Color.black ? 7 - coord.x : coord.x) *
+        widget.squareSize;
+    final dy = (widget.orientation == cg.Color.black ? coord.y : 7 - coord.y) *
+        widget.squareSize;
     return Offset(dx, dy);
   }
 
-  Offset? _globalSquareTargetOffset(Offset localPosition) {
+  // returns the position of the square target during drag as a global offset
+  Offset? _squareTargetGlobalOffset(Offset localPosition) {
     final coord = _localOffset2Coord(localPosition);
     if (coord != null) {
-      final localOffset =
-          _coord2LocalOffset(coord, widget.squareSize, widget.orientation);
+      final localOffset = _coord2LocalOffset(coord);
       final RenderBox box = context.findRenderObject()! as RenderBox;
       final tmpOffset = box.localToGlobal(localOffset);
       return Offset(tmpOffset.dx - widget.squareSize / 2,
@@ -141,22 +148,24 @@ class _BoardState extends State<Board> {
       final coord = _localOffset2Coord(details.localPosition);
       if (coord != null) {
         final squareId = coord2SquareId(coord);
-        debugPrint('square id: $squareId');
-        setState(() {
-          selected = _isMovable(squareId) ? squareId : null;
-        });
+        if (_isMovable(squareId)) {
+          setState(() {
+            selected = squareId;
+          });
+        }
       }
     }
   }
 
   void _onPanStart(DragStartDetails? details) {
-    debugPrint('drag started: ${details?.localPosition}');
     if (details != null) {
-      final _piece = selected != null ? pieces[selected] : null;
+      final coord = _localOffset2Coord(details.localPosition);
+      final _squareId = coord != null ? coord2SquareId(coord) : null;
+      final _piece = _squareId != null ? pieces[_squareId] : null;
       final _feedbackSize = widget.squareSize * dragFeedbackSize;
-      if (_piece != null) {
+      if (_squareId != null && _piece != null && _isMovable(_squareId)) {
         final _squareTargetOffset =
-            _globalSquareTargetOffset(details.localPosition);
+            _squareTargetGlobalOffset(details.localPosition);
         _dragAvatar = _DragAvatar(
           overlayState: Overlay.of(context, debugRequiredFor: widget)!,
           initialPosition: details.globalPosition,
@@ -189,7 +198,7 @@ class _BoardState extends State<Board> {
     if (details != null) {
       _dragAvatar?.update(details);
       final squareTargetOffset =
-          _globalSquareTargetOffset(details.localPosition);
+          _squareTargetGlobalOffset(details.localPosition);
       _dragAvatar?.updateSquareTarget(squareTargetOffset);
     }
   }
@@ -199,19 +208,30 @@ class _BoardState extends State<Board> {
       final RenderBox box = context.findRenderObject()! as RenderBox;
       final localPos = box.globalToLocal(_dragAvatar!._position);
       final coord = _localOffset2Coord(localPos);
-      if (coord != null) {
-        debugPrint('drag end squareId: ${coord2SquareId(coord)}');
+      final squareId = coord != null ? coord2SquareId(coord) : null;
+      if (squareId != null && squareId != selected) {
+        debugPrint('drag end squareId: $squareId');
+        _tryMoveTo(squareId);
       }
     }
     _dragAvatar?.end();
     _dragAvatar = null;
-    debugPrint('drag ended');
   }
 
   void _onPanCancel() {
-    debugPrint('drag canceled');
     _dragAvatar?.cancel();
     _dragAvatar = null;
+  }
+
+  void _onTapUp(TapUpDetails? details) {
+    if (details != null) {
+      final coord = _localOffset2Coord(details.localPosition);
+      final squareId = coord != null ? coord2SquareId(coord) : null;
+      if (squareId != null && squareId != selected) {
+        debugPrint('tap up squareId: $squareId');
+        _tryMoveTo(squareId);
+      }
+    }
   }
 
   bool _isMovable(cg.SquareId squareId) {
@@ -222,8 +242,30 @@ class _BoardState extends State<Board> {
                 widget.turnColor == piece.color));
   }
 
+  bool _canMove(cg.SquareId orig, cg.SquareId dest) {
+    final validDests = widget.validMoves?[orig];
+    return orig != dest && validDests != null && validDests.contains(dest);
+  }
+
+  void _tryMoveTo(cg.SquareId squareId) {
+    final selectedPiece = selected != null ? pieces[selected] : null;
+    if (selectedPiece != null && _canMove(selected!, squareId)) {
+      widget.onMove?.call(cg.Move(
+        from: selected!,
+        to: squareId,
+      ));
+    }
+    setState(() {
+      selected = null;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    final Set<cg.SquareId> moveDests =
+        selected != null && widget.validMoves != null
+            ? widget.validMoves![selected] ?? {}
+            : {};
     final Widget _board = SizedBox.square(
       dimension: widget.size,
       child: Stack(
@@ -295,6 +337,18 @@ class _BoardState extends State<Board> {
                           size: widget.squareSize,
                         ),
                 ),
+              // we want move dests highlights to be over pieces
+              for (final dest in moveDests)
+                PositionedSquare(
+                  key: ValueKey('dest' + dest),
+                  size: widget.squareSize,
+                  orientation: widget.orientation,
+                  squareId: dest,
+                  child: MoveDest(
+                    size: widget.squareSize,
+                    color: widget.theme.validMoves,
+                  ),
+                ),
             ],
           ),
         ],
@@ -307,11 +361,13 @@ class _BoardState extends State<Board> {
             // registering onTapDown is needed to prevent the panStart event to win the competition too early
             // there is no need to implement the callback since we handle the selection login in onPanDown; plus this way we avoid the timeout before onTapDown is called
             onTapDown: (TapDownDetails? details) {},
+            onTapUp: _onTapUp,
             onPanDown: _onPanDown,
             onPanStart: _onPanStart,
             onPanUpdate: _onPanUpdate,
             onPanEnd: _onPanEnd,
             onPanCancel: _onPanCancel,
+            dragStartBehavior: DragStartBehavior.down,
             child: _board,
           )
         : _board;

@@ -7,6 +7,7 @@ enum PieceRole { king, queen, knight, bishop, rook, pawn }
 
 typedef SquareId = String;
 typedef Pieces = Map<String, Piece>;
+typedef ValidMoves = Map<SquareId, Set<SquareId>>;
 
 /// Board coordinates, index starting at 0
 @immutable

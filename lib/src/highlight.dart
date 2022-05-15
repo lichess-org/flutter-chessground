@@ -19,3 +19,30 @@ class Highlight extends StatelessWidget {
     );
   }
 }
+
+class MoveDest extends StatelessWidget {
+  final Color color;
+  final double size;
+
+  const MoveDest({
+    Key? key,
+    required this.color,
+    required this.size,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox.square(
+      dimension: size,
+      child: Padding(
+        padding: EdgeInsets.all(size / 3),
+        child: Container(
+          decoration: BoxDecoration(
+            color: color,
+            shape: BoxShape.circle,
+          ),
+        ),
+      ),
+    );
+  }
+}
