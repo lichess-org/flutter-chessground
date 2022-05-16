@@ -263,10 +263,11 @@ class _BoardState extends State<Board> {
 
   @override
   Widget build(BuildContext context) {
-    final Set<cg.SquareId> moveDests =
-        selected != null && widget.validMoves != null
-            ? widget.validMoves![selected] ?? {}
-            : {};
+    final Set<cg.SquareId> moveDests = widget.settings.showValidMoves &&
+            selected != null &&
+            widget.validMoves != null
+        ? widget.validMoves![selected] ?? {}
+        : {};
     final Widget _board = SizedBox.square(
       dimension: widget.size,
       child: Stack(
