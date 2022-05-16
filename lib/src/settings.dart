@@ -12,11 +12,11 @@ class Settings {
     this.animationDuration = const Duration(milliseconds: 200),
     this.showLastMove = true,
     this.showValidMoves = true,
+    this.dragFeedbackSize = 2.0,
+    this.dragFeedbackOffset = const Offset(0.0, -1.0),
     // behavior settings
     this.interactable = true,
     this.interactableColor,
-    this.dragFeedbackSize = 2.0,
-    this.dragFeedbackOffset = const Offset(0.0, -1.0),
   });
 
   /// Whether to show board coordinates
