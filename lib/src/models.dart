@@ -5,8 +5,13 @@ enum Color { white, black }
 
 enum PieceRole { king, queen, knight, bishop, rook, pawn }
 
+/// Square identifier such as e2, c3, etc.
 typedef SquareId = String;
-typedef Pieces = Map<String, Piece>;
+
+/// Representation of the pieces on a board
+typedef Pieces = Map<SquareId, Piece>;
+
+/// Sets of each valid destinations for an origin square
 typedef ValidMoves = Map<SquareId, Set<SquareId>>;
 
 /// Board coordinates starting at 0, independant from board orientation

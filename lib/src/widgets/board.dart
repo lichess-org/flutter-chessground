@@ -375,7 +375,7 @@ class _BoardState extends State<Board> {
   }
 }
 
-// For the login behind this see:
+// For the logic behind this see:
 // https://github.com/flutter/flutter/blob/stable/packages/flutter/lib/src/widgets/drag_target.dart#L805
 // and:
 // https://github.com/flutter/flutter/blob/ee4e09cce01d6f2d7f4baebd247fde02e5008851/packages/flutter/lib/src/widgets/overlay.dart#L58
@@ -404,7 +404,6 @@ class _DragAvatar {
   }
 
   void update(DragUpdateDetails details) {
-    // final Offset oldPosition = _position;
     _position += details.delta;
     _updateDrag();
   }
