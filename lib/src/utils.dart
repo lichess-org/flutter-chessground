@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'models.dart' as cg;
 
 const files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
@@ -11,11 +12,19 @@ cg.SquareId coord2SquareId(cg.Coord coord) {
   return allSquares[8 * coord.x + coord.y];
 }
 
-cg.Coord squareIdToCoord(cg.SquareId id) {
+cg.Coord squareId2Coord(cg.SquareId id) {
   return cg.Coord(
     x: id.codeUnitAt(0) - 97,
     y: id.codeUnitAt(1) - 49,
   );
+}
+
+Offset coord2Offset(cg.Coord coord, cg.Color orientation, double squareSize) {
+  final dx =
+      (orientation == cg.Color.black ? 7 - coord.x : coord.x) * squareSize;
+  final dy =
+      (orientation == cg.Color.black ? coord.y : 7 - coord.y) * squareSize;
+  return Offset(dx, dy);
 }
 
 int distanceSq(cg.Coord pos1, cg.Coord pos2) {

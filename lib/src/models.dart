@@ -9,7 +9,7 @@ typedef SquareId = String;
 typedef Pieces = Map<String, Piece>;
 typedef ValidMoves = Map<SquareId, Set<SquareId>>;
 
-/// Board coordinates, index starting at 0
+/// Board coordinates starting at 0, independant from board orientation
 @immutable
 class Coord {
   final int x;

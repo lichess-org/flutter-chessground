@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
 import '../models.dart' as cg;
+import '../utils.dart';
 
+/// Board aware Positioned widget
+///
+/// Use to position things, such as [Piece], [Highlight] on the board.
+/// Since it's a wrapper over a [Positioned] widget it must be a descendant of a
+/// [Stack].
 class PositionedSquare extends StatelessWidget {
   final Widget child;
   final double size;
@@ -15,29 +21,15 @@ class PositionedSquare extends StatelessWidget {
     required this.squareId,
   }) : super(key: key);
 
-  String get file => squareId.substring(0, 1);
-  String get rank => squareId.substring(1);
-  int get xCoord {
-    final i = file.codeUnitAt(0) - 97;
-    return orientation == cg.Color.black ? 7 - i : i;
-  }
-
-  int get yCoord {
-    final i = int.parse(rank) - 1;
-    return orientation == cg.Color.black ? i : 7 - i;
-  }
-
-  double get x => xCoord * size;
-  double get y => yCoord * size;
-
   @override
   Widget build(BuildContext context) {
+    final offset = coord2Offset(squareId2Coord(squareId), orientation, size);
     return Positioned(
       child: child,
       width: size,
       height: size,
-      left: x,
-      top: y,
+      left: offset.dx,
+      top: offset.dy,
     );
   }
 }

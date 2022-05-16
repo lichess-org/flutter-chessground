@@ -47,6 +47,9 @@ class Board extends StatefulWidget {
 
   double get squareSize => size / 8;
 
+  Offset coord2LocalOffset(cg.Coord coord) =>
+      coord2Offset(coord, orientation, squareSize);
+
   cg.Coord? localOffset2Coord(Offset offset) {
     final x = (offset.dx / squareSize).floor();
     final y = (offset.dy / squareSize).floor();
@@ -57,14 +60,6 @@ class Board extends StatefulWidget {
     } else {
       return null;
     }
-  }
-
-  Offset coord2LocalOffset(cg.Coord coord) {
-    final dx =
-        (orientation == cg.Color.black ? 7 - coord.x : coord.x) * squareSize;
-    final dy =
-        (orientation == cg.Color.black ? coord.y : 7 - coord.y) * squareSize;
-    return Offset(dx, dy);
   }
 
   @override
@@ -100,7 +95,7 @@ class _BoardState extends State<Board> {
       }
       final oldP = pieces[s];
       final newP = newPieces[s];
-      final squareCoord = squareIdToCoord(s);
+      final squareCoord = squareId2Coord(s);
       if (newP != null) {
         if (oldP != null) {
           if (newP != oldP) {
