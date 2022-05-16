@@ -47,6 +47,26 @@ class Board extends StatefulWidget {
 
   double get squareSize => size / 8;
 
+  cg.Coord? localOffset2Coord(Offset offset) {
+    final x = (offset.dx / squareSize).floor();
+    final y = (offset.dy / squareSize).floor();
+    final orientX = orientation == cg.Color.black ? 7 - x : x;
+    final orientY = orientation == cg.Color.black ? y : 7 - y;
+    if (orientX >= 0 && orientX <= 7 && orientY >= 0 && orientY <= 7) {
+      return cg.Coord(x: orientX, y: orientY);
+    } else {
+      return null;
+    }
+  }
+
+  Offset coord2LocalOffset(cg.Coord coord) {
+    final dx =
+        (orientation == cg.Color.black ? 7 - coord.x : coord.x) * squareSize;
+    final dy =
+        (orientation == cg.Color.black ? coord.y : 7 - coord.y) * squareSize;
+    return Offset(dx, dy);
+  }
+
   @override
   _BoardState createState() => _BoardState();
 }
@@ -116,31 +136,11 @@ class _BoardState extends State<Board> {
     pieces = newPieces;
   }
 
-  cg.Coord? _localOffset2Coord(Offset offset) {
-    final x = (offset.dx / widget.squareSize).floor();
-    final y = (offset.dy / widget.squareSize).floor();
-    final orientX = widget.orientation == cg.Color.black ? 7 - x : x;
-    final orientY = widget.orientation == cg.Color.black ? y : 7 - y;
-    if (orientX >= 0 && orientX <= 7 && orientY >= 0 && orientY <= 7) {
-      return cg.Coord(x: orientX, y: orientY);
-    } else {
-      return null;
-    }
-  }
-
-  Offset _coord2LocalOffset(cg.Coord coord) {
-    final dx = (widget.orientation == cg.Color.black ? 7 - coord.x : coord.x) *
-        widget.squareSize;
-    final dy = (widget.orientation == cg.Color.black ? coord.y : 7 - coord.y) *
-        widget.squareSize;
-    return Offset(dx, dy);
-  }
-
   // returns the position of the square target during drag as a global offset
   Offset? _squareTargetGlobalOffset(Offset localPosition) {
-    final coord = _localOffset2Coord(localPosition);
+    final coord = widget.localOffset2Coord(localPosition);
     if (coord != null) {
-      final localOffset = _coord2LocalOffset(coord);
+      final localOffset = widget.coord2LocalOffset(coord);
       final RenderBox box = context.findRenderObject()! as RenderBox;
       final tmpOffset = box.localToGlobal(localOffset);
       return Offset(tmpOffset.dx - widget.squareSize / 2,
@@ -152,7 +152,7 @@ class _BoardState extends State<Board> {
 
   void _onPanDown(DragDownDetails? details) {
     if (details != null) {
-      final coord = _localOffset2Coord(details.localPosition);
+      final coord = widget.localOffset2Coord(details.localPosition);
       if (coord != null) {
         final squareId = coord2SquareId(coord);
         if (_isMovable(squareId)) {
@@ -166,7 +166,7 @@ class _BoardState extends State<Board> {
 
   void _onPanStart(DragStartDetails? details) {
     if (details != null) {
-      final coord = _localOffset2Coord(details.localPosition);
+      final coord = widget.localOffset2Coord(details.localPosition);
       final _squareId = coord != null ? coord2SquareId(coord) : null;
       final _piece = _squareId != null ? pieces[_squareId] : null;
       final _feedbackSize =
@@ -214,7 +214,7 @@ class _BoardState extends State<Board> {
     if (_dragAvatar != null) {
       final RenderBox box = context.findRenderObject()! as RenderBox;
       final localPos = box.globalToLocal(_dragAvatar!._position);
-      final coord = _localOffset2Coord(localPos);
+      final coord = widget.localOffset2Coord(localPos);
       final squareId = coord != null ? coord2SquareId(coord) : null;
       if (squareId != null && squareId != selected) {
         _tryMoveTo(squareId, drop: true);
@@ -231,7 +231,7 @@ class _BoardState extends State<Board> {
 
   void _onTapUp(TapUpDetails? details) {
     if (details != null) {
-      final coord = _localOffset2Coord(details.localPosition);
+      final coord = widget.localOffset2Coord(details.localPosition);
       final squareId = coord != null ? coord2SquareId(coord) : null;
       if (squareId != null && squareId != selected) {
         _tryMoveTo(squareId);
