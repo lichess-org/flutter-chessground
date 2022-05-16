@@ -1,4 +1,4 @@
-import 'package:meta/meta.dart';
+import 'package:flutter/material.dart';
 import 'models.dart' as cg;
 
 /// Board settings that control the behavior and purpose of the board.
@@ -6,6 +6,19 @@ import 'models.dart' as cg;
 /// This is meant for fixed settings that don't change during a game.
 @immutable
 class Settings {
+  const Settings({
+    // visual settings
+    this.enableCoordinates = true,
+    this.animationDuration = const Duration(milliseconds: 200),
+    this.showLastMove = true,
+    this.showValidMoves = true,
+    // behavior settings
+    this.interactable = true,
+    this.interactableColor,
+    this.dragFeedbackSize = 2.0,
+    this.dragFeedbackOffset = const Offset(0.0, -1.0),
+  });
+
   /// Whether to show board coordinates
   final bool enableCoordinates;
 
@@ -24,14 +37,9 @@ class Settings {
   /// Which color is allowed to move? If null it means both colors are allowed
   final cg.Color? interactableColor;
 
-  const Settings({
-    // visual settings
-    this.enableCoordinates = true,
-    this.animationDuration = const Duration(milliseconds: 200),
-    this.showLastMove = true,
-    this.showValidMoves = true,
-    // behavior settings
-    this.interactable = true,
-    this.interactableColor,
-  });
+  // Scale up factor for the piece currently under drag
+  final double dragFeedbackSize;
+
+  // Offset for the piece currently under drag
+  final Offset dragFeedbackOffset;
 }

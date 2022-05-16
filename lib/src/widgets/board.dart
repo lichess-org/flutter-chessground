@@ -11,25 +11,12 @@ import '../utils.dart';
 import '../settings.dart';
 import '../theme.dart';
 
-const dragFeedbackSize = 1.5;
-const dragFeedbackOffset = Offset(0.0, -1.0);
-
-@immutable
+/// A chessboard widget
+///
+/// This widget can be used to display a static board, a dynamic board that
+/// shows a live game, or a full user interactable board.
+/// All the different behaviors can be controlled with the [settings] parameter.
 class Board extends StatefulWidget {
-  final double size;
-  final Settings settings;
-  final BoardTheme theme;
-
-  // board state
-  final cg.Color orientation;
-  final cg.Color turnColor;
-  final String fen;
-  final cg.Move? lastMove;
-  final cg.ValidMoves? validMoves;
-
-  // handlers
-  final Function(cg.Move)? onMove;
-
   const Board({
     Key? key,
     this.settings = const Settings(),
@@ -42,6 +29,21 @@ class Board extends StatefulWidget {
     this.validMoves,
     this.onMove,
   }) : super(key: key);
+
+  // board options (won't change during a game)
+  final double size;
+  final Settings settings;
+  final BoardTheme theme;
+
+  // board state (can/will change during a game)
+  final cg.Color orientation;
+  final cg.Color turnColor;
+  final String fen;
+  final cg.Move? lastMove;
+  final cg.ValidMoves? validMoves;
+
+  // handlers
+  final Function(cg.Move)? onMove;
 
   double get squareSize => size / 8;
 
@@ -167,7 +169,8 @@ class _BoardState extends State<Board> {
       final coord = _localOffset2Coord(details.localPosition);
       final _squareId = coord != null ? coord2SquareId(coord) : null;
       final _piece = _squareId != null ? pieces[_squareId] : null;
-      final _feedbackSize = widget.squareSize * dragFeedbackSize;
+      final _feedbackSize =
+          widget.squareSize * widget.settings.dragFeedbackSize;
       if (_squareId != null && _piece != null && _isMovable(_squareId)) {
         final _squareTargetOffset =
             _squareTargetGlobalOffset(details.localPosition);
@@ -185,8 +188,8 @@ class _BoardState extends State<Board> {
           ),
           pieceFeedback: Transform.translate(
             offset: Offset(
-              ((dragFeedbackOffset.dx - 1) * _feedbackSize) / 2,
-              ((dragFeedbackOffset.dy - 1) * _feedbackSize) / 2,
+              ((widget.settings.dragFeedbackOffset.dx - 1) * _feedbackSize) / 2,
+              ((widget.settings.dragFeedbackOffset.dy - 1) * _feedbackSize) / 2,
             ),
             child: Piece(
               piece: _piece,
