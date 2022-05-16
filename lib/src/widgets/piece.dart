@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'models.dart' as cg;
+import '../models.dart' as cg;
 
-class UIPiece extends StatelessWidget {
+class Piece extends StatelessWidget {
   final cg.Piece piece;
   final double size;
 
-  const UIPiece({
+  const Piece({
     Key? key,
     required this.piece,
     required this.size,

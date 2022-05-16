@@ -3,13 +3,13 @@ import 'package:flutter/gestures.dart';
 import 'package:tuple/tuple.dart';
 import 'piece.dart';
 import 'highlight.dart';
-import 'models.dart' as cg;
 import 'positioned_square.dart';
 import 'animation.dart';
-import 'fen.dart';
-import 'utils.dart';
-import 'settings.dart';
-import 'theme.dart';
+import '../models.dart' as cg;
+import '../fen.dart';
+import '../utils.dart';
+import '../settings.dart';
+import '../theme.dart';
 
 const dragFeedbackSize = 1.5;
 const dragFeedbackOffset = Offset(0.0, -1.0);
@@ -188,7 +188,7 @@ class _BoardState extends State<Board> {
               ((dragFeedbackOffset.dx - 1) * _feedbackSize) / 2,
               ((dragFeedbackOffset.dy - 1) * _feedbackSize) / 2,
             ),
-            child: UIPiece(
+            child: Piece(
               piece: _piece,
               size: _feedbackSize,
             ),
@@ -312,7 +312,7 @@ class _BoardState extends State<Board> {
                   child: PieceFade(
                     curve: Curves.easeInCubic,
                     duration: widget.settings.animationDuration,
-                    child: UIPiece(
+                    child: Piece(
                       piece: entry.value,
                       size: widget.squareSize,
                     ),
@@ -326,7 +326,7 @@ class _BoardState extends State<Board> {
                   squareId: entry.key,
                   child: translatingPieces.containsKey(entry.key)
                       ? PieceTranslation(
-                          child: UIPiece(
+                          child: Piece(
                             piece: entry.value,
                             size: widget.squareSize,
                           ),
@@ -335,7 +335,7 @@ class _BoardState extends State<Board> {
                           orientation: widget.orientation,
                           duration: widget.settings.animationDuration,
                         )
-                      : UIPiece(
+                      : Piece(
                           piece: entry.value,
                           size: widget.squareSize,
                         ),

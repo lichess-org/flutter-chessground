@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'models.dart' as cg;
+import '../models.dart' as cg;
 
 /// Board background
 ///
