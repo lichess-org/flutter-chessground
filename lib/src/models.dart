@@ -88,4 +88,6 @@ class Move {
     required this.to,
     this.promotion,
   });
+
+  String get uci => '$from$to';
 }

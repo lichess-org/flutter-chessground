@@ -37,6 +37,7 @@ dependencies:
   chessground:
     path: ../
   chess: ^0.7.0
+  bishop: ^0.3.3
 
 dev_dependencies:
   flutter_test:

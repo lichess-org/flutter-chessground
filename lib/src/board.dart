@@ -54,6 +54,7 @@ class _BoardState extends State<Board> {
   Map<String, Tuple2<cg.Coord, cg.Coord>> translatingPieces = {};
   Map<String, cg.Piece> fadingPieces = {};
   cg.SquareId? selected;
+  cg.Move? _lastDrop;
   _DragAvatar? _dragAvatar;
 
   @override
@@ -72,6 +73,9 @@ class _BoardState extends State<Board> {
     final List<cg.PositionedPiece> missingOnSquare = [];
     final Set<String> animatedOrigins = {};
     for (final s in allSquares) {
+      if (s == _lastDrop?.from || s == _lastDrop?.to) {
+        continue;
+      }
       final oldP = pieces[s];
       final newP = newPieces[s];
       final squareCoord = squareIdToCoord(s);
@@ -106,6 +110,7 @@ class _BoardState extends State<Board> {
         fadingPieces[m.squareId] = m.piece;
       }
     }
+    _lastDrop = null;
     pieces = newPieces;
   }
 
@@ -194,7 +199,6 @@ class _BoardState extends State<Board> {
   }
 
   void _onPanUpdate(DragUpdateDetails? details) {
-    // debugPrint('drag updated: ${details?.localPosition}');
     if (details != null) {
       _dragAvatar?.update(details);
       final squareTargetOffset =
@@ -210,8 +214,7 @@ class _BoardState extends State<Board> {
       final coord = _localOffset2Coord(localPos);
       final squareId = coord != null ? coord2SquareId(coord) : null;
       if (squareId != null && squareId != selected) {
-        debugPrint('drag end squareId: $squareId');
-        _tryMoveTo(squareId);
+        _tryMoveTo(squareId, drop: true);
       }
     }
     _dragAvatar?.end();
@@ -228,7 +231,6 @@ class _BoardState extends State<Board> {
       final coord = _localOffset2Coord(details.localPosition);
       final squareId = coord != null ? coord2SquareId(coord) : null;
       if (squareId != null && squareId != selected) {
-        debugPrint('tap up squareId: $squareId');
         _tryMoveTo(squareId);
       }
     }
@@ -247,13 +249,14 @@ class _BoardState extends State<Board> {
     return orig != dest && validDests != null && validDests.contains(dest);
   }
 
-  void _tryMoveTo(cg.SquareId squareId) {
+  void _tryMoveTo(cg.SquareId squareId, {drop = false}) {
     final selectedPiece = selected != null ? pieces[selected] : null;
     if (selectedPiece != null && _canMove(selected!, squareId)) {
-      widget.onMove?.call(cg.Move(
-        from: selected!,
-        to: squareId,
-      ));
+      final move = cg.Move(from: selected!, to: squareId);
+      if (drop) {
+        _lastDrop = move;
+      }
+      widget.onMove?.call(move);
     }
     setState(() {
       selected = null;

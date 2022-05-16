@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:chessground/chessground.dart' as cg;
 import 'package:chess/chess.dart' as ch;
+import 'package:bishop/bishop.dart' as bishop;
 
 void main() {
   runApp(const MyApp());
@@ -51,13 +52,51 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  late bishop.Game game;
   String fen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR';
   cg.Move? lastMove;
+  cg.ValidMoves validMoves = {};
 
   @override
   void initState() {
-    super.initState();
+    game = bishop.Game(variant: bishop.Variant.standard());
+    validMoves = _getValidMoves(game);
     // playRandomGame();
+    super.initState();
+  }
+
+  cg.ValidMoves _getValidMoves(bishop.Game g) {
+    final cg.ValidMoves result = {};
+    final legalMoves = g.generateLegalMoves();
+    for (bishop.Move m in legalMoves) {
+      final fromSquare = bishop.squareName(m.from);
+      final toSquare = bishop.squareName(m.to);
+      if (!result.containsKey(fromSquare)) {
+        result[fromSquare] = {toSquare};
+      } else {
+        result[fromSquare]!.add(toSquare);
+      }
+    }
+    return result;
+  }
+
+  void _onMove(cg.Move move) async {
+    bishop.Move? m = game.getMove(move.uci);
+    bool result = m != null ? game.makeMove(m) : false;
+    if (result) {
+      setState(() {
+        fen = game.fen;
+        validMoves = {};
+      });
+    }
+    if (!game.gameOver) {
+      await Future.delayed(Duration(milliseconds: Random().nextInt(750) + 250));
+      game.makeRandomMove();
+      setState(() {
+        fen = game.fen;
+        validMoves = _getValidMoves(game);
+      });
+    }
   }
 
   playRandomGame() async {
@@ -102,10 +141,12 @@ class _MyHomePageState extends State<MyHomePage> {
             interactable: true,
             interactableColor: cg.Color.white,
           ),
+          validMoves: validMoves,
           size: screenWidth,
           orientation: cg.Color.white,
           fen: fen,
           lastMove: lastMove,
+          onMove: _onMove,
         ),
       ),
     );
