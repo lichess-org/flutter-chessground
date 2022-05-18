@@ -85,14 +85,18 @@ class _MyHomePageState extends State<MyHomePage> {
     bool result = m != null ? game.makeMove(m) : false;
     if (result) {
       setState(() {
+        lastMove = move;
         fen = game.fen;
         validMoves = {};
       });
     }
     if (!game.gameOver) {
       await Future.delayed(Duration(milliseconds: Random().nextInt(750) + 250));
-      game.makeRandomMove();
+      final mv = game.makeRandomMove();
+      final fromSquare = bishop.squareName(mv.from);
+      final toSquare = bishop.squareName(mv.to);
       setState(() {
+        lastMove = cg.Move(from: fromSquare, to: toSquare);
         fen = game.fen;
         validMoves = _getValidMoves(game);
       });
