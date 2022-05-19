@@ -62,6 +62,11 @@ class Board extends StatefulWidget {
     }
   }
 
+  cg.SquareId? localOffset2SquareId(Offset offset) {
+    final coord = localOffset2Coord(offset);
+    return coord != null ? coord2SquareId(coord) : null;
+  }
+
   @override
   _BoardState createState() => _BoardState();
 }
@@ -147,9 +152,8 @@ class _BoardState extends State<Board> {
 
   void _onPanDown(DragDownDetails? details) {
     if (details != null) {
-      final coord = widget.localOffset2Coord(details.localPosition);
-      if (coord != null) {
-        final squareId = coord2SquareId(coord);
+      final squareId = widget.localOffset2SquareId(details.localPosition);
+      if (squareId != null) {
         if (_isMovable(squareId)) {
           setState(() {
             selected = squareId;
@@ -161,8 +165,7 @@ class _BoardState extends State<Board> {
 
   void _onPanStart(DragStartDetails? details) {
     if (details != null) {
-      final coord = widget.localOffset2Coord(details.localPosition);
-      final _squareId = coord != null ? coord2SquareId(coord) : null;
+      final _squareId = widget.localOffset2SquareId(details.localPosition);
       final _piece = _squareId != null ? pieces[_squareId] : null;
       final _feedbackSize =
           widget.squareSize * widget.settings.dragFeedbackSize;
@@ -209,8 +212,7 @@ class _BoardState extends State<Board> {
     if (_dragAvatar != null) {
       final RenderBox box = context.findRenderObject()! as RenderBox;
       final localPos = box.globalToLocal(_dragAvatar!._position);
-      final coord = widget.localOffset2Coord(localPos);
-      final squareId = coord != null ? coord2SquareId(coord) : null;
+      final squareId = widget.localOffset2SquareId(localPos);
       if (squareId != null && squareId != selected) {
         _tryMoveTo(squareId, drop: true);
       }
@@ -226,8 +228,7 @@ class _BoardState extends State<Board> {
 
   void _onTapUp(TapUpDetails? details) {
     if (details != null) {
-      final coord = widget.localOffset2Coord(details.localPosition);
-      final squareId = coord != null ? coord2SquareId(coord) : null;
+      final squareId = widget.localOffset2SquareId(details.localPosition);
       if (squareId != null && squareId != selected) {
         _tryMoveTo(squareId);
       }
