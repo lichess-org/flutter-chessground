@@ -303,6 +303,18 @@ class _BoardState extends State<Board> {
                     color: widget.theme.selected,
                   ),
                 ),
+              for (final dest in moveDests)
+                PositionedSquare(
+                  key: ValueKey('dest' + dest),
+                  size: widget.squareSize,
+                  orientation: widget.orientation,
+                  squareId: dest,
+                  child: MoveDest(
+                    size: widget.squareSize,
+                    color: widget.theme.validMoves,
+                    occupied: pieces.containsKey(dest),
+                  ),
+                ),
               for (final entry in fadingPieces.entries)
                 PositionedSquare(
                   key: ValueKey('fading' + entry.key + entry.value.kind),
@@ -339,18 +351,6 @@ class _BoardState extends State<Board> {
                           piece: entry.value,
                           size: widget.squareSize,
                         ),
-                ),
-              // we want move dests highlights to be over pieces
-              for (final dest in moveDests)
-                PositionedSquare(
-                  key: ValueKey('dest' + dest),
-                  size: widget.squareSize,
-                  orientation: widget.orientation,
-                  squareId: dest,
-                  child: MoveDest(
-                    size: widget.squareSize,
-                    color: widget.theme.validMoves,
-                  ),
                 ),
             ],
           ),

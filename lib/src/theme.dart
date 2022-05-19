@@ -38,7 +38,7 @@ class BoardTheme {
     blackCoordBackground: Background.brownBlackCoords,
     lastMove: Color(0x809cc700),
     selected: Color(0x8014551e),
-    validMoves: Color(0x8014551e),
+    validMoves: Color(0x6014551e),
   );
 
   static const blue = BoardTheme(
@@ -47,7 +47,7 @@ class BoardTheme {
     blackCoordBackground: Background.blueBlackCoords,
     lastMove: Color(0x809bc700),
     selected: Color(0x8014551e),
-    validMoves: Color(0x8014551e),
+    validMoves: Color(0x6014551e),
   );
 
   static const green = BoardTheme(
@@ -56,6 +56,6 @@ class BoardTheme {
     blackCoordBackground: Background.greenBlackCoords,
     lastMove: Color(0x69009bc7),
     selected: Color(0x8014551e),
-    validMoves: Color(0x8014551e),
+    validMoves: Color(0x6014551e),
   );
 }
