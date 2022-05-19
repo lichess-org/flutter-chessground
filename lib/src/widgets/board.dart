@@ -200,10 +200,10 @@ class _BoardState extends State<Board> {
   }
 
   void _onPanUpdate(DragUpdateDetails? details) {
-    if (details != null) {
-      _dragAvatar?.update(details);
+    if (details != null && _dragAvatar != null) {
       final squareTargetOffset =
           _squareTargetGlobalOffset(details.localPosition);
+      _dragAvatar?.update(details);
       _dragAvatar?.updateSquareTarget(squareTargetOffset);
     }
   }
