@@ -34,17 +34,30 @@ class Coord {
 
 @immutable
 class Piece {
-  final Color color;
-  final PieceRole role;
-  final bool promoted;
-
-  String get kind => '${color.name}_${role.name}';
-
   const Piece({
     required this.color,
     required this.role,
     this.promoted = false,
   });
+
+  final Color color;
+  final PieceRole role;
+  final bool promoted;
+
+  String get kind => '${color.name}_${role.name}';
+  String get roleLetter {
+    return role == PieceRole.king
+        ? 'K'
+        : role == PieceRole.queen
+            ? 'Q'
+            : role == PieceRole.rook
+                ? 'R'
+                : role == PieceRole.bishop
+                    ? 'B'
+                    : role == PieceRole.knight
+                        ? 'K'
+                        : 'P';
+  }
 
   Piece copyWith({
     Color? color,
@@ -59,6 +72,11 @@ class Piece {
   }
 
   @override
+  toString() {
+    return kind;
+  }
+
+  @override
   bool operator ==(Object other) {
     return other.runtimeType == runtimeType && hashCode == other.hashCode;
   }
@@ -69,30 +87,46 @@ class Piece {
 
 @immutable
 class PositionedPiece {
-  final Piece piece;
-  final SquareId squareId;
-  final Coord coord;
-
   const PositionedPiece({
     required this.piece,
     required this.squareId,
     required this.coord,
   });
+
+  final Piece piece;
+  final SquareId squareId;
+  final Coord coord;
 }
 
 @immutable
 class Move {
-  final SquareId from;
-  final SquareId to;
-  final Piece? promotion;
-
-  List<SquareId> get squares => List.unmodifiable([from, to]);
-
   const Move({
     required this.from,
     required this.to,
     this.promotion,
   });
 
-  String get uci => '$from$to';
+  final SquareId from;
+  final SquareId to;
+  final Piece? promotion;
+
+  List<SquareId> get squares => List.unmodifiable([from, to]);
+
+  String get uci => '$from$to${promotion?.roleLetter ?? ''}';
+
+  Move withPromotion(Piece promotion) {
+    return Move(
+      from: from,
+      to: to,
+      promotion: promotion,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other.runtimeType == runtimeType && hashCode == other.hashCode;
+  }
+
+  @override
+  int get hashCode => hashValues(from, to, promotion);
 }

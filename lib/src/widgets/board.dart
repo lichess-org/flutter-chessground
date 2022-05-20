@@ -5,6 +5,7 @@ import 'piece.dart';
 import 'highlight.dart';
 import 'positioned_square.dart';
 import 'animation.dart';
+import 'promotion.dart';
 import '../models.dart' as cg;
 import '../fen.dart';
 import '../utils.dart';
@@ -76,6 +77,7 @@ class _BoardState extends State<Board> {
   Map<String, Tuple2<cg.Coord, cg.Coord>> translatingPieces = {};
   Map<String, cg.Piece> fadingPieces = {};
   cg.SquareId? selected;
+  cg.Move? _promotionMove;
   cg.Move? _lastDrop;
   _DragAvatar? _dragAvatar;
 
@@ -235,6 +237,29 @@ class _BoardState extends State<Board> {
     }
   }
 
+  void _onPromotionSelect(cg.Move move, cg.Piece promoted) {
+    setState(() {
+      pieces[move.to] = promoted;
+      _promotionMove = null;
+    });
+    widget.onMove?.call(move.withPromotion(promoted));
+  }
+
+  void _onPromotionCancel(cg.Move move) {
+    setState(() {
+      pieces = readFen(widget.fen);
+      _promotionMove = null;
+    });
+  }
+
+  void _openPromotionSelector(cg.Move move) {
+    setState(() {
+      final pawn = pieces.remove(move.from);
+      pieces[move.to] = pawn!;
+      _promotionMove = move;
+    });
+  }
+
   bool _isMovable(cg.SquareId squareId) {
     final piece = pieces[squareId];
     return piece != null &&
@@ -248,6 +273,11 @@ class _BoardState extends State<Board> {
     return orig != dest && validDests != null && validDests.contains(dest);
   }
 
+  bool _isPromoMove(cg.Piece piece, cg.SquareId targetSquareId) {
+    final rank = targetSquareId[1];
+    return piece.role == cg.PieceRole.pawn && (rank == '1' || rank == '8');
+  }
+
   void _tryMoveTo(cg.SquareId squareId, {drop = false}) {
     final selectedPiece = selected != null ? pieces[selected] : null;
     if (selectedPiece != null && _canMove(selected!, squareId)) {
@@ -255,7 +285,18 @@ class _BoardState extends State<Board> {
       if (drop) {
         _lastDrop = move;
       }
-      widget.onMove?.call(move);
+      if (_isPromoMove(selectedPiece, squareId)) {
+        if (widget.settings.autoQueenPromotion) {
+          widget.onMove?.call(move.withPromotion(cg.Piece(
+              role: cg.PieceRole.queen,
+              color: widget.turnColor,
+              promoted: true)));
+        } else {
+          _openPromotionSelector(move);
+        }
+      } else {
+        widget.onMove?.call(move);
+      }
     }
     setState(() {
       selected = null;
@@ -269,111 +310,120 @@ class _BoardState extends State<Board> {
             widget.validMoves != null
         ? widget.validMoves![selected] ?? {}
         : {};
-    final Widget _board = SizedBox.square(
-      dimension: widget.size,
-      child: Stack(
-        children: [
-          widget.settings.enableCoordinates
-              ? widget.orientation == cg.Color.white
-                  ? widget.theme.whiteCoordBackground
-                  : widget.theme.blackCoordBackground
-              : widget.theme.background,
-          Stack(
-            children: [
-              if (widget.settings.showLastMove && widget.lastMove != null)
-                for (final squareId in widget.lastMove!.squares)
-                  PositionedSquare(
-                    key: ValueKey('lastMove' + squareId),
-                    size: widget.squareSize,
-                    orientation: widget.orientation,
-                    squareId: squareId,
-                    child: Highlight(
-                      size: widget.squareSize,
-                      color: widget.theme.lastMove,
-                    ),
-                  ),
-              if (selected != null)
-                PositionedSquare(
-                  key: ValueKey('selected' + selected!),
-                  size: widget.squareSize,
-                  orientation: widget.orientation,
-                  squareId: selected!,
-                  child: Highlight(
-                    size: widget.squareSize,
-                    color: widget.theme.selected,
-                  ),
-                ),
-              for (final dest in moveDests)
-                PositionedSquare(
-                  key: ValueKey('dest' + dest),
-                  size: widget.squareSize,
-                  orientation: widget.orientation,
-                  squareId: dest,
-                  child: MoveDest(
-                    size: widget.squareSize,
-                    color: widget.theme.validMoves,
-                    occupied: pieces.containsKey(dest),
-                  ),
-                ),
-              for (final entry in fadingPieces.entries)
-                PositionedSquare(
-                  key: ValueKey('fading' + entry.key + entry.value.kind),
-                  size: widget.squareSize,
-                  orientation: widget.orientation,
-                  squareId: entry.key,
-                  child: PieceFade(
-                    curve: Curves.easeInCubic,
-                    duration: widget.settings.animationDuration,
+    final Widget _board = Stack(
+      children: [
+        widget.settings.enableCoordinates
+            ? widget.orientation == cg.Color.white
+                ? widget.theme.whiteCoordBackground
+                : widget.theme.blackCoordBackground
+            : widget.theme.background,
+        if (widget.settings.showLastMove && widget.lastMove != null)
+          for (final squareId in widget.lastMove!.squares)
+            PositionedSquare(
+              key: ValueKey('lastMove' + squareId),
+              size: widget.squareSize,
+              orientation: widget.orientation,
+              squareId: squareId,
+              child: Highlight(
+                size: widget.squareSize,
+                color: widget.theme.lastMove,
+              ),
+            ),
+        if (selected != null)
+          PositionedSquare(
+            key: ValueKey('selected' + selected!),
+            size: widget.squareSize,
+            orientation: widget.orientation,
+            squareId: selected!,
+            child: Highlight(
+              size: widget.squareSize,
+              color: widget.theme.selected,
+            ),
+          ),
+        for (final dest in moveDests)
+          PositionedSquare(
+            key: ValueKey('dest' + dest),
+            size: widget.squareSize,
+            orientation: widget.orientation,
+            squareId: dest,
+            child: MoveDest(
+              size: widget.squareSize,
+              color: widget.theme.validMoves,
+              occupied: pieces.containsKey(dest),
+            ),
+          ),
+        for (final entry in fadingPieces.entries)
+          PositionedSquare(
+            key: ValueKey('fading' + entry.key + entry.value.kind),
+            size: widget.squareSize,
+            orientation: widget.orientation,
+            squareId: entry.key,
+            child: PieceFade(
+              curve: Curves.easeInCubic,
+              duration: widget.settings.animationDuration,
+              child: Piece(
+                piece: entry.value,
+                size: widget.squareSize,
+              ),
+            ),
+          ),
+        for (final entry in pieces.entries)
+          PositionedSquare(
+            key: ValueKey(entry.key + entry.value.kind),
+            size: widget.squareSize,
+            orientation: widget.orientation,
+            squareId: entry.key,
+            child: translatingPieces.containsKey(entry.key)
+                ? PieceTranslation(
                     child: Piece(
                       piece: entry.value,
                       size: widget.squareSize,
                     ),
+                    fromCoord: translatingPieces[entry.key]!.item1,
+                    toCoord: translatingPieces[entry.key]!.item2,
+                    orientation: widget.orientation,
+                    duration: widget.settings.animationDuration,
+                  )
+                : Piece(
+                    piece: entry.value,
+                    size: widget.squareSize,
                   ),
-                ),
-              for (final entry in pieces.entries)
-                PositionedSquare(
-                  key: ValueKey(entry.key + entry.value.kind),
-                  size: widget.squareSize,
-                  orientation: widget.orientation,
-                  squareId: entry.key,
-                  child: translatingPieces.containsKey(entry.key)
-                      ? PieceTranslation(
-                          child: Piece(
-                            piece: entry.value,
-                            size: widget.squareSize,
-                          ),
-                          fromCoord: translatingPieces[entry.key]!.item1,
-                          toCoord: translatingPieces[entry.key]!.item2,
-                          orientation: widget.orientation,
-                          duration: widget.settings.animationDuration,
-                        )
-                      : Piece(
-                          piece: entry.value,
-                          size: widget.squareSize,
-                        ),
-                ),
-            ],
           ),
+      ],
+    );
+
+    return SizedBox.square(
+      dimension: widget.size,
+      child: Stack(
+        children: [
+          // TODO consider using Listener instead as we don't control the drag start threshold with GestureDetector
+          widget.settings.interactable
+              ? GestureDetector(
+                  // registering onTapDown is needed to prevent the panStart event to win the competition too early
+                  // there is no need to implement the callback since we handle the selection login in onPanDown; plus this way we avoid the timeout before onTapDown is called
+                  onTapDown: (TapDownDetails? details) {},
+                  onTapUp: _onTapUp,
+                  onPanDown: _onPanDown,
+                  onPanStart: _onPanStart,
+                  onPanUpdate: _onPanUpdate,
+                  onPanEnd: _onPanEnd,
+                  onPanCancel: _onPanCancel,
+                  dragStartBehavior: DragStartBehavior.down,
+                  child: _board,
+                )
+              : _board,
+          if (_promotionMove != null)
+            PromotionSelector(
+              move: _promotionMove!,
+              squareSize: widget.squareSize,
+              color: widget.turnColor,
+              orientation: widget.orientation,
+              onSelect: _onPromotionSelect,
+              onCancel: _onPromotionCancel,
+            ),
         ],
       ),
     );
-
-    return widget.settings.interactable
-        // TODO consider using Listener instead as we don't control the drag start threshold with GestureDetector
-        ? GestureDetector(
-            // registering onTapDown is needed to prevent the panStart event to win the competition too early
-            // there is no need to implement the callback since we handle the selection login in onPanDown; plus this way we avoid the timeout before onTapDown is called
-            onTapDown: (TapDownDetails? details) {},
-            onTapUp: _onTapUp,
-            onPanDown: _onPanDown,
-            onPanStart: _onPanStart,
-            onPanUpdate: _onPanUpdate,
-            onPanEnd: _onPanEnd,
-            onPanCancel: _onPanCancel,
-            dragStartBehavior: DragStartBehavior.down,
-            child: _board,
-          )
-        : _board;
   }
 }
 

@@ -17,6 +17,7 @@ class Settings {
     // behavior settings
     this.interactable = true,
     this.interactableColor,
+    this.autoQueenPromotion = false,
   });
 
   /// Whether to show board coordinates
@@ -31,15 +32,19 @@ class Settings {
   /// Whether to show valid moves
   final bool showValidMoves;
 
+  // Scale up factor for the piece currently under drag
+  final double dragFeedbackSize;
+
+  // Offset for the piece currently under drag
+  final Offset dragFeedbackOffset;
+
   /// Is it possible to move the pieces? If false the board will be view-only
   final bool interactable;
 
   /// Which color is allowed to move? If null it means both colors are allowed
   final cg.Color? interactableColor;
 
-  // Scale up factor for the piece currently under drag
-  final double dragFeedbackSize;
-
-  // Offset for the piece currently under drag
-  final Offset dragFeedbackOffset;
+  /// If true the promotion selector won't appear and pawn will be promoted
+  // automatically to queen
+  final bool autoQueenPromotion;
 }

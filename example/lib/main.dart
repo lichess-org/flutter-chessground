@@ -81,7 +81,10 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _onMove(cg.Move move) async {
-    bishop.Move? m = game.getMove(move.uci);
+    final uci = move.uci.length > 4
+        ? move.uci.substring(0, 4) + move.uci[4].toLowerCase()
+        : move.uci;
+    bishop.Move? m = game.getMove(uci);
     bool result = m != null ? game.makeMove(m) : false;
     if (result) {
       setState(() {
@@ -90,7 +93,7 @@ class _MyHomePageState extends State<MyHomePage> {
         validMoves = {};
       });
     }
-    if (!game.gameOver) {
+    if (result && !game.gameOver) {
       await Future.delayed(Duration(milliseconds: Random().nextInt(750) + 250));
       final mv = game.makeRandomMove();
       final fromSquare = bishop.squareName(mv.from);
