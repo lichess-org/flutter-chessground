@@ -14,7 +14,9 @@ typedef Pieces = Map<SquareId, Piece>;
 /// Sets of each valid destinations for an origin square
 typedef ValidMoves = Map<SquareId, Set<SquareId>>;
 
-/// Board coordinates starting at 0, independant from board orientation
+/// Zero-based numeric board coordinates
+///
+/// For instance a1 is (0, 0), a2 is (0, 1), etc.
 @immutable
 class Coord {
   final int x;
@@ -30,6 +32,14 @@ class Coord {
   toString() {
     return '($x, $y)';
   }
+
+  @override
+  bool operator ==(Object other) {
+    return other.runtimeType == runtimeType && hashCode == other.hashCode;
+  }
+
+  @override
+  int get hashCode => hashValues(x, y);
 }
 
 @immutable
