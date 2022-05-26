@@ -146,7 +146,7 @@ class _MyHomePageState extends State<MyHomePage> {
         child: cg.Board(
           settings: const cg.Settings(
             interactable: true,
-            interactableColor: cg.Color.white,
+            interactableColor: cg.InteractableColor.white,
           ),
           validMoves: validMoves,
           size: screenWidth,

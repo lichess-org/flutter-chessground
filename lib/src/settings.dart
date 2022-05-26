@@ -15,8 +15,8 @@ class Settings {
     this.dragFeedbackSize = 2.0,
     this.dragFeedbackOffset = const Offset(0.0, -1.0),
     // behavior settings
-    this.interactable = true,
-    this.interactableColor,
+    this.interactable = false,
+    this.interactableColor = cg.InteractableColor.both,
     this.autoQueenPromotion = false,
   });
 
@@ -41,8 +41,8 @@ class Settings {
   /// Is it possible to move the pieces? If false the board will be view-only
   final bool interactable;
 
-  /// Which color is allowed to move? If null it means both colors are allowed
-  final cg.Color? interactableColor;
+  /// Which color is allowed to move? It can be both, none, white or black
+  final cg.InteractableColor interactableColor;
 
   /// If true the promotion selector won't appear and pawn will be promoted
   // automatically to queen

@@ -263,8 +263,8 @@ class _BoardState extends State<Board> {
   bool _isMovable(cg.SquareId squareId) {
     final piece = pieces[squareId];
     return piece != null &&
-        (widget.settings.interactableColor == null ||
-            (widget.settings.interactableColor == piece.color &&
+        (widget.settings.interactableColor == cg.InteractableColor.both ||
+            (widget.settings.interactableColor.name == piece.color.name &&
                 widget.turnColor == piece.color));
   }
 
