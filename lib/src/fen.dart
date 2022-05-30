@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'models.dart' as cg;
-import 'utils.dart';
 
 cg.Pieces readFen(String fen) {
   final cg.Pieces pieces = {};
@@ -16,7 +15,7 @@ cg.Pieces readFen(String fen) {
         col = 0;
         break;
       case '~':
-        final sid = coord2SquareId(cg.Coord(x: col - 1, y: row));
+        final sid = cg.Coord(x: col - 1, y: row).squareId();
         final piece = pieces[sid];
         if (piece != null) {
           pieces[sid] = piece.copyWith(promoted: true);
@@ -28,7 +27,7 @@ cg.Pieces readFen(String fen) {
           col += code - 48;
         } else {
           final roleLetter = c.toLowerCase();
-          final sid = coord2SquareId(cg.Coord(x: col, y: row));
+          final sid = cg.Coord(x: col, y: row).squareId();
           pieces[sid] = cg.Piece(
             role: roles[roleLetter]!,
             color: c == roleLetter ? cg.Color.black : cg.Color.white,

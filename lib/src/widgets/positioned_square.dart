@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../models.dart' as cg;
-import '../utils.dart';
 
 /// Board aware Positioned widget
 ///
@@ -23,7 +22,7 @@ class PositionedSquare extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final offset = coord2Offset(squareId2Coord(squareId), orientation, size);
+    final offset = cg.Coord.fromSquareId(squareId).offset(orientation, size);
     return Positioned(
       child: child,
       width: size,

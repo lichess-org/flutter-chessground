@@ -8,7 +8,6 @@ import 'animation.dart';
 import 'promotion.dart';
 import '../models.dart' as cg;
 import '../fen.dart';
-import '../utils.dart';
 import '../settings.dart';
 import '../theme.dart';
 
@@ -48,9 +47,6 @@ class Board extends StatefulWidget {
 
   double get squareSize => size / 8;
 
-  Offset coord2LocalOffset(cg.Coord coord) =>
-      coord2Offset(coord, orientation, squareSize);
-
   cg.Coord? localOffset2Coord(Offset offset) {
     final x = (offset.dx / squareSize).floor();
     final y = (offset.dy / squareSize).floor();
@@ -65,7 +61,7 @@ class Board extends StatefulWidget {
 
   cg.SquareId? localOffset2SquareId(Offset offset) {
     final coord = localOffset2Coord(offset);
-    return coord != null ? coord2SquareId(coord) : null;
+    return coord?.squareId();
   }
 
   @override
@@ -96,13 +92,13 @@ class _BoardState extends State<Board> {
     final List<cg.PositionedPiece> newOnSquare = [];
     final List<cg.PositionedPiece> missingOnSquare = [];
     final Set<String> animatedOrigins = {};
-    for (final s in allSquares) {
+    for (final s in cg.allSquares) {
       if (s == _lastDrop?.from || s == _lastDrop?.to) {
         continue;
       }
       final oldP = pieces[s];
       final newP = newPieces[s];
-      final squareCoord = squareId2Coord(s);
+      final squareCoord = cg.Coord.fromSquareId(s);
       if (newP != null) {
         if (oldP != null) {
           if (newP != oldP) {
@@ -121,8 +117,8 @@ class _BoardState extends State<Board> {
       }
     }
     for (final n in newOnSquare) {
-      final fromP = closestPiece(
-          n, missingOnSquare.where((m) => m.piece == n.piece).toList());
+      final fromP =
+          n.closest(missingOnSquare.where((m) => m.piece == n.piece).toList());
       if (fromP != null) {
         final t = Tuple2<cg.Coord, cg.Coord>(fromP.coord, n.coord);
         translatingPieces[n.squareId] = t;
@@ -142,7 +138,7 @@ class _BoardState extends State<Board> {
   Offset? _squareTargetGlobalOffset(Offset localPosition) {
     final coord = widget.localOffset2Coord(localPosition);
     if (coord != null) {
-      final localOffset = widget.coord2LocalOffset(coord);
+      final localOffset = coord.offset(widget.orientation, widget.squareSize);
       final RenderBox box = context.findRenderObject()! as RenderBox;
       final tmpOffset = box.localToGlobal(localOffset);
       return Offset(tmpOffset.dx - widget.squareSize / 2,

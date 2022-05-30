@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../models.dart' as cg;
-import '../utils.dart';
 import 'piece.dart';
 
 class PromotionSelector extends StatelessWidget {
@@ -27,13 +26,12 @@ class PromotionSelector extends StatelessWidget {
   Widget build(BuildContext context) {
     final file = squareId[0];
     final rank = squareId[1];
-    final offset = (orientation == cg.Color.white && rank == '8' ||
+    final coord = (orientation == cg.Color.white && rank == '8' ||
             orientation == cg.Color.black && rank == '1')
-        ? coord2Offset(squareId2Coord(squareId), orientation, squareSize)
-        : coord2Offset(
-            squareId2Coord(file + (orientation == cg.Color.white ? '4' : '5')),
-            orientation,
-            squareSize);
+        ? cg.Coord.fromSquareId(squareId)
+        : cg.Coord.fromSquareId(
+            file + (orientation == cg.Color.white ? '4' : '5'));
+    final offset = coord.offset(orientation, squareSize);
 
     return GestureDetector(
       onTap: () => onCancel(move),

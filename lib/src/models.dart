@@ -1,7 +1,7 @@
-import 'dart:ui' show hashValues;
-import 'package:meta/meta.dart';
+import 'package:flutter/material.dart';
 
 enum Color { white, black }
+
 enum InteractableColor { both, none, white, black }
 
 enum PieceRole { king, queen, knight, bishop, rook, pawn }
@@ -15,23 +15,44 @@ typedef Pieces = Map<SquareId, Piece>;
 /// Sets of each valid destinations for an origin square
 typedef ValidMoves = Map<SquareId, Set<SquareId>>;
 
+const files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+const ranks = ['1', '2', '3', '4', '5', '6', '7', '8'];
+final List<SquareId> allSquares = List.unmodifiable([
+  for (final f in files)
+    for (final r in ranks) '$f$r'
+]);
+
 /// Zero-based numeric board coordinates
 ///
 /// For instance a1 is (0, 0), a2 is (0, 1), etc.
 @immutable
 class Coord {
-  final int x;
-  final int y;
-
   const Coord({
     required this.x,
     required this.y,
   })  : assert(x >= 0 && x <= 7),
         assert(y >= 0 && y <= 7);
 
+  Coord.fromSquareId(SquareId id)
+      : x = id.codeUnitAt(0) - 97,
+        y = id.codeUnitAt(1) - 49;
+
+  final int x;
+  final int y;
+
   @override
   toString() {
     return '($x, $y)';
+  }
+
+  SquareId squareId() {
+    return allSquares[8 * x + y];
+  }
+
+  Offset offset(Color orientation, double squareSize) {
+    final dx = (orientation == Color.black ? 7 - x : x) * squareSize;
+    final dy = (orientation == Color.black ? y : 7 - y) * squareSize;
+    return Offset(dx, dy);
   }
 
   @override
@@ -107,6 +128,17 @@ class PositionedPiece {
   final Piece piece;
   final SquareId squareId;
   final Coord coord;
+
+  PositionedPiece? closest(List<PositionedPiece> pieces) {
+    pieces.sort((p1, p2) =>
+        _distanceSq(coord, p1.coord) - _distanceSq(coord, p2.coord));
+    return pieces.isNotEmpty ? pieces[0] : null;
+  }
+
+  int _distanceSq(Coord pos1, Coord pos2) {
+    final dx = pos1.x - pos2.x, dy = pos1.y - pos2.y;
+    return dx * dx + dy * dy;
+  }
 }
 
 @immutable
