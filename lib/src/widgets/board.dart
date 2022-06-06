@@ -76,6 +76,7 @@ class _BoardState extends State<Board> {
   cg.Move? _promotionMove;
   cg.Move? _lastDrop;
   _DragAvatar? _dragAvatar;
+  cg.SquareId? _dragOrigin;
 
   @override
   void initState() {
@@ -168,6 +169,9 @@ class _BoardState extends State<Board> {
       final _feedbackSize =
           widget.squareSize * widget.settings.dragFeedbackSize;
       if (_squareId != null && _piece != null && _isMovable(_squareId)) {
+        setState(() {
+          _dragOrigin = _squareId;
+        });
         final _squareTargetOffset =
             _squareTargetGlobalOffset(details.localPosition);
         _dragAvatar = _DragAvatar(
@@ -217,11 +221,17 @@ class _BoardState extends State<Board> {
     }
     _dragAvatar?.end();
     _dragAvatar = null;
+    setState(() {
+      _dragOrigin = null;
+    });
   }
 
   void _onPanCancel() {
     _dragAvatar?.cancel();
     _dragAvatar = null;
+    setState(() {
+      _dragOrigin = null;
+    });
   }
 
   void _onTapUp(TapUpDetails? details) {
@@ -380,10 +390,15 @@ class _BoardState extends State<Board> {
                     orientation: widget.orientation,
                     duration: widget.settings.animationDuration,
                   )
-                : Piece(
-                    piece: entry.value,
-                    size: widget.squareSize,
-                  ),
+                : _dragOrigin == entry.key
+                    ? Opacity(
+                        opacity: 0.2,
+                        child: Piece(
+                          piece: entry.value,
+                          size: widget.squareSize,
+                        ),
+                      )
+                    : Piece(piece: entry.value, size: widget.squareSize),
           ),
       ],
     );
