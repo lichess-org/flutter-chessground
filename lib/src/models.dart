@@ -78,17 +78,7 @@ class Piece {
 
   String get kind => '${color.name}_${role.name}';
   String get roleLetter {
-    return role == PieceRole.king
-        ? 'K'
-        : role == PieceRole.queen
-            ? 'Q'
-            : role == PieceRole.rook
-                ? 'R'
-                : role == PieceRole.bishop
-                    ? 'B'
-                    : role == PieceRole.knight
-                        ? 'K'
-                        : 'P';
+    return _toLetter(role);
   }
 
   Piece copyWith({
@@ -151,13 +141,13 @@ class Move {
 
   final SquareId from;
   final SquareId to;
-  final Piece? promotion;
+  final PieceRole? promotion;
 
   List<SquareId> get squares => List.unmodifiable([from, to]);
 
-  String get uci => '$from$to${promotion?.roleLetter ?? ''}';
+  String get uci => '$from$to${_toLetter(promotion)}';
 
-  Move withPromotion(Piece promotion) {
+  Move withPromotion(PieceRole promotion) {
     return Move(
       from: from,
       to: to,
@@ -172,4 +162,52 @@ class Move {
 
   @override
   int get hashCode => hashValues(from, to, promotion);
+
+  static Move? make(String? uci) {
+    if (uci == null) {
+      return null;
+    } else {
+      return Move(
+          from: uci.substring(0, 2),
+          to: uci.substring(2, 4),
+          promotion: uci.length > 4 ? _toRole(uci.substring(4)) : null);
+    }
+  }
+}
+
+String _toLetter(PieceRole? role, [Color color = Color.white]) {
+  bool isWhite = color == Color.white;
+  switch (role) {
+    case PieceRole.king:
+      return isWhite ? 'K' : 'k';
+    case PieceRole.queen:
+      return isWhite ? 'Q' : 'q';
+    case PieceRole.rook:
+      return isWhite ? 'R' : 'r';
+    case PieceRole.bishop:
+      return isWhite ? 'B' : 'b';
+    case PieceRole.knight:
+      return isWhite ? 'N' : 'n';
+    case PieceRole.pawn:
+      return isWhite ? 'P' : 'p';
+    case null:
+      return '';
+  }
+}
+
+PieceRole _toRole(String uciLetter) {
+  switch (uciLetter.trim().toLowerCase()) {
+    case 'k':
+      return PieceRole.king;
+    case 'q':
+      return PieceRole.queen;
+    case 'r':
+      return PieceRole.rook;
+    case 'b':
+      return PieceRole.bishop;
+    case 'n':
+      return PieceRole.knight;
+    default:
+      return PieceRole.pawn;
+  }
 }
