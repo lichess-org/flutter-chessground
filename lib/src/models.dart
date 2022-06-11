@@ -155,6 +155,11 @@ class Move {
     );
   }
 
+  Move.make(String uci)
+      : from = uci.substring(0, 2),
+        to = uci.substring(2, 4),
+        promotion = uci.length > 4 ? _toRole(uci.substring(4)) : null;
+
   @override
   bool operator ==(Object other) {
     return other.runtimeType == runtimeType && hashCode == other.hashCode;
@@ -162,17 +167,6 @@ class Move {
 
   @override
   int get hashCode => hashValues(from, to, promotion);
-
-  static Move? make(String? uci) {
-    if (uci == null) {
-      return null;
-    } else {
-      return Move(
-          from: uci.substring(0, 2),
-          to: uci.substring(2, 4),
-          promotion: uci.length > 4 ? _toRole(uci.substring(4)) : null);
-    }
-  }
 }
 
 String _toLetter(PieceRole? role, [Color color = Color.white]) {
