@@ -139,6 +139,11 @@ class Move {
     this.promotion,
   });
 
+  Move.fromUci(String uci)
+      : from = uci.substring(0, 2),
+        to = uci.substring(2, 4),
+        promotion = uci.length > 4 ? _toRole(uci.substring(4)) : null;
+
   final SquareId from;
   final SquareId to;
   final PieceRole? promotion;
@@ -154,11 +159,6 @@ class Move {
       promotion: promotion,
     );
   }
-
-  Move.make(String uci)
-      : from = uci.substring(0, 2),
-        to = uci.substring(2, 4),
-        promotion = uci.length > 4 ? _toRole(uci.substring(4)) : null;
 
   @override
   bool operator ==(Object other) {
