@@ -77,9 +77,6 @@ class Piece {
   final bool promoted;
 
   String get kind => '${color.name}_${role.name}';
-  String get roleLetter {
-    return _toLetter(role);
-  }
 
   Piece copyWith({
     Color? color,
@@ -150,7 +147,7 @@ class Move {
 
   List<SquareId> get squares => List.unmodifiable([from, to]);
 
-  String get uci => '$from$to${_toLetter(promotion)}';
+  String get uci => '$from$to${_toPieceLetter(promotion)}';
 
   Move withPromotion(PieceRole promotion) {
     return Move(
@@ -167,25 +164,24 @@ class Move {
 
   @override
   int get hashCode => hashValues(from, to, promotion);
-}
 
-String _toLetter(PieceRole? role, [Color color = Color.white]) {
-  bool isWhite = color == Color.white;
-  switch (role) {
-    case PieceRole.king:
-      return isWhite ? 'K' : 'k';
-    case PieceRole.queen:
-      return isWhite ? 'Q' : 'q';
-    case PieceRole.rook:
-      return isWhite ? 'R' : 'r';
-    case PieceRole.bishop:
-      return isWhite ? 'B' : 'b';
-    case PieceRole.knight:
-      return isWhite ? 'N' : 'n';
-    case PieceRole.pawn:
-      return isWhite ? 'P' : 'p';
-    case null:
-      return '';
+  String _toPieceLetter(PieceRole? role) {
+    switch (role) {
+      case PieceRole.king:
+        return 'k';
+      case PieceRole.queen:
+        return 'q';
+      case PieceRole.rook:
+        return 'r';
+      case PieceRole.bishop:
+        return 'b';
+      case PieceRole.knight:
+        return 'n';
+      case PieceRole.pawn:
+        return 'p';
+      default:
+        return '';
+    }
   }
 }
 

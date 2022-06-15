@@ -81,10 +81,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _onMove(cg.Move move) async {
-    final uci = move.uci.length > 4
-        ? move.uci.substring(0, 4) + move.uci[4].toLowerCase()
-        : move.uci;
-    bishop.Move? m = game.getMove(uci);
+    bishop.Move? m = game.getMove(move.uci);
     bool result = m != null ? game.makeMove(m) : false;
     if (result) {
       setState(() {
