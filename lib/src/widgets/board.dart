@@ -362,12 +362,9 @@ class _BoardState extends State<Board> {
             orientation: widget.orientation,
             squareId: entry.key,
             child: PieceFade(
-              curve: Curves.easeInCubic,
               duration: widget.settings.animationDuration,
-              child: Piece(
-                piece: entry.value,
-                size: widget.squareSize,
-              ),
+              piece: entry.value,
+              size: widget.squareSize,
             ),
           ),
         for (final entry in pieces.entries)
@@ -387,15 +384,11 @@ class _BoardState extends State<Board> {
                     orientation: widget.orientation,
                     duration: widget.settings.animationDuration,
                   )
-                : _dragOrigin == entry.key
-                    ? Opacity(
-                        opacity: 0.2,
-                        child: Piece(
-                          piece: entry.value,
-                          size: widget.squareSize,
-                        ),
-                      )
-                    : Piece(piece: entry.value, size: widget.squareSize),
+                : Piece(
+                    piece: entry.value,
+                    size: widget.squareSize,
+                    opacity: _dragOrigin == entry.key ? 0.2 : 1.0,
+                  ),
           ),
       ],
     );

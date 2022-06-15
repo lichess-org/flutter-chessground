@@ -9,7 +9,7 @@ class Settings {
   const Settings({
     // visual settings
     this.enableCoordinates = true,
-    this.animationDuration = const Duration(milliseconds: 200),
+    this.animationDuration = const Duration(milliseconds: 250),
     this.showLastMove = true,
     this.showValidMoves = true,
     this.dragFeedbackSize = 2.0,

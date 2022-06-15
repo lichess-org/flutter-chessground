@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models.dart' as cg;
+import './piece.dart';
 
 class PieceTranslation extends StatefulWidget {
   final Widget child;
@@ -59,17 +60,19 @@ class _PieceTranslationState extends State<PieceTranslation>
 }
 
 class PieceFade extends StatefulWidget {
-  final Widget child;
+  final cg.Piece piece;
+  final double size;
   final Duration duration;
   final Curve curve;
 
   const PieceFade({
     Key? key,
-    required this.child,
+    required this.piece,
+    required this.size,
     Duration? duration,
     Curve? curve,
   })  : duration = duration ?? const Duration(milliseconds: 150),
-        curve = curve ?? Curves.easeInCubic,
+        curve = curve ?? Curves.easeInQuad,
         super(key: key);
 
   @override
@@ -97,9 +100,10 @@ class _PieceFadeState extends State<PieceFade> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    return FadeTransition(
-      opacity: _animation,
-      child: widget.child,
+    return Piece(
+      piece: widget.piece,
+      size: widget.size,
+      animatedOpacity: _animation,
     );
   }
 }
