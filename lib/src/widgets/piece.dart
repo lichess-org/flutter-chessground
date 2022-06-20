@@ -7,6 +7,7 @@ class Piece extends StatelessWidget {
     Key? key,
     required this.piece,
     required this.size,
+    this.pieceSet,
     this.opacity = 1.0,
     this.animatedOpacity,
   }) : super(key: key);
@@ -17,6 +18,9 @@ class Piece extends StatelessWidget {
   /// Size of the board square the piece will occupy
   final double size;
 
+  /// Piece set. If you don't provide one, Merida will be used
+  final cg.PieceSet? pieceSet;
+
   /// Defines an opacity for the piece. By default it is fully opaque
   final double opacity;
 
@@ -26,7 +30,7 @@ class Piece extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Image(
-      image: pieceSet[piece.kind]!,
+      image: (pieceSet ?? meridaPieceSet)[piece.kind]!,
       color: Color.fromRGBO(255, 255, 255, opacity),
       colorBlendMode: BlendMode.modulate,
       opacity: animatedOpacity,
@@ -36,52 +40,52 @@ class Piece extends StatelessWidget {
   }
 }
 
-const Map<String, AssetImage> pieceSet = {
-  'black_rook': AssetImage(
+const cg.PieceSet meridaPieceSet = {
+  'blackrook': AssetImage(
     'lib/piece_sets/merida/bR.png',
     package: 'chessground',
   ),
-  'black_pawn': AssetImage(
+  'blackpawn': AssetImage(
     'lib/piece_sets/merida/bP.png',
     package: 'chessground',
   ),
-  'black_knight': AssetImage(
+  'blackknight': AssetImage(
     'lib/piece_sets/merida/bN.png',
     package: 'chessground',
   ),
-  'black_bishop': AssetImage(
+  'blackbishop': AssetImage(
     'lib/piece_sets/merida/bB.png',
     package: 'chessground',
   ),
-  'black_queen': AssetImage(
+  'blackqueen': AssetImage(
     'lib/piece_sets/merida/bQ.png',
     package: 'chessground',
   ),
-  'black_king': AssetImage(
+  'blackking': AssetImage(
     'lib/piece_sets/merida/bK.png',
     package: 'chessground',
   ),
-  'white_rook': AssetImage(
+  'whiterook': AssetImage(
     'lib/piece_sets/merida/wR.png',
     package: 'chessground',
   ),
-  'white_knight': AssetImage(
+  'whiteknight': AssetImage(
     'lib/piece_sets/merida/wN.png',
     package: 'chessground',
   ),
-  'white_bishop': AssetImage(
+  'whitebishop': AssetImage(
     'lib/piece_sets/merida/wB.png',
     package: 'chessground',
   ),
-  'white_queen': AssetImage(
+  'whitequeen': AssetImage(
     'lib/piece_sets/merida/wQ.png',
     package: 'chessground',
   ),
-  'white_king': AssetImage(
+  'whiteking': AssetImage(
     'lib/piece_sets/merida/wK.png',
     package: 'chessground',
   ),
-  'white_pawn': AssetImage(
+  'whitepawn': AssetImage(
     'lib/piece_sets/merida/wP.png',
     package: 'chessground',
   ),

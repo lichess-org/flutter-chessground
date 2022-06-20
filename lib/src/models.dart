@@ -6,6 +6,11 @@ enum InteractableColor { both, none, white, black }
 
 enum PieceRole { king, queen, knight, bishop, rook, pawn }
 
+/// Describes a set of piece assets
+///
+/// The Map keys must be the concatenation of role and color. Eg: 'blackpawn'.
+typedef PieceSet = Map<String, AssetImage>;
+
 /// Square identifier such as e2, c3, etc.
 typedef SquareId = String;
 
@@ -76,7 +81,7 @@ class Piece {
   final PieceRole role;
   final bool promoted;
 
-  String get kind => '${color.name}_${role.name}';
+  String get kind => '${color.name}${role.name}';
 
   Piece copyWith({
     Color? color,

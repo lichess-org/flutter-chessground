@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:chessground/chessground.dart' as cg;
 import 'package:chess/chess.dart' as ch;
 import 'package:bishop/bishop.dart' as bishop;
+import './piece_set.dart';
 
 void main() {
   runApp(const MyApp());
@@ -145,6 +146,7 @@ class _MyHomePageState extends State<MyHomePage> {
             interactable: true,
             interactableColor: cg.InteractableColor.white,
           ),
+          pieceSet: maestroPieceSet,
           validMoves: validMoves,
           size: screenWidth,
           orientation: cg.Color.white,

@@ -11,8 +11,10 @@ class PromotionSelector extends StatelessWidget {
     required this.orientation,
     required this.onSelect,
     required this.onCancel,
+    this.pieceSet,
   }) : super(key: key);
 
+  final cg.PieceSet? pieceSet;
   final cg.Move move;
   final cg.Color color;
   final double squareSize;
@@ -88,7 +90,11 @@ class PromotionSelector extends StatelessWidget {
                       Positioned(
                         left: 5.0,
                         top: 5.0,
-                        child: Piece(piece: piece, size: squareSize - 10.0),
+                        child: Piece(
+                          piece: piece,
+                          size: squareSize - 10.0,
+                          pieceSet: pieceSet,
+                        ),
                       ),
                     ]),
                   );

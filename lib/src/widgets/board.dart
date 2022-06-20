@@ -21,6 +21,7 @@ class Board extends StatefulWidget {
     Key? key,
     this.settings = const Settings(),
     this.theme = BoardTheme.brown,
+    this.pieceSet,
     required this.size,
     required this.orientation,
     required this.fen,
@@ -34,6 +35,7 @@ class Board extends StatefulWidget {
   final double size;
   final Settings settings;
   final BoardTheme theme;
+  final cg.PieceSet? pieceSet;
 
   // board state (can/will change during a game)
   final cg.Color orientation;
@@ -194,6 +196,7 @@ class _BoardState extends State<Board> {
             child: Piece(
               piece: _piece,
               size: _feedbackSize,
+              pieceSet: widget.pieceSet,
             ),
           ),
         );
@@ -378,6 +381,7 @@ class _BoardState extends State<Board> {
                     child: Piece(
                       piece: entry.value,
                       size: widget.squareSize,
+                      pieceSet: widget.pieceSet,
                     ),
                     fromCoord: translatingPieces[entry.key]!.item1,
                     toCoord: translatingPieces[entry.key]!.item2,
@@ -387,6 +391,7 @@ class _BoardState extends State<Board> {
                 : Piece(
                     piece: entry.value,
                     size: widget.squareSize,
+                    pieceSet: widget.pieceSet,
                     opacity: _dragOrigin == entry.key ? 0.2 : 1.0,
                   ),
           ),
@@ -415,6 +420,7 @@ class _BoardState extends State<Board> {
               : _board,
           if (_promotionMove != null)
             PromotionSelector(
+              pieceSet: widget.pieceSet,
               move: _promotionMove!,
               squareSize: widget.squareSize,
               color: widget.turnColor,
