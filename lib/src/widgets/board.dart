@@ -71,7 +71,7 @@ class Board extends StatefulWidget {
 }
 
 class _BoardState extends State<Board> {
-  late cg.Pieces pieces;
+  cg.Pieces pieces = {};
   Map<String, Tuple2<cg.Coord, cg.Coord>> translatingPieces = {};
   Map<String, cg.Piece> fadingPieces = {};
   cg.SquareId? selected;
@@ -444,8 +444,8 @@ class _DragAvatar {
   final OverlayState overlayState;
   Offset _position;
   Offset? _squareTargetPosition;
-  late OverlayEntry _pieceEntry;
-  late OverlayEntry _squareTargetEntry;
+  late final OverlayEntry _pieceEntry;
+  late final OverlayEntry _squareTargetEntry;
 
   _DragAvatar({
     required this.overlayState,

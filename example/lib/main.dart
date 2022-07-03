@@ -53,14 +53,14 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  late bishop.Game game;
+  bishop.Game game = bishop.Game(variant: bishop.Variant.standard());
   String fen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR';
   cg.Move? lastMove;
   cg.ValidMoves validMoves = {};
+  cg.Color turnColor = cg.Color.white;
 
   @override
   void initState() {
-    game = bishop.Game(variant: bishop.Variant.standard());
     validMoves = _getValidMoves(game);
     // playRandomGame();
     super.initState();
@@ -96,10 +96,11 @@ class _MyHomePageState extends State<MyHomePage> {
       final mv = game.makeRandomMove();
       final fromSquare = bishop.squareName(mv.from);
       final toSquare = bishop.squareName(mv.to);
+      final _validMoves = _getValidMoves(game);
       setState(() {
         lastMove = cg.Move(from: fromSquare, to: toSquare);
         fen = game.fen;
-        validMoves = _getValidMoves(game);
+        validMoves = _validMoves;
       });
     }
   }
@@ -152,6 +153,8 @@ class _MyHomePageState extends State<MyHomePage> {
           orientation: cg.Color.white,
           fen: fen,
           lastMove: lastMove,
+          turnColor:
+              game.turn == bishop.WHITE ? cg.Color.white : cg.Color.black,
           onMove: _onMove,
         ),
       ),
