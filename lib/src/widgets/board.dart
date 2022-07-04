@@ -213,6 +213,11 @@ class _BoardState extends State<Board> {
   @override
   void didUpdateWidget(Board oldBoard) {
     super.didUpdateWidget(oldBoard);
+    if (oldBoard.fen == widget.fen) {
+      _lastDrop = null;
+      // nothing more to do if the fen is the same
+      return;
+    }
     translatingPieces = {};
     fadingPieces = {};
     final newPieces = readFen(widget.fen);
