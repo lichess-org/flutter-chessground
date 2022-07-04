@@ -109,11 +109,6 @@ class Background extends StatelessWidget {
 }
 
 class Coordinate extends StatelessWidget {
-  final int rank;
-  final int file;
-  final Color color;
-  final cg.Color orientation;
-
   const Coordinate({
     Key? key,
     required this.rank,
@@ -121,6 +116,11 @@ class Coordinate extends StatelessWidget {
     required this.color,
     required this.orientation,
   }) : super(key: key);
+
+  final int rank;
+  final int file;
+  final Color color;
+  final cg.Color orientation;
 
   @override
   Widget build(BuildContext context) {

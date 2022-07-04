@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 
 class Highlight extends StatelessWidget {
-  final Color color;
-  final double size;
-
   const Highlight({
     Key? key,
     required this.color,
     required this.size,
   }) : super(key: key);
+
+  final Color color;
+  final double size;
 
   @override
   Widget build(BuildContext context) {
@@ -21,16 +21,16 @@ class Highlight extends StatelessWidget {
 }
 
 class MoveDest extends StatelessWidget {
-  final Color color;
-  final double size;
-  final bool occupied;
-
   const MoveDest({
     Key? key,
     required this.color,
     required this.size,
     this.occupied = false,
   }) : super(key: key);
+
+  final Color color;
+  final double size;
+  final bool occupied;
 
   @override
   Widget build(BuildContext context) {

@@ -7,11 +7,6 @@ import '../models.dart' as cg;
 /// Since it's a wrapper over a [Positioned] widget it must be a descendant of a
 /// [Stack].
 class PositionedSquare extends StatelessWidget {
-  final Widget child;
-  final double size;
-  final cg.Color orientation;
-  final cg.SquareId squareId;
-
   const PositionedSquare({
     Key? key,
     required this.child,
@@ -19,6 +14,11 @@ class PositionedSquare extends StatelessWidget {
     required this.orientation,
     required this.squareId,
   }) : super(key: key);
+
+  final Widget child;
+  final double size;
+  final cg.Color orientation;
+  final cg.SquareId squareId;
 
   @override
   Widget build(BuildContext context) {

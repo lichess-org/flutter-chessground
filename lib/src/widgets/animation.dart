@@ -3,13 +3,6 @@ import '../models.dart' as cg;
 import './piece.dart';
 
 class PieceTranslation extends StatefulWidget {
-  final Widget child;
-  final cg.Coord fromCoord;
-  final cg.Coord toCoord;
-  final cg.Color orientation;
-  final Duration duration;
-  final Curve curve;
-
   const PieceTranslation({
     Key? key,
     required this.child,
@@ -21,6 +14,13 @@ class PieceTranslation extends StatefulWidget {
   })  : duration = duration ?? const Duration(milliseconds: 150),
         curve = curve ?? Curves.easeInOutCubic,
         super(key: key);
+
+  final Widget child;
+  final cg.Coord fromCoord;
+  final cg.Coord toCoord;
+  final cg.Color orientation;
+  final Duration duration;
+  final Curve curve;
 
   int get orientationFactor => orientation == cg.Color.white ? 1 : -1;
   double get dx => -(toCoord.x - fromCoord.x).toDouble() * orientationFactor;
@@ -60,11 +60,6 @@ class _PieceTranslationState extends State<PieceTranslation>
 }
 
 class PieceFade extends StatefulWidget {
-  final cg.Piece piece;
-  final double size;
-  final Duration duration;
-  final Curve curve;
-
   const PieceFade({
     Key? key,
     required this.piece,
@@ -74,6 +69,11 @@ class PieceFade extends StatefulWidget {
   })  : duration = duration ?? const Duration(milliseconds: 150),
         curve = curve ?? Curves.easeInQuad,
         super(key: key);
+
+  final cg.Piece piece;
+  final double size;
+  final Duration duration;
+  final Curve curve;
 
   @override
   State<PieceFade> createState() => _PieceFadeState();
