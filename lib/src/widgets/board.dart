@@ -139,6 +139,7 @@ class _BoardState extends State<Board> {
               duration: widget.settings.animationDuration,
               piece: entry.value,
               size: widget.squareSize,
+              pieceSet: widget.pieceSet,
             ),
           ),
         for (final entry in pieces.entries)
