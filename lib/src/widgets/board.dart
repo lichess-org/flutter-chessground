@@ -215,7 +215,7 @@ class _BoardState extends State<Board> {
     super.didUpdateWidget(oldBoard);
     if (oldBoard.fen == widget.fen) {
       _lastDrop = null;
-      // nothing more to do if the fen is the same
+      // as long as the fen is the same as before let's keep animations
       return;
     }
     translatingPieces = {};

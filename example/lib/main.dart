@@ -91,8 +91,11 @@ class _MyHomePageState extends State<MyHomePage> {
         validMoves = {};
       });
     }
+    Future.delayed(const Duration(milliseconds: 100)).then((value) {
+      setState(() {});
+    });
     if (result && !game.gameOver) {
-      await Future.delayed(Duration(milliseconds: Random().nextInt(750) + 250));
+      await Future.delayed(Duration(milliseconds: Random().nextInt(750) + 50));
       final mv = game.makeRandomMove();
       final fromSquare = bishop.squareName(mv.from);
       final toSquare = bishop.squareName(mv.to);
