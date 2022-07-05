@@ -61,7 +61,6 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Center(
         child: cg.Board(
-          theme: cg.BoardTheme.green,
           settings: const cg.Settings(
             interactable: true,
             interactableColor: cg.InteractableColor.white,
