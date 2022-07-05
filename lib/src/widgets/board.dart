@@ -31,11 +31,11 @@ class Board extends StatefulWidget {
     this.onMove,
   }) : super(key: key);
 
-  // board options (won't change during a game)
+  // board options (usually don't change during a game)
   final double size;
-  final Settings settings;
   final BoardTheme theme;
   final cg.PieceSet? pieceSet;
+  final Settings settings;
 
   // board state (can/will change during a game)
   final cg.Color orientation;
@@ -214,6 +214,11 @@ class _BoardState extends State<Board> {
   @override
   void didUpdateWidget(Board oldBoard) {
     super.didUpdateWidget(oldBoard);
+    if (!widget.settings.interactable) {
+      // cancel selection if board is made not interactable again (like at the
+      // end of a game)
+      selected = null;
+    }
     if (oldBoard.fen == widget.fen) {
       _lastDrop = null;
       // as long as the fen is the same as before let's keep animations
