@@ -18,16 +18,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Chessground Demo',
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
-        primarySwatch: Colors.blue,
+        brightness: Brightness.dark,
+        primaryColor: Colors.blueGrey,
       ),
       home: const MyHomePage(title: 'Chessground Demo'),
     );
@@ -58,6 +50,35 @@ class _MyHomePageState extends State<MyHomePage> {
   cg.Move? lastMove;
   cg.ValidMoves validMoves = {};
   cg.Color turnColor = cg.Color.white;
+
+  @override
+  Widget build(BuildContext context) {
+    final double screenWidth = MediaQuery.of(context).size.width;
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.title),
+      ),
+      body: Center(
+        child: cg.Board(
+          theme: cg.BoardTheme.green,
+          settings: const cg.Settings(
+            interactable: true,
+            interactableColor: cg.InteractableColor.white,
+          ),
+          pieceSet: maestroPieceSet,
+          validMoves: validMoves,
+          size: screenWidth,
+          orientation: cg.Color.white,
+          fen: fen,
+          lastMove: lastMove,
+          turnColor:
+              game.turn == bishop.WHITE ? cg.Color.white : cg.Color.black,
+          onMove: _onMove,
+        ),
+      ),
+    );
+  }
 
   @override
   void initState() {
@@ -130,37 +151,5 @@ class _MyHomePageState extends State<MyHomePage> {
         }
       });
     }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final double screenWidth = MediaQuery.of(context).size.width;
-
-    return Scaffold(
-      appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: cg.Board(
-          settings: const cg.Settings(
-            interactable: true,
-            interactableColor: cg.InteractableColor.white,
-          ),
-          pieceSet: maestroPieceSet,
-          validMoves: validMoves,
-          size: screenWidth,
-          orientation: cg.Color.white,
-          fen: fen,
-          lastMove: lastMove,
-          turnColor:
-              game.turn == bishop.WHITE ? cg.Color.white : cg.Color.black,
-          onMove: _onMove,
-        ),
-      ),
-    );
   }
 }

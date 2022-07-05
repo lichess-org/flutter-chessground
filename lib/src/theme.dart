@@ -54,8 +54,8 @@ class BoardTheme {
     background: Background.green,
     whiteCoordBackground: Background.greenWhiteCoords,
     blackCoordBackground: Background.greenBlackCoords,
-    lastMove: Color(0x69009bc7),
-    selected: Color(0x8014551e),
-    validMoves: Color(0x6014551e),
+    lastMove: Color(0x809bc700),
+    selected: Color.fromRGBO(216, 85, 0, 0.3),
+    validMoves: Color.fromRGBO(0, 0, 0, 0.2),
   );
 }
