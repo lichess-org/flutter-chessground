@@ -9,6 +9,7 @@ class PieceTranslation extends StatefulWidget {
     required this.fromCoord,
     required this.toCoord,
     required this.orientation,
+    required this.onComplete,
     Duration? duration,
     Curve? curve,
   })  : duration = duration ?? const Duration(milliseconds: 150),
@@ -19,6 +20,7 @@ class PieceTranslation extends StatefulWidget {
   final cg.Coord fromCoord;
   final cg.Coord toCoord;
   final cg.Color orientation;
+  final void Function() onComplete;
   final Duration duration;
   final Curve curve;
 
@@ -45,6 +47,16 @@ class _PieceTranslationState extends State<PieceTranslation>
   ));
 
   @override
+  void initState() {
+    _controller.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        widget.onComplete();
+      }
+    });
+    super.initState();
+  }
+
+  @override
   void dispose() {
     _controller.dispose();
     super.dispose();
@@ -64,6 +76,7 @@ class PieceFade extends StatefulWidget {
     Key? key,
     required this.piece,
     required this.size,
+    required this.onComplete,
     this.pieceSet,
     Duration? duration,
     Curve? curve,
@@ -76,6 +89,7 @@ class PieceFade extends StatefulWidget {
   final cg.PieceSet? pieceSet;
   final Duration duration;
   final Curve curve;
+  final void Function() onComplete;
 
   @override
   State<PieceFade> createState() => _PieceFadeState();
@@ -93,6 +107,16 @@ class _PieceFadeState extends State<PieceFade> with TickerProviderStateMixin {
     parent: _controller,
     curve: widget.curve,
   ));
+
+  @override
+  void initState() {
+    _controller.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        widget.onComplete();
+      }
+    });
+    super.initState();
+  }
 
   @override
   void dispose() {

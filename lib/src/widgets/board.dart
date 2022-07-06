@@ -140,6 +140,9 @@ class _BoardState extends State<Board> {
               piece: entry.value,
               size: widget.squareSize,
               pieceSet: widget.pieceSet,
+              onComplete: () {
+                fadingPieces.remove(entry.key);
+              },
             ),
           ),
         for (final entry in pieces.entries)
@@ -159,6 +162,9 @@ class _BoardState extends State<Board> {
                     toCoord: translatingPieces[entry.key]!.item2,
                     orientation: widget.orientation,
                     duration: widget.settings.animationDuration,
+                    onComplete: () {
+                      translatingPieces.remove(entry.key);
+                    },
                   )
                 : Piece(
                     piece: entry.value,
