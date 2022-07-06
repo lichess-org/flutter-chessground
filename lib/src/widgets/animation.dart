@@ -37,7 +37,13 @@ class _PieceTranslationState extends State<PieceTranslation>
   late final AnimationController _controller = AnimationController(
     duration: widget.duration,
     vsync: this,
-  )..forward();
+  )
+    ..addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        widget.onComplete();
+      }
+    })
+    ..forward();
   late final Animation<Offset> _offsetAnimation = Tween<Offset>(
     begin: Offset(widget.dx, widget.dy),
     end: Offset.zero,
@@ -45,16 +51,6 @@ class _PieceTranslationState extends State<PieceTranslation>
     parent: _controller,
     curve: widget.curve,
   ));
-
-  @override
-  void initState() {
-    _controller.addStatusListener((status) {
-      if (status == AnimationStatus.completed) {
-        widget.onComplete();
-      }
-    });
-    super.initState();
-  }
 
   @override
   void dispose() {
@@ -99,7 +95,13 @@ class _PieceFadeState extends State<PieceFade> with TickerProviderStateMixin {
   late final AnimationController _controller = AnimationController(
     duration: widget.duration,
     vsync: this,
-  )..forward();
+  )
+    ..addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        widget.onComplete();
+      }
+    })
+    ..forward();
   late final Animation<double> _animation = Tween<double>(
     begin: 1.0,
     end: 0.0,
@@ -107,16 +109,6 @@ class _PieceFadeState extends State<PieceFade> with TickerProviderStateMixin {
     parent: _controller,
     curve: widget.curve,
   ));
-
-  @override
-  void initState() {
-    _controller.addStatusListener((status) {
-      if (status == AnimationStatus.completed) {
-        widget.onComplete();
-      }
-    });
-    super.initState();
-  }
 
   @override
   void dispose() {
