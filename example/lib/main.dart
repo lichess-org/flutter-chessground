@@ -71,8 +71,7 @@ class _MyHomePageState extends State<MyHomePage> {
           orientation: cg.Color.white,
           fen: fen,
           lastMove: lastMove,
-          turnColor:
-              game.turn == bishop.WHITE ? cg.Color.white : cg.Color.black,
+          turnColor: game.turn == bishop.WHITE ? cg.Color.white : cg.Color.black,
           onMove: _onMove,
         ),
       ),

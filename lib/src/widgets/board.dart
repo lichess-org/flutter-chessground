@@ -82,11 +82,10 @@ class _BoardState extends State<Board> {
 
   @override
   Widget build(BuildContext context) {
-    final Set<cg.SquareId> moveDests = widget.settings.showValidMoves &&
-            selected != null &&
-            widget.validMoves != null
-        ? widget.validMoves![selected] ?? {}
-        : {};
+    final Set<cg.SquareId> moveDests =
+        widget.settings.showValidMoves && selected != null && widget.validMoves != null
+            ? widget.validMoves![selected] ?? {}
+            : {};
     final Widget _board = Stack(
       children: [
         widget.settings.enableCoordinates
@@ -246,23 +245,18 @@ class _BoardState extends State<Board> {
       if (newP != null) {
         if (oldP != null) {
           if (newP != oldP) {
-            missingOnSquare.add(cg.PositionedPiece(
-                piece: oldP, squareId: s, coord: squareCoord));
-            newOnSquare.add(cg.PositionedPiece(
-                piece: newP, squareId: s, coord: squareCoord));
+            missingOnSquare.add(cg.PositionedPiece(piece: oldP, squareId: s, coord: squareCoord));
+            newOnSquare.add(cg.PositionedPiece(piece: newP, squareId: s, coord: squareCoord));
           }
         } else {
-          newOnSquare.add(
-              cg.PositionedPiece(piece: newP, squareId: s, coord: squareCoord));
+          newOnSquare.add(cg.PositionedPiece(piece: newP, squareId: s, coord: squareCoord));
         }
       } else if (oldP != null) {
-        missingOnSquare.add(
-            cg.PositionedPiece(piece: oldP, squareId: s, coord: squareCoord));
+        missingOnSquare.add(cg.PositionedPiece(piece: oldP, squareId: s, coord: squareCoord));
       }
     }
     for (final n in newOnSquare) {
-      final fromP =
-          n.closest(missingOnSquare.where((m) => m.piece == n.piece).toList());
+      final fromP = n.closest(missingOnSquare.where((m) => m.piece == n.piece).toList());
       if (fromP != null) {
         final t = Tuple2<cg.Coord, cg.Coord>(fromP.coord, n.coord);
         translatingPieces[n.squareId] = t;
@@ -285,8 +279,7 @@ class _BoardState extends State<Board> {
       final localOffset = coord.offset(widget.orientation, widget.squareSize);
       final RenderBox box = context.findRenderObject()! as RenderBox;
       final tmpOffset = box.localToGlobal(localOffset);
-      return Offset(tmpOffset.dx - widget.squareSize / 2,
-          tmpOffset.dy - widget.squareSize / 2);
+      return Offset(tmpOffset.dx - widget.squareSize / 2, tmpOffset.dy - widget.squareSize / 2);
     } else {
       return null;
     }
@@ -309,14 +302,12 @@ class _BoardState extends State<Board> {
     if (details != null) {
       final _squareId = widget.localOffset2SquareId(details.localPosition);
       final _piece = _squareId != null ? pieces[_squareId] : null;
-      final _feedbackSize =
-          widget.squareSize * widget.settings.dragFeedbackSize;
+      final _feedbackSize = widget.squareSize * widget.settings.dragFeedbackSize;
       if (_squareId != null && _piece != null && _isMovable(_squareId)) {
         setState(() {
           _dragOrigin = _squareId;
         });
-        final _squareTargetOffset =
-            _squareTargetGlobalOffset(details.localPosition);
+        final _squareTargetOffset = _squareTargetGlobalOffset(details.localPosition);
         _dragAvatar = _DragAvatar(
           overlayState: Overlay.of(context, debugRequiredFor: widget)!,
           initialPosition: details.globalPosition,
@@ -347,8 +338,7 @@ class _BoardState extends State<Board> {
 
   void _onPanUpdate(DragUpdateDetails? details) {
     if (details != null && _dragAvatar != null) {
-      final squareTargetOffset =
-          _squareTargetGlobalOffset(details.localPosition);
+      final squareTargetOffset = _squareTargetGlobalOffset(details.localPosition);
       _dragAvatar?.update(details);
       _dragAvatar?.updateSquareTarget(squareTargetOffset);
     }

@@ -31,8 +31,7 @@ class PromotionSelector extends StatelessWidget {
     final coord = (orientation == cg.Color.white && rank == '8' ||
             orientation == cg.Color.black && rank == '1')
         ? cg.Coord.fromSquareId(squareId)
-        : cg.Coord.fromSquareId(
-            file + (orientation == cg.Color.white ? '4' : '5'));
+        : cg.Coord.fromSquareId(file + (orientation == cg.Color.white ? '4' : '5'));
     final offset = coord.offset(orientation, squareSize);
 
     return GestureDetector(

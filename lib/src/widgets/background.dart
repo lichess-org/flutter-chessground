@@ -83,18 +83,14 @@ class Background extends StatelessWidget {
                   child: Container(
                     width: double.infinity,
                     height: double.infinity,
-                    decoration: BoxDecoration(
-                        color: ((rank + file) % 2 == 0)
-                            ? lightSquare
-                            : darkSquare),
+                    decoration:
+                        BoxDecoration(color: ((rank + file) % 2 == 0) ? lightSquare : darkSquare),
                     child: coordinates
                         ? Coordinate(
                             rank: rank,
                             file: file,
                             orientation: orientation,
-                            color: ((rank + file) % 2 == 0)
-                                ? darkSquare
-                                : lightSquare,
+                            color: ((rank + file) % 2 == 0) ? darkSquare : lightSquare,
                           )
                         : null,
                   ),
