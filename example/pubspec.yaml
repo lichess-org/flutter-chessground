@@ -1,5 +1,5 @@
 name: board_example
-description: A new Flutter project.
+description: An example of chessground.
 
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
@@ -36,8 +36,10 @@ dependencies:
   cupertino_icons: ^1.0.2
   chessground:
     path: ../
-  chess: ^0.7.0
-  bishop: ^0.3.3
+  dartchess:
+    git:
+      url: https://github.com/lichess-org/dartchess.git
+      ref: main
 
 dev_dependencies:
   flutter_test:

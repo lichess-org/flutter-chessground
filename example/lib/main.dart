@@ -1,8 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:chessground/chessground.dart' as cg;
-import 'package:chess/chess.dart' as ch;
-import 'package:bishop/bishop.dart' as bishop;
+import 'package:dartchess/dartchess.dart';
 import './piece_set.dart';
 
 void main() {
@@ -45,8 +44,8 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  bishop.Game game = bishop.Game(variant: bishop.Variant.standard());
-  String fen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR';
+  Position<Chess> position = Chess.initial;
+  String fen = kInitialBoardFEN;
   cg.Move? lastMove;
   cg.ValidMoves validMoves = {};
   cg.Color turnColor = cg.Color.white;
@@ -71,8 +70,8 @@ class _MyHomePageState extends State<MyHomePage> {
           orientation: cg.Color.white,
           fen: fen,
           lastMove: lastMove,
-          turnColor: game.turn == bishop.WHITE ? cg.Color.white : cg.Color.black,
-          onMove: _onMove,
+          turnColor: position.turn == Color.white ? cg.Color.white : cg.Color.black,
+          onMove: _onUserMove,
         ),
       ),
     );
@@ -80,74 +79,46 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   void initState() {
-    validMoves = _getValidMoves(game);
-    // playRandomGame();
+    validMoves = _getValidMoves(position);
     super.initState();
   }
 
-  cg.ValidMoves _getValidMoves(bishop.Game g) {
+  cg.ValidMoves _getValidMoves(Position pos) {
     final cg.ValidMoves result = {};
-    final legalMoves = g.generateLegalMoves();
-    for (bishop.Move m in legalMoves) {
-      final fromSquare = bishop.squareName(m.from);
-      final toSquare = bishop.squareName(m.to);
-      if (!result.containsKey(fromSquare)) {
-        result[fromSquare] = {toSquare};
-      } else {
-        result[fromSquare]!.add(toSquare);
-      }
+    for (final entry in pos.legalMoves.entries) {
+      final fromSquare = toAlgebraic(entry.key);
+      result[fromSquare] = entry.value.squares.map((e) => toAlgebraic(e)).toSet();
     }
     return result;
   }
 
-  void _onMove(cg.Move move) async {
-    bishop.Move? m = game.getMove(move.uci);
-    bool result = m != null ? game.makeMove(m) : false;
-    if (result) {
-      setState(() {
-        lastMove = move;
-        fen = game.fen;
-        validMoves = {};
-      });
-    }
+  void _onUserMove(cg.Move move) async {
+    final m = Move.fromUci(move.uci);
+    setState(() {
+      position = position.playUnchecked(m);
+      lastMove = move;
+      fen = position.fen;
+      validMoves = {};
+    });
     Future.delayed(const Duration(milliseconds: 100)).then((value) {
       setState(() {});
     });
-    if (result && !game.gameOver) {
-      await Future.delayed(Duration(milliseconds: Random().nextInt(750) + 50));
-      final mv = game.makeRandomMove();
-      final fromSquare = bishop.squareName(mv.from);
-      final toSquare = bishop.squareName(mv.to);
-      final _validMoves = _getValidMoves(game);
-      setState(() {
-        lastMove = cg.Move(from: fromSquare, to: toSquare);
-        fen = game.fen;
-        validMoves = _validMoves;
-      });
-    }
-  }
-
-  playRandomGame() async {
-    ch.Chess chess = ch.Chess();
-    while (!chess.game_over) {
-      // debugPrint('position: ' + chess.fen);
-      // debugPrint(chess.ascii);
-      var moves = chess.moves();
-      moves.shuffle();
-      var move = moves[0];
-      chess.move(move);
-      final history = chess.getHistory({'verbose': true});
-      await Future.delayed(Duration(milliseconds: Random().nextInt(950) + 200));
-      setState(() {
-        fen = chess.fen;
-        if (history.isNotEmpty) {
-          final lm = history[history.length - 1];
-          lastMove = cg.Move(
-            from: lm['from'],
-            to: lm['to'],
-          );
-        }
-      });
+    if (!position.isGameOver) {
+      final random = Random();
+      await Future.delayed(Duration(milliseconds: random.nextInt(750) + 50));
+      final allMoves = [
+        for (final entry in position.legalMoves.entries)
+          for (final dest in entry.value.squares) NormalMove(from: entry.key, to: dest)
+      ];
+      if (allMoves.isNotEmpty) {
+        final mv = (allMoves..shuffle()).first;
+        setState(() {
+          position = position.playUnchecked(mv);
+          lastMove = cg.Move(from: toAlgebraic(mv.from), to: toAlgebraic(mv.to));
+          fen = position.fen;
+          validMoves = _getValidMoves(position);
+        });
+      }
     }
   }
 }
