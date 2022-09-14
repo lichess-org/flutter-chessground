@@ -79,17 +79,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   void initState() {
-    validMoves = _getValidMoves(position);
+    validMoves = algebraicLegalMoves(position);
     super.initState();
-  }
-
-  cg.ValidMoves _getValidMoves(Position pos) {
-    final cg.ValidMoves result = {};
-    for (final entry in pos.legalMoves.entries) {
-      final fromSquare = toAlgebraic(entry.key);
-      result[fromSquare] = entry.value.squares.map((e) => toAlgebraic(e)).toSet();
-    }
-    return result;
   }
 
   void _onUserMove(cg.Move move) async {
@@ -116,7 +107,7 @@ class _MyHomePageState extends State<MyHomePage> {
           position = position.playUnchecked(mv);
           lastMove = cg.Move(from: toAlgebraic(mv.from), to: toAlgebraic(mv.to));
           fen = position.fen;
-          validMoves = _getValidMoves(position);
+          validMoves = algebraicLegalMoves(position);
         });
       }
     }
