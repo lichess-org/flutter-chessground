@@ -289,7 +289,9 @@ class _BoardState extends State<Board> {
     if (details != null) {
       final squareId = widget.localOffset2SquareId(details.localPosition);
       if (squareId != null) {
-        if (_isMovable(squareId)) {
+        // allow to castle by selecting the king and then the rook, so we must prevent the
+        // re-selection of the rook
+        if (_isMovable(squareId) && (selected == null || !_canMove(selected!, squareId))) {
           setState(() {
             selected = squareId;
           });
