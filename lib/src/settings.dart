@@ -12,11 +12,13 @@ class Settings {
     this.animationDuration = const Duration(milliseconds: 250),
     this.showLastMove = true,
     this.showValidMoves = true,
+    this.showPremovesDestinations = false,
     this.dragFeedbackSize = 2.0,
     this.dragFeedbackOffset = const Offset(0.0, -1.0),
     // behavior settings
     this.interactable = false,
     this.interactableColor = cg.InteractableColor.both,
+    this.enablePremoves = true,
     this.autoQueenPromotion = false,
   });
 
@@ -32,6 +34,9 @@ class Settings {
   /// Whether to show valid moves
   final bool showValidMoves;
 
+  /// Whether to show possible premove destinations.
+  final bool showPremovesDestinations;
+
   // Scale up factor for the piece currently under drag
   final double dragFeedbackSize;
 
@@ -40,6 +45,9 @@ class Settings {
 
   /// Is it possible to move the pieces? If false the board will be view-only
   final bool interactable;
+
+  /// Whether premoves are authorized or not.
+  final bool enablePremoves;
 
   /// Which color is allowed to move? It can be both, none, white or black
   final cg.InteractableColor interactableColor;

@@ -8,6 +8,7 @@ import 'animation.dart';
 import 'promotion.dart';
 import '../models.dart' as cg;
 import '../fen.dart';
+import '../premove.dart';
 import '../settings.dart';
 import '../theme.dart';
 
@@ -63,7 +64,7 @@ class Board extends StatefulWidget {
 
   cg.SquareId? localOffset2SquareId(Offset offset) {
     final coord = localOffset2Coord(offset);
-    return coord?.squareId();
+    return coord?.squareId;
   }
 
   @override
@@ -179,11 +180,14 @@ class _BoardState extends State<Board> {
       dimension: widget.size,
       child: Stack(
         children: [
-          // TODO consider using Listener instead as we don't control the drag start threshold with GestureDetector
+          // Consider using Listener instead as we don't control the drag start threshold with
+          // GestureDetector (TODO)
           widget.settings.interactable
               ? GestureDetector(
-                  // registering onTapDown is needed to prevent the panStart event to win the competition too early
-                  // there is no need to implement the callback since we handle the selection login in onPanDown; plus this way we avoid the timeout before onTapDown is called
+                  // registering onTapDown is needed to prevent the panStart event to win the
+                  // competition too early
+                  // there is no need to implement the callback since we handle the selection login
+                  // in onPanDown; plus this way we avoid the timeout before onTapDown is called
                   onTapDown: (TapDownDetails? details) {},
                   onTapUp: _onTapUp,
                   onPanDown: _onPanDown,
@@ -413,6 +417,20 @@ class _BoardState extends State<Board> {
   bool _canMove(cg.SquareId orig, cg.SquareId dest) {
     final validDests = widget.validMoves?[orig];
     return orig != dest && validDests != null && validDests.contains(dest);
+  }
+
+  bool _isPremovable(cg.SquareId squareId) {
+    final piece = pieces[squareId];
+    return piece != null &&
+        (widget.settings.enablePremoves &&
+            widget.settings.interactableColor.name == piece.color.name &&
+            widget.turnColor != piece.color);
+  }
+
+  bool _canPremove(cg.SquareId orig, cg.SquareId dest, bool canCastle) {
+    return (orig != dest &&
+        _isPremovable(orig) &&
+        premovesOf(orig, pieces, canCastle: canCastle).contains(dest));
   }
 
   bool _isPromoMove(cg.Piece piece, cg.SquareId targetSquareId) {

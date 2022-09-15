@@ -15,7 +15,7 @@ cg.Pieces readFen(String fen) {
         col = 0;
         break;
       case '~':
-        final sid = cg.Coord(x: col - 1, y: row).squareId();
+        final sid = cg.Coord(x: col - 1, y: row).squareId;
         final piece = pieces[sid];
         if (piece != null) {
           pieces[sid] = piece.copyWith(promoted: true);
@@ -27,9 +27,9 @@ cg.Pieces readFen(String fen) {
           col += code - 48;
         } else {
           final roleLetter = c.toLowerCase();
-          final sid = cg.Coord(x: col, y: row).squareId();
+          final sid = cg.Coord(x: col, y: row).squareId;
           pieces[sid] = cg.Piece(
-            role: roles[roleLetter]!,
+            role: _roles[roleLetter]!,
             color: c == roleLetter ? cg.Color.black : cg.Color.white,
           );
           ++col;
@@ -39,7 +39,7 @@ cg.Pieces readFen(String fen) {
   return pieces;
 }
 
-const roles = {
+const _roles = {
   'p': cg.PieceRole.pawn,
   'r': cg.PieceRole.rook,
   'n': cg.PieceRole.knight,

@@ -11,7 +11,7 @@ enum PieceRole { king, queen, knight, bishop, rook, pawn }
 /// The Map keys must be the concatenation of role and color. Eg: 'blackpawn'.
 typedef PieceSet = Map<String, AssetImage>;
 
-/// Square identifier such as e2, c3, etc.
+/// Square identifier using the algebraic coordinate notation such as e2, c3, etc.
 typedef SquareId = String;
 
 /// Representation of the pieces on a board
@@ -25,6 +25,10 @@ const ranks = ['1', '2', '3', '4', '5', '6', '7', '8'];
 final List<SquareId> allSquares = List.unmodifiable([
   for (final f in files)
     for (final r in ranks) '$f$r'
+]);
+final List<Coord> allCoords = List.unmodifiable([
+  for (final f in files)
+    for (final r in ranks) Coord.fromSquareId('$f$r')
 ]);
 
 /// Zero-based numeric board coordinates
@@ -45,19 +49,17 @@ class Coord {
   final int x;
   final int y;
 
-  @override
-  toString() {
-    return '($x, $y)';
-  }
-
-  SquareId squareId() {
-    return allSquares[8 * x + y];
-  }
+  SquareId get squareId => allSquares[8 * x + y];
 
   Offset offset(Color orientation, double squareSize) {
     final dx = (orientation == Color.black ? 7 - x : x) * squareSize;
     final dy = (orientation == Color.black ? y : 7 - y) * squareSize;
     return Offset(dx, dy);
+  }
+
+  @override
+  toString() {
+    return '($x, $y)';
   }
 
   @override
