@@ -68,7 +68,7 @@ class Coord {
   }
 
   @override
-  int get hashCode => hashValues(x, y);
+  int get hashCode => Object.hash(x, y);
 }
 
 @immutable
@@ -108,7 +108,7 @@ class Piece {
   }
 
   @override
-  int get hashCode => hashValues(color, role);
+  int get hashCode => Object.hash(color, role);
 }
 
 @immutable
@@ -169,7 +169,7 @@ class Move {
   }
 
   @override
-  int get hashCode => hashValues(from, to, promotion);
+  int get hashCode => Object.hash(from, to, promotion);
 
   String _toPieceLetter(PieceRole? role) {
     switch (role) {
