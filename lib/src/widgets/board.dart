@@ -97,7 +97,7 @@ class _BoardState extends State<Board> {
         if (widget.settings.showLastMove && widget.lastMove != null)
           for (final squareId in widget.lastMove!.squares)
             PositionedSquare(
-              key: ValueKey('lastMove' + squareId),
+              key: ValueKey('$squareId-lastMove'),
               size: widget.squareSize,
               orientation: widget.orientation,
               squareId: squareId,
@@ -108,7 +108,7 @@ class _BoardState extends State<Board> {
             ),
         if (selected != null)
           PositionedSquare(
-            key: ValueKey('selected' + selected!),
+            key: ValueKey('${selected!}-selected'),
             size: widget.squareSize,
             orientation: widget.orientation,
             squareId: selected!,
@@ -119,7 +119,7 @@ class _BoardState extends State<Board> {
           ),
         for (final dest in moveDests)
           PositionedSquare(
-            key: ValueKey('dest' + dest),
+            key: ValueKey('$dest-dest'),
             size: widget.squareSize,
             orientation: widget.orientation,
             squareId: dest,
@@ -131,7 +131,7 @@ class _BoardState extends State<Board> {
           ),
         for (final entry in fadingPieces.entries)
           PositionedSquare(
-            key: ValueKey('fading' + entry.key + entry.value.kind),
+            key: ValueKey('${entry.key}-${entry.value.kind}-fading'),
             size: widget.squareSize,
             orientation: widget.orientation,
             squareId: entry.key,
@@ -147,7 +147,7 @@ class _BoardState extends State<Board> {
           ),
         for (final entry in pieces.entries)
           PositionedSquare(
-            key: ValueKey(entry.key + entry.value.kind),
+            key: ValueKey('${entry.key}-${entry.value.kind}'),
             size: widget.squareSize,
             orientation: widget.orientation,
             squareId: entry.key,

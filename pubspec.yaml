@@ -16,6 +16,10 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^1.0.0
+  dartchess:
+    git:
+      url: https://github.com/lichess-org/dartchess.git
+      ref: main
 
 flutter:
   assets:
