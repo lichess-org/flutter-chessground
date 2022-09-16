@@ -117,7 +117,7 @@ class _PieceFadeState extends State<PieceFade> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    return Piece(
+    return PieceWidget(
       piece: widget.piece,
       size: widget.size,
       animatedOpacity: _animation,

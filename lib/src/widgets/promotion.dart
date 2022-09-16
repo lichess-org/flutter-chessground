@@ -89,7 +89,7 @@ class PromotionSelector extends StatelessWidget {
                       Positioned(
                         left: 5.0,
                         top: 5.0,
-                        child: Piece(
+                        child: PieceWidget(
                           piece: piece,
                           size: squareSize - 10.0,
                           pieceSet: pieceSet,

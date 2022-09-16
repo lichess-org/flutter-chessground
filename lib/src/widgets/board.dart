@@ -153,7 +153,7 @@ class _BoardState extends State<Board> {
             squareId: entry.key,
             child: translatingPieces.containsKey(entry.key)
                 ? PieceTranslation(
-                    child: Piece(
+                    child: PieceWidget(
                       piece: entry.value,
                       size: widget.squareSize,
                       pieceSet: widget.pieceSet,
@@ -166,7 +166,7 @@ class _BoardState extends State<Board> {
                       translatingPieces.remove(entry.key);
                     },
                   )
-                : Piece(
+                : PieceWidget(
                     piece: entry.value,
                     size: widget.squareSize,
                     pieceSet: widget.pieceSet,
@@ -331,7 +331,7 @@ class _BoardState extends State<Board> {
               ((widget.settings.dragFeedbackOffset.dx - 1) * _feedbackSize) / 2,
               ((widget.settings.dragFeedbackOffset.dy - 1) * _feedbackSize) / 2,
             ),
-            child: Piece(
+            child: PieceWidget(
               piece: _piece,
               size: _feedbackSize,
               pieceSet: widget.pieceSet,

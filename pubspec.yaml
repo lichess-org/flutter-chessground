@@ -17,11 +17,6 @@ dev_dependencies:
     sdk: flutter
   flutter_lints: ^1.0.0
 
-# For information on the generic Dart part of this file, see the
-# following page: https://dart.dev/tools/pub/pubspec
-
-# The following section is specific to Flutter.
 flutter:
-
   assets:
     - lib/piece_sets/merida/

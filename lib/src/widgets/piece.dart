@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import '../models.dart' as cg;
 
 /// Widget that displays a chess piece
-class Piece extends StatelessWidget {
-  const Piece({
+class PieceWidget extends StatelessWidget {
+  const PieceWidget({
     Key? key,
     required this.piece,
     required this.size,
@@ -41,52 +41,16 @@ class Piece extends StatelessWidget {
 }
 
 const cg.PieceSet meridaPieceSet = {
-  'blackrook': AssetImage(
-    'lib/piece_sets/merida/bR.png',
-    package: 'chessground',
-  ),
-  'blackpawn': AssetImage(
-    'lib/piece_sets/merida/bP.png',
-    package: 'chessground',
-  ),
-  'blackknight': AssetImage(
-    'lib/piece_sets/merida/bN.png',
-    package: 'chessground',
-  ),
-  'blackbishop': AssetImage(
-    'lib/piece_sets/merida/bB.png',
-    package: 'chessground',
-  ),
-  'blackqueen': AssetImage(
-    'lib/piece_sets/merida/bQ.png',
-    package: 'chessground',
-  ),
-  'blackking': AssetImage(
-    'lib/piece_sets/merida/bK.png',
-    package: 'chessground',
-  ),
-  'whiterook': AssetImage(
-    'lib/piece_sets/merida/wR.png',
-    package: 'chessground',
-  ),
-  'whiteknight': AssetImage(
-    'lib/piece_sets/merida/wN.png',
-    package: 'chessground',
-  ),
-  'whitebishop': AssetImage(
-    'lib/piece_sets/merida/wB.png',
-    package: 'chessground',
-  ),
-  'whitequeen': AssetImage(
-    'lib/piece_sets/merida/wQ.png',
-    package: 'chessground',
-  ),
-  'whiteking': AssetImage(
-    'lib/piece_sets/merida/wK.png',
-    package: 'chessground',
-  ),
-  'whitepawn': AssetImage(
-    'lib/piece_sets/merida/wP.png',
-    package: 'chessground',
-  ),
+  'blackrook': AssetImage('lib/piece_sets/merida/bR.png'),
+  'blackpawn': AssetImage('lib/piece_sets/merida/bP.png'),
+  'blackknight': AssetImage('lib/piece_sets/merida/bN.png'),
+  'blackbishop': AssetImage('lib/piece_sets/merida/bB.png'),
+  'blackqueen': AssetImage('lib/piece_sets/merida/bQ.png'),
+  'blackking': AssetImage('lib/piece_sets/merida/bK.png'),
+  'whiterook': AssetImage('lib/piece_sets/merida/wR.png'),
+  'whiteknight': AssetImage('lib/piece_sets/merida/wN.png'),
+  'whitebishop': AssetImage('lib/piece_sets/merida/wB.png'),
+  'whitequeen': AssetImage('lib/piece_sets/merida/wQ.png'),
+  'whiteking': AssetImage('lib/piece_sets/merida/wK.png'),
+  'whitepawn': AssetImage('lib/piece_sets/merida/wP.png'),
 };

@@ -1,6 +1,7 @@
 library chessground;
 
 export 'src/widgets/board.dart';
+export 'src/widgets/piece.dart';
 export 'src/models.dart';
 export 'src/fen.dart';
 export 'src/premove.dart';
