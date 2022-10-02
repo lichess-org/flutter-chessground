@@ -34,7 +34,8 @@ Widget buildInteractableBoard({
 }
 
 Offset squareOffset(SquareId id, {Color orientation = Color.white}) {
-  return Coord.fromSquareId(id).offset(orientation, squareSize);
+  final o = Coord.fromSquareId(id).offset(orientation, squareSize);
+  return Offset(o.dx + squareSize / 2, o.dy + squareSize / 2);
 }
 
 void main() {
@@ -157,6 +158,38 @@ void main() {
       expect(find.byKey(const Key('e2-whitepawn')), findsNothing);
       expect(find.byKey(const Key('e2-lastMove')), findsOneWidget);
       expect(find.byKey(const Key('e4-lastMove')), findsOneWidget);
+    });
+
+    testWidgets('promotion', (WidgetTester tester) async {
+      await tester.pumpWidget(buildInteractableBoard(
+          initialSettings:
+              const Settings(interactable: true, interactableColor: InteractableColor.both),
+          initialFen: '8/5P2/2RK2P1/8/4k3/8/8/7r w - - 0 1'));
+
+      await tester.tap(find.byKey(const Key('f7-whitepawn')));
+      await tester.pump();
+      await tester.tapAt(squareOffset('f8'));
+      await tester.pump();
+      await tester.tapAt(squareOffset('f7'));
+      await tester.pump();
+      expect(find.byKey(const Key('f8-whiteknight')), findsOneWidget);
+      expect(find.byKey(const Key('f7-whitepawn')), findsNothing);
+    });
+
+    testWidgets('promotion, auto queen enabled', (WidgetTester tester) async {
+      await tester.pumpWidget(buildInteractableBoard(
+          initialSettings: const Settings(
+              interactable: true,
+              interactableColor: InteractableColor.both,
+              autoQueenPromotion: true),
+          initialFen: '8/5P2/2RK2P1/8/4k3/8/8/7r w - - 0 1'));
+
+      await tester.tap(find.byKey(const Key('f7-whitepawn')));
+      await tester.pump();
+      await tester.tapAt(squareOffset('f8'));
+      await tester.pump();
+      expect(find.byKey(const Key('f8-whitequeen')), findsOneWidget);
+      expect(find.byKey(const Key('f7-whitepawn')), findsNothing);
     });
   });
 }
