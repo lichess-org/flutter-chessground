@@ -251,9 +251,10 @@ class _BoardState extends State<Board> {
   void didUpdateWidget(Board oldBoard) {
     super.didUpdateWidget(oldBoard);
     if (!widget.settings.interactable) {
-      // cancel selection if board is made not interactable again (like at the
-      // end of a game)
+      // remove highlights if board is made not interactable again (like at the end of a game)
       selected = null;
+      _premoveDests = null;
+      _premove = null;
     }
     if (oldBoard.turnColor != widget.turnColor) {
       _premoveDests = null;
