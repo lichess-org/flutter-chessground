@@ -83,7 +83,7 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
   }
 
-  void _onUserMove(cg.Move move) async {
+  void _onUserMove(cg.Move move, {bool? isPremove}) async {
     final m = Move.fromUci(move.uci);
     setState(() {
       position = position.playUnchecked(m);
@@ -96,7 +96,7 @@ class _MyHomePageState extends State<MyHomePage> {
     });
     if (!position.isGameOver) {
       final random = Random();
-      await Future.delayed(Duration(milliseconds: random.nextInt(750) + 50));
+      await Future.delayed(Duration(milliseconds: random.nextInt(1500) + 200));
       final allMoves = [
         for (final entry in position.legalMoves.entries)
           for (final dest in entry.value.squares) NormalMove(from: entry.key, to: dest)

@@ -46,7 +46,7 @@ class Board extends StatefulWidget {
   final cg.ValidMoves? validMoves;
 
   // handlers
-  final Function(cg.Move)? onMove;
+  final Function(cg.Move, {bool? isPremove})? onMove;
 
   double get squareSize => size / 8;
 
@@ -78,6 +78,8 @@ class _BoardState extends State<Board> {
   cg.SquareId? selected;
   cg.Move? _promotionMove;
   cg.Move? _lastDrop;
+  cg.Move? _premove;
+  Set<cg.SquareId>? _premoveDests;
   _DragAvatar? _dragAvatar;
   cg.SquareId? _dragOrigin;
 
@@ -87,6 +89,7 @@ class _BoardState extends State<Board> {
         widget.settings.showValidMoves && selected != null && widget.validMoves != null
             ? widget.validMoves![selected] ?? {}
             : {};
+    final premoveDests = _premoveDests ?? {};
     final Widget _board = Stack(
       children: [
         widget.settings.enableCoordinates
@@ -104,6 +107,18 @@ class _BoardState extends State<Board> {
               child: Highlight(
                 size: widget.squareSize,
                 color: widget.theme.lastMove,
+              ),
+            ),
+        if (_premove != null)
+          for (final squareId in _premove!.squares)
+            PositionedSquare(
+              key: ValueKey('$squareId-premove'),
+              size: widget.squareSize,
+              orientation: widget.orientation,
+              squareId: squareId,
+              child: Highlight(
+                size: widget.squareSize,
+                color: widget.theme.validPremoves,
               ),
             ),
         if (selected != null)
@@ -126,6 +141,18 @@ class _BoardState extends State<Board> {
             child: MoveDest(
               size: widget.squareSize,
               color: widget.theme.validMoves,
+              occupied: pieces.containsKey(dest),
+            ),
+          ),
+        for (final dest in premoveDests)
+          PositionedSquare(
+            key: ValueKey('$dest-premove-dest'),
+            size: widget.squareSize,
+            orientation: widget.orientation,
+            squareId: dest,
+            child: MoveDest(
+              size: widget.squareSize,
+              color: widget.theme.validPremoves,
               occupied: pieces.containsKey(dest),
             ),
           ),
@@ -228,6 +255,10 @@ class _BoardState extends State<Board> {
       // end of a game)
       selected = null;
     }
+    if (oldBoard.turnColor != widget.turnColor) {
+      _premoveDests = null;
+      WidgetsBinding.instance.addPostFrameCallback((_) => _tryPlayPremove());
+    }
     if (oldBoard.fen == widget.fen) {
       _lastDrop = null;
       // as long as the fen is the same as before let's keep animations
@@ -298,6 +329,17 @@ class _BoardState extends State<Board> {
         if (_isMovable(squareId) && (selected == null || !_canMove(selected!, squareId))) {
           setState(() {
             selected = squareId;
+          });
+        } else if (_isPremovable(squareId)) {
+          setState(() {
+            selected = squareId;
+            _premoveDests =
+                premovesOf(squareId, pieces, canCastle: widget.settings.enablePremoveCastling);
+          });
+        } else {
+          setState(() {
+            _premove = null;
+            _premoveDests = null;
           });
         }
       }
@@ -427,10 +469,10 @@ class _BoardState extends State<Board> {
             widget.turnColor != piece.color);
   }
 
-  bool _canPremove(cg.SquareId orig, cg.SquareId dest, bool canCastle) {
+  bool _canPremove(cg.SquareId orig, cg.SquareId dest) {
     return (orig != dest &&
         _isPremovable(orig) &&
-        premovesOf(orig, pieces, canCastle: canCastle).contains(dest));
+        premovesOf(orig, pieces, canCastle: widget.settings.enablePremoveCastling).contains(dest));
   }
 
   bool _isPromoMove(cg.Piece piece, cg.SquareId targetSquareId) {
@@ -454,9 +496,35 @@ class _BoardState extends State<Board> {
       } else {
         widget.onMove?.call(move);
       }
+    } else if (selectedPiece != null && _canPremove(selected!, squareId)) {
+      setState(() {
+        _premove = cg.Move(from: selected!, to: squareId);
+      });
     }
     setState(() {
       selected = null;
+      _premoveDests = null;
+    });
+  }
+
+  void _tryPlayPremove() {
+    if (_premove == null) {
+      return;
+    }
+    final fromPiece = pieces[_premove!.from];
+    if (fromPiece != null && _canMove(_premove!.from, _premove!.to)) {
+      if (_isPromoMove(fromPiece, _premove!.to)) {
+        if (widget.settings.autoQueenPromotion) {
+          widget.onMove?.call(_premove!.withPromotion(cg.PieceRole.queen), isPremove: true);
+        } else {
+          _openPromotionSelector(_premove!);
+        }
+      } else {
+        widget.onMove?.call(_premove!, isPremove: true);
+      }
+    }
+    setState(() {
+      _premove = null;
     });
   }
 }

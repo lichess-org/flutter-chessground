@@ -23,7 +23,7 @@ Widget buildInteractableBoard({
       settings: settings,
       lastMove: lastMove,
       validMoves: dc.algebraicLegalMoves(position),
-      onMove: (Move move) {
+      onMove: (Move move, {bool? isPremove}) {
         setState(() {
           position = position.playUnchecked(dc.Move.fromUci(move.uci));
           lastMove = move;

@@ -19,6 +19,7 @@ class Settings {
     this.interactable = false,
     this.interactableColor = cg.InteractableColor.both,
     this.enablePremoves = true,
+    this.enablePremoveCastling = true,
     this.autoQueenPromotion = false,
   });
 
@@ -48,6 +49,9 @@ class Settings {
 
   /// Whether premoves are authorized or not.
   final bool enablePremoves;
+
+  /// Whether castling is enabled with a premove.
+  final bool enablePremoveCastling;
 
   /// Which color is allowed to move? It can be both, none, white or black
   final cg.InteractableColor interactableColor;
