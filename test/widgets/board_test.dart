@@ -161,7 +161,8 @@ void main() {
     });
 
     testWidgets('premoves: select and deselect', (WidgetTester tester) async {
-      await tester.pumpWidget(buildPremovableBoard(
+      await tester.pumpWidget(buildInteractableBoard(
+          initialFen: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
           initialSettings: const Settings(
               interactable: true,
               interactableColor: InteractableColor.white,
@@ -180,7 +181,8 @@ void main() {
     });
 
     testWidgets('premoves: set/unset', (WidgetTester tester) async {
-      await tester.pumpWidget(buildPremovableBoard(
+      await tester.pumpWidget(buildInteractableBoard(
+          initialFen: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
           initialSettings: const Settings(
               interactable: true,
               interactableColor: InteractableColor.white,
@@ -208,7 +210,8 @@ void main() {
     });
 
     testWidgets('premoves: set and change', (WidgetTester tester) async {
-      await tester.pumpWidget(buildPremovableBoard(
+      await tester.pumpWidget(buildInteractableBoard(
+          initialFen: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
           initialSettings: const Settings(
               interactable: true,
               interactableColor: InteractableColor.white,
@@ -258,34 +261,6 @@ Widget buildInteractableBoard({
       turnColor: position.turn == dc.Color.white ? Color.white : Color.black,
       validMoves: dc.algebraicLegalMoves(position),
       onMove: (Move move, {bool? isPremove}) {
-        setState(() {
-          position = position.playUnchecked(dc.Move.fromUci(move.uci));
-          lastMove = move;
-        });
-      },
-    );
-  }));
-}
-
-Widget buildPremovableBoard({
-  required Settings initialSettings,
-  orientation = Color.white,
-  initialFen = 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
-}) {
-  Settings settings = initialSettings;
-  dc.Position<dc.Chess> position = dc.Chess.fromSetup(dc.Setup.parseFen(initialFen));
-  Move? lastMove;
-
-  return MaterialApp(home: StatefulBuilder(builder: (BuildContext context, StateSetter setState) {
-    return Board(
-      orientation: orientation,
-      size: boardSize,
-      fen: position.fen,
-      settings: settings,
-      lastMove: lastMove,
-      turnColor: position.turn == dc.Color.white ? Color.white : Color.black,
-      validMoves: dc.algebraicLegalMoves(position),
-      onMove: (Move move, {bool? isPremove}) async {
         setState(() {
           position = position.playUnchecked(dc.Move.fromUci(move.uci));
           lastMove = move;
