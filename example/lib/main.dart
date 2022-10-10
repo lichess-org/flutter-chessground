@@ -60,10 +60,7 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Center(
         child: cg.Board(
-          settings: const cg.Settings(
-            interactable: true,
-            interactableColor: cg.InteractableColor.white,
-          ),
+          interactableColor: cg.InteractableColor.white,
           pieceSet: maestroPieceSet,
           validMoves: validMoves,
           size: screenWidth,
@@ -96,7 +93,7 @@ class _MyHomePageState extends State<MyHomePage> {
     });
     if (!position.isGameOver) {
       final random = Random();
-      await Future.delayed(Duration(milliseconds: random.nextInt(1500) + 200));
+      await Future.delayed(Duration(milliseconds: random.nextInt(5500) + 500));
       final allMoves = [
         for (final entry in position.legalMoves.entries)
           for (final dest in entry.value.squares) NormalMove(from: entry.key, to: dest)

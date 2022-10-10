@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'models.dart' as cg;
 
 /// Board settings that control the behavior and purpose of the board.
 ///
@@ -15,9 +14,8 @@ class Settings {
     this.showPremovesDestinations = false,
     this.dragFeedbackSize = 2.0,
     this.dragFeedbackOffset = const Offset(0.0, -1.0),
+
     // behavior settings
-    this.interactable = false,
-    this.interactableColor = cg.InteractableColor.both,
     this.enablePremoves = true,
     this.enablePremoveCastling = true,
     this.autoQueenPromotion = false,
@@ -44,17 +42,11 @@ class Settings {
   // Offset for the piece currently under drag
   final Offset dragFeedbackOffset;
 
-  /// Is it possible to move the pieces? If false the board will be view-only
-  final bool interactable;
-
   /// Whether premoves are authorized or not.
   final bool enablePremoves;
 
   /// Whether castling is enabled with a premove.
   final bool enablePremoveCastling;
-
-  /// Which color is allowed to move? It can be both, none, white or black
-  final cg.InteractableColor interactableColor;
 
   /// If true the promotion selector won't appear and pawn will be promoted
   // automatically to queen

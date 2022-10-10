@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 
 class Highlight extends StatelessWidget {
   const Highlight({
-    Key? key,
+    super.key,
     required this.color,
     required this.size,
-  }) : super(key: key);
+  });
 
   final Color color;
   final double size;
@@ -22,11 +22,11 @@ class Highlight extends StatelessWidget {
 
 class MoveDest extends StatelessWidget {
   const MoveDest({
-    Key? key,
+    super.key,
     required this.color,
     required this.size,
     this.occupied = false,
-  }) : super(key: key);
+  });
 
   final Color color;
   final double size;

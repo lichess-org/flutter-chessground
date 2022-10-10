@@ -4,7 +4,7 @@ import './piece.dart';
 
 class PieceTranslation extends StatefulWidget {
   const PieceTranslation({
-    Key? key,
+    super.key,
     required this.child,
     required this.fromCoord,
     required this.toCoord,
@@ -13,8 +13,7 @@ class PieceTranslation extends StatefulWidget {
     Duration? duration,
     Curve? curve,
   })  : duration = duration ?? const Duration(milliseconds: 150),
-        curve = curve ?? Curves.easeInOutCubic,
-        super(key: key);
+        curve = curve ?? Curves.easeInOutCubic;
 
   final Widget child;
   final cg.Coord fromCoord;
@@ -68,7 +67,7 @@ class _PieceTranslationState extends State<PieceTranslation> with SingleTickerPr
 
 class PieceFade extends StatefulWidget {
   const PieceFade({
-    Key? key,
+    super.key,
     required this.piece,
     required this.size,
     required this.onComplete,
@@ -76,8 +75,7 @@ class PieceFade extends StatefulWidget {
     Duration? duration,
     Curve? curve,
   })  : duration = duration ?? const Duration(milliseconds: 150),
-        curve = curve ?? Curves.easeInQuad,
-        super(key: key);
+        curve = curve ?? Curves.easeInQuad;
 
   final cg.Piece piece;
   final double size;

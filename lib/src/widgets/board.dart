@@ -16,36 +16,50 @@ import '../theme.dart';
 ///
 /// This widget can be used to display a static board, a dynamic board that
 /// shows a live game, or a full user interactable board.
-/// All the different behaviors can be controlled with the [settings] parameter.
+///
+/// Fine control over visual and behavior settings can be achieved by passing a [Settings] object.
 class Board extends StatefulWidget {
   const Board({
-    Key? key,
-    this.settings = const Settings(),
+    super.key,
     this.theme = BoardTheme.brown,
     this.pieceSet,
+    required this.interactableColor,
     required this.size,
     required this.orientation,
     required this.fen,
+    this.settings = const Settings(),
     this.turnColor = cg.Color.white,
     this.lastMove,
     this.validMoves,
     this.onMove,
-  }) : super(key: key);
+  });
 
-  // board options (usually don't change during a game)
+  /// Which color is allowed to move? It can be both, none, white or black
+  ///
+  /// If `none` is chosen the board will be non interactable.
+  final cg.InteractableColor interactableColor;
+
   final double size;
   final BoardTheme theme;
   final cg.PieceSet? pieceSet;
   final Settings settings;
 
-  // board state (can/will change during a game)
+  /// Side by which the board is oriented.
   final cg.Color orientation;
+
+  /// Side which is to move.
   final cg.Color turnColor;
+
+  /// FEN string describing the position of the board.
   final String fen;
+
+  /// Last move played, used to highlight corresponding squares.
   final cg.Move? lastMove;
+
+  /// Set of [Move] allowed to be played by current side to move.
   final cg.ValidMoves? validMoves;
 
-  // handlers
+  /// Callback called after a move has been made.
   final Function(cg.Move, {bool? isPremove})? onMove;
 
   double get squareSize => size / 8;
@@ -209,7 +223,7 @@ class _BoardState extends State<Board> {
         children: [
           // Consider using Listener instead as we don't control the drag start threshold with
           // GestureDetector (TODO)
-          widget.settings.interactable
+          widget.interactableColor != cg.InteractableColor.none
               ? GestureDetector(
                   // registering onTapDown is needed to prevent the panStart event to win the
                   // competition too early
@@ -250,7 +264,7 @@ class _BoardState extends State<Board> {
   @override
   void didUpdateWidget(Board oldBoard) {
     super.didUpdateWidget(oldBoard);
-    if (!widget.settings.interactable) {
+    if (widget.interactableColor == cg.InteractableColor.none) {
       // remove highlights if board is made not interactable again (like at the end of a game)
       selected = null;
       _premoveDests = null;
@@ -452,9 +466,8 @@ class _BoardState extends State<Board> {
   bool _isMovable(cg.SquareId squareId) {
     final piece = pieces[squareId];
     return piece != null &&
-        (widget.settings.interactableColor == cg.InteractableColor.both ||
-            (widget.settings.interactableColor.name == piece.color.name &&
-                widget.turnColor == piece.color));
+        (widget.interactableColor == cg.InteractableColor.both ||
+            (widget.interactableColor.name == piece.color.name && widget.turnColor == piece.color));
   }
 
   bool _canMove(cg.SquareId orig, cg.SquareId dest) {
@@ -466,7 +479,7 @@ class _BoardState extends State<Board> {
     final piece = pieces[squareId];
     return piece != null &&
         (widget.settings.enablePremoves &&
-            widget.settings.interactableColor.name == piece.color.name &&
+            widget.interactableColor.name == piece.color.name &&
             widget.turnColor != piece.color);
   }
 

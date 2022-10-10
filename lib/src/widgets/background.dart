@@ -7,12 +7,12 @@ import '../models.dart' as cg;
 /// than once
 class Background extends StatelessWidget {
   const Background({
-    Key? key,
+    super.key,
     required this.lightSquare,
     required this.darkSquare,
     this.coordinates = false,
     this.orientation = cg.Color.white,
-  }) : super(key: key);
+  });
 
   final Color lightSquare;
   final Color darkSquare;

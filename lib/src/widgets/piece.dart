@@ -4,13 +4,13 @@ import '../models.dart' as cg;
 /// Widget that displays a chess piece
 class PieceWidget extends StatelessWidget {
   const PieceWidget({
-    Key? key,
+    super.key,
     required this.piece,
     required this.size,
     this.pieceSet,
     this.opacity = 1.0,
     this.animatedOpacity,
-  }) : super(key: key);
+  });
 
   /// Specifies the role and color of the piece
   final cg.Piece piece;

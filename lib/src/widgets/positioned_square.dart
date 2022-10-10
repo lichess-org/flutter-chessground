@@ -8,12 +8,12 @@ import '../models.dart' as cg;
 /// [Stack].
 class PositionedSquare extends StatelessWidget {
   const PositionedSquare({
-    Key? key,
+    super.key,
     required this.child,
     required this.size,
     required this.orientation,
     required this.squareId,
-  }) : super(key: key);
+  });
 
   final Widget child;
   final double size;

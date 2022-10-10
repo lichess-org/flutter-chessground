@@ -10,7 +10,11 @@ void main() {
   group('Non-interactable board', () {
     const viewOnlyBoard = Directionality(
         textDirection: TextDirection.ltr,
-        child: Board(orientation: Color.white, size: boardSize, fen: dc.kInitialFEN));
+        child: Board(
+            interactableColor: InteractableColor.none,
+            orientation: Color.white,
+            size: boardSize,
+            fen: dc.kInitialFEN));
 
     testWidgets('initial position display', (WidgetTester tester) async {
       await tester.pumpWidget(viewOnlyBoard);
@@ -30,9 +34,7 @@ void main() {
 
   group('Interactable board', () {
     testWidgets('selecting and deselecting a square', (WidgetTester tester) async {
-      await tester.pumpWidget(buildInteractableBoard(
-          initialSettings:
-              const Settings(interactable: true, interactableColor: InteractableColor.both)));
+      await tester.pumpWidget(buildBoard(interactableColor: InteractableColor.both));
       await tester.tap(find.byKey(const Key('a2-whitepawn')));
       await tester.pump();
 
@@ -67,9 +69,7 @@ void main() {
     });
 
     testWidgets('play e2-e4 move by tap', (WidgetTester tester) async {
-      await tester.pumpWidget(buildInteractableBoard(
-          initialSettings:
-              const Settings(interactable: true, interactableColor: InteractableColor.both)));
+      await tester.pumpWidget(buildBoard(interactableColor: InteractableColor.both));
       await tester.tap(find.byKey(const Key('e2-whitepawn')));
       await tester.pump();
 
@@ -87,10 +87,9 @@ void main() {
     });
 
     testWidgets('castling by taping king then rook is possible', (WidgetTester tester) async {
-      await tester.pumpWidget(buildInteractableBoard(
+      await tester.pumpWidget(buildBoard(
           initialFen: 'r1bqk1nr/pppp1ppp/2n5/2b1p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4',
-          initialSettings:
-              const Settings(interactable: true, interactableColor: InteractableColor.both)));
+          interactableColor: InteractableColor.both));
       await tester.tap(find.byKey(const Key('e1-whiteking')));
       await tester.pump();
       await tester.tap(find.byKey(const Key('h1-whiterook')));
@@ -104,9 +103,7 @@ void main() {
     });
 
     testWidgets('dragging off target ', (WidgetTester tester) async {
-      await tester.pumpWidget(buildInteractableBoard(
-          initialSettings:
-              const Settings(interactable: true, interactableColor: InteractableColor.both)));
+      await tester.pumpWidget(buildBoard(interactableColor: InteractableColor.both));
 
       await tester.drag(
           find.byKey(const Key('e2-whitepawn')), const Offset(squareSize * 2, -(squareSize * 2)));
@@ -117,9 +114,7 @@ void main() {
     });
 
     testWidgets('e2-e4 drag move', (WidgetTester tester) async {
-      await tester.pumpWidget(buildInteractableBoard(
-          initialSettings:
-              const Settings(interactable: true, interactableColor: InteractableColor.both)));
+      await tester.pumpWidget(buildBoard(interactableColor: InteractableColor.both));
       await tester.drag(find.byKey(const Key('e2-whitepawn')), const Offset(0, -(squareSize * 2)));
       await tester.pumpAndSettle();
       expect(find.byKey(const Key('e4-whitepawn')), findsOneWidget);
@@ -129,9 +124,8 @@ void main() {
     });
 
     testWidgets('promotion', (WidgetTester tester) async {
-      await tester.pumpWidget(buildInteractableBoard(
-          initialSettings:
-              const Settings(interactable: true, interactableColor: InteractableColor.both),
+      await tester.pumpWidget(buildBoard(
+          interactableColor: InteractableColor.both,
           initialFen: '8/5P2/2RK2P1/8/4k3/8/8/7r w - - 0 1'));
 
       await tester.tap(find.byKey(const Key('f7-whitepawn')));
@@ -145,11 +139,9 @@ void main() {
     });
 
     testWidgets('promotion, auto queen enabled', (WidgetTester tester) async {
-      await tester.pumpWidget(buildInteractableBoard(
-          initialSettings: const Settings(
-              interactable: true,
-              interactableColor: InteractableColor.both,
-              autoQueenPromotion: true),
+      await tester.pumpWidget(buildBoard(
+          settings: const Settings(autoQueenPromotion: true),
+          interactableColor: InteractableColor.both,
           initialFen: '8/5P2/2RK2P1/8/4k3/8/8/7r w - - 0 1'));
 
       await tester.tap(find.byKey(const Key('f7-whitepawn')));
@@ -161,12 +153,10 @@ void main() {
     });
 
     testWidgets('premoves: select and deselect', (WidgetTester tester) async {
-      await tester.pumpWidget(buildInteractableBoard(
-          initialFen: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
-          initialSettings: const Settings(
-              interactable: true,
-              interactableColor: InteractableColor.white,
-              autoQueenPromotion: true)));
+      await tester.pumpWidget(buildBoard(
+        initialFen: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
+        interactableColor: InteractableColor.white,
+      ));
 
       await tester.tapAt(squareOffset('f1'));
       await tester.pump();
@@ -181,12 +171,10 @@ void main() {
     });
 
     testWidgets('premoves: set/unset', (WidgetTester tester) async {
-      await tester.pumpWidget(buildInteractableBoard(
-          initialFen: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
-          initialSettings: const Settings(
-              interactable: true,
-              interactableColor: InteractableColor.white,
-              autoQueenPromotion: true)));
+      await tester.pumpWidget(buildBoard(
+        initialFen: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
+        interactableColor: InteractableColor.white,
+      ));
 
       // set premove
       await makeMove(tester, 'e4', 'f5');
@@ -210,12 +198,10 @@ void main() {
     });
 
     testWidgets('premoves: set and change', (WidgetTester tester) async {
-      await tester.pumpWidget(buildInteractableBoard(
-          initialFen: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
-          initialSettings: const Settings(
-              interactable: true,
-              interactableColor: InteractableColor.white,
-              autoQueenPromotion: true)));
+      await tester.pumpWidget(buildBoard(
+        initialFen: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
+        interactableColor: InteractableColor.white,
+      ));
 
       await makeMove(tester, 'd1', 'f3');
       expect(find.byKey(const Key('d1-premove')), findsOneWidget);
@@ -242,21 +228,22 @@ Future<void> makeMove(WidgetTester tester, String from, String to) async {
   await tester.pump();
 }
 
-Widget buildInteractableBoard({
-  required Settings initialSettings,
+Widget buildBoard({
+  required InteractableColor interactableColor,
+  Settings? settings,
   orientation = Color.white,
   initialFen = dc.kInitialFEN,
 }) {
-  Settings settings = initialSettings;
   dc.Position<dc.Chess> position = dc.Chess.fromSetup(dc.Setup.parseFen(initialFen));
   Move? lastMove;
 
   return MaterialApp(home: StatefulBuilder(builder: (BuildContext context, StateSetter setState) {
     return Board(
+      interactableColor: interactableColor,
       orientation: orientation,
       size: boardSize,
       fen: position.fen,
-      settings: settings,
+      settings: settings ?? const Settings(),
       lastMove: lastMove,
       turnColor: position.turn == dc.Color.white ? Color.white : Color.black,
       validMoves: dc.algebraicLegalMoves(position),

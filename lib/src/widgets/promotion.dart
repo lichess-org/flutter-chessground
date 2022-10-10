@@ -4,7 +4,7 @@ import 'piece.dart';
 
 class PromotionSelector extends StatelessWidget {
   const PromotionSelector({
-    Key? key,
+    super.key,
     required this.move,
     required this.color,
     required this.squareSize,
@@ -12,7 +12,7 @@ class PromotionSelector extends StatelessWidget {
     required this.onSelect,
     required this.onCancel,
     this.pieceSet,
-  }) : super(key: key);
+  });
 
   final cg.PieceSet? pieceSet;
   final cg.Move move;
