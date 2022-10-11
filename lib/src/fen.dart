@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'models.dart' as cg;
+import 'models.dart';
 
-cg.Pieces readFen(String fen) {
-  final cg.Pieces pieces = {};
+Pieces readFen(String fen) {
+  final Pieces pieces = {};
   var row = 7, col = 0;
   for (final c in fen.characters) {
     switch (c) {
@@ -15,7 +15,7 @@ cg.Pieces readFen(String fen) {
         col = 0;
         break;
       case '~':
-        final sid = cg.Coord(x: col - 1, y: row).squareId;
+        final sid = Coord(x: col - 1, y: row).squareId;
         final piece = pieces[sid];
         if (piece != null) {
           pieces[sid] = piece.copyWith(promoted: true);
@@ -27,10 +27,10 @@ cg.Pieces readFen(String fen) {
           col += code - 48;
         } else {
           final roleLetter = c.toLowerCase();
-          final sid = cg.Coord(x: col, y: row).squareId;
-          pieces[sid] = cg.Piece(
+          final sid = Coord(x: col, y: row).squareId;
+          pieces[sid] = Piece(
             role: _roles[roleLetter]!,
-            color: c == roleLetter ? cg.Color.black : cg.Color.white,
+            color: c == roleLetter ? Side.black : Side.white,
           );
           ++col;
         }
@@ -40,10 +40,10 @@ cg.Pieces readFen(String fen) {
 }
 
 const _roles = {
-  'p': cg.PieceRole.pawn,
-  'r': cg.PieceRole.rook,
-  'n': cg.PieceRole.knight,
-  'b': cg.PieceRole.bishop,
-  'q': cg.PieceRole.queen,
-  'k': cg.PieceRole.king,
+  'p': PieceRole.pawn,
+  'r': PieceRole.rook,
+  'n': PieceRole.knight,
+  'b': PieceRole.bishop,
+  'q': PieceRole.queen,
+  'k': PieceRole.king,
 };

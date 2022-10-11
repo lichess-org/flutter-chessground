@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-enum Color { white, black }
+enum Side { white, black }
 
-enum InteractableColor { both, none, white, black }
+enum InteractableSide { both, none, white, black }
 
 enum PieceRole { king, queen, knight, bishop, rook, pawn }
 
@@ -51,9 +51,9 @@ class Coord {
 
   SquareId get squareId => allSquares[8 * x + y];
 
-  Offset offset(Color orientation, double squareSize) {
-    final dx = (orientation == Color.black ? 7 - x : x) * squareSize;
-    final dy = (orientation == Color.black ? y : 7 - y) * squareSize;
+  Offset offset(Side orientation, double squareSize) {
+    final dx = (orientation == Side.black ? 7 - x : x) * squareSize;
+    final dy = (orientation == Side.black ? y : 7 - y) * squareSize;
     return Offset(dx, dy);
   }
 
@@ -79,14 +79,14 @@ class Piece {
     this.promoted = false,
   });
 
-  final Color color;
+  final Side color;
   final PieceRole role;
   final bool promoted;
 
   String get kind => '${color.name}${role.name}';
 
   Piece copyWith({
-    Color? color,
+    Side? color,
     PieceRole? role,
     bool? promoted,
   }) {

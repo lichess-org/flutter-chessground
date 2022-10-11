@@ -1,7 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:chessground/chessground.dart' as cg;
-import 'package:dartchess/dartchess.dart';
+import 'package:chessground/chessground.dart';
+import 'package:dartchess/dartchess.dart' as dc;
 import './piece_set.dart';
 
 void main() {
@@ -44,11 +44,11 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  Position<Chess> position = Chess.initial;
-  String fen = kInitialBoardFEN;
-  cg.Move? lastMove;
-  cg.ValidMoves validMoves = {};
-  cg.Color turnColor = cg.Color.white;
+  dc.Position<dc.Chess> position = dc.Chess.initial;
+  String fen = dc.kInitialBoardFEN;
+  Move? lastMove;
+  ValidMoves validMoves = {};
+  Side turnColor = Side.white;
 
   @override
   Widget build(BuildContext context) {
@@ -59,15 +59,15 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
       ),
       body: Center(
-        child: cg.Board(
-          interactableColor: cg.InteractableColor.white,
+        child: Board(
+          interactableColor: InteractableSide.white,
           pieceSet: maestroPieceSet,
           validMoves: validMoves,
           size: screenWidth,
-          orientation: cg.Color.white,
+          orientation: Side.white,
           fen: fen,
           lastMove: lastMove,
-          turnColor: position.turn == Color.white ? cg.Color.white : cg.Color.black,
+          turnColor: position.turn == dc.Color.white ? Side.white : Side.black,
           onMove: _onUserMove,
         ),
       ),
@@ -76,12 +76,12 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   void initState() {
-    validMoves = algebraicLegalMoves(position);
+    validMoves = dc.algebraicLegalMoves(position);
     super.initState();
   }
 
-  void _onUserMove(cg.Move move, {bool? isPremove}) async {
-    final m = Move.fromUci(move.uci);
+  void _onUserMove(Move move, {bool? isPremove}) async {
+    final m = dc.Move.fromUci(move.uci);
     setState(() {
       position = position.playUnchecked(m);
       lastMove = move;
@@ -96,15 +96,15 @@ class _MyHomePageState extends State<MyHomePage> {
       await Future.delayed(Duration(milliseconds: random.nextInt(5500) + 500));
       final allMoves = [
         for (final entry in position.legalMoves.entries)
-          for (final dest in entry.value.squares) NormalMove(from: entry.key, to: dest)
+          for (final dest in entry.value.squares) dc.NormalMove(from: entry.key, to: dest)
       ];
       if (allMoves.isNotEmpty) {
         final mv = (allMoves..shuffle()).first;
         setState(() {
           position = position.playUnchecked(mv);
-          lastMove = cg.Move(from: toAlgebraic(mv.from), to: toAlgebraic(mv.to));
+          lastMove = Move(from: dc.toAlgebraic(mv.from), to: dc.toAlgebraic(mv.to));
           fen = position.fen;
-          validMoves = algebraicLegalMoves(position);
+          validMoves = dc.algebraicLegalMoves(position);
         });
       }
     }

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../models.dart' as cg;
+import '../models.dart';
 
 /// Widget that displays a chess piece
 class PieceWidget extends StatelessWidget {
@@ -13,13 +13,13 @@ class PieceWidget extends StatelessWidget {
   });
 
   /// Specifies the role and color of the piece
-  final cg.Piece piece;
+  final Piece piece;
 
   /// Size of the board square the piece will occupy
   final double size;
 
   /// Piece set. If you don't provide one, Merida will be used
-  final cg.PieceSet? pieceSet;
+  final PieceSet? pieceSet;
 
   /// Defines an opacity for the piece. By default it is fully opaque
   final double opacity;
@@ -40,7 +40,7 @@ class PieceWidget extends StatelessWidget {
   }
 }
 
-const cg.PieceSet meridaPieceSet = {
+const PieceSet meridaPieceSet = {
   'blackrook': AssetImage('lib/piece_sets/merida/bR.png'),
   'blackpawn': AssetImage('lib/piece_sets/merida/bP.png'),
   'blackknight': AssetImage('lib/piece_sets/merida/bN.png'),

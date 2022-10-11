@@ -57,7 +57,7 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Center(
         child: cg.Board(
           size: screenWidth,
-          orientation: cg.Color.white,
+          orientation: Side.white,
           fen: fen,
         ),
       ),

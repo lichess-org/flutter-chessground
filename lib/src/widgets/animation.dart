@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../models.dart' as cg;
+import '../models.dart';
 import './piece.dart';
 
 class PieceTranslation extends StatefulWidget {
@@ -16,14 +16,14 @@ class PieceTranslation extends StatefulWidget {
         curve = curve ?? Curves.easeInOutCubic;
 
   final Widget child;
-  final cg.Coord fromCoord;
-  final cg.Coord toCoord;
-  final cg.Color orientation;
+  final Coord fromCoord;
+  final Coord toCoord;
+  final Side orientation;
   final void Function() onComplete;
   final Duration duration;
   final Curve curve;
 
-  int get orientationFactor => orientation == cg.Color.white ? 1 : -1;
+  int get orientationFactor => orientation == Side.white ? 1 : -1;
   double get dx => -(toCoord.x - fromCoord.x).toDouble() * orientationFactor;
   double get dy => (toCoord.y - fromCoord.y).toDouble() * orientationFactor;
 
@@ -77,9 +77,9 @@ class PieceFade extends StatefulWidget {
   })  : duration = duration ?? const Duration(milliseconds: 150),
         curve = curve ?? Curves.easeInQuad;
 
-  final cg.Piece piece;
+  final Piece piece;
   final double size;
-  final cg.PieceSet? pieceSet;
+  final PieceSet? pieceSet;
   final Duration duration;
   final Curve curve;
   final void Function() onComplete;

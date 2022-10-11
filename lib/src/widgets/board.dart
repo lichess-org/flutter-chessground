@@ -6,7 +6,7 @@ import 'highlight.dart';
 import 'positioned_square.dart';
 import 'animation.dart';
 import 'promotion.dart';
-import '../models.dart' as cg;
+import '../models.dart';
 import '../fen.dart';
 import '../premove.dart';
 import '../settings.dart';
@@ -28,7 +28,7 @@ class Board extends StatefulWidget {
     required this.orientation,
     required this.fen,
     this.settings = const Settings(),
-    this.turnColor = cg.Color.white,
+    this.turnColor = Side.white,
     this.lastMove,
     this.validMoves,
     this.onMove,
@@ -37,46 +37,46 @@ class Board extends StatefulWidget {
   /// Which color is allowed to move? It can be both, none, white or black
   ///
   /// If `none` is chosen the board will be non interactable.
-  final cg.InteractableColor interactableColor;
+  final InteractableSide interactableColor;
 
   final double size;
   final BoardTheme theme;
-  final cg.PieceSet? pieceSet;
+  final PieceSet? pieceSet;
   final Settings settings;
 
   /// Side by which the board is oriented.
-  final cg.Color orientation;
+  final Side orientation;
 
   /// Side which is to move.
-  final cg.Color turnColor;
+  final Side turnColor;
 
   /// FEN string describing the position of the board.
   final String fen;
 
   /// Last move played, used to highlight corresponding squares.
-  final cg.Move? lastMove;
+  final Move? lastMove;
 
   /// Set of [Move] allowed to be played by current side to move.
-  final cg.ValidMoves? validMoves;
+  final ValidMoves? validMoves;
 
   /// Callback called after a move has been made.
-  final Function(cg.Move, {bool? isPremove})? onMove;
+  final Function(Move, {bool? isPremove})? onMove;
 
   double get squareSize => size / 8;
 
-  cg.Coord? localOffset2Coord(Offset offset) {
+  Coord? localOffset2Coord(Offset offset) {
     final x = (offset.dx / squareSize).floor();
     final y = (offset.dy / squareSize).floor();
-    final orientX = orientation == cg.Color.black ? 7 - x : x;
-    final orientY = orientation == cg.Color.black ? y : 7 - y;
+    final orientX = orientation == Side.black ? 7 - x : x;
+    final orientY = orientation == Side.black ? y : 7 - y;
     if (orientX >= 0 && orientX <= 7 && orientY >= 0 && orientY <= 7) {
-      return cg.Coord(x: orientX, y: orientY);
+      return Coord(x: orientX, y: orientY);
     } else {
       return null;
     }
   }
 
-  cg.SquareId? localOffset2SquareId(Offset offset) {
+  SquareId? localOffset2SquareId(Offset offset) {
     final coord = localOffset2Coord(offset);
     return coord?.squareId;
   }
@@ -86,20 +86,20 @@ class Board extends StatefulWidget {
 }
 
 class _BoardState extends State<Board> {
-  cg.Pieces pieces = {};
-  Map<String, Tuple2<cg.Coord, cg.Coord>> translatingPieces = {};
-  Map<String, cg.Piece> fadingPieces = {};
-  cg.SquareId? selected;
-  cg.Move? _promotionMove;
-  cg.Move? _lastDrop;
-  cg.Move? _premove;
-  Set<cg.SquareId>? _premoveDests;
+  Pieces pieces = {};
+  Map<String, Tuple2<Coord, Coord>> translatingPieces = {};
+  Map<String, Piece> fadingPieces = {};
+  SquareId? selected;
+  Move? _promotionMove;
+  Move? _lastDrop;
+  Move? _premove;
+  Set<SquareId>? _premoveDests;
   _DragAvatar? _dragAvatar;
-  cg.SquareId? _dragOrigin;
+  SquareId? _dragOrigin;
 
   @override
   Widget build(BuildContext context) {
-    final Set<cg.SquareId> moveDests =
+    final Set<SquareId> moveDests =
         widget.settings.showValidMoves && selected != null && widget.validMoves != null
             ? widget.validMoves![selected] ?? {}
             : {};
@@ -107,7 +107,7 @@ class _BoardState extends State<Board> {
     final Widget _board = Stack(
       children: [
         widget.settings.enableCoordinates
-            ? widget.orientation == cg.Color.white
+            ? widget.orientation == Side.white
                 ? widget.theme.whiteCoordBackground
                 : widget.theme.blackCoordBackground
             : widget.theme.background,
@@ -223,7 +223,7 @@ class _BoardState extends State<Board> {
         children: [
           // Consider using Listener instead as we don't control the drag start threshold with
           // GestureDetector (TODO)
-          widget.interactableColor != cg.InteractableColor.none
+          widget.interactableColor != InteractableSide.none
               ? GestureDetector(
                   // registering onTapDown is needed to prevent the panStart event to win the
                   // competition too early
@@ -264,7 +264,7 @@ class _BoardState extends State<Board> {
   @override
   void didUpdateWidget(Board oldBoard) {
     super.didUpdateWidget(oldBoard);
-    if (widget.interactableColor == cg.InteractableColor.none) {
+    if (widget.interactableColor == InteractableSide.none) {
       // remove highlights if board is made not interactable again (like at the end of a game)
       selected = null;
       _premoveDests = null;
@@ -282,33 +282,33 @@ class _BoardState extends State<Board> {
     translatingPieces = {};
     fadingPieces = {};
     final newPieces = readFen(widget.fen);
-    final List<cg.PositionedPiece> newOnSquare = [];
-    final List<cg.PositionedPiece> missingOnSquare = [];
+    final List<PositionedPiece> newOnSquare = [];
+    final List<PositionedPiece> missingOnSquare = [];
     final Set<String> animatedOrigins = {};
-    for (final s in cg.allSquares) {
+    for (final s in allSquares) {
       if (s == _lastDrop?.from || s == _lastDrop?.to) {
         continue;
       }
       final oldP = pieces[s];
       final newP = newPieces[s];
-      final squareCoord = cg.Coord.fromSquareId(s);
+      final squareCoord = Coord.fromSquareId(s);
       if (newP != null) {
         if (oldP != null) {
           if (newP != oldP) {
-            missingOnSquare.add(cg.PositionedPiece(piece: oldP, squareId: s, coord: squareCoord));
-            newOnSquare.add(cg.PositionedPiece(piece: newP, squareId: s, coord: squareCoord));
+            missingOnSquare.add(PositionedPiece(piece: oldP, squareId: s, coord: squareCoord));
+            newOnSquare.add(PositionedPiece(piece: newP, squareId: s, coord: squareCoord));
           }
         } else {
-          newOnSquare.add(cg.PositionedPiece(piece: newP, squareId: s, coord: squareCoord));
+          newOnSquare.add(PositionedPiece(piece: newP, squareId: s, coord: squareCoord));
         }
       } else if (oldP != null) {
-        missingOnSquare.add(cg.PositionedPiece(piece: oldP, squareId: s, coord: squareCoord));
+        missingOnSquare.add(PositionedPiece(piece: oldP, squareId: s, coord: squareCoord));
       }
     }
     for (final n in newOnSquare) {
       final fromP = n.closest(missingOnSquare.where((m) => m.piece == n.piece).toList());
       if (fromP != null) {
-        final t = Tuple2<cg.Coord, cg.Coord>(fromP.coord, n.coord);
+        final t = Tuple2<Coord, Coord>(fromP.coord, n.coord);
         translatingPieces[n.squareId] = t;
         animatedOrigins.add(fromP.squareId);
       }
@@ -443,7 +443,7 @@ class _BoardState extends State<Board> {
     }
   }
 
-  void _onPromotionSelect(cg.Move move, cg.Piece promoted) {
+  void _onPromotionSelect(Move move, Piece promoted) {
     setState(() {
       pieces[move.to] = promoted;
       _promotionMove = null;
@@ -451,14 +451,14 @@ class _BoardState extends State<Board> {
     widget.onMove?.call(move.withPromotion(promoted.role));
   }
 
-  void _onPromotionCancel(cg.Move move) {
+  void _onPromotionCancel(Move move) {
     setState(() {
       pieces = readFen(widget.fen);
       _promotionMove = null;
     });
   }
 
-  void _openPromotionSelector(cg.Move move) {
+  void _openPromotionSelector(Move move) {
     setState(() {
       final pawn = pieces.remove(move.from);
       pieces[move.to] = pawn!;
@@ -466,19 +466,19 @@ class _BoardState extends State<Board> {
     });
   }
 
-  bool _isMovable(cg.SquareId squareId) {
+  bool _isMovable(SquareId squareId) {
     final piece = pieces[squareId];
     return piece != null &&
-        (widget.interactableColor == cg.InteractableColor.both ||
+        (widget.interactableColor == InteractableSide.both ||
             (widget.interactableColor.name == piece.color.name && widget.turnColor == piece.color));
   }
 
-  bool _canMove(cg.SquareId orig, cg.SquareId dest) {
+  bool _canMove(SquareId orig, SquareId dest) {
     final validDests = widget.validMoves?[orig];
     return orig != dest && validDests != null && validDests.contains(dest);
   }
 
-  bool _isPremovable(cg.SquareId squareId) {
+  bool _isPremovable(SquareId squareId) {
     final piece = pieces[squareId];
     return piece != null &&
         (widget.settings.enablePremoves &&
@@ -486,27 +486,27 @@ class _BoardState extends State<Board> {
             widget.turnColor != piece.color);
   }
 
-  bool _canPremove(cg.SquareId orig, cg.SquareId dest) {
+  bool _canPremove(SquareId orig, SquareId dest) {
     return (orig != dest &&
         _isPremovable(orig) &&
         premovesOf(orig, pieces, canCastle: widget.settings.enablePremoveCastling).contains(dest));
   }
 
-  bool _isPromoMove(cg.Piece piece, cg.SquareId targetSquareId) {
+  bool _isPromoMove(Piece piece, SquareId targetSquareId) {
     final rank = targetSquareId[1];
-    return piece.role == cg.PieceRole.pawn && (rank == '1' || rank == '8');
+    return piece.role == PieceRole.pawn && (rank == '1' || rank == '8');
   }
 
-  void _tryMoveTo(cg.SquareId squareId, {drop = false}) {
+  void _tryMoveTo(SquareId squareId, {drop = false}) {
     final selectedPiece = selected != null ? pieces[selected] : null;
     if (selectedPiece != null && _canMove(selected!, squareId)) {
-      final move = cg.Move(from: selected!, to: squareId);
+      final move = Move(from: selected!, to: squareId);
       if (drop) {
         _lastDrop = move;
       }
       if (_isPromoMove(selectedPiece, squareId)) {
         if (widget.settings.autoQueenPromotion) {
-          widget.onMove?.call(move.withPromotion(cg.PieceRole.queen));
+          widget.onMove?.call(move.withPromotion(PieceRole.queen));
         } else {
           _openPromotionSelector(move);
         }
@@ -515,7 +515,7 @@ class _BoardState extends State<Board> {
       }
     } else if (selectedPiece != null && _canPremove(selected!, squareId)) {
       setState(() {
-        _premove = cg.Move(from: selected!, to: squareId);
+        _premove = Move(from: selected!, to: squareId);
       });
     }
     setState(() {
@@ -532,7 +532,7 @@ class _BoardState extends State<Board> {
     if (fromPiece != null && _canMove(_premove!.from, _premove!.to)) {
       if (_isPromoMove(fromPiece, _premove!.to)) {
         if (widget.settings.autoQueenPromotion) {
-          widget.onMove?.call(_premove!.withPromotion(cg.PieceRole.queen), isPremove: true);
+          widget.onMove?.call(_premove!.withPromotion(PieceRole.queen), isPremove: true);
         } else {
           _openPromotionSelector(_premove!);
         }

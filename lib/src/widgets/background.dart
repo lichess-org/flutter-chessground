@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../models.dart' as cg;
+import '../models.dart';
 
 /// Board background
 ///
@@ -11,13 +11,13 @@ class Background extends StatelessWidget {
     required this.lightSquare,
     required this.darkSquare,
     this.coordinates = false,
-    this.orientation = cg.Color.white,
+    this.orientation = Side.white,
   });
 
   final Color lightSquare;
   final Color darkSquare;
   final bool coordinates;
-  final cg.Color orientation;
+  final Side orientation;
 
   static const brown = Background(
     lightSquare: Color(0xfff0d9b6),
@@ -27,13 +27,13 @@ class Background extends StatelessWidget {
     lightSquare: Color(0xfff0d9b6),
     darkSquare: Color(0xffb58863),
     coordinates: true,
-    orientation: cg.Color.white,
+    orientation: Side.white,
   );
   static const brownBlackCoords = Background(
     lightSquare: Color(0xfff0d9b6),
     darkSquare: Color(0xffb58863),
     coordinates: true,
-    orientation: cg.Color.black,
+    orientation: Side.black,
   );
   static const blue = Background(
     lightSquare: Color(0xffdee3e6),
@@ -43,13 +43,13 @@ class Background extends StatelessWidget {
     lightSquare: Color(0xffdee3e6),
     darkSquare: Color(0xff8ca2ad),
     coordinates: true,
-    orientation: cg.Color.white,
+    orientation: Side.white,
   );
   static const blueBlackCoords = Background(
     lightSquare: Color(0xffdee3e6),
     darkSquare: Color(0xff8ca2ad),
     coordinates: true,
-    orientation: cg.Color.black,
+    orientation: Side.black,
   );
   static const green = Background(
     lightSquare: Color(0xffffffdd),
@@ -59,13 +59,13 @@ class Background extends StatelessWidget {
     lightSquare: Color(0xffffffdd),
     darkSquare: Color(0xff86a666),
     coordinates: true,
-    orientation: cg.Color.white,
+    orientation: Side.white,
   );
   static const greenBlackCoords = Background(
     lightSquare: Color(0xffffffdd),
     darkSquare: Color(0xff86a666),
     coordinates: true,
-    orientation: cg.Color.black,
+    orientation: Side.black,
   );
 
   @override
@@ -116,7 +116,7 @@ class Coordinate extends StatelessWidget {
   final int rank;
   final int file;
   final Color color;
-  final cg.Color orientation;
+  final Side orientation;
 
   @override
   Widget build(BuildContext context) {
@@ -132,7 +132,7 @@ class Coordinate extends StatelessWidget {
           Align(
             alignment: Alignment.topRight,
             child: Text(
-              orientation == cg.Color.white ? '${8 - rank}' : '${rank + 1}',
+              orientation == Side.white ? '${8 - rank}' : '${rank + 1}',
               style: coordStyle,
             ),
           ),
@@ -140,7 +140,7 @@ class Coordinate extends StatelessWidget {
           Align(
             alignment: Alignment.bottomLeft,
             child: Text(
-              orientation == cg.Color.white
+              orientation == Side.white
                   ? String.fromCharCode(97 + file)
                   : String.fromCharCode(97 + 7 - file),
               style: coordStyle,

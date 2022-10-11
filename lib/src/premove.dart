@@ -31,10 +31,10 @@ int _diff(int a, int b) {
   return (a - b).abs();
 }
 
-_Mobility _pawn(Color color) {
+_Mobility _pawn(Side color) {
   return (int x1, int y1, int x2, int y2) =>
       _diff(x1, x2) < 2 &&
-      (color == Color.white
+      (color == Side.white
           ? y2 == y1 + 1 || (y1 <= 1 && y2 == y1 + 2 && x1 == x2)
           : y2 == y1 - 1 || (y1 >= 6 && y2 == y1 - 2 && x1 == x2));
 }
@@ -57,19 +57,19 @@ bool _queen(int x1, int y1, int x2, int y2) {
   return _bishop(x1, y1, x2, y2) || _rook(x1, y1, x2, y2);
 }
 
-_Mobility _king(Color color, List<int> rookFiles, bool canCastle) {
+_Mobility _king(Side color, List<int> rookFiles, bool canCastle) {
   return (int x1, int y1, int x2, int y2) =>
       (_diff(x1, x2) < 2 && _diff(y1, y2) < 2) ||
       (canCastle &&
           y1 == y2 &&
-          y1 == (color == Color.white ? 0 : 7) &&
+          y1 == (color == Side.white ? 0 : 7) &&
           ((x1 == 4 &&
                   ((x2 == 2 && rookFiles.contains(0)) || (x2 == 6 && rookFiles.contains(7)))) ||
               rookFiles.contains(x2)));
 }
 
-List<int> _rookFilesOf(Pieces pieces, Color color) {
-  final backrank = color == Color.white ? '1' : '8';
+List<int> _rookFilesOf(Pieces pieces, Side color) {
+  final backrank = color == Side.white ? '1' : '8';
   final List<int> files = [];
   for (final entry in pieces.entries) {
     if (entry.key[1] == backrank &&

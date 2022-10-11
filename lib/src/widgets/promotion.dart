@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../models.dart' as cg;
+import '../models.dart';
 import 'piece.dart';
 
 class PromotionSelector extends StatelessWidget {
@@ -14,24 +14,24 @@ class PromotionSelector extends StatelessWidget {
     this.pieceSet,
   });
 
-  final cg.PieceSet? pieceSet;
-  final cg.Move move;
-  final cg.Color color;
+  final PieceSet? pieceSet;
+  final Move move;
+  final Side color;
   final double squareSize;
-  final cg.Color orientation;
-  final Function(cg.Move, cg.Piece) onSelect;
-  final Function(cg.Move) onCancel;
+  final Side orientation;
+  final Function(Move, Piece) onSelect;
+  final Function(Move) onCancel;
 
-  cg.SquareId get squareId => move.to;
+  SquareId get squareId => move.to;
 
   @override
   Widget build(BuildContext context) {
     final file = squareId[0];
     final rank = squareId[1];
-    final coord = (orientation == cg.Color.white && rank == '8' ||
-            orientation == cg.Color.black && rank == '1')
-        ? cg.Coord.fromSquareId(squareId)
-        : cg.Coord.fromSquareId(file + (orientation == cg.Color.white ? '4' : '5'));
+    final coord =
+        (orientation == Side.white && rank == '8' || orientation == Side.black && rank == '1')
+            ? Coord.fromSquareId(squareId)
+            : Coord.fromSquareId(file + (orientation == Side.white ? '4' : '5'));
     final offset = coord.offset(orientation, squareSize);
 
     return GestureDetector(
@@ -45,27 +45,27 @@ class PromotionSelector extends StatelessWidget {
             Positioned(
               child: Column(
                 children: [
-                  cg.Piece(
+                  Piece(
                     color: color,
-                    role: cg.PieceRole.queen,
+                    role: PieceRole.queen,
                     promoted: true,
                   ),
-                  cg.Piece(
+                  Piece(
                     color: color,
-                    role: cg.PieceRole.knight,
+                    role: PieceRole.knight,
                     promoted: true,
                   ),
-                  cg.Piece(
+                  Piece(
                     color: color,
-                    role: cg.PieceRole.rook,
+                    role: PieceRole.rook,
                     promoted: true,
                   ),
-                  cg.Piece(
+                  Piece(
                     color: color,
-                    role: cg.PieceRole.bishop,
+                    role: PieceRole.bishop,
                     promoted: true,
                   ),
-                ].map((cg.Piece piece) {
+                ].map((Piece piece) {
                   return GestureDetector(
                     onTap: () => onSelect(move, piece),
                     child: Stack(children: [
