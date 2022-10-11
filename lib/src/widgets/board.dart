@@ -23,7 +23,7 @@ class Board extends StatefulWidget {
     super.key,
     this.theme = BoardTheme.brown,
     this.pieceSet,
-    required this.interactableColor,
+    required this.interactableSide,
     required this.size,
     required this.orientation,
     required this.fen,
@@ -37,7 +37,7 @@ class Board extends StatefulWidget {
   /// Which color is allowed to move? It can be both, none, white or black
   ///
   /// If `none` is chosen the board will be non interactable.
-  final InteractableSide interactableColor;
+  final InteractableSide interactableSide;
 
   final double size;
   final BoardTheme theme;
@@ -223,7 +223,7 @@ class _BoardState extends State<Board> {
         children: [
           // Consider using Listener instead as we don't control the drag start threshold with
           // GestureDetector (TODO)
-          widget.interactableColor != InteractableSide.none
+          widget.interactableSide != InteractableSide.none
               ? GestureDetector(
                   // registering onTapDown is needed to prevent the panStart event to win the
                   // competition too early
@@ -264,7 +264,7 @@ class _BoardState extends State<Board> {
   @override
   void didUpdateWidget(Board oldBoard) {
     super.didUpdateWidget(oldBoard);
-    if (widget.interactableColor == InteractableSide.none) {
+    if (widget.interactableSide == InteractableSide.none) {
       // remove highlights if board is made not interactable again (like at the end of a game)
       selected = null;
       _premoveDests = null;
@@ -469,8 +469,8 @@ class _BoardState extends State<Board> {
   bool _isMovable(SquareId squareId) {
     final piece = pieces[squareId];
     return piece != null &&
-        (widget.interactableColor == InteractableSide.both ||
-            (widget.interactableColor.name == piece.color.name && widget.turnColor == piece.color));
+        (widget.interactableSide == InteractableSide.both ||
+            (widget.interactableSide.name == piece.color.name && widget.turnColor == piece.color));
   }
 
   bool _canMove(SquareId orig, SquareId dest) {
@@ -482,7 +482,7 @@ class _BoardState extends State<Board> {
     final piece = pieces[squareId];
     return piece != null &&
         (widget.settings.enablePremoves &&
-            widget.interactableColor.name == piece.color.name &&
+            widget.interactableSide.name == piece.color.name &&
             widget.turnColor != piece.color);
   }
 

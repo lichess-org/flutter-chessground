@@ -60,7 +60,7 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Center(
         child: Board(
-          interactableColor: InteractableSide.white,
+          interactableSide: InteractableSide.white,
           pieceSet: maestroPieceSet,
           validMoves: validMoves,
           size: screenWidth,

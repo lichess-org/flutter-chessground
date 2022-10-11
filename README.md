@@ -19,6 +19,7 @@ chess logic so you can use it with different chess variants.
 - pieces animations: moving and fading away
 - board highlights: last move, piece destinations
 - move piece by tap or drag and drop
+- premoves
 - displays a shadow under dragged piece to indicate the drop square target
 - board themes
 - promotion selector
@@ -30,11 +31,12 @@ entirely configurable with a `Settings` object.
 
 ## Usage
 
-This will display a board with the starting position, using the default theme:
+This will display a non-interactable board from the starting position, using the
+default theme:
 
 ```dart
 import 'package:flutter/material.dart';
-import 'package:chessground/chessground.dart' as cg;
+import 'package:chessground/chessground.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key, required this.title}) : super(key: key);
@@ -55,7 +57,8 @@ class _MyHomePageState extends State<MyHomePage> {
         title: const Text('Chessground demo'),
       ),
       body: Center(
-        child: cg.Board(
+        child: Board(
+          interactableSide: InteractableSide.none,
           size: screenWidth,
           orientation: Side.white,
           fen: fen,
