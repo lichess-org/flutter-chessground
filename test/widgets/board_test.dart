@@ -152,7 +152,7 @@ void main() {
       expect(find.byKey(const Key('f7-whitepawn')), findsNothing);
     });
 
-    testWidgets('premoves: select and deselect', (WidgetTester tester) async {
+    testWidgets('premoves: select and deselect with empty square', (WidgetTester tester) async {
       await tester.pumpWidget(buildBoard(
         initialFen: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
         interactableColor: InteractableColor.white,
@@ -163,7 +163,23 @@ void main() {
       expect(find.byKey(const Key('f1-selected')), findsOneWidget);
       expect(find.byType(MoveDest), findsNWidgets(7));
 
-      // deselects by tapping empty square
+      await tester.tapAt(squareOffset('b4'));
+      await tester.pump();
+      expect(find.byKey(const Key('e4-selected')), findsNothing);
+      expect(find.byType(MoveDest), findsNothing);
+    });
+
+    testWidgets('premoves: select and deselect with opponent piece', (WidgetTester tester) async {
+      await tester.pumpWidget(buildBoard(
+        initialFen: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
+        interactableColor: InteractableColor.white,
+      ));
+
+      await tester.tapAt(squareOffset('f1'));
+      await tester.pump();
+      expect(find.byKey(const Key('f1-selected')), findsOneWidget);
+      expect(find.byType(MoveDest), findsNWidgets(7));
+
       await tester.tapAt(squareOffset('f8'));
       await tester.pump();
       expect(find.byKey(const Key('e4-selected')), findsNothing);
@@ -229,6 +245,18 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.byKey(const Key('e4-premove')), findsOneWidget);
       expect(find.byKey(const Key('e5-premove')), findsOneWidget);
+      expect(find.byKey(const Key('e4-selected')), findsNothing);
+    });
+
+    testWidgets('premoves: select pieces from same side', (WidgetTester tester) async {
+      await tester.pumpWidget(buildBoard(
+        initialFen: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
+        interactableColor: InteractableColor.white,
+      ));
+
+      await makeMove(tester, 'd1', 'c2');
+      expect(find.byKey(const Key('d1-premove')), findsOneWidget);
+      expect(find.byKey(const Key('c2-premove')), findsOneWidget);
     });
   });
 }

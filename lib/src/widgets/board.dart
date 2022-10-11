@@ -345,7 +345,8 @@ class _BoardState extends State<Board> {
           setState(() {
             selected = squareId;
           });
-        } else if (_isPremovable(squareId)) {
+        } else if (_isPremovable(squareId) &&
+            (selected == null || !_canPremove(selected!, squareId))) {
           setState(() {
             selected = squareId;
             _premoveDests =
