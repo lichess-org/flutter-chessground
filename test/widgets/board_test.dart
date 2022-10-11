@@ -218,6 +218,18 @@ void main() {
       expect(find.byKey(const Key('d2-premove')), findsOneWidget);
       expect(find.byKey(const Key('d4-premove')), findsOneWidget);
     });
+
+    testWidgets('premoves: drag to set', (WidgetTester tester) async {
+      await tester.pumpWidget(buildBoard(
+        initialFen: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
+        interactableColor: InteractableColor.white,
+      ));
+
+      await tester.drag(find.byKey(const Key('e4-whitepawn')), const Offset(0, -squareSize));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('e4-premove')), findsOneWidget);
+      expect(find.byKey(const Key('e5-premove')), findsOneWidget);
+    });
   });
 }
 

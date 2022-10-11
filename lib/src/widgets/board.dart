@@ -366,7 +366,9 @@ class _BoardState extends State<Board> {
       final _squareId = widget.localOffset2SquareId(details.localPosition);
       final _piece = _squareId != null ? pieces[_squareId] : null;
       final _feedbackSize = widget.squareSize * widget.settings.dragFeedbackSize;
-      if (_squareId != null && _piece != null && _isMovable(_squareId)) {
+      if (_squareId != null &&
+          _piece != null &&
+          (_isMovable(_squareId) || _isPremovable(_squareId))) {
         setState(() {
           _dragOrigin = _squareId;
         });
