@@ -285,7 +285,7 @@ Widget buildBoard({
       fen: position.fen,
       settings: settings ?? const Settings(),
       lastMove: lastMove,
-      turnColor: position.turn == dc.Color.white ? Side.white : Side.black,
+      sideToMove: position.turn == dc.Color.white ? Side.white : Side.black,
       validMoves: dc.algebraicLegalMoves(position),
       onMove: (Move move, {bool? isPremove}) {
         setState(() {

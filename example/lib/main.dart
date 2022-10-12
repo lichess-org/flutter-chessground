@@ -48,7 +48,7 @@ class _MyHomePageState extends State<MyHomePage> {
   String fen = dc.kInitialBoardFEN;
   Move? lastMove;
   ValidMoves validMoves = {};
-  Side turnColor = Side.white;
+  Side sideToMove = Side.white;
 
   @override
   Widget build(BuildContext context) {
@@ -67,7 +67,7 @@ class _MyHomePageState extends State<MyHomePage> {
           orientation: Side.white,
           fen: fen,
           lastMove: lastMove,
-          turnColor: position.turn == dc.Color.white ? Side.white : Side.black,
+          sideToMove: position.turn == dc.Color.white ? Side.white : Side.black,
           onMove: _onUserMove,
         ),
       ),

@@ -28,7 +28,7 @@ class Board extends StatefulWidget {
     required this.orientation,
     required this.fen,
     this.settings = const Settings(),
-    this.turnColor = Side.white,
+    this.sideToMove = Side.white,
     this.lastMove,
     this.validMoves,
     this.onMove,
@@ -48,7 +48,7 @@ class Board extends StatefulWidget {
   final Side orientation;
 
   /// Side which is to move.
-  final Side turnColor;
+  final Side sideToMove;
 
   /// FEN string describing the position of the board.
   final String fen;
@@ -245,7 +245,7 @@ class _BoardState extends State<Board> {
               pieceSet: widget.pieceSet,
               move: _promotionMove!,
               squareSize: widget.squareSize,
-              color: widget.turnColor,
+              color: widget.sideToMove,
               orientation: widget.orientation,
               onSelect: _onPromotionSelect,
               onCancel: _onPromotionCancel,
@@ -270,7 +270,7 @@ class _BoardState extends State<Board> {
       _premoveDests = null;
       _premove = null;
     }
-    if (oldBoard.turnColor != widget.turnColor) {
+    if (oldBoard.sideToMove != widget.sideToMove) {
       _premoveDests = null;
       WidgetsBinding.instance.addPostFrameCallback((_) => _tryPlayPremove());
     }
@@ -470,7 +470,7 @@ class _BoardState extends State<Board> {
     final piece = pieces[squareId];
     return piece != null &&
         (widget.interactableSide == InteractableSide.both ||
-            (widget.interactableSide.name == piece.color.name && widget.turnColor == piece.color));
+            (widget.interactableSide.name == piece.color.name && widget.sideToMove == piece.color));
   }
 
   bool _canMove(SquareId orig, SquareId dest) {
@@ -483,7 +483,7 @@ class _BoardState extends State<Board> {
     return piece != null &&
         (widget.settings.enablePremoves &&
             widget.interactableSide.name == piece.color.name &&
-            widget.turnColor != piece.color);
+            widget.sideToMove != piece.color);
   }
 
   bool _canPremove(SquareId orig, SquareId dest) {
