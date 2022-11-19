@@ -5,7 +5,8 @@ const initialFen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR';
 
 void main() {
   test('pawn premoves', () {
-    expect(premovesOf('e2', readFen(initialFen)), equals({'d3', 'e3', 'e4', 'f3'}));
+    expect(premovesOf('e2', readFen(initialFen)),
+        equals({'d3', 'e3', 'e4', 'f3'}));
   });
 
   test('knight premoves', () {
@@ -13,15 +14,29 @@ void main() {
   });
 
   test('bishop premoves', () {
-    expect(
-        premovesOf('c1', readFen(initialFen)), equals({'a3', 'b2', 'd2', 'e3', 'f4', 'g5', 'h6'}));
+    expect(premovesOf('c1', readFen(initialFen)),
+        equals({'a3', 'b2', 'd2', 'e3', 'f4', 'g5', 'h6'}));
   });
 
   test('rook premoves', () {
     expect(
         premovesOf('a1', readFen(initialFen)),
-        equals(
-            {'a2', 'a3', 'a4', 'a5', 'a6', 'a7', 'a8', 'b1', 'c1', 'd1', 'e1', 'f1', 'g1', 'h1'}));
+        equals({
+          'a2',
+          'a3',
+          'a4',
+          'a5',
+          'a6',
+          'a7',
+          'a8',
+          'b1',
+          'c1',
+          'd1',
+          'e1',
+          'f1',
+          'g1',
+          'h1'
+        }));
   });
 
   test('queen premoves', () {
@@ -56,6 +71,7 @@ void main() {
     expect(premovesOf('e1', readFen(initialFen), canCastle: true),
         equals({'a1', 'c1', 'd1', 'd2', 'e2', 'f2', 'f1', 'g1', 'h1'}));
 
-    expect(premovesOf('e1', readFen(initialFen)), equals({'d1', 'd2', 'e2', 'f2', 'f1'}));
+    expect(premovesOf('e1', readFen(initialFen)),
+        equals({'d1', 'd2', 'e2', 'f2', 'f1'}));
   });
 }

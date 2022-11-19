@@ -31,7 +31,8 @@ class PieceTranslation extends StatefulWidget {
   State<PieceTranslation> createState() => _PieceTranslationState();
 }
 
-class _PieceTranslationState extends State<PieceTranslation> with SingleTickerProviderStateMixin {
+class _PieceTranslationState extends State<PieceTranslation>
+    with SingleTickerProviderStateMixin {
   late final AnimationController _controller = AnimationController(
     duration: widget.duration,
     vsync: this,

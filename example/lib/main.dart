@@ -96,13 +96,15 @@ class _MyHomePageState extends State<MyHomePage> {
       await Future.delayed(Duration(milliseconds: random.nextInt(5500) + 500));
       final allMoves = [
         for (final entry in position.legalMoves.entries)
-          for (final dest in entry.value.squares) dc.NormalMove(from: entry.key, to: dest)
+          for (final dest in entry.value.squares)
+            dc.NormalMove(from: entry.key, to: dest)
       ];
       if (allMoves.isNotEmpty) {
         final mv = (allMoves..shuffle()).first;
         setState(() {
           position = position.playUnchecked(mv);
-          lastMove = Move(from: dc.toAlgebraic(mv.from), to: dc.toAlgebraic(mv.to));
+          lastMove =
+              Move(from: dc.toAlgebraic(mv.from), to: dc.toAlgebraic(mv.to));
           fen = position.fen;
           validMoves = dc.algebraicLegalMoves(position);
         });

@@ -99,10 +99,11 @@ class _BoardState extends State<Board> {
 
   @override
   Widget build(BuildContext context) {
-    final Set<SquareId> moveDests =
-        widget.settings.showValidMoves && selected != null && widget.validMoves != null
-            ? widget.validMoves![selected] ?? {}
-            : {};
+    final Set<SquareId> moveDests = widget.settings.showValidMoves &&
+            selected != null &&
+            widget.validMoves != null
+        ? widget.validMoves![selected] ?? {}
+        : {};
     final premoveDests = _premoveDests ?? {};
     final Widget _board = Stack(
       children: [
@@ -295,18 +296,23 @@ class _BoardState extends State<Board> {
       if (newP != null) {
         if (oldP != null) {
           if (newP != oldP) {
-            missingOnSquare.add(PositionedPiece(piece: oldP, squareId: s, coord: squareCoord));
-            newOnSquare.add(PositionedPiece(piece: newP, squareId: s, coord: squareCoord));
+            missingOnSquare.add(
+                PositionedPiece(piece: oldP, squareId: s, coord: squareCoord));
+            newOnSquare.add(
+                PositionedPiece(piece: newP, squareId: s, coord: squareCoord));
           }
         } else {
-          newOnSquare.add(PositionedPiece(piece: newP, squareId: s, coord: squareCoord));
+          newOnSquare.add(
+              PositionedPiece(piece: newP, squareId: s, coord: squareCoord));
         }
       } else if (oldP != null) {
-        missingOnSquare.add(PositionedPiece(piece: oldP, squareId: s, coord: squareCoord));
+        missingOnSquare
+            .add(PositionedPiece(piece: oldP, squareId: s, coord: squareCoord));
       }
     }
     for (final n in newOnSquare) {
-      final fromP = n.closest(missingOnSquare.where((m) => m.piece == n.piece).toList());
+      final fromP =
+          n.closest(missingOnSquare.where((m) => m.piece == n.piece).toList());
       if (fromP != null) {
         final t = Tuple2<Coord, Coord>(fromP.coord, n.coord);
         translatingPieces[n.squareId] = t;
@@ -329,7 +335,8 @@ class _BoardState extends State<Board> {
       final localOffset = coord.offset(widget.orientation, widget.squareSize);
       final RenderBox box = context.findRenderObject()! as RenderBox;
       final tmpOffset = box.localToGlobal(localOffset);
-      return Offset(tmpOffset.dx - widget.squareSize / 2, tmpOffset.dy - widget.squareSize / 2);
+      return Offset(tmpOffset.dx - widget.squareSize / 2,
+          tmpOffset.dy - widget.squareSize / 2);
     } else {
       return null;
     }
@@ -341,7 +348,8 @@ class _BoardState extends State<Board> {
       if (squareId != null) {
         // allow to castle by selecting the king and then the rook, so we must prevent the
         // re-selection of the rook
-        if (_isMovable(squareId) && (selected == null || !_canMove(selected!, squareId))) {
+        if (_isMovable(squareId) &&
+            (selected == null || !_canMove(selected!, squareId))) {
           setState(() {
             selected = squareId;
           });
@@ -349,8 +357,8 @@ class _BoardState extends State<Board> {
             (selected == null || !_canPremove(selected!, squareId))) {
           setState(() {
             selected = squareId;
-            _premoveDests =
-                premovesOf(squareId, pieces, canCastle: widget.settings.enablePremoveCastling);
+            _premoveDests = premovesOf(squareId, pieces,
+                canCastle: widget.settings.enablePremoveCastling);
           });
         } else {
           setState(() {
@@ -366,14 +374,16 @@ class _BoardState extends State<Board> {
     if (details != null) {
       final _squareId = widget.localOffset2SquareId(details.localPosition);
       final _piece = _squareId != null ? pieces[_squareId] : null;
-      final _feedbackSize = widget.squareSize * widget.settings.dragFeedbackSize;
+      final _feedbackSize =
+          widget.squareSize * widget.settings.dragFeedbackSize;
       if (_squareId != null &&
           _piece != null &&
           (_isMovable(_squareId) || _isPremovable(_squareId))) {
         setState(() {
           _dragOrigin = _squareId;
         });
-        final _squareTargetOffset = _squareTargetGlobalOffset(details.localPosition);
+        final _squareTargetOffset =
+            _squareTargetGlobalOffset(details.localPosition);
         _dragAvatar = _DragAvatar(
           overlayState: Overlay.of(context, debugRequiredFor: widget)!,
           initialPosition: details.globalPosition,
@@ -404,7 +414,8 @@ class _BoardState extends State<Board> {
 
   void _onPanUpdate(DragUpdateDetails? details) {
     if (details != null && _dragAvatar != null) {
-      final squareTargetOffset = _squareTargetGlobalOffset(details.localPosition);
+      final squareTargetOffset =
+          _squareTargetGlobalOffset(details.localPosition);
       _dragAvatar?.update(details);
       _dragAvatar?.updateSquareTarget(squareTargetOffset);
     }
@@ -470,7 +481,8 @@ class _BoardState extends State<Board> {
     final piece = pieces[squareId];
     return piece != null &&
         (widget.interactableSide == InteractableSide.both ||
-            (widget.interactableSide.name == piece.color.name && widget.sideToMove == piece.color));
+            (widget.interactableSide.name == piece.color.name &&
+                widget.sideToMove == piece.color));
   }
 
   bool _canMove(SquareId orig, SquareId dest) {
@@ -489,7 +501,9 @@ class _BoardState extends State<Board> {
   bool _canPremove(SquareId orig, SquareId dest) {
     return (orig != dest &&
         _isPremovable(orig) &&
-        premovesOf(orig, pieces, canCastle: widget.settings.enablePremoveCastling).contains(dest));
+        premovesOf(orig, pieces,
+                canCastle: widget.settings.enablePremoveCastling)
+            .contains(dest));
   }
 
   bool _isPromoMove(Piece piece, SquareId targetSquareId) {
@@ -532,7 +546,8 @@ class _BoardState extends State<Board> {
     if (fromPiece != null && _canMove(_premove!.from, _premove!.to)) {
       if (_isPromoMove(fromPiece, _premove!.to)) {
         if (widget.settings.autoQueenPromotion) {
-          widget.onMove?.call(_premove!.withPromotion(PieceRole.queen), isPremove: true);
+          widget.onMove
+              ?.call(_premove!.withPromotion(PieceRole.queen), isPremove: true);
         } else {
           _openPromotionSelector(_premove!);
         }

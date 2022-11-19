@@ -124,7 +124,8 @@ class PositionedPiece {
   final Coord coord;
 
   PositionedPiece? closest(List<PositionedPiece> pieces) {
-    pieces.sort((p1, p2) => _distanceSq(coord, p1.coord) - _distanceSq(coord, p2.coord));
+    pieces.sort((p1, p2) =>
+        _distanceSq(coord, p1.coord) - _distanceSq(coord, p2.coord));
     return pieces.isNotEmpty ? pieces[0] : null;
   }
 

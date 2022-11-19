@@ -33,8 +33,10 @@ void main() {
   });
 
   group('Interactable board', () {
-    testWidgets('selecting and deselecting a square', (WidgetTester tester) async {
-      await tester.pumpWidget(buildBoard(interactableSide: InteractableSide.both));
+    testWidgets('selecting and deselecting a square',
+        (WidgetTester tester) async {
+      await tester
+          .pumpWidget(buildBoard(interactableSide: InteractableSide.both));
       await tester.tap(find.byKey(const Key('a2-whitepawn')));
       await tester.pump();
 
@@ -69,7 +71,8 @@ void main() {
     });
 
     testWidgets('play e2-e4 move by tap', (WidgetTester tester) async {
-      await tester.pumpWidget(buildBoard(interactableSide: InteractableSide.both));
+      await tester
+          .pumpWidget(buildBoard(interactableSide: InteractableSide.both));
       await tester.tap(find.byKey(const Key('e2-whitepawn')));
       await tester.pump();
 
@@ -86,9 +89,11 @@ void main() {
       expect(find.byKey(const Key('e4-lastMove')), findsOneWidget);
     });
 
-    testWidgets('castling by taping king then rook is possible', (WidgetTester tester) async {
+    testWidgets('castling by taping king then rook is possible',
+        (WidgetTester tester) async {
       await tester.pumpWidget(buildBoard(
-          initialFen: 'r1bqk1nr/pppp1ppp/2n5/2b1p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4',
+          initialFen:
+              'r1bqk1nr/pppp1ppp/2n5/2b1p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4',
           interactableSide: InteractableSide.both));
       await tester.tap(find.byKey(const Key('e1-whiteking')));
       await tester.pump();
@@ -103,10 +108,11 @@ void main() {
     });
 
     testWidgets('dragging off target ', (WidgetTester tester) async {
-      await tester.pumpWidget(buildBoard(interactableSide: InteractableSide.both));
+      await tester
+          .pumpWidget(buildBoard(interactableSide: InteractableSide.both));
 
-      await tester.drag(
-          find.byKey(const Key('e2-whitepawn')), const Offset(squareSize * 2, -(squareSize * 2)));
+      await tester.drag(find.byKey(const Key('e2-whitepawn')),
+          const Offset(squareSize * 2, -(squareSize * 2)));
       await tester.pumpAndSettle();
       expect(find.byKey(const Key('e2-whitepawn')), findsOneWidget);
       expect(find.byKey(const Key('e2-selected')), findsNothing);
@@ -114,8 +120,10 @@ void main() {
     });
 
     testWidgets('e2-e4 drag move', (WidgetTester tester) async {
-      await tester.pumpWidget(buildBoard(interactableSide: InteractableSide.both));
-      await tester.drag(find.byKey(const Key('e2-whitepawn')), const Offset(0, -(squareSize * 2)));
+      await tester
+          .pumpWidget(buildBoard(interactableSide: InteractableSide.both));
+      await tester.drag(find.byKey(const Key('e2-whitepawn')),
+          const Offset(0, -(squareSize * 2)));
       await tester.pumpAndSettle();
       expect(find.byKey(const Key('e4-whitepawn')), findsOneWidget);
       expect(find.byKey(const Key('e2-whitepawn')), findsNothing);
@@ -152,9 +160,11 @@ void main() {
       expect(find.byKey(const Key('f7-whitepawn')), findsNothing);
     });
 
-    testWidgets('premoves: select and deselect with empty square', (WidgetTester tester) async {
+    testWidgets('premoves: select and deselect with empty square',
+        (WidgetTester tester) async {
       await tester.pumpWidget(buildBoard(
-        initialFen: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
+        initialFen:
+            'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
         interactableSide: InteractableSide.white,
       ));
 
@@ -169,9 +179,11 @@ void main() {
       expect(find.byType(MoveDest), findsNothing);
     });
 
-    testWidgets('premoves: select and deselect with opponent piece', (WidgetTester tester) async {
+    testWidgets('premoves: select and deselect with opponent piece',
+        (WidgetTester tester) async {
       await tester.pumpWidget(buildBoard(
-        initialFen: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
+        initialFen:
+            'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
         interactableSide: InteractableSide.white,
       ));
 
@@ -188,7 +200,8 @@ void main() {
 
     testWidgets('premoves: set/unset', (WidgetTester tester) async {
       await tester.pumpWidget(buildBoard(
-        initialFen: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
+        initialFen:
+            'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
         interactableSide: InteractableSide.white,
       ));
 
@@ -215,7 +228,8 @@ void main() {
 
     testWidgets('premoves: set and change', (WidgetTester tester) async {
       await tester.pumpWidget(buildBoard(
-        initialFen: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
+        initialFen:
+            'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
         interactableSide: InteractableSide.white,
       ));
 
@@ -237,20 +251,24 @@ void main() {
 
     testWidgets('premoves: drag to set', (WidgetTester tester) async {
       await tester.pumpWidget(buildBoard(
-        initialFen: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
+        initialFen:
+            'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
         interactableSide: InteractableSide.white,
       ));
 
-      await tester.drag(find.byKey(const Key('e4-whitepawn')), const Offset(0, -squareSize));
+      await tester.drag(
+          find.byKey(const Key('e4-whitepawn')), const Offset(0, -squareSize));
       await tester.pumpAndSettle();
       expect(find.byKey(const Key('e4-premove')), findsOneWidget);
       expect(find.byKey(const Key('e5-premove')), findsOneWidget);
       expect(find.byKey(const Key('e4-selected')), findsNothing);
     });
 
-    testWidgets('premoves: select pieces from same side', (WidgetTester tester) async {
+    testWidgets('premoves: select pieces from same side',
+        (WidgetTester tester) async {
       await tester.pumpWidget(buildBoard(
-        initialFen: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
+        initialFen:
+            'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
         interactableSide: InteractableSide.white,
       ));
 
@@ -274,10 +292,12 @@ Widget buildBoard({
   orientation = Side.white,
   initialFen = dc.kInitialFEN,
 }) {
-  dc.Position<dc.Chess> position = dc.Chess.fromSetup(dc.Setup.parseFen(initialFen));
+  dc.Position<dc.Chess> position =
+      dc.Chess.fromSetup(dc.Setup.parseFen(initialFen));
   Move? lastMove;
 
-  return MaterialApp(home: StatefulBuilder(builder: (BuildContext context, StateSetter setState) {
+  return MaterialApp(home:
+      StatefulBuilder(builder: (BuildContext context, StateSetter setState) {
     return Board(
       interactableSide: interactableSide,
       orientation: orientation,
