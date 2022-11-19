@@ -19,7 +19,7 @@ dev_dependencies:
   dartchess:
     git:
       url: https://github.com/lichess-org/dartchess.git
-      ref: main
+      ref: 88c3c17a5d75b8228b82339728dc99e7f1175d7c
 
 flutter:
   assets:
