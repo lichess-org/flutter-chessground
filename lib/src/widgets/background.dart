@@ -70,7 +70,6 @@ class Background extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint('build chessground background');
     return SizedBox.expand(
       child: Column(
         children: List.generate(
