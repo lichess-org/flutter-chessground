@@ -81,6 +81,37 @@ class Board extends StatefulWidget {
     return coord?.squareId;
   }
 
+  /// Create a clone of the current [Board] but with provided parameters
+  /// overridden.
+  Board copyWith(
+      {Key? key,
+      BoardTheme? theme,
+      PieceSet? pieceSet,
+      InteractableSide? interactableSide,
+      double? size,
+      Side? orientation,
+      String? fen,
+      Settings? settings,
+      Side? sideToMove,
+      Move? lastMove,
+      ValidMoves? validMoves,
+      Function(Move, {bool? isPremove})? onMove}) {
+    return Board(
+      key: key ?? this.key,
+      theme: theme ?? this.theme,
+      pieceSet: pieceSet ?? this.pieceSet,
+      interactableSide: interactableSide ?? this.interactableSide,
+      size: size ?? this.size,
+      orientation: orientation ?? this.orientation,
+      fen: fen ?? this.fen,
+      settings: settings ?? this.settings,
+      sideToMove: sideToMove ?? this.sideToMove,
+      lastMove: lastMove ?? this.lastMove,
+      validMoves: validMoves ?? this.validMoves,
+      onMove: onMove ?? this.onMove,
+    );
+  }
+
   @override
   _BoardState createState() => _BoardState();
 }
