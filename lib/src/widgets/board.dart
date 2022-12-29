@@ -9,66 +9,37 @@ import 'promotion.dart';
 import '../models.dart';
 import '../fen.dart';
 import '../premove.dart';
-import '../settings.dart';
-import '../theme.dart';
+import '../board_settings.dart';
+import '../board_data.dart';
 
 /// A chessboard widget
 ///
 /// This widget can be used to display a static board, a dynamic board that
 /// shows a live game, or a full user interactable board.
-///
-/// Fine control over visual and behavior settings can be achieved by passing a [Settings] object.
 class Board extends StatefulWidget {
   const Board({
     super.key,
-    this.theme = BoardTheme.brown,
-    this.pieceSet,
-    required this.interactableSide,
     required this.size,
-    required this.orientation,
-    required this.fen,
-    this.settings = const Settings(),
-    this.sideToMove = Side.white,
-    this.lastMove,
-    this.validMoves,
-    this.onMove,
+    required this.data,
+    this.settings = const BoardSettings(),
   });
 
-  /// Which color is allowed to move? It can be both, none, white or black
-  ///
-  /// If `none` is chosen the board will be non interactable.
-  final InteractableSide interactableSide;
-
+  /// Visal size of the board
   final double size;
-  final BoardTheme theme;
-  final PieceSet? pieceSet;
-  final Settings settings;
 
-  /// Side by which the board is oriented.
-  final Side orientation;
+  /// Use this to change the theme and behavior of the board
+  final BoardSettings settings;
 
-  /// Side which is to move.
-  final Side sideToMove;
-
-  /// FEN string describing the position of the board.
-  final String fen;
-
-  /// Last move played, used to highlight corresponding squares.
-  final Move? lastMove;
-
-  /// Set of [Move] allowed to be played by current side to move.
-  final ValidMoves? validMoves;
-
-  /// Callback called after a move has been made.
-  final Function(Move, {bool? isPremove})? onMove;
+  /// Data that represents the current state of the board
+  final BoardData data;
 
   double get squareSize => size / 8;
 
   Coord? localOffset2Coord(Offset offset) {
     final x = (offset.dx / squareSize).floor();
     final y = (offset.dy / squareSize).floor();
-    final orientX = orientation == Side.black ? 7 - x : x;
-    final orientY = orientation == Side.black ? y : 7 - y;
+    final orientX = data.orientation == Side.black ? 7 - x : x;
+    final orientY = data.orientation == Side.black ? y : 7 - y;
     if (orientX >= 0 && orientX <= 7 && orientY >= 0 && orientY <= 7) {
       return Coord(x: orientX, y: orientY);
     } else {
@@ -79,37 +50,6 @@ class Board extends StatefulWidget {
   SquareId? localOffset2SquareId(Offset offset) {
     final coord = localOffset2Coord(offset);
     return coord?.squareId;
-  }
-
-  /// Create a clone of the current [Board] but with provided parameters
-  /// overridden.
-  Board copyWith(
-      {Key? key,
-      BoardTheme? theme,
-      PieceSet? pieceSet,
-      InteractableSide? interactableSide,
-      double? size,
-      Side? orientation,
-      String? fen,
-      Settings? settings,
-      Side? sideToMove,
-      Move? lastMove,
-      ValidMoves? validMoves,
-      Function(Move, {bool? isPremove})? onMove}) {
-    return Board(
-      key: key ?? this.key,
-      theme: theme ?? this.theme,
-      pieceSet: pieceSet ?? this.pieceSet,
-      interactableSide: interactableSide ?? this.interactableSide,
-      size: size ?? this.size,
-      orientation: orientation ?? this.orientation,
-      fen: fen ?? this.fen,
-      settings: settings ?? this.settings,
-      sideToMove: sideToMove ?? this.sideToMove,
-      lastMove: lastMove ?? this.lastMove,
-      validMoves: validMoves ?? this.validMoves,
-      onMove: onMove ?? this.onMove,
-    );
   }
 
   @override
@@ -132,27 +72,27 @@ class _BoardState extends State<Board> {
   Widget build(BuildContext context) {
     final Set<SquareId> moveDests = widget.settings.showValidMoves &&
             selected != null &&
-            widget.validMoves != null
-        ? widget.validMoves![selected] ?? {}
+            widget.data.validMoves != null
+        ? widget.data.validMoves![selected] ?? {}
         : {};
     final premoveDests = _premoveDests ?? {};
     final Widget _board = Stack(
       children: [
         widget.settings.enableCoordinates
-            ? widget.orientation == Side.white
-                ? widget.theme.whiteCoordBackground
-                : widget.theme.blackCoordBackground
-            : widget.theme.background,
-        if (widget.settings.showLastMove && widget.lastMove != null)
-          for (final squareId in widget.lastMove!.squares)
+            ? widget.data.orientation == Side.white
+                ? widget.settings.theme.whiteCoordBackground
+                : widget.settings.theme.blackCoordBackground
+            : widget.settings.theme.background,
+        if (widget.settings.showLastMove && widget.data.lastMove != null)
+          for (final squareId in widget.data.lastMove!.squares)
             PositionedSquare(
               key: ValueKey('$squareId-lastMove'),
               size: widget.squareSize,
-              orientation: widget.orientation,
+              orientation: widget.data.orientation,
               squareId: squareId,
               child: Highlight(
                 size: widget.squareSize,
-                color: widget.theme.lastMove,
+                color: widget.settings.theme.lastMove,
               ),
             ),
         if (_premove != null)
@@ -160,33 +100,33 @@ class _BoardState extends State<Board> {
             PositionedSquare(
               key: ValueKey('$squareId-premove'),
               size: widget.squareSize,
-              orientation: widget.orientation,
+              orientation: widget.data.orientation,
               squareId: squareId,
               child: Highlight(
                 size: widget.squareSize,
-                color: widget.theme.validPremoves,
+                color: widget.settings.theme.validPremoves,
               ),
             ),
         if (selected != null)
           PositionedSquare(
             key: ValueKey('${selected!}-selected'),
             size: widget.squareSize,
-            orientation: widget.orientation,
+            orientation: widget.data.orientation,
             squareId: selected!,
             child: Highlight(
               size: widget.squareSize,
-              color: widget.theme.selected,
+              color: widget.settings.theme.selected,
             ),
           ),
         for (final dest in moveDests)
           PositionedSquare(
             key: ValueKey('$dest-dest'),
             size: widget.squareSize,
-            orientation: widget.orientation,
+            orientation: widget.data.orientation,
             squareId: dest,
             child: MoveDest(
               size: widget.squareSize,
-              color: widget.theme.validMoves,
+              color: widget.settings.theme.validMoves,
               occupied: pieces.containsKey(dest),
             ),
           ),
@@ -194,11 +134,11 @@ class _BoardState extends State<Board> {
           PositionedSquare(
             key: ValueKey('$dest-premove-dest'),
             size: widget.squareSize,
-            orientation: widget.orientation,
+            orientation: widget.data.orientation,
             squareId: dest,
             child: MoveDest(
               size: widget.squareSize,
-              color: widget.theme.validPremoves,
+              color: widget.settings.theme.validPremoves,
               occupied: pieces.containsKey(dest),
             ),
           ),
@@ -206,13 +146,13 @@ class _BoardState extends State<Board> {
           PositionedSquare(
             key: ValueKey('${entry.key}-${entry.value.kind}-fading'),
             size: widget.squareSize,
-            orientation: widget.orientation,
+            orientation: widget.data.orientation,
             squareId: entry.key,
             child: PieceFade(
               duration: widget.settings.animationDuration,
               piece: entry.value,
               size: widget.squareSize,
-              pieceSet: widget.pieceSet,
+              pieceSet: widget.settings.pieceSet,
               onComplete: () {
                 fadingPieces.remove(entry.key);
               },
@@ -222,18 +162,18 @@ class _BoardState extends State<Board> {
           PositionedSquare(
             key: ValueKey('${entry.key}-${entry.value.kind}'),
             size: widget.squareSize,
-            orientation: widget.orientation,
+            orientation: widget.data.orientation,
             squareId: entry.key,
             child: translatingPieces.containsKey(entry.key)
                 ? PieceTranslation(
                     child: PieceWidget(
                       piece: entry.value,
                       size: widget.squareSize,
-                      pieceSet: widget.pieceSet,
+                      pieceSet: widget.settings.pieceSet,
                     ),
                     fromCoord: translatingPieces[entry.key]!.item1,
                     toCoord: translatingPieces[entry.key]!.item2,
-                    orientation: widget.orientation,
+                    orientation: widget.data.orientation,
                     duration: widget.settings.animationDuration,
                     onComplete: () {
                       translatingPieces.remove(entry.key);
@@ -242,7 +182,7 @@ class _BoardState extends State<Board> {
                 : PieceWidget(
                     piece: entry.value,
                     size: widget.squareSize,
-                    pieceSet: widget.pieceSet,
+                    pieceSet: widget.settings.pieceSet,
                     opacity: _dragOrigin == entry.key ? 0.2 : 1.0,
                   ),
           ),
@@ -255,7 +195,7 @@ class _BoardState extends State<Board> {
         children: [
           // Consider using Listener instead as we don't control the drag start threshold with
           // GestureDetector (TODO)
-          widget.interactableSide != InteractableSide.none
+          widget.data.interactableSide != InteractableSide.none
               ? GestureDetector(
                   // registering onTapDown is needed to prevent the panStart event to win the
                   // competition too early
@@ -274,11 +214,11 @@ class _BoardState extends State<Board> {
               : _board,
           if (_promotionMove != null)
             PromotionSelector(
-              pieceSet: widget.pieceSet,
+              pieceSet: widget.settings.pieceSet,
               move: _promotionMove!,
               squareSize: widget.squareSize,
-              color: widget.sideToMove,
-              orientation: widget.orientation,
+              color: widget.data.sideToMove,
+              orientation: widget.data.orientation,
               onSelect: _onPromotionSelect,
               onCancel: _onPromotionCancel,
             ),
@@ -290,30 +230,30 @@ class _BoardState extends State<Board> {
   @override
   void initState() {
     super.initState();
-    pieces = readFen(widget.fen);
+    pieces = readFen(widget.data.fen);
   }
 
   @override
   void didUpdateWidget(Board oldBoard) {
     super.didUpdateWidget(oldBoard);
-    if (widget.interactableSide == InteractableSide.none) {
+    if (widget.data.interactableSide == InteractableSide.none) {
       // remove highlights if board is made not interactable again (like at the end of a game)
       selected = null;
       _premoveDests = null;
       _premove = null;
     }
-    if (oldBoard.sideToMove != widget.sideToMove) {
+    if (oldBoard.data.sideToMove != widget.data.sideToMove) {
       _premoveDests = null;
       WidgetsBinding.instance.addPostFrameCallback((_) => _tryPlayPremove());
     }
-    if (oldBoard.fen == widget.fen) {
+    if (oldBoard.data.fen == widget.data.fen) {
       _lastDrop = null;
       // as long as the fen is the same as before let's keep animations
       return;
     }
     translatingPieces = {};
     fadingPieces = {};
-    final newPieces = readFen(widget.fen);
+    final newPieces = readFen(widget.data.fen);
     final List<PositionedPiece> newOnSquare = [];
     final List<PositionedPiece> missingOnSquare = [];
     final Set<String> animatedOrigins = {};
@@ -363,7 +303,8 @@ class _BoardState extends State<Board> {
   Offset? _squareTargetGlobalOffset(Offset localPosition) {
     final coord = widget.localOffset2Coord(localPosition);
     if (coord != null) {
-      final localOffset = coord.offset(widget.orientation, widget.squareSize);
+      final localOffset =
+          coord.offset(widget.data.orientation, widget.squareSize);
       final RenderBox box = context.findRenderObject()! as RenderBox;
       final tmpOffset = box.localToGlobal(localOffset);
       return Offset(tmpOffset.dx - widget.squareSize / 2,
@@ -435,7 +376,7 @@ class _BoardState extends State<Board> {
             child: PieceWidget(
               piece: _piece,
               size: _feedbackSize,
-              pieceSet: widget.pieceSet,
+              pieceSet: widget.settings.pieceSet,
             ),
           ),
         );
@@ -490,12 +431,12 @@ class _BoardState extends State<Board> {
       pieces[move.to] = promoted;
       _promotionMove = null;
     });
-    widget.onMove?.call(move.withPromotion(promoted.role));
+    widget.data.onMove?.call(move.withPromotion(promoted.role));
   }
 
   void _onPromotionCancel(Move move) {
     setState(() {
-      pieces = readFen(widget.fen);
+      pieces = readFen(widget.data.fen);
       _promotionMove = null;
     });
   }
@@ -511,13 +452,13 @@ class _BoardState extends State<Board> {
   bool _isMovable(SquareId squareId) {
     final piece = pieces[squareId];
     return piece != null &&
-        (widget.interactableSide == InteractableSide.both ||
-            (widget.interactableSide.name == piece.color.name &&
-                widget.sideToMove == piece.color));
+        (widget.data.interactableSide == InteractableSide.both ||
+            (widget.data.interactableSide.name == piece.color.name &&
+                widget.data.sideToMove == piece.color));
   }
 
   bool _canMove(SquareId orig, SquareId dest) {
-    final validDests = widget.validMoves?[orig];
+    final validDests = widget.data.validMoves?[orig];
     return orig != dest && validDests != null && validDests.contains(dest);
   }
 
@@ -525,8 +466,8 @@ class _BoardState extends State<Board> {
     final piece = pieces[squareId];
     return piece != null &&
         (widget.settings.enablePremoves &&
-            widget.interactableSide.name == piece.color.name &&
-            widget.sideToMove != piece.color);
+            widget.data.interactableSide.name == piece.color.name &&
+            widget.data.sideToMove != piece.color);
   }
 
   bool _canPremove(SquareId orig, SquareId dest) {
@@ -551,12 +492,12 @@ class _BoardState extends State<Board> {
       }
       if (_isPromoMove(selectedPiece, squareId)) {
         if (widget.settings.autoQueenPromotion) {
-          widget.onMove?.call(move.withPromotion(PieceRole.queen));
+          widget.data.onMove?.call(move.withPromotion(PieceRole.queen));
         } else {
           _openPromotionSelector(move);
         }
       } else {
-        widget.onMove?.call(move);
+        widget.data.onMove?.call(move);
       }
     } else if (selectedPiece != null && _canPremove(selected!, squareId)) {
       setState(() {
@@ -577,13 +518,13 @@ class _BoardState extends State<Board> {
     if (fromPiece != null && _canMove(_premove!.from, _premove!.to)) {
       if (_isPromoMove(fromPiece, _premove!.to)) {
         if (widget.settings.autoQueenPromotion) {
-          widget.onMove
+          widget.data.onMove
               ?.call(_premove!.withPromotion(PieceRole.queen), isPremove: true);
         } else {
           _openPromotionSelector(_premove!);
         }
       } else {
-        widget.onMove?.call(_premove!, isPremove: true);
+        widget.data.onMove?.call(_premove!, isPremove: true);
       }
     }
     setState(() {

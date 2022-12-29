@@ -55,7 +55,7 @@ packages:
     description:
       path: "."
       ref: main
-      resolved-ref: c95d00b36ab355b063469ab6e1647aa7d9ac8241
+      resolved-ref: "68c756354b53c9f210f78b49ee1caa03ab5003bd"
       url: "https://github.com/lichess-org/dartchess.git"
     source: git
     version: "0.1.0"

@@ -11,10 +11,10 @@ class PromotionSelector extends StatelessWidget {
     required this.orientation,
     required this.onSelect,
     required this.onCancel,
-    this.pieceSet,
+    required this.pieceSet,
   });
 
-  final PieceSet? pieceSet;
+  final PieceSet pieceSet;
   final Move move;
   final Side color;
   final double squareSize;

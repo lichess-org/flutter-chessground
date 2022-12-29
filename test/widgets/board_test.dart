@@ -11,10 +11,12 @@ void main() {
     const viewOnlyBoard = Directionality(
         textDirection: TextDirection.ltr,
         child: Board(
-            interactableSide: InteractableSide.none,
-            orientation: Side.white,
-            size: boardSize,
-            fen: dc.kInitialFEN));
+          size: boardSize,
+          data: BoardData(
+              interactableSide: InteractableSide.none,
+              orientation: Side.white,
+              fen: dc.kInitialFEN),
+        ));
 
     testWidgets('initial position display', (WidgetTester tester) async {
       await tester.pumpWidget(viewOnlyBoard);
@@ -148,7 +150,7 @@ void main() {
 
     testWidgets('promotion, auto queen enabled', (WidgetTester tester) async {
       await tester.pumpWidget(buildBoard(
-          settings: const Settings(autoQueenPromotion: true),
+          settings: const BoardSettings(autoQueenPromotion: true),
           interactableSide: InteractableSide.both,
           initialFen: '8/5P2/2RK2P1/8/4k3/8/8/7r w - - 0 1'));
 
@@ -288,7 +290,7 @@ Future<void> makeMove(WidgetTester tester, String from, String to) async {
 
 Widget buildBoard({
   required InteractableSide interactableSide,
-  Settings? settings,
+  BoardSettings? settings,
   orientation = Side.white,
   initialFen = dc.kInitialFEN,
 }) {
@@ -299,20 +301,22 @@ Widget buildBoard({
   return MaterialApp(home:
       StatefulBuilder(builder: (BuildContext context, StateSetter setState) {
     return Board(
-      interactableSide: interactableSide,
-      orientation: orientation,
       size: boardSize,
-      fen: position.fen,
-      settings: settings ?? const Settings(),
-      lastMove: lastMove,
-      sideToMove: position.turn == dc.Side.white ? Side.white : Side.black,
-      validMoves: dc.algebraicLegalMoves(position),
-      onMove: (Move move, {bool? isPremove}) {
-        setState(() {
-          position = position.playUnchecked(dc.Move.fromUci(move.uci));
-          lastMove = move;
-        });
-      },
+      settings: settings ?? const BoardSettings(),
+      data: BoardData(
+        interactableSide: interactableSide,
+        orientation: orientation,
+        fen: position.fen,
+        lastMove: lastMove,
+        sideToMove: position.turn == dc.Side.white ? Side.white : Side.black,
+        validMoves: dc.algebraicLegalMoves(position),
+        onMove: (Move move, {bool? isPremove}) {
+          setState(() {
+            position = position.playUnchecked(dc.Move.fromUci(move.uci));
+            lastMove = move;
+          });
+        },
+      ),
     );
   }));
 }

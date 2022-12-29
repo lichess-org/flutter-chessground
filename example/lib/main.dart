@@ -60,15 +60,20 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Center(
         child: Board(
-          interactableSide: InteractableSide.white,
-          pieceSet: maestroPieceSet,
-          validMoves: validMoves,
           size: screenWidth,
-          orientation: Side.white,
-          fen: fen,
-          lastMove: lastMove,
-          sideToMove: position.turn == dc.Color.white ? Side.white : Side.black,
-          onMove: _onUserMove,
+          settings: const BoardSettings(
+            pieceSet: maestroPieceSet,
+          ),
+          data: BoardData(
+            interactableSide: InteractableSide.white,
+            validMoves: validMoves,
+            orientation: Side.white,
+            fen: fen,
+            lastMove: lastMove,
+            sideToMove:
+                position.turn == dc.Side.white ? Side.white : Side.black,
+            onMove: _onUserMove,
+          ),
         ),
       ),
     );

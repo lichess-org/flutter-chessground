@@ -1,11 +1,19 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
-/// Board settings that control the behavior and purpose of the board.
+import 'theme.dart';
+import 'models.dart';
+import 'piece_set.dart';
+
+/// Board settings that control the theme, behavior and purpose of the board.
 ///
-/// This is meant for fixed settings that don't change during a game.
+/// This is meant for fixed settings that don't change during a game. Sensible
+/// defaults are provided.
 @immutable
-class Settings {
-  const Settings({
+class BoardSettings {
+  const BoardSettings({
+    // theme
+    this.theme = BoardTheme.brown,
+    this.pieceSet = meridaPieceSet,
     // visual settings
     this.enableCoordinates = true,
     this.animationDuration = const Duration(milliseconds: 250),
@@ -20,6 +28,12 @@ class Settings {
     this.enablePremoveCastling = true,
     this.autoQueenPromotion = false,
   });
+
+  /// Theme of the board
+  final BoardTheme theme;
+
+  /// Piece set
+  final PieceSet pieceSet;
 
   /// Whether to show board coordinates
   final bool enableCoordinates;
