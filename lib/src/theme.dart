@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import './widgets/background.dart';
 
 /// Describes the color scheme of a [Board].

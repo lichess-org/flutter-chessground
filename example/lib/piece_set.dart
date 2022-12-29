@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:chessground/chessground.dart' as cg;
 
 const cg.PieceSet maestroPieceSet = {
