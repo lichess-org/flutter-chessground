@@ -58,10 +58,12 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Center(
         child: Board(
-          interactableSide: InteractableSide.none,
           size: screenWidth,
-          orientation: Side.white,
-          fen: fen,
+          data: BoardData(
+            interactableSide: InteractableSide.none,
+            orientation: Side.white,
+            fen: fen,
+          ),
         ),
       ),
     );
