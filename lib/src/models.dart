@@ -59,7 +59,7 @@ class Coord {
   }
 
   @override
-  toString() {
+  String toString() {
     return '($x, $y)';
   }
 
@@ -99,7 +99,7 @@ class Piece {
   }
 
   @override
-  toString() {
+  String toString() {
     return kind;
   }
 
@@ -131,7 +131,8 @@ class PositionedPiece {
   }
 
   int _distanceSq(Coord pos1, Coord pos2) {
-    final dx = pos1.x - pos2.x, dy = pos1.y - pos2.y;
+    final dx = pos1.x - pos2.x;
+    final dy = pos1.y - pos2.y;
     return dx * dx + dy * dy;
   }
 }

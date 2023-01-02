@@ -53,6 +53,7 @@ class Board extends StatefulWidget {
   }
 
   @override
+  // ignore: library_private_types_in_public_api
   _BoardState createState() => _BoardState();
 }
 
@@ -76,13 +77,14 @@ class _BoardState extends State<Board> {
         ? widget.data.validMoves![selected] ?? {}
         : {};
     final premoveDests = _premoveDests ?? {};
-    final Widget _board = Stack(
+    final Widget board = Stack(
       children: [
-        widget.settings.enableCoordinates
-            ? widget.data.orientation == Side.white
-                ? widget.settings.theme.whiteCoordBackground
-                : widget.settings.theme.blackCoordBackground
-            : widget.settings.theme.background,
+        if (widget.settings.enableCoordinates)
+          widget.data.orientation == Side.white
+              ? widget.settings.theme.whiteCoordBackground
+              : widget.settings.theme.blackCoordBackground
+        else
+          widget.settings.theme.background,
         if (widget.settings.showLastMove && widget.data.lastMove != null)
           for (final squareId in widget.data.lastMove!.squares)
             PositionedSquare(
@@ -166,11 +168,6 @@ class _BoardState extends State<Board> {
             squareId: entry.key,
             child: translatingPieces.containsKey(entry.key)
                 ? PieceTranslation(
-                    child: PieceWidget(
-                      piece: entry.value,
-                      size: widget.squareSize,
-                      pieceSet: widget.settings.pieceSet,
-                    ),
                     fromCoord: translatingPieces[entry.key]!.item1,
                     toCoord: translatingPieces[entry.key]!.item2,
                     orientation: widget.data.orientation,
@@ -178,6 +175,11 @@ class _BoardState extends State<Board> {
                     onComplete: () {
                       translatingPieces.remove(entry.key);
                     },
+                    child: PieceWidget(
+                      piece: entry.value,
+                      size: widget.squareSize,
+                      pieceSet: widget.settings.pieceSet,
+                    ),
                   )
                 : PieceWidget(
                     piece: entry.value,
@@ -195,23 +197,24 @@ class _BoardState extends State<Board> {
         children: [
           // Consider using Listener instead as we don't control the drag start threshold with
           // GestureDetector (TODO)
-          widget.data.interactableSide != InteractableSide.none
-              ? GestureDetector(
-                  // registering onTapDown is needed to prevent the panStart event to win the
-                  // competition too early
-                  // there is no need to implement the callback since we handle the selection login
-                  // in onPanDown; plus this way we avoid the timeout before onTapDown is called
-                  onTapDown: (TapDownDetails? details) {},
-                  onTapUp: _onTapUp,
-                  onPanDown: _onPanDown,
-                  onPanStart: _onPanStart,
-                  onPanUpdate: _onPanUpdate,
-                  onPanEnd: _onPanEnd,
-                  onPanCancel: _onPanCancel,
-                  dragStartBehavior: DragStartBehavior.down,
-                  child: _board,
-                )
-              : _board,
+          if (widget.data.interactableSide != InteractableSide.none)
+            GestureDetector(
+              // registering onTapDown is needed to prevent the panStart event to win the
+              // competition too early
+              // there is no need to implement the callback since we handle the selection login
+              // in onPanDown; plus this way we avoid the timeout before onTapDown is called
+              onTapDown: (TapDownDetails? details) {},
+              onTapUp: _onTapUp,
+              onPanDown: _onPanDown,
+              onPanStart: _onPanStart,
+              onPanUpdate: _onPanUpdate,
+              onPanEnd: _onPanEnd,
+              onPanCancel: _onPanCancel,
+              dragStartBehavior: DragStartBehavior.down,
+              child: board,
+            )
+          else
+            board,
           if (_promotionMove != null)
             PromotionSelector(
               pieceSet: widget.settings.pieceSet,
@@ -344,22 +347,21 @@ class _BoardState extends State<Board> {
 
   void _onPanStart(DragStartDetails? details) {
     if (details != null) {
-      final _squareId = widget.localOffset2SquareId(details.localPosition);
-      final _piece = _squareId != null ? pieces[_squareId] : null;
-      final _feedbackSize =
-          widget.squareSize * widget.settings.dragFeedbackSize;
-      if (_squareId != null &&
-          _piece != null &&
-          (_isMovable(_squareId) || _isPremovable(_squareId))) {
+      final squareId = widget.localOffset2SquareId(details.localPosition);
+      final piece = squareId != null ? pieces[squareId] : null;
+      final feedbackSize = widget.squareSize * widget.settings.dragFeedbackSize;
+      if (squareId != null &&
+          piece != null &&
+          (_isMovable(squareId) || _isPremovable(squareId))) {
         setState(() {
-          _dragOrigin = _squareId;
+          _dragOrigin = squareId;
         });
-        final _squareTargetOffset =
+        final squareTargetOffset =
             _squareTargetGlobalOffset(details.localPosition);
         _dragAvatar = _DragAvatar(
           overlayState: Overlay.of(context, debugRequiredFor: widget)!,
           initialPosition: details.globalPosition,
-          initialTargetPosition: _squareTargetOffset,
+          initialTargetPosition: squareTargetOffset,
           squareTargetFeedback: Container(
             width: widget.squareSize * 2,
             height: widget.squareSize * 2,
@@ -370,12 +372,12 @@ class _BoardState extends State<Board> {
           ),
           pieceFeedback: Transform.translate(
             offset: Offset(
-              ((widget.settings.dragFeedbackOffset.dx - 1) * _feedbackSize) / 2,
-              ((widget.settings.dragFeedbackOffset.dy - 1) * _feedbackSize) / 2,
+              ((widget.settings.dragFeedbackOffset.dx - 1) * feedbackSize) / 2,
+              ((widget.settings.dragFeedbackOffset.dy - 1) * feedbackSize) / 2,
             ),
             child: PieceWidget(
-              piece: _piece,
-              size: _feedbackSize,
+              piece: piece,
+              size: feedbackSize,
               pieceSet: widget.settings.pieceSet,
             ),
           ),
@@ -471,11 +473,11 @@ class _BoardState extends State<Board> {
   }
 
   bool _canPremove(SquareId orig, SquareId dest) {
-    return (orig != dest &&
+    return orig != dest &&
         _isPremovable(orig) &&
         premovesOf(orig, pieces,
                 canCastle: widget.settings.enablePremoveCastling)
-            .contains(dest));
+            .contains(dest);
   }
 
   bool _isPromoMove(Piece piece, SquareId targetSquareId) {

@@ -24,11 +24,11 @@ class PositionedSquare extends StatelessWidget {
   Widget build(BuildContext context) {
     final offset = Coord.fromSquareId(squareId).offset(orientation, size);
     return Positioned(
-      child: child,
       width: size,
       height: size,
       left: offset.dx,
       top: offset.dy,
+      child: child,
     );
   }
 }

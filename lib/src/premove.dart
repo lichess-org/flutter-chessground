@@ -4,20 +4,20 @@ Set<SquareId> premovesOf(SquareId square, Pieces pieces,
     {bool canCastle = false}) {
   final piece = pieces[square];
   if (piece == null) return {};
-  final coord = Coord.fromSquareId(square),
-      r = piece.role,
-      mobility = r == PieceRole.pawn
-          ? _pawn(piece.color)
-          : r == PieceRole.knight
-              ? _knight
-              : r == PieceRole.bishop
-                  ? _bishop
-                  : r == PieceRole.rook
-                      ? _rook
-                      : r == PieceRole.queen
-                          ? _queen
-                          : _king(piece.color,
-                              _rookFilesOf(pieces, piece.color), canCastle);
+  final coord = Coord.fromSquareId(square);
+  final r = piece.role;
+  final mobility = r == PieceRole.pawn
+      ? _pawn(piece.color)
+      : r == PieceRole.knight
+          ? _knight
+          : r == PieceRole.bishop
+              ? _bishop
+              : r == PieceRole.rook
+                  ? _rook
+                  : r == PieceRole.queen
+                      ? _queen
+                      : _king(piece.color, _rookFilesOf(pieces, piece.color),
+                          canCastle);
 
   return Set.unmodifiable({
     for (final coord2 in allCoords)

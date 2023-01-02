@@ -13,13 +13,13 @@ dependencies:
   tuple: ^2.0.0
 
 dev_dependencies:
-  flutter_test:
-    sdk: flutter
-  flutter_lints: ^1.0.0
   dartchess:
     git:
       url: https://github.com/lichess-org/dartchess.git
       ref: 88c3c17a5d75b8228b82339728dc99e7f1175d7c
+  flutter_test:
+    sdk: flutter
+  lint: ^2.0.1
 
 flutter:
   assets:

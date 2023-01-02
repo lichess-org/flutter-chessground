@@ -43,6 +43,10 @@ class PromotionSelector extends StatelessWidget {
         child: Stack(
           children: [
             Positioned(
+              width: squareSize,
+              height: squareSize * 4,
+              left: offset.dx,
+              top: offset.dy,
               child: Column(
                 children: [
                   Piece(
@@ -99,10 +103,6 @@ class PromotionSelector extends StatelessWidget {
                   );
                 }).toList(growable: false),
               ),
-              width: squareSize,
-              height: squareSize * 4,
-              left: offset.dx,
-              top: offset.dy,
             ),
           ],
         ),

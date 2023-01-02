@@ -1,10 +1,18 @@
-include: package:flutter_lints/flutter.yaml
+include: package:lint/package.yaml
 
 analyzer:
   language:
     strict-casts: true
     strict-inference: true
     strict-raw-types: true
+
+
+linter:
+  rules:
+    require_trailing_commas: false
+    avoid_print: false
+    directives_ordering: false
+    always_use_package_imports: false
 
 # Additional information about this file can be found at
 # https://dart.dev/guides/language/analysis-options

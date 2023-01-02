@@ -3,7 +3,8 @@ import 'models.dart';
 
 Pieces readFen(String fen) {
   final Pieces pieces = {};
-  var row = 7, col = 0;
+  int row = 7;
+  int col = 0;
   for (final c in fen.characters) {
     switch (c) {
       case ' ':

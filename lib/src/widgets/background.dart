@@ -27,7 +27,6 @@ class Background extends StatelessWidget {
     lightSquare: Color(0xfff0d9b6),
     darkSquare: Color(0xffb58863),
     coordinates: true,
-    orientation: Side.white,
   );
   static const brownBlackCoords = Background(
     lightSquare: Color(0xfff0d9b6),
@@ -43,7 +42,6 @@ class Background extends StatelessWidget {
     lightSquare: Color(0xffdee3e6),
     darkSquare: Color(0xff8ca2ad),
     coordinates: true,
-    orientation: Side.white,
   );
   static const blueBlackCoords = Background(
     lightSquare: Color(0xffdee3e6),
@@ -59,7 +57,6 @@ class Background extends StatelessWidget {
     lightSquare: Color(0xffffffdd),
     darkSquare: Color(0xff86a666),
     coordinates: true,
-    orientation: Side.white,
   );
   static const greenBlackCoords = Background(
     lightSquare: Color(0xffffffdd),
@@ -83,17 +80,14 @@ class Background extends StatelessWidget {
                     width: double.infinity,
                     height: double.infinity,
                     decoration: BoxDecoration(
-                        color: ((rank + file) % 2 == 0)
-                            ? lightSquare
-                            : darkSquare),
+                        color: (rank + file).isEven ? lightSquare : darkSquare),
                     child: coordinates
                         ? Coordinate(
                             rank: rank,
                             file: file,
                             orientation: orientation,
-                            color: ((rank + file) % 2 == 0)
-                                ? darkSquare
-                                : lightSquare,
+                            color:
+                                (rank + file).isEven ? darkSquare : lightSquare,
                           )
                         : null,
                   ),
@@ -109,12 +103,12 @@ class Background extends StatelessWidget {
 
 class Coordinate extends StatelessWidget {
   const Coordinate({
-    Key? key,
+    super.key,
     required this.rank,
     required this.file,
     required this.color,
     required this.orientation,
-  }) : super(key: key);
+  });
 
   final int rank;
   final int file;
