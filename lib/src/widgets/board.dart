@@ -483,7 +483,7 @@ class _BoardState extends State<Board> {
     return piece.role == PieceRole.pawn && (rank == '1' || rank == '8');
   }
 
-  void _tryMoveTo(SquareId squareId, {drop = false}) {
+  void _tryMoveTo(SquareId squareId, {bool drop = false}) {
     final selectedPiece = selected != null ? pieces[selected] : null;
     if (selectedPiece != null && _canMove(selected!, squareId)) {
       final move = Move(from: selected!, to: squareId);

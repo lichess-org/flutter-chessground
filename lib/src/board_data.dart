@@ -38,5 +38,5 @@ class BoardData {
   final ValidMoves? validMoves;
 
   /// Callback called after a move has been made.
-  final Function(Move, {bool? isPremove})? onMove;
+  final void Function(Move, {bool? isPremove})? onMove;
 }

@@ -291,8 +291,8 @@ Future<void> makeMove(WidgetTester tester, String from, String to) async {
 Widget buildBoard({
   required InteractableSide interactableSide,
   BoardSettings? settings,
-  orientation = Side.white,
-  initialFen = dc.kInitialFEN,
+  Side orientation = Side.white,
+  String initialFen = dc.kInitialFEN,
 }) {
   dc.Position<dc.Chess> position =
       dc.Chess.fromSetup(dc.Setup.parseFen(initialFen));

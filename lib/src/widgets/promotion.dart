@@ -19,8 +19,8 @@ class PromotionSelector extends StatelessWidget {
   final Side color;
   final double squareSize;
   final Side orientation;
-  final Function(Move, Piece) onSelect;
-  final Function(Move) onCancel;
+  final void Function(Move, Piece) onSelect;
+  final void Function(Move) onCancel;
 
   SquareId get squareId => move.to;
 
