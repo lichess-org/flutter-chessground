@@ -24,3 +24,4 @@ dev_dependencies:
 flutter:
   assets:
     - lib/piece_sets/merida/
+    - lib/boards/
