@@ -22,6 +22,7 @@ chess logic so you can use it with different chess variants.
 - premoves
 - displays a shadow under dragged piece to indicate the drop square target
 - board themes
+- piece sets from lichess
 - promotion selector
 
 ## Getting started
