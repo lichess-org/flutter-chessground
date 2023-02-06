@@ -6,12 +6,13 @@ import '../models.dart';
 /// Use the static const members to ensure flutter doesn't rebuild the board more
 /// than once
 abstract class Background extends StatelessWidget {
-  const Background(
-      {super.key,
-      this.coordinates = false,
-      this.orientation = Side.white,
-      required this.lightSquare,
-      required this.darkSquare});
+  const Background({
+    super.key,
+    this.coordinates = false,
+    this.orientation = Side.white,
+    required this.lightSquare,
+    required this.darkSquare,
+  });
 
   final bool coordinates;
   final Side orientation;
@@ -64,36 +65,36 @@ abstract class Background extends StatelessWidget {
     orientation: Side.black,
   );
   static const horsey = ImageBackground(
-    image: AssetImage("lib/boards/horsey.jpg", package: "chessground"),
+    image: AssetImage('lib/boards/horsey.jpg', package: 'chessground'),
     lightSquare: Color(0xfff6eedb),
     darkSquare: Color(0xff8e6547),
   );
   static const horseyWhiteCoords = ImageBackground(
-    image: AssetImage("lib/boards/horsey.jpg", package: "chessground"),
+    image: AssetImage('lib/boards/horsey.jpg', package: 'chessground'),
     lightSquare: Color(0xfff6eedb),
     darkSquare: Color(0xff8e6547),
     coordinates: true,
   );
   static const horseyBlackCoords = ImageBackground(
-    image: AssetImage("lib/boards/horsey.jpg", package: "chessground"),
+    image: AssetImage('lib/boards/horsey.jpg', package: 'chessground'),
     lightSquare: Color(0xfff6eedb),
     darkSquare: Color(0xff8e6547),
     coordinates: true,
     orientation: Side.black,
   );
   static const wood4 = ImageBackground(
-    image: AssetImage("lib/boards/wood4.jpg", package: "chessground"),
+    image: AssetImage('lib/boards/wood4.jpg', package: 'chessground'),
     lightSquare: Color(0xffcbad79),
     darkSquare: Color(0xff895d36),
   );
   static const wood4WhiteCoords = ImageBackground(
-    image: AssetImage("lib/boards/wood4.jpg", package: "chessground"),
+    image: AssetImage('lib/boards/wood4.jpg', package: 'chessground'),
     lightSquare: Color(0xffcbad79),
     darkSquare: Color(0xff895d36),
     coordinates: true,
   );
   static const wood4BlackCoords = ImageBackground(
-    image: AssetImage("lib/boards/wood4.jpg", package: "chessground"),
+    image: AssetImage('lib/boards/wood4.jpg', package: 'chessground'),
     lightSquare: Color(0xffcbad79),
     darkSquare: Color(0xff895d36),
     coordinates: true,
@@ -162,36 +163,38 @@ class ImageBackground extends Background {
   @override
   Widget build(BuildContext context) {
     return SizedBox.expand(
-        child: Stack(children: [
-      Image(image: image),
-      Column(
-        children: List.generate(
-          8,
-          (rank) => Expanded(
-            child: Row(
-              children: List.generate(
-                8,
-                (file) => Expanded(
-                  child: Container(
-                    width: double.infinity,
-                    height: double.infinity,
-                    child: coordinates
-                        ? Coordinate(
-                            rank: rank,
-                            file: file,
-                            orientation: orientation,
-                            color:
-                                (rank + file).isEven ? darkSquare : lightSquare,
-                          )
-                        : null,
+      child: Stack(
+        children: [
+          Image(image: image),
+          Column(
+            children: List.generate(
+              8,
+              (rank) => Expanded(
+                child: Row(
+                  children: List.generate(
+                    8,
+                    (file) => Expanded(
+                      child: SizedBox.expand(
+                        child: coordinates
+                            ? Coordinate(
+                                rank: rank,
+                                file: file,
+                                orientation: orientation,
+                                color: (rank + file).isEven
+                                    ? darkSquare
+                                    : lightSquare,
+                              )
+                            : null,
+                      ),
+                    ),
                   ),
                 ),
               ),
             ),
           ),
-        ),
+        ],
       ),
-    ]));
+    );
   }
 }
 
