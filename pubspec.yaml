@@ -55,3 +55,4 @@ flutter:
     - lib/piece_sets/spatial/
     - lib/piece_sets/staunty/
     - lib/piece_sets/tatiana/
+    - lib/boards/

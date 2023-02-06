@@ -65,4 +65,24 @@ class BoardTheme {
     validMoves: Color.fromRGBO(0, 0, 0, 0.2),
     validPremoves: Color(0x60203085),
   );
+
+  static const horsey = BoardTheme(
+    background: Background.horsey,
+    whiteCoordBackground: Background.horseyWhiteCoords,
+    blackCoordBackground: Background.horseyBlackCoords,
+    lastMove: Color(0x809cc700),
+    selected: Color(0x8014551e),
+    validMoves: Color(0x6014551e),
+    validPremoves: Color(0x60203085),
+  );
+
+  static const wood4 = BoardTheme(
+    background: Background.wood4,
+    whiteCoordBackground: Background.wood4WhiteCoords,
+    blackCoordBackground: Background.wood4BlackCoords,
+    lastMove: Color(0x809cc700),
+    selected: Color(0x8014551e),
+    validMoves: Color(0x6014551e),
+    validPremoves: Color(0x60203085),
+  );
 }
