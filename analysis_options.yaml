@@ -9,7 +9,6 @@ analyzer:
 
 linter:
   rules:
-    require_trailing_commas: false
     avoid_print: false
     directives_ordering: false
     always_use_package_imports: false
