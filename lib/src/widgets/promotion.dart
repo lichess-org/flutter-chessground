@@ -72,34 +72,36 @@ class PromotionSelector extends StatelessWidget {
                 ].map((Piece piece) {
                   return GestureDetector(
                     onTap: () => onSelect(move, piece),
-                    child: Stack(children: [
-                      Container(
-                        width: squareSize,
-                        height: squareSize,
-                        decoration: const BoxDecoration(
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Color(0xFFb0b0b0),
-                            ),
-                            BoxShadow(
-                              color: Color(0xFF808080),
-                              blurRadius: 25.0,
-                              spreadRadius: -3.0,
-                            ),
-                          ],
+                    child: Stack(
+                      children: [
+                        Container(
+                          width: squareSize,
+                          height: squareSize,
+                          decoration: const BoxDecoration(
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Color(0xFFb0b0b0),
+                              ),
+                              BoxShadow(
+                                color: Color(0xFF808080),
+                                blurRadius: 25.0,
+                                spreadRadius: -3.0,
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                      Positioned(
-                        left: 5.0,
-                        top: 5.0,
-                        child: PieceWidget(
-                          piece: piece,
-                          size: squareSize - 10.0,
-                          pieceSet: pieceSet,
+                        Positioned(
+                          left: 5.0,
+                          top: 5.0,
+                          child: PieceWidget(
+                            piece: piece,
+                            size: squareSize - 10.0,
+                            pieceSet: pieceSet,
+                          ),
                         ),
-                      ),
-                    ]),
+                      ],
+                    ),
                   );
                 }).toList(growable: false),
               ),

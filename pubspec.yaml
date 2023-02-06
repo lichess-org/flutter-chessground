@@ -1,6 +1,6 @@
 name: chessground
 description: Lichess board for flutter
-version: 0.0.1
+version: 0.1.0
 homepage:
 
 environment:
@@ -23,4 +23,35 @@ dev_dependencies:
 
 flutter:
   assets:
+    - lib/piece_sets/alpha/
+    - lib/piece_sets/anarcandy/
+    - lib/piece_sets/california/
+    - lib/piece_sets/cardinal/
+    - lib/piece_sets/cburnett/
+    - lib/piece_sets/celtic/
+    - lib/piece_sets/chess7/
+    - lib/piece_sets/chessnut/
+    - lib/piece_sets/companion/
+    - lib/piece_sets/disguised/
+    - lib/piece_sets/dubrovny/
+    - lib/piece_sets/fantasy/
+    - lib/piece_sets/fresca/
+    - lib/piece_sets/gioco/
+    - lib/piece_sets/governor/
+    - lib/piece_sets/horsey/
+    - lib/piece_sets/icpieces/
+    - lib/piece_sets/kosal/
+    - lib/piece_sets/leipzig/
+    - lib/piece_sets/letter/
+    - lib/piece_sets/libra/
+    - lib/piece_sets/maestro/
     - lib/piece_sets/merida/
+    - lib/piece_sets/mono/
+    - lib/piece_sets/pirouetti/
+    - lib/piece_sets/pixel/
+    - lib/piece_sets/reillycraig/
+    - lib/piece_sets/riohacha/
+    - lib/piece_sets/shapes/
+    - lib/piece_sets/spatial/
+    - lib/piece_sets/staunty/
+    - lib/piece_sets/tatiana/

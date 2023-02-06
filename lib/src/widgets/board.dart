@@ -271,13 +271,16 @@ class _BoardState extends State<Board> {
         if (oldP != null) {
           if (newP != oldP) {
             missingOnSquare.add(
-                PositionedPiece(piece: oldP, squareId: s, coord: squareCoord));
+              PositionedPiece(piece: oldP, squareId: s, coord: squareCoord),
+            );
             newOnSquare.add(
-                PositionedPiece(piece: newP, squareId: s, coord: squareCoord));
+              PositionedPiece(piece: newP, squareId: s, coord: squareCoord),
+            );
           }
         } else {
           newOnSquare.add(
-              PositionedPiece(piece: newP, squareId: s, coord: squareCoord));
+            PositionedPiece(piece: newP, squareId: s, coord: squareCoord),
+          );
         }
       } else if (oldP != null) {
         missingOnSquare
@@ -310,8 +313,10 @@ class _BoardState extends State<Board> {
           coord.offset(widget.data.orientation, widget.squareSize);
       final RenderBox box = context.findRenderObject()! as RenderBox;
       final tmpOffset = box.localToGlobal(localOffset);
-      return Offset(tmpOffset.dx - widget.squareSize / 2,
-          tmpOffset.dy - widget.squareSize / 2);
+      return Offset(
+        tmpOffset.dx - widget.squareSize / 2,
+        tmpOffset.dy - widget.squareSize / 2,
+      );
     } else {
       return null;
     }
@@ -332,8 +337,11 @@ class _BoardState extends State<Board> {
             (selected == null || !_canPremove(selected!, squareId))) {
           setState(() {
             selected = squareId;
-            _premoveDests = premovesOf(squareId, pieces,
-                canCastle: widget.settings.enablePremoveCastling);
+            _premoveDests = premovesOf(
+              squareId,
+              pieces,
+              canCastle: widget.settings.enablePremoveCastling,
+            );
           });
         } else {
           setState(() {
@@ -359,7 +367,7 @@ class _BoardState extends State<Board> {
         final squareTargetOffset =
             _squareTargetGlobalOffset(details.localPosition);
         _dragAvatar = _DragAvatar(
-          overlayState: Overlay.of(context, debugRequiredFor: widget)!,
+          overlayState: Overlay.of(context, debugRequiredFor: widget),
           initialPosition: details.globalPosition,
           initialTargetPosition: squareTargetOffset,
           squareTargetFeedback: Container(
@@ -475,9 +483,11 @@ class _BoardState extends State<Board> {
   bool _canPremove(SquareId orig, SquareId dest) {
     return orig != dest &&
         _isPremovable(orig) &&
-        premovesOf(orig, pieces,
-                canCastle: widget.settings.enablePremoveCastling)
-            .contains(dest);
+        premovesOf(
+          orig,
+          pieces,
+          canCastle: widget.settings.enablePremoveCastling,
+        ).contains(dest);
   }
 
   bool _isPromoMove(Piece piece, SquareId targetSquareId) {

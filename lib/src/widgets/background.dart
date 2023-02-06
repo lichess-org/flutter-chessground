@@ -80,7 +80,8 @@ class Background extends StatelessWidget {
                     width: double.infinity,
                     height: double.infinity,
                     decoration: BoxDecoration(
-                        color: (rank + file).isEven ? lightSquare : darkSquare),
+                      color: (rank + file).isEven ? lightSquare : darkSquare,
+                    ),
                     child: coordinates
                         ? Coordinate(
                             rank: rank,

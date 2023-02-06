@@ -2,7 +2,7 @@ import 'package:flutter/widgets.dart';
 
 import 'theme.dart';
 import 'models.dart';
-import 'piece_set.dart';
+import 'piece_sets.dart';
 
 /// Board settings that control the theme, behavior and purpose of the board.
 ///
@@ -13,7 +13,7 @@ class BoardSettings {
   const BoardSettings({
     // theme
     this.theme = BoardTheme.brown,
-    this.pieceSet = meridaPieceSet,
+    this.pieceSet = PieceSets.cburnett,
     // visual settings
     this.enableCoordinates = true,
     this.animationDuration = const Duration(milliseconds: 250),

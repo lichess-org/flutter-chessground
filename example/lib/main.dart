@@ -2,7 +2,6 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:chessground/chessground.dart';
 import 'package:dartchess/dartchess.dart' as dc;
-import './piece_set.dart';
 
 void main() {
   runApp(const MyApp());
@@ -62,7 +61,7 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Board(
           size: screenWidth,
           settings: const BoardSettings(
-            pieceSet: maestroPieceSet,
+            pieceSet: PieceSets.merida,
           ),
           data: BoardData(
             interactableSide: InteractableSide.white,

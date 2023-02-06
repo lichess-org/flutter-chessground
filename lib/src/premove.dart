@@ -1,7 +1,10 @@
 import './models.dart';
 
-Set<SquareId> premovesOf(SquareId square, Pieces pieces,
-    {bool canCastle = false}) {
+Set<SquareId> premovesOf(
+  SquareId square,
+  Pieces pieces, {
+  bool canCastle = false,
+}) {
   final piece = pieces[square];
   if (piece == null) return {};
   final coord = Coord.fromSquareId(square);
@@ -16,8 +19,11 @@ Set<SquareId> premovesOf(SquareId square, Pieces pieces,
                   ? _rook
                   : r == PieceRole.queen
                       ? _queen
-                      : _king(piece.color, _rookFilesOf(pieces, piece.color),
-                          canCastle);
+                      : _king(
+                          piece.color,
+                          _rookFilesOf(pieces, piece.color),
+                          canCastle,
+                        );
 
   return Set.unmodifiable({
     for (final coord2 in allCoords)
