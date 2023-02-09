@@ -11,10 +11,10 @@ class PromotionSelector extends StatelessWidget {
     required this.orientation,
     required this.onSelect,
     required this.onCancel,
-    required this.pieceSet,
+    required this.pieceAssets,
   });
 
-  final PieceSet pieceSet;
+  final PieceSetAssets pieceAssets;
   final Move move;
   final Side color;
   final double squareSize;
@@ -97,7 +97,7 @@ class PromotionSelector extends StatelessWidget {
                           child: PieceWidget(
                             piece: piece,
                             size: squareSize - 10.0,
-                            pieceSet: pieceSet,
+                            pieceAssets: pieceAssets,
                           ),
                         ),
                       ],

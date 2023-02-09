@@ -154,7 +154,7 @@ class _BoardState extends State<Board> {
               duration: widget.settings.animationDuration,
               piece: entry.value,
               size: widget.squareSize,
-              pieceSet: widget.settings.pieceSet,
+              pieceAssets: widget.settings.pieceAssets,
               onComplete: () {
                 fadingPieces.remove(entry.key);
               },
@@ -178,13 +178,13 @@ class _BoardState extends State<Board> {
                     child: PieceWidget(
                       piece: entry.value,
                       size: widget.squareSize,
-                      pieceSet: widget.settings.pieceSet,
+                      pieceAssets: widget.settings.pieceAssets,
                     ),
                   )
                 : PieceWidget(
                     piece: entry.value,
                     size: widget.squareSize,
-                    pieceSet: widget.settings.pieceSet,
+                    pieceAssets: widget.settings.pieceAssets,
                     opacity: _dragOrigin == entry.key ? 0.2 : 1.0,
                   ),
           ),
@@ -217,7 +217,7 @@ class _BoardState extends State<Board> {
             board,
           if (_promotionMove != null)
             PromotionSelector(
-              pieceSet: widget.settings.pieceSet,
+              pieceAssets: widget.settings.pieceAssets,
               move: _promotionMove!,
               squareSize: widget.squareSize,
               color: widget.data.sideToMove,
@@ -386,7 +386,7 @@ class _BoardState extends State<Board> {
             child: PieceWidget(
               piece: piece,
               size: feedbackSize,
-              pieceSet: widget.settings.pieceSet,
+              pieceAssets: widget.settings.pieceAssets,
             ),
           ),
         );

@@ -1,7 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:chessground/chessground.dart' as cg;
 
-const cg.PieceSet maestroPieceSet = {
+const cg.PieceSetAssets maestroPieceSet = {
   'blackrook': AssetImage(
     'lib/piece_set/maestro/bR.png',
   ),

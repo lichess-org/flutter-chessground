@@ -61,7 +61,7 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Board(
           size: screenWidth,
           settings: const BoardSettings(
-            pieceSet: PieceSets.merida,
+            pieceAssets: PieceSets.merida,
           ),
           data: BoardData(
             interactableSide: InteractableSide.white,

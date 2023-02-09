@@ -74,7 +74,7 @@ class PieceFade extends StatefulWidget {
     required this.piece,
     required this.size,
     required this.onComplete,
-    required this.pieceSet,
+    required this.pieceAssets,
     Duration? duration,
     Curve? curve,
   })  : duration = duration ?? const Duration(milliseconds: 150),
@@ -82,7 +82,7 @@ class PieceFade extends StatefulWidget {
 
   final Piece piece;
   final double size;
-  final PieceSet pieceSet;
+  final PieceSetAssets pieceAssets;
   final Duration duration;
   final Curve curve;
   final void Function() onComplete;
@@ -124,7 +124,7 @@ class _PieceFadeState extends State<PieceFade> with TickerProviderStateMixin {
       piece: widget.piece,
       size: widget.size,
       animatedOpacity: _animation,
-      pieceSet: widget.pieceSet,
+      pieceAssets: widget.pieceAssets,
     );
   }
 }

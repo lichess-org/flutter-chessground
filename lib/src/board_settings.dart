@@ -13,7 +13,7 @@ class BoardSettings {
   const BoardSettings({
     // theme
     this.theme = BoardTheme.brown,
-    this.pieceSet = PieceSets.cburnett,
+    this.pieceAssets = PieceSets.cburnett,
     // visual settings
     this.enableCoordinates = true,
     this.animationDuration = const Duration(milliseconds: 250),
@@ -33,7 +33,7 @@ class BoardSettings {
   final BoardTheme theme;
 
   /// Piece set
-  final PieceSet pieceSet;
+  final PieceSetAssets pieceAssets;
 
   /// Whether to show board coordinates
   final bool enableCoordinates;

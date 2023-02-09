@@ -7,7 +7,7 @@ class PieceWidget extends StatelessWidget {
     super.key,
     required this.piece,
     required this.size,
-    required this.pieceSet,
+    required this.pieceAssets,
     this.opacity = 1.0,
     this.animatedOpacity,
   });
@@ -19,7 +19,7 @@ class PieceWidget extends StatelessWidget {
   final double size;
 
   /// Piece set
-  final PieceSet pieceSet;
+  final PieceSetAssets pieceAssets;
 
   /// Defines an opacity for the piece. By default it is fully opaque
   final double opacity;
@@ -30,7 +30,7 @@ class PieceWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Image(
-      image: pieceSet[piece.kind]!,
+      image: pieceAssets[piece.kind]!,
       color: Color.fromRGBO(255, 255, 255, opacity),
       colorBlendMode: BlendMode.modulate,
       opacity: animatedOpacity,
