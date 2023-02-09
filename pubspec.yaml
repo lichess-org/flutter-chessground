@@ -46,7 +46,6 @@ flutter:
     - lib/piece_sets/libra/
     - lib/piece_sets/maestro/
     - lib/piece_sets/merida/
-    - lib/piece_sets/mono/
     - lib/piece_sets/pirouetti/
     - lib/piece_sets/pixel/
     - lib/piece_sets/reillycraig/

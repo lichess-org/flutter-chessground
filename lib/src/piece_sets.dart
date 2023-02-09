@@ -31,7 +31,6 @@ enum PieceSet {
   shapes('Shapes'),
   horsey('Horsey'),
   anarcandy('Anarcandy'),
-  mono('Mono'),
   letter('Letter'),
   disguised('Disguised');
 
@@ -87,8 +86,6 @@ enum PieceSet {
         return PieceSets.maestro;
       case PieceSet.merida:
         return PieceSets.merida;
-      case PieceSet.mono:
-        return PieceSets.mono;
       case PieceSet.pirouetti:
         return PieceSets.pirouetti;
       case PieceSet.pixel:
@@ -729,33 +726,6 @@ abstract class PieceSets {
         AssetImage('lib/piece_sets/merida/wQ.png', package: 'chessground'),
     'whiteking':
         AssetImage('lib/piece_sets/merida/wK.png', package: 'chessground'),
-  };
-
-  static const PieceSetAssets mono = {
-    'blackrook':
-        AssetImage('lib/piece_sets/mono/bR.png', package: 'chessground'),
-    'blackpawn':
-        AssetImage('lib/piece_sets/mono/bP.png', package: 'chessground'),
-    'blackknight':
-        AssetImage('lib/piece_sets/mono/bN.png', package: 'chessground'),
-    'blackbishop':
-        AssetImage('lib/piece_sets/mono/bB.png', package: 'chessground'),
-    'blackqueen':
-        AssetImage('lib/piece_sets/mono/bQ.png', package: 'chessground'),
-    'blackking':
-        AssetImage('lib/piece_sets/mono/bK.png', package: 'chessground'),
-    'whiterook':
-        AssetImage('lib/piece_sets/mono/wR.png', package: 'chessground'),
-    'whitepawn':
-        AssetImage('lib/piece_sets/mono/wP.png', package: 'chessground'),
-    'whiteknight':
-        AssetImage('lib/piece_sets/mono/wN.png', package: 'chessground'),
-    'whitebishop':
-        AssetImage('lib/piece_sets/mono/wB.png', package: 'chessground'),
-    'whitequeen':
-        AssetImage('lib/piece_sets/mono/wQ.png', package: 'chessground'),
-    'whiteking':
-        AssetImage('lib/piece_sets/mono/wK.png', package: 'chessground'),
   };
 
   static const PieceSetAssets pirouetti = {
