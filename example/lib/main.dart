@@ -48,6 +48,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Move? lastMove;
   ValidMoves validMoves = {};
   Side sideToMove = Side.white;
+  PieceSet pieceSet = PieceSet.cburnett;
 
   @override
   Widget build(BuildContext context) {
@@ -58,23 +59,82 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
       ),
       body: Center(
-        child: Board(
-          size: screenWidth,
-          settings: const BoardSettings(
-            pieceAssets: PieceSets.merida,
-          ),
-          data: BoardData(
-            interactableSide: InteractableSide.white,
-            validMoves: validMoves,
-            orientation: Side.white,
-            fen: fen,
-            lastMove: lastMove,
-            sideToMove:
-                position.turn == dc.Side.white ? Side.white : Side.black,
-            onMove: _onUserMove,
-          ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            Board(
+              size: screenWidth,
+              settings: BoardSettings(
+                pieceAssets: pieceSet.assets,
+              ),
+              data: BoardData(
+                interactableSide: InteractableSide.white,
+                validMoves: validMoves,
+                orientation: Side.white,
+                fen: fen,
+                lastMove: lastMove,
+                sideToMove:
+                    position.turn == dc.Side.white ? Side.white : Side.black,
+                onMove: _onUserMove,
+              ),
+            ),
+            ElevatedButton(
+              child: Text('Piece set: ${pieceSet.name}'),
+              onPressed: () => _showChoicesPicker<PieceSet>(
+                context,
+                choices: PieceSet.values,
+                selectedItem: pieceSet,
+                labelBuilder: (t) => Text(t.name),
+                onSelectedItemChanged: (PieceSet? value) {
+                  setState(() {
+                    if (value != null) {
+                      pieceSet = value;
+                    }
+                  });
+                },
+              ),
+            ),
+          ],
         ),
       ),
+    );
+  }
+
+  void _showChoicesPicker<T extends Enum>(
+    BuildContext context, {
+    required List<T> choices,
+    required T selectedItem,
+    required Widget Function(T choice) labelBuilder,
+    required void Function(T choice) onSelectedItemChanged,
+  }) {
+    showDialog<void>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          contentPadding: const EdgeInsets.only(top: 12),
+          scrollable: true,
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: choices.map((value) {
+              return RadioListTile<T>(
+                title: labelBuilder(value),
+                value: value,
+                groupValue: selectedItem,
+                onChanged: (value) {
+                  if (value != null) onSelectedItemChanged(value);
+                  Navigator.of(context).pop();
+                },
+              );
+            }).toList(growable: false),
+          ),
+          actions: [
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ],
+        );
+      },
     );
   }
 
