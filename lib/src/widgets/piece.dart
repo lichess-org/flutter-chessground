@@ -19,7 +19,7 @@ class PieceWidget extends StatelessWidget {
   final double size;
 
   /// Piece set
-  final PieceSetAssets pieceAssets;
+  final PieceAssets pieceAssets;
 
   /// Defines an opacity for the piece. By default it is fully opaque
   final double opacity;

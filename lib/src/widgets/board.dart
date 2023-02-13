@@ -71,6 +71,7 @@ class _BoardState extends State<Board> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = widget.settings.colorScheme;
     final Set<SquareId> moveDests = widget.settings.showValidMoves &&
             selected != null &&
             widget.data.validMoves != null
@@ -81,10 +82,10 @@ class _BoardState extends State<Board> {
       children: [
         if (widget.settings.enableCoordinates)
           widget.data.orientation == Side.white
-              ? widget.settings.theme.whiteCoordBackground
-              : widget.settings.theme.blackCoordBackground
+              ? colorScheme.whiteCoordBackground
+              : colorScheme.blackCoordBackground
         else
-          widget.settings.theme.background,
+          colorScheme.background,
         if (widget.settings.showLastMove && widget.data.lastMove != null)
           for (final squareId in widget.data.lastMove!.squares)
             PositionedSquare(
@@ -94,7 +95,7 @@ class _BoardState extends State<Board> {
               squareId: squareId,
               child: Highlight(
                 size: widget.squareSize,
-                color: widget.settings.theme.lastMove,
+                color: colorScheme.lastMove,
               ),
             ),
         if (_premove != null)
@@ -106,7 +107,7 @@ class _BoardState extends State<Board> {
               squareId: squareId,
               child: Highlight(
                 size: widget.squareSize,
-                color: widget.settings.theme.validPremoves,
+                color: colorScheme.validPremoves,
               ),
             ),
         if (selected != null)
@@ -117,7 +118,7 @@ class _BoardState extends State<Board> {
             squareId: selected!,
             child: Highlight(
               size: widget.squareSize,
-              color: widget.settings.theme.selected,
+              color: colorScheme.selected,
             ),
           ),
         for (final dest in moveDests)
@@ -128,7 +129,7 @@ class _BoardState extends State<Board> {
             squareId: dest,
             child: MoveDest(
               size: widget.squareSize,
-              color: widget.settings.theme.validMoves,
+              color: colorScheme.validMoves,
               occupied: pieces.containsKey(dest),
             ),
           ),
@@ -140,7 +141,7 @@ class _BoardState extends State<Board> {
             squareId: dest,
             child: MoveDest(
               size: widget.squareSize,
-              color: widget.settings.theme.validPremoves,
+              color: colorScheme.validPremoves,
               occupied: pieces.containsKey(dest),
             ),
           ),

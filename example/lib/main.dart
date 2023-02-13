@@ -27,15 +27,6 @@ class MyApp extends StatelessWidget {
 class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key, required this.title}) : super(key: key);
 
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
   final String title;
 
   @override
@@ -49,7 +40,7 @@ class _MyHomePageState extends State<MyHomePage> {
   ValidMoves validMoves = {};
   Side sideToMove = Side.white;
   PieceSet pieceSet = PieceSet.cburnett;
-  BoardThemes boardTheme = BoardThemes.blue;
+  BoardTheme boardTheme = BoardTheme.blue;
 
   @override
   Widget build(BuildContext context) {
@@ -67,7 +58,7 @@ class _MyHomePageState extends State<MyHomePage> {
               size: screenWidth,
               settings: BoardSettings(
                 pieceAssets: pieceSet.assets,
-                theme: boardTheme.theme,
+                colorScheme: boardTheme.colors,
                 enableCoordinates: true,
               ),
               data: BoardData(
@@ -87,7 +78,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 context,
                 choices: PieceSet.values,
                 selectedItem: pieceSet,
-                labelBuilder: (t) => Text(t.name),
+                labelBuilder: (t) => Text(t.label),
                 onSelectedItemChanged: (PieceSet? value) {
                   setState(() {
                     if (value != null) {
@@ -99,12 +90,12 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             ElevatedButton(
               child: Text('Board theme: ${boardTheme.name}'),
-              onPressed: () => _showChoicesPicker<BoardThemes>(
+              onPressed: () => _showChoicesPicker<BoardTheme>(
                 context,
-                choices: BoardThemes.values,
+                choices: BoardTheme.values,
                 selectedItem: boardTheme,
-                labelBuilder: (t) => Text(t.name),
-                onSelectedItemChanged: (BoardThemes? value) {
+                labelBuilder: (t) => Text(t.label),
+                onSelectedItemChanged: (BoardTheme? value) {
                   setState(() {
                     if (value != null) {
                       boardTheme = value;

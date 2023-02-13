@@ -118,18 +118,18 @@ abstract class Background extends StatelessWidget {
     coordinates: true,
     orientation: Side.black,
   );
-  static const canvas2 = ImageBackground(
+  static const canvas = ImageBackground(
     image: AssetImage('lib/boards/canvas2.jpg', package: 'chessground'),
     lightSquare: Color(0xffd7daeb),
     darkSquare: Color(0xff547388),
   );
-  static const canvas2WhiteCoords = ImageBackground(
+  static const canvasWhiteCoords = ImageBackground(
     image: AssetImage('lib/boards/canvas2.jpg', package: 'chessground'),
     lightSquare: Color(0xffd7daeb),
     darkSquare: Color(0xff547388),
     coordinates: true,
   );
-  static const canvas2BlackCoords = ImageBackground(
+  static const canvasBlackCoords = ImageBackground(
     image: AssetImage('lib/boards/canvas2.jpg', package: 'chessground'),
     lightSquare: Color(0xffd7daeb),
     darkSquare: Color(0xff547388),
@@ -277,24 +277,6 @@ abstract class Background extends StatelessWidget {
     image: AssetImage('lib/boards/metal.jpg', package: 'chessground'),
     lightSquare: Color(0xffc9c9c9),
     darkSquare: Color(0xff727272),
-    coordinates: true,
-    orientation: Side.black,
-  );
-  static const ncf = ImageBackground(
-    image: AssetImage('lib/boards/ncf-board.png', package: 'chessground'),
-    lightSquare: Color(0xffBBCFFF),
-    darkSquare: Color(0xff5477CA),
-  );
-  static const ncfWhiteCoords = ImageBackground(
-    image: AssetImage('lib/boards/ncf-board.png', package: 'chessground'),
-    lightSquare: Color(0xffBBCFFF),
-    darkSquare: Color(0xff5477CA),
-    coordinates: true,
-  );
-  static const ncfBlackCoords = ImageBackground(
-    image: AssetImage('lib/boards/ncf-board.png', package: 'chessground'),
-    lightSquare: Color(0xffBBCFFF),
-    darkSquare: Color(0xff5477CA),
     coordinates: true,
     orientation: Side.black,
   );

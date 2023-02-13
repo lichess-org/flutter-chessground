@@ -2,7 +2,7 @@ import 'package:flutter/widgets.dart';
 import './widgets/background.dart';
 
 /// Describes the color scheme of a [Board].
-class BoardTheme {
+class BoardColorScheme {
   /// Board background that defines light and dark square colors
   final Background background;
 
@@ -26,7 +26,7 @@ class BoardTheme {
   /// Color of squares occupied with valid premoves dots
   final Color validPremoves;
 
-  const BoardTheme({
+  const BoardColorScheme({
     required this.background,
     required this.whiteCoordBackground,
     required this.blackCoordBackground,
@@ -36,7 +36,7 @@ class BoardTheme {
     required this.validPremoves,
   });
 
-  static const brown = BoardTheme(
+  static const brown = BoardColorScheme(
     background: Background.brown,
     whiteCoordBackground: Background.brownWhiteCoords,
     blackCoordBackground: Background.brownBlackCoords,
@@ -46,7 +46,7 @@ class BoardTheme {
     validPremoves: Color(0x60203085),
   );
 
-  static const blue = BoardTheme(
+  static const blue = BoardColorScheme(
     background: Background.blue,
     whiteCoordBackground: Background.blueWhiteCoords,
     blackCoordBackground: Background.blueBlackCoords,
@@ -56,7 +56,7 @@ class BoardTheme {
     validPremoves: Color(0x60203085),
   );
 
-  static const green = BoardTheme(
+  static const green = BoardColorScheme(
     background: Background.green,
     whiteCoordBackground: Background.greenWhiteCoords,
     blackCoordBackground: Background.greenBlackCoords,
@@ -66,7 +66,7 @@ class BoardTheme {
     validPremoves: Color(0x60203085),
   );
 
-  static const blue2 = BoardTheme(
+  static const blue2 = BoardColorScheme(
     background: Background.blue2,
     whiteCoordBackground: Background.blue2WhiteCoords,
     blackCoordBackground: Background.blue2BlackCoords,
@@ -76,7 +76,7 @@ class BoardTheme {
     validPremoves: Color(0x60203085),
   );
 
-  static const blue3 = BoardTheme(
+  static const blue3 = BoardColorScheme(
     background: Background.blue3,
     whiteCoordBackground: Background.blue3WhiteCoords,
     blackCoordBackground: Background.blue3BlackCoords,
@@ -86,7 +86,7 @@ class BoardTheme {
     validPremoves: Color(0x60203085),
   );
 
-  static const blueMarble = BoardTheme(
+  static const blueMarble = BoardColorScheme(
     background: Background.blueMarble,
     whiteCoordBackground: Background.blueMarbleWhiteCoords,
     blackCoordBackground: Background.blueMarbleBlackCoords,
@@ -96,17 +96,17 @@ class BoardTheme {
     validPremoves: Color(0x60203085),
   );
 
-  static const canvas2 = BoardTheme(
-    background: Background.canvas2,
-    whiteCoordBackground: Background.canvas2WhiteCoords,
-    blackCoordBackground: Background.canvas2BlackCoords,
+  static const canvas = BoardColorScheme(
+    background: Background.canvas,
+    whiteCoordBackground: Background.canvasWhiteCoords,
+    blackCoordBackground: Background.canvasBlackCoords,
     lastMove: Color(0x809cc700),
     selected: Color(0x8014551e),
     validMoves: Color(0x6014551e),
     validPremoves: Color(0x60203085),
   );
 
-  static const greenPlastic = BoardTheme(
+  static const greenPlastic = BoardColorScheme(
     background: Background.greenPlastic,
     whiteCoordBackground: Background.greenPlasticWhiteCoords,
     blackCoordBackground: Background.greenPlasticBlackCoords,
@@ -116,7 +116,7 @@ class BoardTheme {
     validPremoves: Color(0x60203085),
   );
 
-  static const grey = BoardTheme(
+  static const grey = BoardColorScheme(
     background: Background.grey,
     whiteCoordBackground: Background.greyWhiteCoords,
     blackCoordBackground: Background.greyBlackCoords,
@@ -126,7 +126,7 @@ class BoardTheme {
     validPremoves: Color(0x60203085),
   );
 
-  static const horsey = BoardTheme(
+  static const horsey = BoardColorScheme(
     background: Background.horsey,
     whiteCoordBackground: Background.horseyWhiteCoords,
     blackCoordBackground: Background.horseyBlackCoords,
@@ -136,7 +136,7 @@ class BoardTheme {
     validPremoves: Color(0x60203085),
   );
 
-  static const leather = BoardTheme(
+  static const leather = BoardColorScheme(
     background: Background.leather,
     whiteCoordBackground: Background.leatherWhiteCoords,
     blackCoordBackground: Background.leatherBlackCoords,
@@ -146,7 +146,7 @@ class BoardTheme {
     validPremoves: Color(0x60203085),
   );
 
-  static const maple = BoardTheme(
+  static const maple = BoardColorScheme(
     background: Background.maple,
     whiteCoordBackground: Background.mapleWhiteCoords,
     blackCoordBackground: Background.mapleBlackCoords,
@@ -156,7 +156,7 @@ class BoardTheme {
     validPremoves: Color(0x60203085),
   );
 
-  static const maple2 = BoardTheme(
+  static const maple2 = BoardColorScheme(
     background: Background.maple2,
     whiteCoordBackground: Background.maple2WhiteCoords,
     blackCoordBackground: Background.maple2BlackCoords,
@@ -166,7 +166,7 @@ class BoardTheme {
     validPremoves: Color(0x60203085),
   );
 
-  static const marble = BoardTheme(
+  static const marble = BoardColorScheme(
     background: Background.marble,
     whiteCoordBackground: Background.marbleWhiteCoords,
     blackCoordBackground: Background.marbleBlackCoords,
@@ -176,7 +176,7 @@ class BoardTheme {
     validPremoves: Color(0x60203085),
   );
 
-  static const metal = BoardTheme(
+  static const metal = BoardColorScheme(
     background: Background.metal,
     whiteCoordBackground: Background.metalWhiteCoords,
     blackCoordBackground: Background.metalBlackCoords,
@@ -186,17 +186,7 @@ class BoardTheme {
     validPremoves: Color(0x60203085),
   );
 
-  static const ncf = BoardTheme(
-    background: Background.ncf,
-    whiteCoordBackground: Background.ncfWhiteCoords,
-    blackCoordBackground: Background.ncfBlackCoords,
-    lastMove: Color(0x809cc700),
-    selected: Color(0x8014551e),
-    validMoves: Color(0x6014551e),
-    validPremoves: Color(0x60203085),
-  );
-
-  static const newspaper = BoardTheme(
+  static const newspaper = BoardColorScheme(
     background: Background.newspaper,
     whiteCoordBackground: Background.newspaperWhiteCoords,
     blackCoordBackground: Background.newspaperBlackCoords,
@@ -206,7 +196,7 @@ class BoardTheme {
     validPremoves: Color(0x60203085),
   );
 
-  static const olive = BoardTheme(
+  static const olive = BoardColorScheme(
     background: Background.olive,
     whiteCoordBackground: Background.oliveWhiteCoords,
     blackCoordBackground: Background.oliveBlackCoords,
@@ -216,7 +206,7 @@ class BoardTheme {
     validPremoves: Color(0x60203085),
   );
 
-  static const pinkPyramid = BoardTheme(
+  static const pinkPyramid = BoardColorScheme(
     background: Background.pinkPyramid,
     whiteCoordBackground: Background.pinkPyramidWhiteCoords,
     blackCoordBackground: Background.pinkPyramidBlackCoords,
@@ -226,7 +216,7 @@ class BoardTheme {
     validPremoves: Color(0x60203085),
   );
 
-  static const purpleDiag = BoardTheme(
+  static const purpleDiag = BoardColorScheme(
     background: Background.purpleDiag,
     whiteCoordBackground: Background.purpleDiagWhiteCoords,
     blackCoordBackground: Background.purpleDiagBlackCoords,
@@ -236,7 +226,7 @@ class BoardTheme {
     validPremoves: Color(0x60203085),
   );
 
-  static const wood = BoardTheme(
+  static const wood = BoardColorScheme(
     background: Background.wood,
     whiteCoordBackground: Background.woodWhiteCoords,
     blackCoordBackground: Background.woodBlackCoords,
@@ -246,7 +236,7 @@ class BoardTheme {
     validPremoves: Color(0x60203085),
   );
 
-  static const wood2 = BoardTheme(
+  static const wood2 = BoardColorScheme(
     background: Background.wood2,
     whiteCoordBackground: Background.wood2WhiteCoords,
     blackCoordBackground: Background.wood2BlackCoords,
@@ -256,7 +246,7 @@ class BoardTheme {
     validPremoves: Color(0x60203085),
   );
 
-  static const wood3 = BoardTheme(
+  static const wood3 = BoardColorScheme(
     background: Background.wood3,
     whiteCoordBackground: Background.wood3WhiteCoords,
     blackCoordBackground: Background.wood3BlackCoords,
@@ -266,7 +256,7 @@ class BoardTheme {
     validPremoves: Color(0x60203085),
   );
 
-  static const wood4 = BoardTheme(
+  static const wood4 = BoardColorScheme(
     background: Background.wood4,
     whiteCoordBackground: Background.wood4WhiteCoords,
     blackCoordBackground: Background.wood4BlackCoords,
@@ -275,88 +265,4 @@ class BoardTheme {
     validMoves: Color(0x6014551e),
     validPremoves: Color(0x60203085),
   );
-}
-
-enum BoardThemes {
-  brown('Brown'),
-  blue('Blue'),
-  green('Green'),
-  blue2('Blue2'),
-  blue3('Blue3'),
-  blueMarble('Blue Marble'),
-  canvas2('Canvas'),
-  greenPlastic('Green Plastic'),
-  grey('Grey'),
-  horsey('Horsey'),
-  leather('Leather'),
-  maple('Maple'),
-  maple2('Maple2'),
-  marble('Marble'),
-  metal('Metal'),
-  ncf('NCF'),
-  newspaper('Newspaper'),
-  olive('Olive'),
-  pinkPyramid('Pink'),
-  purpleDiag('Purple-Diag'),
-  wood('Wood'),
-  wood2('Wood2'),
-  wood3('Wood3'),
-  wood4('Wood4');
-
-  final String label;
-
-  const BoardThemes(this.label);
-
-  BoardTheme get theme {
-    switch (this) {
-      case BoardThemes.brown:
-        return BoardTheme.brown;
-      case BoardThemes.blue:
-        return BoardTheme.blue;
-      case BoardThemes.green:
-        return BoardTheme.green;
-      case BoardThemes.blue2:
-        return BoardTheme.blue2;
-      case BoardThemes.blue3:
-        return BoardTheme.blue3;
-      case BoardThemes.blueMarble:
-        return BoardTheme.blueMarble;
-      case BoardThemes.canvas2:
-        return BoardTheme.canvas2;
-      case BoardThemes.greenPlastic:
-        return BoardTheme.greenPlastic;
-      case BoardThemes.grey:
-        return BoardTheme.grey;
-      case BoardThemes.horsey:
-        return BoardTheme.horsey;
-      case BoardThemes.leather:
-        return BoardTheme.leather;
-      case BoardThemes.maple:
-        return BoardTheme.maple;
-      case BoardThemes.maple2:
-        return BoardTheme.maple2;
-      case BoardThemes.marble:
-        return BoardTheme.marble;
-      case BoardThemes.metal:
-        return BoardTheme.metal;
-      case BoardThemes.ncf:
-        return BoardTheme.ncf;
-      case BoardThemes.newspaper:
-        return BoardTheme.newspaper;
-      case BoardThemes.olive:
-        return BoardTheme.olive;
-      case BoardThemes.pinkPyramid:
-        return BoardTheme.pinkPyramid;
-      case BoardThemes.purpleDiag:
-        return BoardTheme.purpleDiag;
-      case BoardThemes.wood:
-        return BoardTheme.wood;
-      case BoardThemes.wood2:
-        return BoardTheme.wood2;
-      case BoardThemes.wood3:
-        return BoardTheme.wood3;
-      case BoardThemes.wood4:
-        return BoardTheme.wood4;
-    }
-  }
 }
