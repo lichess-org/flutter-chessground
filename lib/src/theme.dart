@@ -276,3 +276,87 @@ class BoardTheme {
     validPremoves: Color(0x60203085),
   );
 }
+
+enum BoardThemes {
+  brown('Brown'),
+  blue('Blue'),
+  green('Green'),
+  blue2('Blue2'),
+  blue3('Blue3'),
+  blueMarble('Blue Marble'),
+  canvas2('Canvas'),
+  greenPlastic('Green Plastic'),
+  grey('Grey'),
+  horsey('Horsey'),
+  leather('Leather'),
+  maple('Maple'),
+  maple2('Maple2'),
+  marble('Marble'),
+  metal('Metal'),
+  ncf('NCF'),
+  newspaper('Newspaper'),
+  olive('Olive'),
+  pinkPyramid('Pink'),
+  purpleDiag('Purple-Diag'),
+  wood('Wood'),
+  wood2('Wood2'),
+  wood3('Wood3'),
+  wood4('Wood4');
+
+  final String label;
+
+  const BoardThemes(this.label);
+
+  BoardTheme get theme {
+    switch (this) {
+      case BoardThemes.brown:
+        return BoardTheme.brown;
+      case BoardThemes.blue:
+        return BoardTheme.blue;
+      case BoardThemes.green:
+        return BoardTheme.green;
+      case BoardThemes.blue2:
+        return BoardTheme.blue2;
+      case BoardThemes.blue3:
+        return BoardTheme.blue3;
+      case BoardThemes.blueMarble:
+        return BoardTheme.blueMarble;
+      case BoardThemes.canvas2:
+        return BoardTheme.canvas2;
+      case BoardThemes.greenPlastic:
+        return BoardTheme.greenPlastic;
+      case BoardThemes.grey:
+        return BoardTheme.grey;
+      case BoardThemes.horsey:
+        return BoardTheme.horsey;
+      case BoardThemes.leather:
+        return BoardTheme.leather;
+      case BoardThemes.maple:
+        return BoardTheme.maple;
+      case BoardThemes.maple2:
+        return BoardTheme.maple2;
+      case BoardThemes.marble:
+        return BoardTheme.marble;
+      case BoardThemes.metal:
+        return BoardTheme.metal;
+      case BoardThemes.ncf:
+        return BoardTheme.ncf;
+      case BoardThemes.newspaper:
+        return BoardTheme.newspaper;
+      case BoardThemes.olive:
+        return BoardTheme.olive;
+      case BoardThemes.pinkPyramid:
+        return BoardTheme.pinkPyramid;
+      case BoardThemes.purpleDiag:
+        return BoardTheme.purpleDiag;
+      case BoardThemes.wood:
+        return BoardTheme.wood;
+      case BoardThemes.wood2:
+        return BoardTheme.wood2;
+      case BoardThemes.wood3:
+        return BoardTheme.wood3;
+      case BoardThemes.wood4:
+        return BoardTheme.wood4;
+    }
+  }
+}
