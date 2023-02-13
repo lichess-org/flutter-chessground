@@ -1,6 +1,11 @@
 import 'package:flutter/widgets.dart';
 
-enum Side { white, black }
+enum Side {
+  white,
+  black;
+
+  Side get opposite => this == Side.white ? Side.black : Side.white;
+}
 
 enum InteractableSide { both, none, white, black }
 

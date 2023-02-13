@@ -35,11 +35,12 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   dc.Position<dc.Chess> position = dc.Chess.initial;
+  Side orientation = Side.white;
   String fen = dc.kInitialBoardFEN;
   Move? lastMove;
   ValidMoves validMoves = {};
   Side sideToMove = Side.white;
-  PieceSet pieceSet = PieceSet.cburnett;
+  PieceSet pieceSet = PieceSet.merida;
   BoardTheme boardTheme = BoardTheme.blue;
 
   @override
@@ -64,7 +65,7 @@ class _MyHomePageState extends State<MyHomePage> {
               data: BoardData(
                 interactableSide: InteractableSide.white,
                 validMoves: validMoves,
-                orientation: Side.white,
+                orientation: orientation,
                 fen: fen,
                 lastMove: lastMove,
                 sideToMove:
@@ -72,37 +73,49 @@ class _MyHomePageState extends State<MyHomePage> {
                 onMove: _onUserMove,
               ),
             ),
-            ElevatedButton(
-              child: Text('Piece set: ${pieceSet.name}'),
-              onPressed: () => _showChoicesPicker<PieceSet>(
-                context,
-                choices: PieceSet.values,
-                selectedItem: pieceSet,
-                labelBuilder: (t) => Text(t.label),
-                onSelectedItemChanged: (PieceSet? value) {
-                  setState(() {
-                    if (value != null) {
-                      pieceSet = value;
-                    }
-                  });
-                },
-              ),
-            ),
-            ElevatedButton(
-              child: Text('Board theme: ${boardTheme.name}'),
-              onPressed: () => _showChoicesPicker<BoardTheme>(
-                context,
-                choices: BoardTheme.values,
-                selectedItem: boardTheme,
-                labelBuilder: (t) => Text(t.label),
-                onSelectedItemChanged: (BoardTheme? value) {
-                  setState(() {
-                    if (value != null) {
-                      boardTheme = value;
-                    }
-                  });
-                },
-              ),
+            Column(
+              children: [
+                ElevatedButton(
+                  child: Text('Orientation: ${orientation.name}'),
+                  onPressed: () {
+                    setState(() {
+                      orientation = orientation.opposite;
+                    });
+                  },
+                ),
+                ElevatedButton(
+                  child: Text('Piece set: ${pieceSet.label}'),
+                  onPressed: () => _showChoicesPicker<PieceSet>(
+                    context,
+                    choices: PieceSet.values,
+                    selectedItem: pieceSet,
+                    labelBuilder: (t) => Text(t.label),
+                    onSelectedItemChanged: (PieceSet? value) {
+                      setState(() {
+                        if (value != null) {
+                          pieceSet = value;
+                        }
+                      });
+                    },
+                  ),
+                ),
+                ElevatedButton(
+                  child: Text('Board theme: ${boardTheme.label}'),
+                  onPressed: () => _showChoicesPicker<BoardTheme>(
+                    context,
+                    choices: BoardTheme.values,
+                    selectedItem: boardTheme,
+                    labelBuilder: (t) => Text(t.label),
+                    onSelectedItemChanged: (BoardTheme? value) {
+                      setState(() {
+                        if (value != null) {
+                          boardTheme = value;
+                        }
+                      });
+                    },
+                  ),
+                ),
+              ],
             ),
           ],
         ),
