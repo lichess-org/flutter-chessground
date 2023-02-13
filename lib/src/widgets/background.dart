@@ -268,13 +268,13 @@ abstract class Background extends StatelessWidget {
     darkSquare: Color(0xff727272),
   );
   static const metalWhiteCoords = ImageBackground(
-    image: AssetImage('lib/boards/marble.jpg', package: 'chessground'),
+    image: AssetImage('lib/boards/metal.jpg', package: 'chessground'),
     lightSquare: Color(0xffc9c9c9),
     darkSquare: Color(0xff727272),
     coordinates: true,
   );
   static const metalBlackCoords = ImageBackground(
-    image: AssetImage('lib/boards/marble.jpg', package: 'chessground'),
+    image: AssetImage('lib/boards/metal.jpg', package: 'chessground'),
     lightSquare: Color(0xffc9c9c9),
     darkSquare: Color(0xff727272),
     coordinates: true,
