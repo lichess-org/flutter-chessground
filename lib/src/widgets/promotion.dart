@@ -14,7 +14,7 @@ class PromotionSelector extends StatelessWidget {
     required this.pieceAssets,
   });
 
-  final PieceSetAssets pieceAssets;
+  final PieceAssets pieceAssets;
   final Move move;
   final Side color;
   final double squareSize;

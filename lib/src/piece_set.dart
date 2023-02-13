@@ -38,76 +38,74 @@ enum PieceSet {
 
   const PieceSet(this.label);
 
-  PieceSetAssets get assets {
+  PieceAssets get assets {
     switch (this) {
       case PieceSet.alpha:
-        return PieceSets.alpha;
+        return PieceSet.alphaAssets;
       case PieceSet.anarcandy:
-        return PieceSets.anarcandy;
+        return PieceSet.anarcandyAssets;
       case PieceSet.california:
-        return PieceSets.california;
+        return PieceSet.californiaAssets;
       case PieceSet.cardinal:
-        return PieceSets.cardinal;
+        return PieceSet.cardinalAssets;
       case PieceSet.cburnett:
-        return PieceSets.cburnett;
+        return PieceSet.cburnettAssets;
       case PieceSet.celtic:
-        return PieceSets.celtic;
+        return PieceSet.celticAssets;
       case PieceSet.chess7:
-        return PieceSets.chess7;
+        return PieceSet.chess7Assets;
       case PieceSet.chessnut:
-        return PieceSets.chessnut;
+        return PieceSet.chessnutAssets;
       case PieceSet.companion:
-        return PieceSets.companion;
+        return PieceSet.companionAssets;
       case PieceSet.disguised:
-        return PieceSets.disguised;
+        return PieceSet.disguisedAssets;
       case PieceSet.dubrovny:
-        return PieceSets.dubrovny;
+        return PieceSet.dubrovnyAssets;
       case PieceSet.fantasy:
-        return PieceSets.fantasy;
+        return PieceSet.fantasyAssets;
       case PieceSet.fresca:
-        return PieceSets.fresca;
+        return PieceSet.frescaAssets;
       case PieceSet.gioco:
-        return PieceSets.gioco;
+        return PieceSet.giocoAssets;
       case PieceSet.governor:
-        return PieceSets.governor;
+        return PieceSet.governorAssets;
       case PieceSet.horsey:
-        return PieceSets.horsey;
+        return PieceSet.horseyAssets;
       case PieceSet.icpieces:
-        return PieceSets.icpieces;
+        return PieceSet.icpiecesAssets;
       case PieceSet.kosal:
-        return PieceSets.kosal;
+        return PieceSet.kosalAssets;
       case PieceSet.leipzig:
-        return PieceSets.leipzig;
+        return PieceSet.leipzigAssets;
       case PieceSet.letter:
-        return PieceSets.letter;
+        return PieceSet.letterAssets;
       case PieceSet.libra:
-        return PieceSets.libra;
+        return PieceSet.libraAssets;
       case PieceSet.maestro:
-        return PieceSets.maestro;
+        return PieceSet.maestroAssets;
       case PieceSet.merida:
-        return PieceSets.merida;
+        return PieceSet.meridaAssets;
       case PieceSet.pirouetti:
-        return PieceSets.pirouetti;
+        return PieceSet.pirouettiAssets;
       case PieceSet.pixel:
-        return PieceSets.pixel;
+        return PieceSet.pixelAssets;
       case PieceSet.reillycraig:
-        return PieceSets.reillycraig;
+        return PieceSet.reillycraigAssets;
       case PieceSet.riohacha:
-        return PieceSets.riohacha;
+        return PieceSet.riohachaAssets;
       case PieceSet.shapes:
-        return PieceSets.shapes;
+        return PieceSet.shapesAssets;
       case PieceSet.spatial:
-        return PieceSets.spatial;
+        return PieceSet.spatialAssets;
       case PieceSet.staunty:
-        return PieceSets.staunty;
+        return PieceSet.stauntyAssets;
       case PieceSet.tatiana:
-        return PieceSets.tatiana;
+        return PieceSet.tatianaAssets;
     }
   }
-}
 
-abstract class PieceSets {
-  static const PieceSetAssets alpha = {
+  static const PieceAssets alphaAssets = {
     'blackrook':
         AssetImage('lib/piece_sets/alpha/bR.png', package: 'chessground'),
     'blackpawn':
@@ -134,7 +132,7 @@ abstract class PieceSets {
         AssetImage('lib/piece_sets/alpha/wK.png', package: 'chessground'),
   };
 
-  static const PieceSetAssets anarcandy = {
+  static const PieceAssets anarcandyAssets = {
     'blackrook':
         AssetImage('lib/piece_sets/anarcandy/bR.png', package: 'chessground'),
     'blackpawn':
@@ -161,7 +159,7 @@ abstract class PieceSets {
         AssetImage('lib/piece_sets/anarcandy/wK.png', package: 'chessground'),
   };
 
-  static const PieceSetAssets california = {
+  static const PieceAssets californiaAssets = {
     'blackrook':
         AssetImage('lib/piece_sets/california/bR.png', package: 'chessground'),
     'blackpawn':
@@ -188,7 +186,7 @@ abstract class PieceSets {
         AssetImage('lib/piece_sets/california/wK.png', package: 'chessground'),
   };
 
-  static const PieceSetAssets cardinal = {
+  static const PieceAssets cardinalAssets = {
     'blackrook':
         AssetImage('lib/piece_sets/cardinal/bR.png', package: 'chessground'),
     'blackpawn':
@@ -215,7 +213,7 @@ abstract class PieceSets {
         AssetImage('lib/piece_sets/cardinal/wK.png', package: 'chessground'),
   };
 
-  static const PieceSetAssets cburnett = {
+  static const PieceAssets cburnettAssets = {
     'blackrook':
         AssetImage('lib/piece_sets/cburnett/bR.png', package: 'chessground'),
     'blackpawn':
@@ -242,7 +240,7 @@ abstract class PieceSets {
         AssetImage('lib/piece_sets/cburnett/wK.png', package: 'chessground'),
   };
 
-  static const PieceSetAssets celtic = {
+  static const PieceAssets celticAssets = {
     'blackrook':
         AssetImage('lib/piece_sets/celtic/bR.png', package: 'chessground'),
     'blackpawn':
@@ -269,7 +267,7 @@ abstract class PieceSets {
         AssetImage('lib/piece_sets/celtic/wK.png', package: 'chessground'),
   };
 
-  static const PieceSetAssets chess7 = {
+  static const PieceAssets chess7Assets = {
     'blackrook':
         AssetImage('lib/piece_sets/chess7/bR.png', package: 'chessground'),
     'blackpawn':
@@ -296,7 +294,7 @@ abstract class PieceSets {
         AssetImage('lib/piece_sets/chess7/wK.png', package: 'chessground'),
   };
 
-  static const PieceSetAssets chessnut = {
+  static const PieceAssets chessnutAssets = {
     'blackrook':
         AssetImage('lib/piece_sets/chessnut/bR.png', package: 'chessground'),
     'blackpawn':
@@ -323,7 +321,7 @@ abstract class PieceSets {
         AssetImage('lib/piece_sets/chessnut/wK.png', package: 'chessground'),
   };
 
-  static const PieceSetAssets companion = {
+  static const PieceAssets companionAssets = {
     'blackrook':
         AssetImage('lib/piece_sets/companion/bR.png', package: 'chessground'),
     'blackpawn':
@@ -350,7 +348,7 @@ abstract class PieceSets {
         AssetImage('lib/piece_sets/companion/wK.png', package: 'chessground'),
   };
 
-  static const PieceSetAssets disguised = {
+  static const PieceAssets disguisedAssets = {
     'blackrook':
         AssetImage('lib/piece_sets/disguised/bR.png', package: 'chessground'),
     'blackpawn':
@@ -377,7 +375,7 @@ abstract class PieceSets {
         AssetImage('lib/piece_sets/disguised/wK.png', package: 'chessground'),
   };
 
-  static const PieceSetAssets dubrovny = {
+  static const PieceAssets dubrovnyAssets = {
     'blackrook':
         AssetImage('lib/piece_sets/dubrovny/bR.png', package: 'chessground'),
     'blackpawn':
@@ -404,7 +402,7 @@ abstract class PieceSets {
         AssetImage('lib/piece_sets/dubrovny/wK.png', package: 'chessground'),
   };
 
-  static const PieceSetAssets fantasy = {
+  static const PieceAssets fantasyAssets = {
     'blackrook':
         AssetImage('lib/piece_sets/fantasy/bR.png', package: 'chessground'),
     'blackpawn':
@@ -431,7 +429,7 @@ abstract class PieceSets {
         AssetImage('lib/piece_sets/fantasy/wK.png', package: 'chessground'),
   };
 
-  static const PieceSetAssets fresca = {
+  static const PieceAssets frescaAssets = {
     'blackrook':
         AssetImage('lib/piece_sets/fresca/bR.png', package: 'chessground'),
     'blackpawn':
@@ -458,7 +456,7 @@ abstract class PieceSets {
         AssetImage('lib/piece_sets/fresca/wK.png', package: 'chessground'),
   };
 
-  static const PieceSetAssets gioco = {
+  static const PieceAssets giocoAssets = {
     'blackrook':
         AssetImage('lib/piece_sets/gioco/bR.png', package: 'chessground'),
     'blackpawn':
@@ -485,7 +483,7 @@ abstract class PieceSets {
         AssetImage('lib/piece_sets/gioco/wK.png', package: 'chessground'),
   };
 
-  static const PieceSetAssets governor = {
+  static const PieceAssets governorAssets = {
     'blackrook':
         AssetImage('lib/piece_sets/governor/bR.png', package: 'chessground'),
     'blackpawn':
@@ -512,7 +510,7 @@ abstract class PieceSets {
         AssetImage('lib/piece_sets/governor/wK.png', package: 'chessground'),
   };
 
-  static const PieceSetAssets horsey = {
+  static const PieceAssets horseyAssets = {
     'blackrook':
         AssetImage('lib/piece_sets/horsey/bR.png', package: 'chessground'),
     'blackpawn':
@@ -539,7 +537,7 @@ abstract class PieceSets {
         AssetImage('lib/piece_sets/horsey/wK.png', package: 'chessground'),
   };
 
-  static const PieceSetAssets icpieces = {
+  static const PieceAssets icpiecesAssets = {
     'blackrook':
         AssetImage('lib/piece_sets/icpieces/bR.png', package: 'chessground'),
     'blackpawn':
@@ -566,7 +564,7 @@ abstract class PieceSets {
         AssetImage('lib/piece_sets/icpieces/wK.png', package: 'chessground'),
   };
 
-  static const PieceSetAssets kosal = {
+  static const PieceAssets kosalAssets = {
     'blackrook':
         AssetImage('lib/piece_sets/kosal/bR.png', package: 'chessground'),
     'blackpawn':
@@ -593,7 +591,7 @@ abstract class PieceSets {
         AssetImage('lib/piece_sets/kosal/wK.png', package: 'chessground'),
   };
 
-  static const PieceSetAssets leipzig = {
+  static const PieceAssets leipzigAssets = {
     'blackrook':
         AssetImage('lib/piece_sets/leipzig/bR.png', package: 'chessground'),
     'blackpawn':
@@ -620,7 +618,7 @@ abstract class PieceSets {
         AssetImage('lib/piece_sets/leipzig/wK.png', package: 'chessground'),
   };
 
-  static const PieceSetAssets letter = {
+  static const PieceAssets letterAssets = {
     'blackrook':
         AssetImage('lib/piece_sets/letter/bR.png', package: 'chessground'),
     'blackpawn':
@@ -647,7 +645,7 @@ abstract class PieceSets {
         AssetImage('lib/piece_sets/letter/wK.png', package: 'chessground'),
   };
 
-  static const PieceSetAssets libra = {
+  static const PieceAssets libraAssets = {
     'blackrook':
         AssetImage('lib/piece_sets/libra/bR.png', package: 'chessground'),
     'blackpawn':
@@ -674,7 +672,7 @@ abstract class PieceSets {
         AssetImage('lib/piece_sets/libra/wK.png', package: 'chessground'),
   };
 
-  static const PieceSetAssets maestro = {
+  static const PieceAssets maestroAssets = {
     'blackrook':
         AssetImage('lib/piece_sets/maestro/bR.png', package: 'chessground'),
     'blackpawn':
@@ -701,7 +699,7 @@ abstract class PieceSets {
         AssetImage('lib/piece_sets/maestro/wK.png', package: 'chessground'),
   };
 
-  static const PieceSetAssets merida = {
+  static const PieceAssets meridaAssets = {
     'blackrook':
         AssetImage('lib/piece_sets/merida/bR.png', package: 'chessground'),
     'blackpawn':
@@ -728,7 +726,7 @@ abstract class PieceSets {
         AssetImage('lib/piece_sets/merida/wK.png', package: 'chessground'),
   };
 
-  static const PieceSetAssets pirouetti = {
+  static const PieceAssets pirouettiAssets = {
     'blackrook':
         AssetImage('lib/piece_sets/pirouetti/bR.png', package: 'chessground'),
     'blackpawn':
@@ -755,7 +753,7 @@ abstract class PieceSets {
         AssetImage('lib/piece_sets/pirouetti/wK.png', package: 'chessground'),
   };
 
-  static const PieceSetAssets pixel = {
+  static const PieceAssets pixelAssets = {
     'blackrook':
         AssetImage('lib/piece_sets/pixel/bR.png', package: 'chessground'),
     'blackpawn':
@@ -782,7 +780,7 @@ abstract class PieceSets {
         AssetImage('lib/piece_sets/pixel/wK.png', package: 'chessground'),
   };
 
-  static const PieceSetAssets reillycraig = {
+  static const PieceAssets reillycraigAssets = {
     'blackrook':
         AssetImage('lib/piece_sets/reillycraig/bR.png', package: 'chessground'),
     'blackpawn':
@@ -809,7 +807,7 @@ abstract class PieceSets {
         AssetImage('lib/piece_sets/reillycraig/wK.png', package: 'chessground'),
   };
 
-  static const PieceSetAssets riohacha = {
+  static const PieceAssets riohachaAssets = {
     'blackrook':
         AssetImage('lib/piece_sets/riohacha/bR.png', package: 'chessground'),
     'blackpawn':
@@ -836,7 +834,7 @@ abstract class PieceSets {
         AssetImage('lib/piece_sets/riohacha/wK.png', package: 'chessground'),
   };
 
-  static const PieceSetAssets shapes = {
+  static const PieceAssets shapesAssets = {
     'blackrook':
         AssetImage('lib/piece_sets/shapes/bR.png', package: 'chessground'),
     'blackpawn':
@@ -863,7 +861,7 @@ abstract class PieceSets {
         AssetImage('lib/piece_sets/shapes/wK.png', package: 'chessground'),
   };
 
-  static const PieceSetAssets spatial = {
+  static const PieceAssets spatialAssets = {
     'blackrook':
         AssetImage('lib/piece_sets/spatial/bR.png', package: 'chessground'),
     'blackpawn':
@@ -890,7 +888,7 @@ abstract class PieceSets {
         AssetImage('lib/piece_sets/spatial/wK.png', package: 'chessground'),
   };
 
-  static const PieceSetAssets staunty = {
+  static const PieceAssets stauntyAssets = {
     'blackrook':
         AssetImage('lib/piece_sets/staunty/bR.png', package: 'chessground'),
     'blackpawn':
@@ -917,7 +915,7 @@ abstract class PieceSets {
         AssetImage('lib/piece_sets/staunty/wK.png', package: 'chessground'),
   };
 
-  static const PieceSetAssets tatiana = {
+  static const PieceAssets tatianaAssets = {
     'blackrook':
         AssetImage('lib/piece_sets/tatiana/bR.png', package: 'chessground'),
     'blackpawn':

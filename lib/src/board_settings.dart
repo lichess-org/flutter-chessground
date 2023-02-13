@@ -1,8 +1,8 @@
 import 'package:flutter/widgets.dart';
 
-import 'theme.dart';
+import 'board_color_scheme.dart';
 import 'models.dart';
-import 'piece_sets.dart';
+import 'piece_set.dart';
 
 /// Board settings that control the theme, behavior and purpose of the board.
 ///
@@ -12,8 +12,8 @@ import 'piece_sets.dart';
 class BoardSettings {
   const BoardSettings({
     // theme
-    this.theme = BoardTheme.brown,
-    this.pieceAssets = PieceSets.cburnett,
+    this.colorScheme = BoardColorScheme.brown,
+    this.pieceAssets = PieceSet.cburnettAssets,
     // visual settings
     this.enableCoordinates = true,
     this.animationDuration = const Duration(milliseconds: 250),
@@ -30,10 +30,10 @@ class BoardSettings {
   });
 
   /// Theme of the board
-  final BoardTheme theme;
+  final BoardColorScheme colorScheme;
 
   /// Piece set
-  final PieceSetAssets pieceAssets;
+  final PieceAssets pieceAssets;
 
   /// Whether to show board coordinates
   final bool enableCoordinates;

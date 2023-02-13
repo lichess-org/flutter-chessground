@@ -27,15 +27,6 @@ class MyApp extends StatelessWidget {
 class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key, required this.title}) : super(key: key);
 
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
   final String title;
 
   @override
@@ -44,11 +35,13 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   dc.Position<dc.Chess> position = dc.Chess.initial;
+  Side orientation = Side.white;
   String fen = dc.kInitialBoardFEN;
   Move? lastMove;
   ValidMoves validMoves = {};
   Side sideToMove = Side.white;
-  PieceSet pieceSet = PieceSet.cburnett;
+  PieceSet pieceSet = PieceSet.merida;
+  BoardTheme boardTheme = BoardTheme.blue;
 
   @override
   Widget build(BuildContext context) {
@@ -66,11 +59,13 @@ class _MyHomePageState extends State<MyHomePage> {
               size: screenWidth,
               settings: BoardSettings(
                 pieceAssets: pieceSet.assets,
+                colorScheme: boardTheme.colors,
+                enableCoordinates: true,
               ),
               data: BoardData(
                 interactableSide: InteractableSide.white,
                 validMoves: validMoves,
-                orientation: Side.white,
+                orientation: orientation,
                 fen: fen,
                 lastMove: lastMove,
                 sideToMove:
@@ -78,21 +73,49 @@ class _MyHomePageState extends State<MyHomePage> {
                 onMove: _onUserMove,
               ),
             ),
-            ElevatedButton(
-              child: Text('Piece set: ${pieceSet.name}'),
-              onPressed: () => _showChoicesPicker<PieceSet>(
-                context,
-                choices: PieceSet.values,
-                selectedItem: pieceSet,
-                labelBuilder: (t) => Text(t.name),
-                onSelectedItemChanged: (PieceSet? value) {
-                  setState(() {
-                    if (value != null) {
-                      pieceSet = value;
-                    }
-                  });
-                },
-              ),
+            Column(
+              children: [
+                ElevatedButton(
+                  child: Text('Orientation: ${orientation.name}'),
+                  onPressed: () {
+                    setState(() {
+                      orientation = orientation.opposite;
+                    });
+                  },
+                ),
+                ElevatedButton(
+                  child: Text('Piece set: ${pieceSet.label}'),
+                  onPressed: () => _showChoicesPicker<PieceSet>(
+                    context,
+                    choices: PieceSet.values,
+                    selectedItem: pieceSet,
+                    labelBuilder: (t) => Text(t.label),
+                    onSelectedItemChanged: (PieceSet? value) {
+                      setState(() {
+                        if (value != null) {
+                          pieceSet = value;
+                        }
+                      });
+                    },
+                  ),
+                ),
+                ElevatedButton(
+                  child: Text('Board theme: ${boardTheme.label}'),
+                  onPressed: () => _showChoicesPicker<BoardTheme>(
+                    context,
+                    choices: BoardTheme.values,
+                    selectedItem: boardTheme,
+                    labelBuilder: (t) => Text(t.label),
+                    onSelectedItemChanged: (BoardTheme? value) {
+                      setState(() {
+                        if (value != null) {
+                          boardTheme = value;
+                        }
+                      });
+                    },
+                  ),
+                ),
+              ],
             ),
           ],
         ),

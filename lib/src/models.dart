@@ -1,6 +1,11 @@
 import 'package:flutter/widgets.dart';
 
-enum Side { white, black }
+enum Side {
+  white,
+  black;
+
+  Side get opposite => this == Side.white ? Side.black : Side.white;
+}
 
 enum InteractableSide { both, none, white, black }
 
@@ -9,8 +14,8 @@ enum PieceRole { king, queen, knight, bishop, rook, pawn }
 /// Describes a set of piece assets.
 ///
 /// The Map keys must be the concatenation of role and color. Eg: 'blackpawn'.
-/// The [PieceSetAssets] must be complete with all the pieces for both sides.
-typedef PieceSetAssets = Map<String, AssetImage>;
+/// The [PieceAssets] must be complete with all the pieces for both sides.
+typedef PieceAssets = Map<String, AssetImage>;
 
 /// Square identifier using the algebraic coordinate notation such as e2, c3, etc.
 typedef SquareId = String;

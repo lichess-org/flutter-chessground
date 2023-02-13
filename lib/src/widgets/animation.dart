@@ -82,7 +82,7 @@ class PieceFade extends StatefulWidget {
 
   final Piece piece;
   final double size;
-  final PieceSetAssets pieceAssets;
+  final PieceAssets pieceAssets;
   final Duration duration;
   final Curve curve;
   final void Function() onComplete;
