@@ -49,6 +49,7 @@ class _MyHomePageState extends State<MyHomePage> {
   ValidMoves validMoves = {};
   Side sideToMove = Side.white;
   PieceSet pieceSet = PieceSet.cburnett;
+  BoardThemes boardTheme = BoardThemes.blue;
 
   @override
   Widget build(BuildContext context) {
@@ -66,6 +67,8 @@ class _MyHomePageState extends State<MyHomePage> {
               size: screenWidth,
               settings: BoardSettings(
                 pieceAssets: pieceSet.assets,
+                theme: boardTheme.theme,
+                enableCoordinates: true,
               ),
               data: BoardData(
                 interactableSide: InteractableSide.white,
@@ -89,6 +92,22 @@ class _MyHomePageState extends State<MyHomePage> {
                   setState(() {
                     if (value != null) {
                       pieceSet = value;
+                    }
+                  });
+                },
+              ),
+            ),
+            ElevatedButton(
+              child: Text('Board theme: ${boardTheme.name}'),
+              onPressed: () => _showChoicesPicker<BoardThemes>(
+                context,
+                choices: BoardThemes.values,
+                selectedItem: boardTheme,
+                labelBuilder: (t) => Text(t.name),
+                onSelectedItemChanged: (BoardThemes? value) {
+                  setState(() {
+                    if (value != null) {
+                      boardTheme = value;
                     }
                   });
                 },
