@@ -9,13 +9,57 @@ enum Side {
 
 enum InteractableSide { both, none, white, black }
 
-enum PieceRole { king, queen, knight, bishop, rook, pawn }
+enum Role { king, queen, knight, bishop, rook, pawn }
+
+enum PieceKind {
+  whitePawn,
+  whiteKnight,
+  whiteBishop,
+  whiteRook,
+  whiteQueen,
+  whiteKing,
+  blackPawn,
+  blackKnight,
+  blackBishop,
+  blackRook,
+  blackQueen,
+  blackKing;
+
+  static PieceKind fromPiece(Piece piece) {
+    switch (piece.role) {
+      case Role.pawn:
+        return piece.color == Side.white
+            ? PieceKind.whitePawn
+            : PieceKind.blackPawn;
+      case Role.knight:
+        return piece.color == Side.white
+            ? PieceKind.whiteKnight
+            : PieceKind.blackKnight;
+      case Role.bishop:
+        return piece.color == Side.white
+            ? PieceKind.whiteBishop
+            : PieceKind.blackBishop;
+      case Role.rook:
+        return piece.color == Side.white
+            ? PieceKind.whiteRook
+            : PieceKind.blackRook;
+      case Role.queen:
+        return piece.color == Side.white
+            ? PieceKind.whiteQueen
+            : PieceKind.blackQueen;
+      case Role.king:
+        return piece.color == Side.white
+            ? PieceKind.whiteKing
+            : PieceKind.blackKing;
+    }
+  }
+}
 
 /// Describes a set of piece assets.
 ///
 /// The Map keys must be the concatenation of role and color. Eg: 'blackpawn'.
 /// The [PieceAssets] must be complete with all the pieces for both sides.
-typedef PieceAssets = Map<String, AssetImage>;
+typedef PieceAssets = Map<PieceKind, AssetImage>;
 
 /// Square identifier using the algebraic coordinate notation such as e2, c3, etc.
 typedef SquareId = String;
@@ -70,7 +114,11 @@ class Coord {
 
   @override
   bool operator ==(Object other) {
-    return other.runtimeType == runtimeType && hashCode == other.hashCode;
+    return identical(this, other) ||
+        other is Coord &&
+            other.runtimeType == runtimeType &&
+            other.x == x &&
+            other.y == y;
   }
 
   @override
@@ -86,14 +134,14 @@ class Piece {
   });
 
   final Side color;
-  final PieceRole role;
+  final Role role;
   final bool promoted;
 
-  String get kind => '${color.name}${role.name}';
+  PieceKind get kind => PieceKind.fromPiece(this);
 
   Piece copyWith({
     Side? color,
-    PieceRole? role,
+    Role? role,
     bool? promoted,
   }) {
     return Piece(
@@ -105,16 +153,35 @@ class Piece {
 
   @override
   String toString() {
-    return kind;
+    return 'Piece(${kind.name})';
   }
 
   @override
   bool operator ==(Object other) {
-    return other.runtimeType == runtimeType && hashCode == other.hashCode;
+    return identical(this, other) ||
+        other is Piece &&
+            other.runtimeType == runtimeType &&
+            other.color == color &&
+            other.role == role &&
+            other.promoted == promoted;
   }
 
   @override
-  int get hashCode => Object.hash(color, role);
+  int get hashCode => Object.hash(color, role, promoted);
+
+  static const whitePawn = Piece(color: Side.white, role: Role.pawn);
+  static const whiteKnight = Piece(color: Side.white, role: Role.knight);
+  static const whiteBishop = Piece(color: Side.white, role: Role.bishop);
+  static const whiteRook = Piece(color: Side.white, role: Role.rook);
+  static const whiteQueen = Piece(color: Side.white, role: Role.queen);
+  static const whiteKing = Piece(color: Side.white, role: Role.king);
+
+  static const blackPawn = Piece(color: Side.black, role: Role.pawn);
+  static const blackKnight = Piece(color: Side.black, role: Role.knight);
+  static const blackBishop = Piece(color: Side.black, role: Role.bishop);
+  static const blackRook = Piece(color: Side.black, role: Role.rook);
+  static const blackQueen = Piece(color: Side.black, role: Role.queen);
+  static const blackKing = Piece(color: Side.black, role: Role.king);
 }
 
 @immutable
@@ -158,13 +225,13 @@ class Move {
 
   final SquareId from;
   final SquareId to;
-  final PieceRole? promotion;
+  final Role? promotion;
 
   List<SquareId> get squares => List.unmodifiable([from, to]);
 
   String get uci => '$from$to${_toPieceLetter(promotion)}';
 
-  Move withPromotion(PieceRole promotion) {
+  Move withPromotion(Role promotion) {
     return Move(
       from: from,
       to: to,
@@ -174,25 +241,30 @@ class Move {
 
   @override
   bool operator ==(Object other) {
-    return other.runtimeType == runtimeType && hashCode == other.hashCode;
+    return identical(this, other) ||
+        other is Move &&
+            other.runtimeType == runtimeType &&
+            other.from == from &&
+            other.to == to &&
+            other.promotion == promotion;
   }
 
   @override
   int get hashCode => Object.hash(from, to, promotion);
 
-  String _toPieceLetter(PieceRole? role) {
+  String _toPieceLetter(Role? role) {
     switch (role) {
-      case PieceRole.king:
+      case Role.king:
         return 'k';
-      case PieceRole.queen:
+      case Role.queen:
         return 'q';
-      case PieceRole.rook:
+      case Role.rook:
         return 'r';
-      case PieceRole.bishop:
+      case Role.bishop:
         return 'b';
-      case PieceRole.knight:
+      case Role.knight:
         return 'n';
-      case PieceRole.pawn:
+      case Role.pawn:
         return 'p';
       default:
         return '';
@@ -200,19 +272,19 @@ class Move {
   }
 }
 
-PieceRole _toRole(String uciLetter) {
+Role _toRole(String uciLetter) {
   switch (uciLetter.trim().toLowerCase()) {
     case 'k':
-      return PieceRole.king;
+      return Role.king;
     case 'q':
-      return PieceRole.queen;
+      return Role.queen;
     case 'r':
-      return PieceRole.rook;
+      return Role.rook;
     case 'b':
-      return PieceRole.bishop;
+      return Role.bishop;
     case 'n':
-      return PieceRole.knight;
+      return Role.knight;
     default:
-      return PieceRole.pawn;
+      return Role.pawn;
   }
 }

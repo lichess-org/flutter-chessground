@@ -147,7 +147,7 @@ class _BoardState extends State<Board> {
           ),
         for (final entry in fadingPieces.entries)
           PositionedSquare(
-            key: ValueKey('${entry.key}-${entry.value.kind}-fading'),
+            key: ValueKey('${entry.key}-${entry.value.kind.name}-fading'),
             size: widget.squareSize,
             orientation: widget.data.orientation,
             squareId: entry.key,
@@ -163,7 +163,7 @@ class _BoardState extends State<Board> {
           ),
         for (final entry in pieces.entries)
           PositionedSquare(
-            key: ValueKey('${entry.key}-${entry.value.kind}'),
+            key: ValueKey('${entry.key}-${entry.value.kind.name}'),
             size: widget.squareSize,
             orientation: widget.data.orientation,
             squareId: entry.key,
@@ -493,7 +493,7 @@ class _BoardState extends State<Board> {
 
   bool _isPromoMove(Piece piece, SquareId targetSquareId) {
     final rank = targetSquareId[1];
-    return piece.role == PieceRole.pawn && (rank == '1' || rank == '8');
+    return piece.role == Role.pawn && (rank == '1' || rank == '8');
   }
 
   void _tryMoveTo(SquareId squareId, {bool drop = false}) {
@@ -505,7 +505,7 @@ class _BoardState extends State<Board> {
       }
       if (_isPromoMove(selectedPiece, squareId)) {
         if (widget.settings.autoQueenPromotion) {
-          widget.data.onMove?.call(move.withPromotion(PieceRole.queen));
+          widget.data.onMove?.call(move.withPromotion(Role.queen));
         } else {
           _openPromotionSelector(move);
         }
@@ -532,7 +532,7 @@ class _BoardState extends State<Board> {
       if (_isPromoMove(fromPiece, _premove!.to)) {
         if (widget.settings.autoQueenPromotion) {
           widget.data.onMove
-              ?.call(_premove!.withPromotion(PieceRole.queen), isPremove: true);
+              ?.call(_premove!.withPromotion(Role.queen), isPremove: true);
         } else {
           _openPromotionSelector(_premove!);
         }

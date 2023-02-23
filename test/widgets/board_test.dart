@@ -29,7 +29,7 @@ void main() {
 
     testWidgets('cannot select piece', (WidgetTester tester) async {
       await tester.pumpWidget(viewOnlyBoard);
-      await tester.tap(find.byKey(const Key('e2-whitepawn')));
+      await tester.tap(find.byKey(const Key('e2-whitePawn')));
       await tester.pump();
 
       expect(find.byKey(const Key('e2-selected')), findsNothing);
@@ -41,32 +41,32 @@ void main() {
         (WidgetTester tester) async {
       await tester
           .pumpWidget(buildBoard(interactableSide: InteractableSide.both));
-      await tester.tap(find.byKey(const Key('a2-whitepawn')));
+      await tester.tap(find.byKey(const Key('a2-whitePawn')));
       await tester.pump();
 
       expect(find.byKey(const Key('a2-selected')), findsOneWidget);
       expect(find.byType(MoveDest), findsNWidgets(2));
 
       // selecting same keeps it selected
-      await tester.tap(find.byKey(const Key('a2-whitepawn')));
+      await tester.tap(find.byKey(const Key('a2-whitePawn')));
       await tester.pump();
       expect(find.byKey(const Key('a2-selected')), findsOneWidget);
       expect(find.byType(MoveDest), findsNWidgets(2));
 
       // selecting another square
-      await tester.tap(find.byKey(const Key('a1-whiterook')));
+      await tester.tap(find.byKey(const Key('a1-whiteRook')));
       await tester.pump();
       expect(find.byKey(const Key('a1-selected')), findsOneWidget);
       expect(find.byType(MoveDest), findsNothing);
 
       // selecting an opposite piece deselects
-      await tester.tap(find.byKey(const Key('e7-blackpawn')));
+      await tester.tap(find.byKey(const Key('e7-blackPawn')));
       await tester.pump();
       expect(find.byKey(const Key('a1-selected')), findsNothing);
       expect(find.byType(MoveDest), findsNothing);
 
       // selecting an empty square deselects
-      await tester.tap(find.byKey(const Key('a1-whiterook')));
+      await tester.tap(find.byKey(const Key('a1-whiteRook')));
       await tester.pump();
       expect(find.byKey(const Key('a1-selected')), findsOneWidget);
       await tester.tapAt(squareOffset('c4'));
@@ -77,7 +77,7 @@ void main() {
     testWidgets('play e2-e4 move by tap', (WidgetTester tester) async {
       await tester
           .pumpWidget(buildBoard(interactableSide: InteractableSide.both));
-      await tester.tap(find.byKey(const Key('e2-whitepawn')));
+      await tester.tap(find.byKey(const Key('e2-whitePawn')));
       await tester.pump();
 
       expect(find.byKey(const Key('e2-selected')), findsOneWidget);
@@ -87,8 +87,8 @@ void main() {
       await tester.pump();
       expect(find.byKey(const Key('e2-selected')), findsNothing);
       expect(find.byType(MoveDest), findsNothing);
-      expect(find.byKey(const Key('e4-whitepawn')), findsOneWidget);
-      expect(find.byKey(const Key('e2-whitepawn')), findsNothing);
+      expect(find.byKey(const Key('e4-whitePawn')), findsOneWidget);
+      expect(find.byKey(const Key('e2-whitePawn')), findsNothing);
       expect(find.byKey(const Key('e2-lastMove')), findsOneWidget);
       expect(find.byKey(const Key('e4-lastMove')), findsOneWidget);
     });
@@ -102,14 +102,14 @@ void main() {
           interactableSide: InteractableSide.both,
         ),
       );
-      await tester.tap(find.byKey(const Key('e1-whiteking')));
+      await tester.tap(find.byKey(const Key('e1-whiteKing')));
       await tester.pump();
-      await tester.tap(find.byKey(const Key('h1-whiterook')));
+      await tester.tap(find.byKey(const Key('h1-whiteRook')));
       await tester.pump();
-      expect(find.byKey(const Key('e1-whiteking')), findsNothing);
-      expect(find.byKey(const Key('h1-whiterook')), findsNothing);
-      expect(find.byKey(const Key('g1-whiteking')), findsOneWidget);
-      expect(find.byKey(const Key('f1-whiterook')), findsOneWidget);
+      expect(find.byKey(const Key('e1-whiteKing')), findsNothing);
+      expect(find.byKey(const Key('h1-whiteRook')), findsNothing);
+      expect(find.byKey(const Key('g1-whiteKing')), findsOneWidget);
+      expect(find.byKey(const Key('f1-whiteRook')), findsOneWidget);
       expect(find.byKey(const Key('e1-lastMove')), findsOneWidget);
       expect(find.byKey(const Key('h1-lastMove')), findsOneWidget);
     });
@@ -119,11 +119,11 @@ void main() {
           .pumpWidget(buildBoard(interactableSide: InteractableSide.both));
 
       await tester.drag(
-        find.byKey(const Key('e2-whitepawn')),
+        find.byKey(const Key('e2-whitePawn')),
         const Offset(squareSize * 2, -(squareSize * 2)),
       );
       await tester.pumpAndSettle();
-      expect(find.byKey(const Key('e2-whitepawn')), findsOneWidget);
+      expect(find.byKey(const Key('e2-whitePawn')), findsOneWidget);
       expect(find.byKey(const Key('e2-selected')), findsNothing);
       expect(find.byType(MoveDest), findsNothing);
     });
@@ -132,12 +132,12 @@ void main() {
       await tester
           .pumpWidget(buildBoard(interactableSide: InteractableSide.both));
       await tester.drag(
-        find.byKey(const Key('e2-whitepawn')),
+        find.byKey(const Key('e2-whitePawn')),
         const Offset(0, -(squareSize * 2)),
       );
       await tester.pumpAndSettle();
-      expect(find.byKey(const Key('e4-whitepawn')), findsOneWidget);
-      expect(find.byKey(const Key('e2-whitepawn')), findsNothing);
+      expect(find.byKey(const Key('e4-whitePawn')), findsOneWidget);
+      expect(find.byKey(const Key('e2-whitePawn')), findsNothing);
       expect(find.byKey(const Key('e2-lastMove')), findsOneWidget);
       expect(find.byKey(const Key('e4-lastMove')), findsOneWidget);
     });
@@ -150,14 +150,14 @@ void main() {
         ),
       );
 
-      await tester.tap(find.byKey(const Key('f7-whitepawn')));
+      await tester.tap(find.byKey(const Key('f7-whitePawn')));
       await tester.pump();
       await tester.tapAt(squareOffset('f8'));
       await tester.pump();
       await tester.tapAt(squareOffset('f7'));
       await tester.pump();
-      expect(find.byKey(const Key('f8-whiteknight')), findsOneWidget);
-      expect(find.byKey(const Key('f7-whitepawn')), findsNothing);
+      expect(find.byKey(const Key('f8-whiteKnight')), findsOneWidget);
+      expect(find.byKey(const Key('f7-whitePawn')), findsNothing);
     });
 
     testWidgets('promotion, auto queen enabled', (WidgetTester tester) async {
@@ -169,12 +169,12 @@ void main() {
         ),
       );
 
-      await tester.tap(find.byKey(const Key('f7-whitepawn')));
+      await tester.tap(find.byKey(const Key('f7-whitePawn')));
       await tester.pump();
       await tester.tapAt(squareOffset('f8'));
       await tester.pump();
-      expect(find.byKey(const Key('f8-whitequeen')), findsOneWidget);
-      expect(find.byKey(const Key('f7-whitepawn')), findsNothing);
+      expect(find.byKey(const Key('f8-whiteQueen')), findsOneWidget);
+      expect(find.byKey(const Key('f7-whitePawn')), findsNothing);
     });
 
     testWidgets('premoves: select and deselect with empty square',
@@ -284,7 +284,7 @@ void main() {
       );
 
       await tester.drag(
-        find.byKey(const Key('e4-whitepawn')),
+        find.byKey(const Key('e4-whitePawn')),
         const Offset(0, -squareSize),
       );
       await tester.pumpAndSettle();

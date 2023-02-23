@@ -41,10 +41,10 @@ Pieces readFen(String fen) {
 }
 
 const _roles = {
-  'p': PieceRole.pawn,
-  'r': PieceRole.rook,
-  'n': PieceRole.knight,
-  'b': PieceRole.bishop,
-  'q': PieceRole.queen,
-  'k': PieceRole.king,
+  'p': Role.pawn,
+  'r': Role.rook,
+  'n': Role.knight,
+  'b': Role.bishop,
+  'q': Role.queen,
+  'k': Role.king,
 };

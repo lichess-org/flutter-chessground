@@ -9,15 +9,15 @@ Set<SquareId> premovesOf(
   if (piece == null) return {};
   final coord = Coord.fromSquareId(square);
   final r = piece.role;
-  final mobility = r == PieceRole.pawn
+  final mobility = r == Role.pawn
       ? _pawn(piece.color)
-      : r == PieceRole.knight
+      : r == Role.knight
           ? _knight
-          : r == PieceRole.bishop
+          : r == Role.bishop
               ? _bishop
-              : r == PieceRole.rook
+              : r == Role.rook
                   ? _rook
-                  : r == PieceRole.queen
+                  : r == Role.queen
                       ? _queen
                       : _king(
                           piece.color,
@@ -83,7 +83,7 @@ List<int> _rookFilesOf(Pieces pieces, Side color) {
   for (final entry in pieces.entries) {
     if (entry.key[1] == backrank &&
         entry.value.color == color &&
-        entry.value.role == PieceRole.rook) {
+        entry.value.role == Role.rook) {
       files.add(Coord.fromSquareId(entry.key).x);
     }
   }

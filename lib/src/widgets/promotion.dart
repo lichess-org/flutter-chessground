@@ -51,22 +51,22 @@ class PromotionSelector extends StatelessWidget {
                 children: [
                   Piece(
                     color: color,
-                    role: PieceRole.queen,
+                    role: Role.queen,
                     promoted: true,
                   ),
                   Piece(
                     color: color,
-                    role: PieceRole.knight,
+                    role: Role.knight,
                     promoted: true,
                   ),
                   Piece(
                     color: color,
-                    role: PieceRole.rook,
+                    role: Role.rook,
                     promoted: true,
                   ),
                   Piece(
                     color: color,
-                    role: PieceRole.bishop,
+                    role: Role.bishop,
                     promoted: true,
                   ),
                 ].map((Piece piece) {
