@@ -464,8 +464,8 @@ class _BoardState extends State<Board> {
     final piece = pieces[squareId];
     return piece != null &&
         (widget.data.interactableSide == InteractableSide.both ||
-            (widget.data.interactableSide.name == piece.color.name &&
-                widget.data.sideToMove == piece.color));
+            widget.data.interactableSide.name == piece.color.name) &&
+        widget.data.sideToMove == piece.color;
   }
 
   bool _canMove(SquareId orig, SquareId dest) {

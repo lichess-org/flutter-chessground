@@ -72,6 +72,11 @@ void main() {
       await tester.tapAt(squareOffset('c4'));
       await tester.pump();
       expect(find.byKey(const Key('a1-selected')), findsNothing);
+
+      // cannot select a piece whose side is not the turn to move
+      await tester.tap(find.byKey(const Key('e7-blackPawn')));
+      await tester.pump();
+      expect(find.byKey(const Key('e7-selected')), findsNothing);
     });
 
     testWidgets('play e2-e4 move by tap', (WidgetTester tester) async {
