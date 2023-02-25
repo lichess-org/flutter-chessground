@@ -74,6 +74,16 @@ class _MyHomePageState extends State<MyHomePage> {
                 sideToMove:
                     position.turn == dc.Side.white ? Side.white : Side.black,
                 onMove: _onUserMove,
+                annotations: const {
+                  'e2': Annotation(
+                    symbol: '\u2713',
+                    color: Colors.green,
+                  ),
+                  'e4': Annotation(
+                    symbol: '??',
+                    color: Colors.red,
+                  ),
+                },
               ),
             ),
             Column(

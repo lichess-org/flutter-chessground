@@ -9,6 +9,7 @@ import 'positioned_square.dart';
 import 'animation.dart';
 import 'promotion.dart';
 import 'shape.dart';
+import 'board_annotation.dart';
 import '../models.dart';
 import '../fen.dart';
 import '../premove.dart';
@@ -82,6 +83,7 @@ class _BoardState extends State<Board> {
         : _emptyValidMoves;
     final premoveDests = _premoveDests ?? {};
     final shapes = widget.data.shapes ?? _emptyShapes;
+    final annotations = widget.data.annotations ?? {};
     final Widget board = Stack(
       children: [
         if (widget.settings.enableCoordinates)
@@ -155,7 +157,7 @@ class _BoardState extends State<Board> {
             size: widget.squareSize,
             orientation: widget.data.orientation,
             squareId: entry.key,
-            child: PieceFade(
+            child: PieceFadeOut(
               duration: widget.settings.animationDuration,
               piece: entry.value,
               size: widget.squareSize,
@@ -199,6 +201,16 @@ class _BoardState extends State<Board> {
                 pieceAssets: widget.settings.pieceAssets,
               ),
             ),
+          ),
+        for (final entry in annotations.entries)
+          BoardAnnotation(
+            key: ValueKey(
+              '${entry.key}-${entry.value.symbol}-${entry.value.color}',
+            ),
+            squareSize: widget.squareSize,
+            orientation: widget.data.orientation,
+            squareId: entry.key,
+            annotation: entry.value,
           ),
         for (final shape in shapes)
           if (shape is Arrow)

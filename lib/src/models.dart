@@ -273,6 +273,32 @@ class Move {
   }
 }
 
+@immutable
+class Annotation {
+  const Annotation({
+    required this.symbol,
+    required this.color,
+  });
+
+  /// Annotation symbol.
+  final String symbol;
+
+  /// Annotation background color.
+  final Color color;
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        other is Annotation &&
+            other.runtimeType == runtimeType &&
+            other.symbol == symbol &&
+            other.color == color;
+  }
+
+  @override
+  int get hashCode => Object.hash(symbol, color);
+}
+
 Role _toRole(String uciLetter) {
   switch (uciLetter.trim().toLowerCase()) {
     case 'k':
