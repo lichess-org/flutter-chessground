@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'models.dart';
 
 enum PieceSet {
@@ -105,7 +106,7 @@ enum PieceSet {
     }
   }
 
-  static const PieceAssets alphaAssets = {
+  static const PieceAssets alphaAssets = IMapConst({
     PieceKind.blackRook:
         AssetImage('lib/piece_sets/alpha/bR.png', package: 'chessground'),
     PieceKind.blackPawn:
@@ -130,9 +131,9 @@ enum PieceSet {
         AssetImage('lib/piece_sets/alpha/wQ.png', package: 'chessground'),
     PieceKind.whiteKing:
         AssetImage('lib/piece_sets/alpha/wK.png', package: 'chessground'),
-  };
+  });
 
-  static const PieceAssets anarcandyAssets = {
+  static const PieceAssets anarcandyAssets = IMapConst({
     PieceKind.blackRook:
         AssetImage('lib/piece_sets/anarcandy/bR.png', package: 'chessground'),
     PieceKind.blackPawn:
@@ -157,9 +158,9 @@ enum PieceSet {
         AssetImage('lib/piece_sets/anarcandy/wQ.png', package: 'chessground'),
     PieceKind.whiteKing:
         AssetImage('lib/piece_sets/anarcandy/wK.png', package: 'chessground'),
-  };
+  });
 
-  static const PieceAssets californiaAssets = {
+  static const PieceAssets californiaAssets = IMapConst({
     PieceKind.blackRook:
         AssetImage('lib/piece_sets/california/bR.png', package: 'chessground'),
     PieceKind.blackPawn:
@@ -184,9 +185,9 @@ enum PieceSet {
         AssetImage('lib/piece_sets/california/wQ.png', package: 'chessground'),
     PieceKind.whiteKing:
         AssetImage('lib/piece_sets/california/wK.png', package: 'chessground'),
-  };
+  });
 
-  static const PieceAssets cardinalAssets = {
+  static const PieceAssets cardinalAssets = IMapConst({
     PieceKind.blackRook:
         AssetImage('lib/piece_sets/cardinal/bR.png', package: 'chessground'),
     PieceKind.blackPawn:
@@ -211,9 +212,9 @@ enum PieceSet {
         AssetImage('lib/piece_sets/cardinal/wQ.png', package: 'chessground'),
     PieceKind.whiteKing:
         AssetImage('lib/piece_sets/cardinal/wK.png', package: 'chessground'),
-  };
+  });
 
-  static const PieceAssets cburnettAssets = {
+  static const PieceAssets cburnettAssets = IMapConst({
     PieceKind.blackRook:
         AssetImage('lib/piece_sets/cburnett/bR.png', package: 'chessground'),
     PieceKind.blackPawn:
@@ -238,9 +239,9 @@ enum PieceSet {
         AssetImage('lib/piece_sets/cburnett/wQ.png', package: 'chessground'),
     PieceKind.whiteKing:
         AssetImage('lib/piece_sets/cburnett/wK.png', package: 'chessground'),
-  };
+  });
 
-  static const PieceAssets celticAssets = {
+  static const PieceAssets celticAssets = IMapConst({
     PieceKind.blackRook:
         AssetImage('lib/piece_sets/celtic/bR.png', package: 'chessground'),
     PieceKind.blackPawn:
@@ -265,9 +266,9 @@ enum PieceSet {
         AssetImage('lib/piece_sets/celtic/wQ.png', package: 'chessground'),
     PieceKind.whiteKing:
         AssetImage('lib/piece_sets/celtic/wK.png', package: 'chessground'),
-  };
+  });
 
-  static const PieceAssets chess7Assets = {
+  static const PieceAssets chess7Assets = IMapConst({
     PieceKind.blackRook:
         AssetImage('lib/piece_sets/chess7/bR.png', package: 'chessground'),
     PieceKind.blackPawn:
@@ -292,9 +293,9 @@ enum PieceSet {
         AssetImage('lib/piece_sets/chess7/wQ.png', package: 'chessground'),
     PieceKind.whiteKing:
         AssetImage('lib/piece_sets/chess7/wK.png', package: 'chessground'),
-  };
+  });
 
-  static const PieceAssets chessnutAssets = {
+  static const PieceAssets chessnutAssets = IMapConst({
     PieceKind.blackRook:
         AssetImage('lib/piece_sets/chessnut/bR.png', package: 'chessground'),
     PieceKind.blackPawn:
@@ -319,9 +320,9 @@ enum PieceSet {
         AssetImage('lib/piece_sets/chessnut/wQ.png', package: 'chessground'),
     PieceKind.whiteKing:
         AssetImage('lib/piece_sets/chessnut/wK.png', package: 'chessground'),
-  };
+  });
 
-  static const PieceAssets companionAssets = {
+  static const PieceAssets companionAssets = IMapConst({
     PieceKind.blackRook:
         AssetImage('lib/piece_sets/companion/bR.png', package: 'chessground'),
     PieceKind.blackPawn:
@@ -346,9 +347,9 @@ enum PieceSet {
         AssetImage('lib/piece_sets/companion/wQ.png', package: 'chessground'),
     PieceKind.whiteKing:
         AssetImage('lib/piece_sets/companion/wK.png', package: 'chessground'),
-  };
+  });
 
-  static const PieceAssets disguisedAssets = {
+  static const PieceAssets disguisedAssets = IMapConst({
     PieceKind.blackRook:
         AssetImage('lib/piece_sets/disguised/bR.png', package: 'chessground'),
     PieceKind.blackPawn:
@@ -373,9 +374,9 @@ enum PieceSet {
         AssetImage('lib/piece_sets/disguised/wQ.png', package: 'chessground'),
     PieceKind.whiteKing:
         AssetImage('lib/piece_sets/disguised/wK.png', package: 'chessground'),
-  };
+  });
 
-  static const PieceAssets dubrovnyAssets = {
+  static const PieceAssets dubrovnyAssets = IMapConst({
     PieceKind.blackRook:
         AssetImage('lib/piece_sets/dubrovny/bR.png', package: 'chessground'),
     PieceKind.blackPawn:
@@ -400,9 +401,9 @@ enum PieceSet {
         AssetImage('lib/piece_sets/dubrovny/wQ.png', package: 'chessground'),
     PieceKind.whiteKing:
         AssetImage('lib/piece_sets/dubrovny/wK.png', package: 'chessground'),
-  };
+  });
 
-  static const PieceAssets fantasyAssets = {
+  static const PieceAssets fantasyAssets = IMapConst({
     PieceKind.blackRook:
         AssetImage('lib/piece_sets/fantasy/bR.png', package: 'chessground'),
     PieceKind.blackPawn:
@@ -427,9 +428,9 @@ enum PieceSet {
         AssetImage('lib/piece_sets/fantasy/wQ.png', package: 'chessground'),
     PieceKind.whiteKing:
         AssetImage('lib/piece_sets/fantasy/wK.png', package: 'chessground'),
-  };
+  });
 
-  static const PieceAssets frescaAssets = {
+  static const PieceAssets frescaAssets = IMapConst({
     PieceKind.blackRook:
         AssetImage('lib/piece_sets/fresca/bR.png', package: 'chessground'),
     PieceKind.blackPawn:
@@ -454,9 +455,9 @@ enum PieceSet {
         AssetImage('lib/piece_sets/fresca/wQ.png', package: 'chessground'),
     PieceKind.whiteKing:
         AssetImage('lib/piece_sets/fresca/wK.png', package: 'chessground'),
-  };
+  });
 
-  static const PieceAssets giocoAssets = {
+  static const PieceAssets giocoAssets = IMapConst({
     PieceKind.blackRook:
         AssetImage('lib/piece_sets/gioco/bR.png', package: 'chessground'),
     PieceKind.blackPawn:
@@ -481,9 +482,9 @@ enum PieceSet {
         AssetImage('lib/piece_sets/gioco/wQ.png', package: 'chessground'),
     PieceKind.whiteKing:
         AssetImage('lib/piece_sets/gioco/wK.png', package: 'chessground'),
-  };
+  });
 
-  static const PieceAssets governorAssets = {
+  static const PieceAssets governorAssets = IMapConst({
     PieceKind.blackRook:
         AssetImage('lib/piece_sets/governor/bR.png', package: 'chessground'),
     PieceKind.blackPawn:
@@ -508,9 +509,9 @@ enum PieceSet {
         AssetImage('lib/piece_sets/governor/wQ.png', package: 'chessground'),
     PieceKind.whiteKing:
         AssetImage('lib/piece_sets/governor/wK.png', package: 'chessground'),
-  };
+  });
 
-  static const PieceAssets horseyAssets = {
+  static const PieceAssets horseyAssets = IMapConst({
     PieceKind.blackRook:
         AssetImage('lib/piece_sets/horsey/bR.png', package: 'chessground'),
     PieceKind.blackPawn:
@@ -535,9 +536,9 @@ enum PieceSet {
         AssetImage('lib/piece_sets/horsey/wQ.png', package: 'chessground'),
     PieceKind.whiteKing:
         AssetImage('lib/piece_sets/horsey/wK.png', package: 'chessground'),
-  };
+  });
 
-  static const PieceAssets icpiecesAssets = {
+  static const PieceAssets icpiecesAssets = IMapConst({
     PieceKind.blackRook:
         AssetImage('lib/piece_sets/icpieces/bR.png', package: 'chessground'),
     PieceKind.blackPawn:
@@ -562,9 +563,9 @@ enum PieceSet {
         AssetImage('lib/piece_sets/icpieces/wQ.png', package: 'chessground'),
     PieceKind.whiteKing:
         AssetImage('lib/piece_sets/icpieces/wK.png', package: 'chessground'),
-  };
+  });
 
-  static const PieceAssets kosalAssets = {
+  static const PieceAssets kosalAssets = IMapConst({
     PieceKind.blackRook:
         AssetImage('lib/piece_sets/kosal/bR.png', package: 'chessground'),
     PieceKind.blackPawn:
@@ -589,9 +590,9 @@ enum PieceSet {
         AssetImage('lib/piece_sets/kosal/wQ.png', package: 'chessground'),
     PieceKind.whiteKing:
         AssetImage('lib/piece_sets/kosal/wK.png', package: 'chessground'),
-  };
+  });
 
-  static const PieceAssets leipzigAssets = {
+  static const PieceAssets leipzigAssets = IMapConst({
     PieceKind.blackRook:
         AssetImage('lib/piece_sets/leipzig/bR.png', package: 'chessground'),
     PieceKind.blackPawn:
@@ -616,9 +617,9 @@ enum PieceSet {
         AssetImage('lib/piece_sets/leipzig/wQ.png', package: 'chessground'),
     PieceKind.whiteKing:
         AssetImage('lib/piece_sets/leipzig/wK.png', package: 'chessground'),
-  };
+  });
 
-  static const PieceAssets letterAssets = {
+  static const PieceAssets letterAssets = IMapConst({
     PieceKind.blackRook:
         AssetImage('lib/piece_sets/letter/bR.png', package: 'chessground'),
     PieceKind.blackPawn:
@@ -643,9 +644,9 @@ enum PieceSet {
         AssetImage('lib/piece_sets/letter/wQ.png', package: 'chessground'),
     PieceKind.whiteKing:
         AssetImage('lib/piece_sets/letter/wK.png', package: 'chessground'),
-  };
+  });
 
-  static const PieceAssets libraAssets = {
+  static const PieceAssets libraAssets = IMapConst({
     PieceKind.blackRook:
         AssetImage('lib/piece_sets/libra/bR.png', package: 'chessground'),
     PieceKind.blackPawn:
@@ -670,9 +671,9 @@ enum PieceSet {
         AssetImage('lib/piece_sets/libra/wQ.png', package: 'chessground'),
     PieceKind.whiteKing:
         AssetImage('lib/piece_sets/libra/wK.png', package: 'chessground'),
-  };
+  });
 
-  static const PieceAssets maestroAssets = {
+  static const PieceAssets maestroAssets = IMapConst({
     PieceKind.blackRook:
         AssetImage('lib/piece_sets/maestro/bR.png', package: 'chessground'),
     PieceKind.blackPawn:
@@ -697,9 +698,9 @@ enum PieceSet {
         AssetImage('lib/piece_sets/maestro/wQ.png', package: 'chessground'),
     PieceKind.whiteKing:
         AssetImage('lib/piece_sets/maestro/wK.png', package: 'chessground'),
-  };
+  });
 
-  static const PieceAssets meridaAssets = {
+  static const PieceAssets meridaAssets = IMapConst({
     PieceKind.blackRook:
         AssetImage('lib/piece_sets/merida/bR.png', package: 'chessground'),
     PieceKind.blackPawn:
@@ -724,9 +725,9 @@ enum PieceSet {
         AssetImage('lib/piece_sets/merida/wQ.png', package: 'chessground'),
     PieceKind.whiteKing:
         AssetImage('lib/piece_sets/merida/wK.png', package: 'chessground'),
-  };
+  });
 
-  static const PieceAssets pirouettiAssets = {
+  static const PieceAssets pirouettiAssets = IMapConst({
     PieceKind.blackRook:
         AssetImage('lib/piece_sets/pirouetti/bR.png', package: 'chessground'),
     PieceKind.blackPawn:
@@ -751,9 +752,9 @@ enum PieceSet {
         AssetImage('lib/piece_sets/pirouetti/wQ.png', package: 'chessground'),
     PieceKind.whiteKing:
         AssetImage('lib/piece_sets/pirouetti/wK.png', package: 'chessground'),
-  };
+  });
 
-  static const PieceAssets pixelAssets = {
+  static const PieceAssets pixelAssets = IMapConst({
     PieceKind.blackRook:
         AssetImage('lib/piece_sets/pixel/bR.png', package: 'chessground'),
     PieceKind.blackPawn:
@@ -778,9 +779,9 @@ enum PieceSet {
         AssetImage('lib/piece_sets/pixel/wQ.png', package: 'chessground'),
     PieceKind.whiteKing:
         AssetImage('lib/piece_sets/pixel/wK.png', package: 'chessground'),
-  };
+  });
 
-  static const PieceAssets reillycraigAssets = {
+  static const PieceAssets reillycraigAssets = IMapConst({
     PieceKind.blackRook:
         AssetImage('lib/piece_sets/reillycraig/bR.png', package: 'chessground'),
     PieceKind.blackPawn:
@@ -805,9 +806,9 @@ enum PieceSet {
         AssetImage('lib/piece_sets/reillycraig/wQ.png', package: 'chessground'),
     PieceKind.whiteKing:
         AssetImage('lib/piece_sets/reillycraig/wK.png', package: 'chessground'),
-  };
+  });
 
-  static const PieceAssets riohachaAssets = {
+  static const PieceAssets riohachaAssets = IMapConst({
     PieceKind.blackRook:
         AssetImage('lib/piece_sets/riohacha/bR.png', package: 'chessground'),
     PieceKind.blackPawn:
@@ -832,9 +833,9 @@ enum PieceSet {
         AssetImage('lib/piece_sets/riohacha/wQ.png', package: 'chessground'),
     PieceKind.whiteKing:
         AssetImage('lib/piece_sets/riohacha/wK.png', package: 'chessground'),
-  };
+  });
 
-  static const PieceAssets shapesAssets = {
+  static const PieceAssets shapesAssets = IMapConst({
     PieceKind.blackRook:
         AssetImage('lib/piece_sets/shapes/bR.png', package: 'chessground'),
     PieceKind.blackPawn:
@@ -859,9 +860,9 @@ enum PieceSet {
         AssetImage('lib/piece_sets/shapes/wQ.png', package: 'chessground'),
     PieceKind.whiteKing:
         AssetImage('lib/piece_sets/shapes/wK.png', package: 'chessground'),
-  };
+  });
 
-  static const PieceAssets spatialAssets = {
+  static const PieceAssets spatialAssets = IMapConst({
     PieceKind.blackRook:
         AssetImage('lib/piece_sets/spatial/bR.png', package: 'chessground'),
     PieceKind.blackPawn:
@@ -886,9 +887,9 @@ enum PieceSet {
         AssetImage('lib/piece_sets/spatial/wQ.png', package: 'chessground'),
     PieceKind.whiteKing:
         AssetImage('lib/piece_sets/spatial/wK.png', package: 'chessground'),
-  };
+  });
 
-  static const PieceAssets stauntyAssets = {
+  static const PieceAssets stauntyAssets = IMapConst({
     PieceKind.blackRook:
         AssetImage('lib/piece_sets/staunty/bR.png', package: 'chessground'),
     PieceKind.blackPawn:
@@ -913,9 +914,9 @@ enum PieceSet {
         AssetImage('lib/piece_sets/staunty/wQ.png', package: 'chessground'),
     PieceKind.whiteKing:
         AssetImage('lib/piece_sets/staunty/wK.png', package: 'chessground'),
-  };
+  });
 
-  static const PieceAssets tatianaAssets = {
+  static const PieceAssets tatianaAssets = IMapConst({
     PieceKind.blackRook:
         AssetImage('lib/piece_sets/tatiana/bR.png', package: 'chessground'),
     PieceKind.blackPawn:
@@ -940,5 +941,5 @@ enum PieceSet {
         AssetImage('lib/piece_sets/tatiana/wQ.png', package: 'chessground'),
     PieceKind.whiteKing:
         AssetImage('lib/piece_sets/tatiana/wK.png', package: 'chessground'),
-  };
+  });
 }

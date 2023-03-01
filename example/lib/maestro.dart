@@ -1,7 +1,8 @@
 import 'package:flutter/widgets.dart';
+import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:chessground/chessground.dart' as cg;
 
-const cg.PieceAssets maestroPieceSet = {
+const cg.PieceAssets maestroPieceSet = IMapConst({
   cg.PieceKind.blackRook: AssetImage('lib/piece_set/maestro/bR.png'),
   cg.PieceKind.blackPawn: AssetImage('lib/piece_set/maestro/bP.png'),
   cg.PieceKind.blackKnight: AssetImage('lib/piece_set/maestro/bN.png'),
@@ -14,4 +15,4 @@ const cg.PieceAssets maestroPieceSet = {
   cg.PieceKind.whiteQueen: AssetImage('lib/piece_set/maestro/wQ.png'),
   cg.PieceKind.whiteKing: AssetImage('lib/piece_set/maestro/wK.png'),
   cg.PieceKind.whitePawn: AssetImage('lib/piece_set/maestro/wP.png'),
-};
+});

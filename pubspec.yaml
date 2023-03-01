@@ -8,6 +8,7 @@ environment:
   flutter: ">=1.17.0"
 
 dependencies:
+  fast_immutable_collections: ^9.0.0
   flutter:
     sdk: flutter
   tuple: ^2.0.0

@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 
 enum Side {
   white,
@@ -59,7 +60,7 @@ enum PieceKind {
 ///
 /// The Map keys must be the concatenation of role and color. Eg: 'blackpawn'.
 /// The [PieceAssets] must be complete with all the pieces for both sides.
-typedef PieceAssets = Map<PieceKind, AssetImage>;
+typedef PieceAssets = IMap<PieceKind, AssetImage>;
 
 /// Square identifier using the algebraic coordinate notation such as e2, c3, etc.
 typedef SquareId = String;
