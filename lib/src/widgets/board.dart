@@ -1,6 +1,8 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter/gestures.dart';
 import 'package:tuple/tuple.dart';
+import 'package:fast_immutable_collections/fast_immutable_collections.dart'
+    hide Tuple2;
 import 'piece.dart';
 import 'highlight.dart';
 import 'positioned_square.dart';
@@ -72,11 +74,11 @@ class _BoardState extends State<Board> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = widget.settings.colorScheme;
-    final Set<SquareId> moveDests = widget.settings.showValidMoves &&
+    final ISet<SquareId> moveDests = widget.settings.showValidMoves &&
             selected != null &&
             widget.data.validMoves != null
-        ? widget.data.validMoves![selected] ?? {}
-        : {};
+        ? widget.data.validMoves![selected!] ?? _emptyValidMoves
+        : _emptyValidMoves;
     final premoveDests = _premoveDests ?? {};
     final Widget board = Stack(
       children: [
@@ -627,3 +629,5 @@ class _DragAvatar {
     }
   }
 }
+
+const ISet<String> _emptyValidMoves = ISetConst({});

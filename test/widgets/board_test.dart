@@ -348,7 +348,7 @@ Widget buildBoard({
             validMoves: dc.algebraicLegalMoves(position),
             onMove: (Move move, {bool? isPremove}) {
               setState(() {
-                position = position.playUnchecked(dc.Move.fromUci(move.uci));
+                position = position.playUnchecked(dc.Move.fromUci(move.uci)!);
                 lastMove = move;
               });
             },

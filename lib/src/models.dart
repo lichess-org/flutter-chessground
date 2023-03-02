@@ -69,7 +69,7 @@ typedef SquareId = String;
 typedef Pieces = Map<SquareId, Piece>;
 
 /// Sets of each valid destinations for an origin square
-typedef ValidMoves = Map<SquareId, Set<SquareId>>;
+typedef ValidMoves = IMap<SquareId, ISet<SquareId>>;
 
 const files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
 const ranks = ['1', '2', '3', '4', '5', '6', '7', '8'];

@@ -1,6 +1,8 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:chessground/chessground.dart';
+import 'package:fast_immutable_collections/fast_immutable_collections.dart'
+    hide Tuple2;
 import 'package:dartchess/dartchess.dart' as dc;
 
 void main() {
@@ -38,7 +40,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Side orientation = Side.white;
   String fen = dc.kInitialBoardFEN;
   Move? lastMove;
-  ValidMoves validMoves = {};
+  ValidMoves validMoves = IMap(const {});
   Side sideToMove = Side.white;
   PieceSet pieceSet = PieceSet.merida;
   BoardTheme boardTheme = BoardTheme.blue;
@@ -168,12 +170,12 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _onUserMove(Move move, {bool? isPremove}) async {
-    final m = dc.Move.fromUci(move.uci);
+    final m = dc.Move.fromUci(move.uci)!;
     setState(() {
       position = position.playUnchecked(m);
       lastMove = move;
       fen = position.fen;
-      validMoves = {};
+      validMoves = IMap(const {});
     });
     Future.delayed(const Duration(milliseconds: 100)).then((value) {
       setState(() {});
