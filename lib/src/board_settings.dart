@@ -65,4 +65,36 @@ class BoardSettings {
   /// If true the promotion selector won't appear and pawn will be promoted
   // automatically to queen
   final bool autoQueenPromotion;
+
+  BoardSettings copyWith({
+    BoardColorScheme? colorScheme,
+    PieceAssets? pieceAssets,
+    bool? enableCoordinates,
+    Duration? animationDuration,
+    bool? showLastMove,
+    bool? showValidMoves,
+    bool? showPremovesDestinations,
+    double? dragFeedbackSize,
+    Offset? dragFeedbackOffset,
+    bool? enablePremoves,
+    bool? enablePremoveCastling,
+    bool? autoQueenPromotion,
+  }) {
+    return BoardSettings(
+      colorScheme: colorScheme ?? this.colorScheme,
+      pieceAssets: pieceAssets ?? this.pieceAssets,
+      enableCoordinates: enableCoordinates ?? this.enableCoordinates,
+      animationDuration: animationDuration ?? this.animationDuration,
+      showLastMove: showLastMove ?? this.showLastMove,
+      showValidMoves: showValidMoves ?? this.showValidMoves,
+      showPremovesDestinations:
+          showPremovesDestinations ?? this.showPremovesDestinations,
+      dragFeedbackSize: dragFeedbackSize ?? this.dragFeedbackSize,
+      dragFeedbackOffset: dragFeedbackOffset ?? this.dragFeedbackOffset,
+      enablePremoves: enablePremoves ?? this.enablePremoves,
+      enablePremoveCastling:
+          enablePremoveCastling ?? this.enablePremoveCastling,
+      autoQueenPromotion: autoQueenPromotion ?? this.autoQueenPromotion,
+    );
+  }
 }
