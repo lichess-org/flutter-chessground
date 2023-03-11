@@ -41,10 +41,10 @@ class MoveDest extends StatelessWidget {
               width: size,
               height: size,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(size / 2),
+                borderRadius: BorderRadius.circular(size / 4),
                 border: Border.all(
                   color: color,
-                  width: size / 12,
+                  width: size / 14,
                 ),
               ),
             )
