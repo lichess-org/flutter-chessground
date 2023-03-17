@@ -1,7 +1,8 @@
+import 'dart:async';
 import 'package:flutter/widgets.dart';
 import '../models.dart';
 
-class BoardAnnotation extends StatelessWidget {
+class BoardAnnotation extends StatefulWidget {
   final Annotation annotation;
 
   const BoardAnnotation({
@@ -17,39 +18,84 @@ class BoardAnnotation extends StatelessWidget {
   final SquareId squareId;
 
   @override
+  State<BoardAnnotation> createState() => _BoardAnnotationState();
+}
+
+class _BoardAnnotationState extends State<BoardAnnotation> {
+  bool show = true;
+  double scale = 0.1;
+
+  Timer? timer;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.annotation.duration != null) {
+      timer = Timer(widget.annotation.duration!, () {
+        setState(() {
+          show = false;
+        });
+      });
+    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      setState(() {
+        scale = 1.0;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    timer?.cancel();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final squareOffset =
-        Coord.fromSquareId(squareId).offset(orientation, squareSize);
-    final size = squareSize * 0.4;
+    final squareOffset = Coord.fromSquareId(widget.squareId)
+        .offset(widget.orientation, widget.squareSize);
+    final size = widget.squareSize * 0.48;
+    final onRightEdge = widget.orientation == Side.white
+        ? widget.squareId[0] == 'h'
+        : widget.squareId[0] == 'a';
     final offset = squareOffset.translate(
-      squareSize - (size * 0.5),
-      -(size * 0.5),
+      onRightEdge
+          ? widget.squareSize - (size * 0.9)
+          : widget.squareSize - (size * 0.7),
+      -(size * 0.4),
     );
     return Positioned(
       width: size,
       height: size,
       left: offset.dx,
       top: offset.dy,
-      child: Container(
-        padding: const EdgeInsets.all(2.0),
-        decoration: BoxDecoration(
-          color: annotation.color,
-          shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(
-              color: const Color(0xFF000000).withOpacity(0.5),
-              blurRadius: 1,
-              offset: const Offset(1, 1),
+      child: Opacity(
+        opacity: show ? 1.0 : 0.0,
+        child: AnimatedScale(
+          duration: const Duration(milliseconds: 150),
+          scale: scale,
+          child: Container(
+            padding: const EdgeInsets.all(2.0),
+            decoration: BoxDecoration(
+              color: widget.annotation.color,
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF000000).withOpacity(0.5),
+                  blurRadius: 1,
+                  offset: const Offset(1, 1),
+                ),
+              ],
             ),
-          ],
-        ),
-        child: FittedBox(
-          child: Center(
-            child: Text(
-              annotation.symbol,
-              style: const TextStyle(
-                color: Color(0xFFFFFFFF),
-                fontWeight: FontWeight.w800,
+            child: FittedBox(
+              child: Center(
+                child: DefaultTextStyle(
+                  style: const TextStyle(
+                    color: Color(0xFFFFFFFF),
+                    fontWeight: FontWeight.w800,
+                  ),
+                  child: widget.annotation.symbol,
+                ),
               ),
             ),
           ),

@@ -278,13 +278,17 @@ class Annotation {
   const Annotation({
     required this.symbol,
     required this.color,
+    this.duration,
   });
 
-  /// Annotation symbol.
-  final String symbol;
+  /// Annotation symbol. Typically a [Text] or [Icon] widget.
+  final Widget symbol;
 
   /// Annotation background color.
   final Color color;
+
+  /// Specify a duration to create a transient annotation.
+  final Duration? duration;
 
   @override
   bool operator ==(Object other) {
@@ -292,11 +296,12 @@ class Annotation {
         other is Annotation &&
             other.runtimeType == runtimeType &&
             other.symbol == symbol &&
-            other.color == color;
+            other.color == color &&
+            other.duration == duration;
   }
 
   @override
-  int get hashCode => Object.hash(symbol, color);
+  int get hashCode => Object.hash(symbol, color, duration);
 }
 
 Role _toRole(String uciLetter) {
