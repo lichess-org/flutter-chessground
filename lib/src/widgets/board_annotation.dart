@@ -89,12 +89,12 @@ class _BoardAnnotationState extends State<BoardAnnotation> {
             ),
             child: FittedBox(
               child: Center(
-                child: DefaultTextStyle(
+                child: Text(
+                  widget.annotation.symbol,
                   style: const TextStyle(
                     color: Color(0xFFFFFFFF),
                     fontWeight: FontWeight.w800,
                   ),
-                  child: widget.annotation.symbol,
                 ),
               ),
             ),

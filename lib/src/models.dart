@@ -281,8 +281,8 @@ class Annotation {
     this.duration,
   });
 
-  /// Annotation symbol. Typically a [Text] or [Icon] widget.
-  final Widget symbol;
+  /// Annotation symbol. Two letters max.
+  final String symbol;
 
   /// Annotation background color.
   final Color color;
