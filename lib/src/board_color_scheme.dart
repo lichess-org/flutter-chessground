@@ -1,8 +1,27 @@
 import 'package:flutter/widgets.dart';
 import './widgets/background.dart';
+import './models.dart';
 
 /// Describes the color scheme of a [Board].
 class BoardColorScheme {
+  const BoardColorScheme({
+    required this.lightSquare,
+    required this.darkSquare,
+    required this.background,
+    required this.whiteCoordBackground,
+    required this.blackCoordBackground,
+    required this.lastMove,
+    required this.selected,
+    required this.validMoves,
+    required this.validPremoves,
+  });
+
+  /// Light square color of the board
+  final Color lightSquare;
+
+  /// Dark square color of the board
+  final Color darkSquare;
+
   /// Board background that defines light and dark square colors
   final Background background;
 
@@ -26,20 +45,24 @@ class BoardColorScheme {
   /// Color of squares occupied with valid premoves dots
   final Color validPremoves;
 
-  const BoardColorScheme({
-    required this.background,
-    required this.whiteCoordBackground,
-    required this.blackCoordBackground,
-    required this.lastMove,
-    required this.selected,
-    required this.validMoves,
-    required this.validPremoves,
-  });
-
   static const brown = BoardColorScheme(
-    background: Background.brown,
-    whiteCoordBackground: Background.brownWhiteCoords,
-    blackCoordBackground: Background.brownBlackCoords,
+    lightSquare: Color(0xfff0d9b6),
+    darkSquare: Color(0xffb58863),
+    background: SolidColorBackground(
+      lightSquare: Color(0xfff0d9b6),
+      darkSquare: Color(0xffb58863),
+    ),
+    whiteCoordBackground: SolidColorBackground(
+      lightSquare: Color(0xfff0d9b6),
+      darkSquare: Color(0xffb58863),
+      coordinates: true,
+    ),
+    blackCoordBackground: SolidColorBackground(
+      lightSquare: Color(0xfff0d9b6),
+      darkSquare: Color(0xffb58863),
+      coordinates: true,
+      orientation: Side.black,
+    ),
     lastMove: Color(0x809cc700),
     selected: Color(0x6014551e),
     validMoves: Color(0x2814551e),
@@ -47,9 +70,23 @@ class BoardColorScheme {
   );
 
   static const blue = BoardColorScheme(
-    background: Background.blue,
-    whiteCoordBackground: Background.blueWhiteCoords,
-    blackCoordBackground: Background.blueBlackCoords,
+    lightSquare: Color(0xffdee3e6),
+    darkSquare: Color(0xff8ca2ad),
+    background: SolidColorBackground(
+      lightSquare: Color(0xffdee3e6),
+      darkSquare: Color(0xff8ca2ad),
+    ),
+    whiteCoordBackground: SolidColorBackground(
+      lightSquare: Color(0xffdee3e6),
+      darkSquare: Color(0xff8ca2ad),
+      coordinates: true,
+    ),
+    blackCoordBackground: SolidColorBackground(
+      lightSquare: Color(0xffdee3e6),
+      darkSquare: Color(0xff8ca2ad),
+      coordinates: true,
+      orientation: Side.black,
+    ),
     lastMove: Color(0x809bc700),
     selected: Color(0x6014551e),
     validMoves: Color(0x2814551e),
@@ -57,9 +94,23 @@ class BoardColorScheme {
   );
 
   static const green = BoardColorScheme(
-    background: Background.green,
-    whiteCoordBackground: Background.greenWhiteCoords,
-    blackCoordBackground: Background.greenBlackCoords,
+    lightSquare: Color(0xffffffdd),
+    darkSquare: Color(0xff86a666),
+    background: SolidColorBackground(
+      lightSquare: Color(0xffffffdd),
+      darkSquare: Color(0xff86a666),
+    ),
+    whiteCoordBackground: SolidColorBackground(
+      lightSquare: Color(0xffffffdd),
+      darkSquare: Color(0xff86a666),
+      coordinates: true,
+    ),
+    blackCoordBackground: SolidColorBackground(
+      lightSquare: Color(0xffffffdd),
+      darkSquare: Color(0xff86a666),
+      coordinates: true,
+      orientation: Side.black,
+    ),
     lastMove: Color.fromRGBO(0, 155, 199, 0.41),
     selected: Color.fromRGBO(216, 85, 0, 0.3),
     validMoves: Color.fromRGBO(0, 0, 0, 0.15),
@@ -67,9 +118,26 @@ class BoardColorScheme {
   );
 
   static const blue2 = BoardColorScheme(
-    background: Background.blue2,
-    whiteCoordBackground: Background.blue2WhiteCoords,
-    blackCoordBackground: Background.blue2BlackCoords,
+    lightSquare: Color(0xff97b2c7),
+    darkSquare: Color(0xff546f82),
+    background: ImageBackground(
+      lightSquare: Color(0xff97b2c7),
+      darkSquare: Color(0xff546f82),
+      image: AssetImage('lib/boards/blue2.jpg', package: 'chessground'),
+    ),
+    whiteCoordBackground: ImageBackground(
+      lightSquare: Color(0xff97b2c7),
+      darkSquare: Color(0xff546f82),
+      image: AssetImage('lib/boards/blue2.jpg', package: 'chessground'),
+      coordinates: true,
+    ),
+    blackCoordBackground: ImageBackground(
+      lightSquare: Color(0xff97b2c7),
+      darkSquare: Color(0xff546f82),
+      image: AssetImage('lib/boards/blue2.jpg', package: 'chessground'),
+      coordinates: true,
+      orientation: Side.black,
+    ),
     lastMove: Color(0x809cc700),
     selected: Color(0x6014551e),
     validMoves: Color(0x2814551e),
@@ -77,9 +145,26 @@ class BoardColorScheme {
   );
 
   static const blue3 = BoardColorScheme(
-    background: Background.blue3,
-    whiteCoordBackground: Background.blue3WhiteCoords,
-    blackCoordBackground: Background.blue3BlackCoords,
+    lightSquare: Color(0xffd9e0e6),
+    darkSquare: Color(0xff315991),
+    background: ImageBackground(
+      lightSquare: Color(0xffd9e0e6),
+      darkSquare: Color(0xff315991),
+      image: AssetImage('lib/boards/blue3.jpg', package: 'chessground'),
+    ),
+    whiteCoordBackground: ImageBackground(
+      lightSquare: Color(0xffd9e0e6),
+      darkSquare: Color(0xff315991),
+      image: AssetImage('lib/boards/blue3.jpg', package: 'chessground'),
+      coordinates: true,
+    ),
+    blackCoordBackground: ImageBackground(
+      lightSquare: Color(0xffd9e0e6),
+      darkSquare: Color(0xff315991),
+      image: AssetImage('lib/boards/blue3.jpg', package: 'chessground'),
+      coordinates: true,
+      orientation: Side.black,
+    ),
     lastMove: Color(0x809cc700),
     selected: Color(0x6014551e),
     validMoves: Color(0x2814551e),
@@ -87,9 +172,26 @@ class BoardColorScheme {
   );
 
   static const blueMarble = BoardColorScheme(
-    background: Background.blueMarble,
-    whiteCoordBackground: Background.blueMarbleWhiteCoords,
-    blackCoordBackground: Background.blueMarbleBlackCoords,
+    lightSquare: Color(0xffeae6dd),
+    darkSquare: Color(0xff7c7f87),
+    background: ImageBackground(
+      lightSquare: Color(0xffeae6dd),
+      darkSquare: Color(0xff7c7f87),
+      image: AssetImage('lib/boards/blue-marble.jpg', package: 'chessground'),
+    ),
+    whiteCoordBackground: ImageBackground(
+      lightSquare: Color(0xffeae6dd),
+      darkSquare: Color(0xff7c7f87),
+      image: AssetImage('lib/boards/blue-marble.jpg', package: 'chessground'),
+      coordinates: true,
+    ),
+    blackCoordBackground: ImageBackground(
+      lightSquare: Color(0xffeae6dd),
+      darkSquare: Color(0xff7c7f87),
+      image: AssetImage('lib/boards/blue-marble.jpg', package: 'chessground'),
+      coordinates: true,
+      orientation: Side.black,
+    ),
     lastMove: Color(0x809cc700),
     selected: Color(0x6014551e),
     validMoves: Color(0x2814551e),
@@ -97,9 +199,26 @@ class BoardColorScheme {
   );
 
   static const canvas = BoardColorScheme(
-    background: Background.canvas,
-    whiteCoordBackground: Background.canvasWhiteCoords,
-    blackCoordBackground: Background.canvasBlackCoords,
+    lightSquare: Color(0xffd7daeb),
+    darkSquare: Color(0xff547388),
+    background: ImageBackground(
+      lightSquare: Color(0xffd7daeb),
+      darkSquare: Color(0xff547388),
+      image: AssetImage('lib/boards/canvas2.jpg', package: 'chessground'),
+    ),
+    whiteCoordBackground: ImageBackground(
+      lightSquare: Color(0xffd7daeb),
+      darkSquare: Color(0xff547388),
+      image: AssetImage('lib/boards/canvas2.jpg', package: 'chessground'),
+      coordinates: true,
+    ),
+    blackCoordBackground: ImageBackground(
+      lightSquare: Color(0xffd7daeb),
+      darkSquare: Color(0xff547388),
+      image: AssetImage('lib/boards/canvas2.jpg', package: 'chessground'),
+      coordinates: true,
+      orientation: Side.black,
+    ),
     lastMove: Color(0x809cc700),
     selected: Color(0x6014551e),
     validMoves: Color(0x2814551e),
@@ -107,9 +226,26 @@ class BoardColorScheme {
   );
 
   static const greenPlastic = BoardColorScheme(
-    background: Background.greenPlastic,
-    whiteCoordBackground: Background.greenPlasticWhiteCoords,
-    blackCoordBackground: Background.greenPlasticBlackCoords,
+    lightSquare: Color(0xfff2f9bb),
+    darkSquare: Color(0xff59935d),
+    background: ImageBackground(
+      lightSquare: Color(0xfff2f9bb),
+      darkSquare: Color(0xff59935d),
+      image: AssetImage('lib/boards/green-plastic.png', package: 'chessground'),
+    ),
+    whiteCoordBackground: ImageBackground(
+      lightSquare: Color(0xfff2f9bb),
+      darkSquare: Color(0xff59935d),
+      image: AssetImage('lib/boards/green-plastic.png', package: 'chessground'),
+      coordinates: true,
+    ),
+    blackCoordBackground: ImageBackground(
+      lightSquare: Color(0xfff2f9bb),
+      darkSquare: Color(0xff59935d),
+      image: AssetImage('lib/boards/green-plastic.png', package: 'chessground'),
+      coordinates: true,
+      orientation: Side.black,
+    ),
     lastMove: Color.fromRGBO(0, 155, 199, 0.41),
     selected: Color.fromRGBO(216, 85, 0, 0.3),
     validMoves: Color(0x2814551e),
@@ -117,19 +253,53 @@ class BoardColorScheme {
   );
 
   static const grey = BoardColorScheme(
-    background: Background.grey,
-    whiteCoordBackground: Background.greyWhiteCoords,
-    blackCoordBackground: Background.greyBlackCoords,
+    lightSquare: Color(0xffb8b8b8),
+    darkSquare: Color(0xff7d7d7d),
     lastMove: Color(0x809cc700),
+    background: ImageBackground(
+      lightSquare: Color(0xffb8b8b8),
+      darkSquare: Color(0xff7d7d7d),
+      image: AssetImage('lib/boards/grey.jpg', package: 'chessground'),
+    ),
+    whiteCoordBackground: ImageBackground(
+      lightSquare: Color(0xffb8b8b8),
+      darkSquare: Color(0xff7d7d7d),
+      image: AssetImage('lib/boards/grey.jpg', package: 'chessground'),
+      coordinates: true,
+    ),
+    blackCoordBackground: ImageBackground(
+      lightSquare: Color(0xffb8b8b8),
+      darkSquare: Color(0xff7d7d7d),
+      image: AssetImage('lib/boards/grey.jpg', package: 'chessground'),
+      coordinates: true,
+      orientation: Side.black,
+    ),
     selected: Color(0x6014551e),
     validMoves: Color(0x2814551e),
     validPremoves: Color(0x28203085),
   );
 
   static const horsey = BoardColorScheme(
-    background: Background.horsey,
-    whiteCoordBackground: Background.horseyWhiteCoords,
-    blackCoordBackground: Background.horseyBlackCoords,
+    lightSquare: Color(0xfff0d9b5),
+    darkSquare: Color(0xff946f51),
+    background: ImageBackground(
+      lightSquare: Color(0xfff0d9b5),
+      darkSquare: Color(0xff946f51),
+      image: AssetImage('lib/boards/horsey.jpg', package: 'chessground'),
+    ),
+    whiteCoordBackground: ImageBackground(
+      lightSquare: Color(0xfff0d9b5),
+      darkSquare: Color(0xff946f51),
+      image: AssetImage('lib/boards/horsey.jpg', package: 'chessground'),
+      coordinates: true,
+    ),
+    blackCoordBackground: ImageBackground(
+      lightSquare: Color(0xfff0d9b5),
+      darkSquare: Color(0xff946f51),
+      image: AssetImage('lib/boards/horsey.jpg', package: 'chessground'),
+      coordinates: true,
+      orientation: Side.black,
+    ),
     lastMove: Color(0x809cc700),
     selected: Color(0x6014551e),
     validMoves: Color(0x2814551e),
@@ -137,9 +307,26 @@ class BoardColorScheme {
   );
 
   static const leather = BoardColorScheme(
-    background: Background.leather,
-    whiteCoordBackground: Background.leatherWhiteCoords,
-    blackCoordBackground: Background.leatherBlackCoords,
+    lightSquare: Color(0xffd1d1c9),
+    darkSquare: Color(0xffc28e16),
+    background: ImageBackground(
+      lightSquare: Color(0xffd1d1c9),
+      darkSquare: Color(0xffc28e16),
+      image: AssetImage('lib/boards/leather.jpg', package: 'chessground'),
+    ),
+    whiteCoordBackground: ImageBackground(
+      lightSquare: Color(0xffd1d1c9),
+      darkSquare: Color(0xffc28e16),
+      image: AssetImage('lib/boards/leather.jpg', package: 'chessground'),
+      coordinates: true,
+    ),
+    blackCoordBackground: ImageBackground(
+      lightSquare: Color(0xffd1d1c9),
+      darkSquare: Color(0xffc28e16),
+      image: AssetImage('lib/boards/leather.jpg', package: 'chessground'),
+      coordinates: true,
+      orientation: Side.black,
+    ),
     lastMove: Color(0x809cc700),
     selected: Color(0x6014551e),
     validMoves: Color(0x2814551e),
@@ -147,9 +334,26 @@ class BoardColorScheme {
   );
 
   static const maple = BoardColorScheme(
-    background: Background.maple,
-    whiteCoordBackground: Background.mapleWhiteCoords,
-    blackCoordBackground: Background.mapleBlackCoords,
+    lightSquare: Color(0xffe8ceab),
+    darkSquare: Color(0xffbc7944),
+    background: ImageBackground(
+      lightSquare: Color(0xffe8ceab),
+      darkSquare: Color(0xffbc7944),
+      image: AssetImage('lib/boards/maple.jpg', package: 'chessground'),
+    ),
+    whiteCoordBackground: ImageBackground(
+      lightSquare: Color(0xffe8ceab),
+      darkSquare: Color(0xffbc7944),
+      image: AssetImage('lib/boards/maple.jpg', package: 'chessground'),
+      coordinates: true,
+    ),
+    blackCoordBackground: ImageBackground(
+      lightSquare: Color(0xffe8ceab),
+      darkSquare: Color(0xffbc7944),
+      image: AssetImage('lib/boards/maple.jpg', package: 'chessground'),
+      coordinates: true,
+      orientation: Side.black,
+    ),
     lastMove: Color(0x809cc700),
     selected: Color(0x6014551e),
     validMoves: Color(0x2814551e),
@@ -157,9 +361,26 @@ class BoardColorScheme {
   );
 
   static const maple2 = BoardColorScheme(
-    background: Background.maple2,
-    whiteCoordBackground: Background.maple2WhiteCoords,
-    blackCoordBackground: Background.maple2BlackCoords,
+    lightSquare: Color(0xffe2c89f),
+    darkSquare: Color(0xff996633),
+    background: ImageBackground(
+      lightSquare: Color(0xffe2c89f),
+      darkSquare: Color(0xff996633),
+      image: AssetImage('lib/boards/maple2.jpg', package: 'chessground'),
+    ),
+    whiteCoordBackground: ImageBackground(
+      lightSquare: Color(0xffe2c89f),
+      darkSquare: Color(0xff996633),
+      image: AssetImage('lib/boards/maple2.jpg', package: 'chessground'),
+      coordinates: true,
+    ),
+    blackCoordBackground: ImageBackground(
+      lightSquare: Color(0xffe2c89f),
+      darkSquare: Color(0xff996633),
+      image: AssetImage('lib/boards/maple2.jpg', package: 'chessground'),
+      coordinates: true,
+      orientation: Side.black,
+    ),
     lastMove: Color(0x809cc700),
     selected: Color(0x6014551e),
     validMoves: Color(0x2814551e),
@@ -167,9 +388,26 @@ class BoardColorScheme {
   );
 
   static const marble = BoardColorScheme(
-    background: Background.marble,
-    whiteCoordBackground: Background.marbleWhiteCoords,
-    blackCoordBackground: Background.marbleBlackCoords,
+    lightSquare: Color(0xff93ab91),
+    darkSquare: Color(0xff4f644e),
+    background: ImageBackground(
+      lightSquare: Color(0xff93ab91),
+      darkSquare: Color(0xff4f644e),
+      image: AssetImage('lib/boards/marble.jpg', package: 'chessground'),
+    ),
+    whiteCoordBackground: ImageBackground(
+      lightSquare: Color(0xff93ab91),
+      darkSquare: Color(0xff4f644e),
+      image: AssetImage('lib/boards/marble.jpg', package: 'chessground'),
+      coordinates: true,
+    ),
+    blackCoordBackground: ImageBackground(
+      lightSquare: Color(0xff93ab91),
+      darkSquare: Color(0xff4f644e),
+      image: AssetImage('lib/boards/marble.jpg', package: 'chessground'),
+      coordinates: true,
+      orientation: Side.black,
+    ),
     lastMove: Color.fromRGBO(0, 155, 199, 0.41),
     selected: Color.fromRGBO(216, 85, 0, 0.3),
     validMoves: Color(0x2814551e),
@@ -177,9 +415,26 @@ class BoardColorScheme {
   );
 
   static const metal = BoardColorScheme(
-    background: Background.metal,
-    whiteCoordBackground: Background.metalWhiteCoords,
-    blackCoordBackground: Background.metalBlackCoords,
+    lightSquare: Color(0xffc9c9c9),
+    darkSquare: Color(0xff727272),
+    background: ImageBackground(
+      lightSquare: Color(0xffc9c9c9),
+      darkSquare: Color(0xff727272),
+      image: AssetImage('lib/boards/metal.jpg', package: 'chessground'),
+    ),
+    whiteCoordBackground: ImageBackground(
+      lightSquare: Color(0xffc9c9c9),
+      darkSquare: Color(0xff727272),
+      image: AssetImage('lib/boards/metal.jpg', package: 'chessground'),
+      coordinates: true,
+    ),
+    blackCoordBackground: ImageBackground(
+      lightSquare: Color(0xffc9c9c9),
+      darkSquare: Color(0xff727272),
+      image: AssetImage('lib/boards/metal.jpg', package: 'chessground'),
+      coordinates: true,
+      orientation: Side.black,
+    ),
     lastMove: Color(0x809cc700),
     selected: Color(0x6014551e),
     validMoves: Color(0x2814551e),
@@ -187,9 +442,26 @@ class BoardColorScheme {
   );
 
   static const newspaper = BoardColorScheme(
-    background: Background.newspaper,
-    whiteCoordBackground: Background.newspaperWhiteCoords,
-    blackCoordBackground: Background.newspaperBlackCoords,
+    lightSquare: Color(0xffffffff),
+    darkSquare: Color(0xff8d8d8d),
+    background: ImageBackground(
+      lightSquare: Color(0xffffffff),
+      darkSquare: Color(0xff8d8d8d),
+      image: AssetImage('lib/boards/newspaper.png', package: 'chessground'),
+    ),
+    whiteCoordBackground: ImageBackground(
+      lightSquare: Color(0xffffffff),
+      darkSquare: Color(0xff8d8d8d),
+      image: AssetImage('lib/boards/newspaper.png', package: 'chessground'),
+      coordinates: true,
+    ),
+    blackCoordBackground: ImageBackground(
+      lightSquare: Color(0xffffffff),
+      darkSquare: Color(0xff8d8d8d),
+      image: AssetImage('lib/boards/newspaper.png', package: 'chessground'),
+      coordinates: true,
+      orientation: Side.black,
+    ),
     lastMove: Color(0x809cc700),
     selected: Color(0x6014551e),
     validMoves: Color(0x2814551e),
@@ -197,9 +469,26 @@ class BoardColorScheme {
   );
 
   static const olive = BoardColorScheme(
-    background: Background.olive,
-    whiteCoordBackground: Background.oliveWhiteCoords,
-    blackCoordBackground: Background.oliveBlackCoords,
+    lightSquare: Color(0xffb8b19f),
+    darkSquare: Color(0xff6d6655),
+    background: ImageBackground(
+      lightSquare: Color(0xffb8b19f),
+      darkSquare: Color(0xff6d6655),
+      image: AssetImage('lib/boards/olive.jpg', package: 'chessground'),
+    ),
+    whiteCoordBackground: ImageBackground(
+      lightSquare: Color(0xffb8b19f),
+      darkSquare: Color(0xff6d6655),
+      image: AssetImage('lib/boards/olive.jpg', package: 'chessground'),
+      coordinates: true,
+    ),
+    blackCoordBackground: ImageBackground(
+      lightSquare: Color(0xffb8b19f),
+      darkSquare: Color(0xff6d6655),
+      image: AssetImage('lib/boards/olive.jpg', package: 'chessground'),
+      coordinates: true,
+      orientation: Side.black,
+    ),
     lastMove: Color(0x809cc700),
     selected: Color(0x6014551e),
     validMoves: Color(0x2814551e),
@@ -207,9 +496,26 @@ class BoardColorScheme {
   );
 
   static const pinkPyramid = BoardColorScheme(
-    background: Background.pinkPyramid,
-    whiteCoordBackground: Background.pinkPyramidWhiteCoords,
-    blackCoordBackground: Background.pinkPyramidBlackCoords,
+    lightSquare: Color(0xffe8e9b7),
+    darkSquare: Color(0xffed7272),
+    background: ImageBackground(
+      lightSquare: Color(0xffe8e9b7),
+      darkSquare: Color(0xffed7272),
+      image: AssetImage('lib/boards/pink-pyramid.png', package: 'chessground'),
+    ),
+    whiteCoordBackground: ImageBackground(
+      lightSquare: Color(0xffe8e9b7),
+      darkSquare: Color(0xffed7272),
+      image: AssetImage('lib/boards/pink-pyramid.png', package: 'chessground'),
+      coordinates: true,
+    ),
+    blackCoordBackground: ImageBackground(
+      lightSquare: Color(0xffe8e9b7),
+      darkSquare: Color(0xffed7272),
+      image: AssetImage('lib/boards/pink-pyramid.png', package: 'chessground'),
+      coordinates: true,
+      orientation: Side.black,
+    ),
     lastMove: Color(0x809cc700),
     selected: Color(0x6014551e),
     validMoves: Color(0x2814551e),
@@ -217,9 +523,26 @@ class BoardColorScheme {
   );
 
   static const purpleDiag = BoardColorScheme(
-    background: Background.purpleDiag,
-    whiteCoordBackground: Background.purpleDiagWhiteCoords,
-    blackCoordBackground: Background.purpleDiagBlackCoords,
+    lightSquare: Color(0xffe5daf0),
+    darkSquare: Color(0xff957ab0),
+    background: ImageBackground(
+      lightSquare: Color(0xffe5daf0),
+      darkSquare: Color(0xff957ab0),
+      image: AssetImage('lib/boards/purple-diag.png', package: 'chessground'),
+    ),
+    whiteCoordBackground: ImageBackground(
+      lightSquare: Color(0xffe5daf0),
+      darkSquare: Color(0xff957ab0),
+      image: AssetImage('lib/boards/purple-diag.png', package: 'chessground'),
+      coordinates: true,
+    ),
+    blackCoordBackground: ImageBackground(
+      lightSquare: Color(0xffe5daf0),
+      darkSquare: Color(0xff957ab0),
+      image: AssetImage('lib/boards/purple-diag.png', package: 'chessground'),
+      coordinates: true,
+      orientation: Side.black,
+    ),
     lastMove: Color(0x809cc700),
     selected: Color(0x6014551e),
     validMoves: Color(0x2814551e),
@@ -227,9 +550,26 @@ class BoardColorScheme {
   );
 
   static const wood = BoardColorScheme(
-    background: Background.wood,
-    whiteCoordBackground: Background.woodWhiteCoords,
-    blackCoordBackground: Background.woodBlackCoords,
+    lightSquare: Color(0xffd8a45b),
+    darkSquare: Color(0xff9b4d0f),
+    background: ImageBackground(
+      lightSquare: Color(0xffd8a45b),
+      darkSquare: Color(0xff9b4d0f),
+      image: AssetImage('lib/boards/wood.jpg', package: 'chessground'),
+    ),
+    whiteCoordBackground: ImageBackground(
+      lightSquare: Color(0xffd8a45b),
+      darkSquare: Color(0xff9b4d0f),
+      image: AssetImage('lib/boards/wood.jpg', package: 'chessground'),
+      coordinates: true,
+    ),
+    blackCoordBackground: ImageBackground(
+      lightSquare: Color(0xffd8a45b),
+      darkSquare: Color(0xff9b4d0f),
+      image: AssetImage('lib/boards/wood.jpg', package: 'chessground'),
+      coordinates: true,
+      orientation: Side.black,
+    ),
     lastMove: Color(0x809cc700),
     selected: Color(0x6014551e),
     validMoves: Color(0x2814551e),
@@ -237,9 +577,26 @@ class BoardColorScheme {
   );
 
   static const wood2 = BoardColorScheme(
-    background: Background.wood2,
-    whiteCoordBackground: Background.wood2WhiteCoords,
-    blackCoordBackground: Background.wood2BlackCoords,
+    lightSquare: Color(0xffa38b5d),
+    darkSquare: Color(0xff6c5017),
+    background: ImageBackground(
+      lightSquare: Color(0xffa38b5d),
+      darkSquare: Color(0xff6c5017),
+      image: AssetImage('lib/boards/wood2.jpg', package: 'chessground'),
+    ),
+    whiteCoordBackground: ImageBackground(
+      lightSquare: Color(0xffa38b5d),
+      darkSquare: Color(0xff6c5017),
+      image: AssetImage('lib/boards/wood2.jpg', package: 'chessground'),
+      coordinates: true,
+    ),
+    blackCoordBackground: ImageBackground(
+      lightSquare: Color(0xffa38b5d),
+      darkSquare: Color(0xff6c5017),
+      image: AssetImage('lib/boards/wood2.jpg', package: 'chessground'),
+      coordinates: true,
+      orientation: Side.black,
+    ),
     lastMove: Color(0x809cc700),
     selected: Color(0x6014551e),
     validMoves: Color(0x2814551e),
@@ -247,9 +604,26 @@ class BoardColorScheme {
   );
 
   static const wood3 = BoardColorScheme(
-    background: Background.wood3,
-    whiteCoordBackground: Background.wood3WhiteCoords,
-    blackCoordBackground: Background.wood3BlackCoords,
+    lightSquare: Color(0xffd0ceca),
+    darkSquare: Color(0xff755839),
+    background: ImageBackground(
+      lightSquare: Color(0xffd0ceca),
+      darkSquare: Color(0xff755839),
+      image: AssetImage('lib/boards/wood3.jpg', package: 'chessground'),
+    ),
+    whiteCoordBackground: ImageBackground(
+      lightSquare: Color(0xffd0ceca),
+      darkSquare: Color(0xff755839),
+      image: AssetImage('lib/boards/wood3.jpg', package: 'chessground'),
+      coordinates: true,
+    ),
+    blackCoordBackground: ImageBackground(
+      lightSquare: Color(0xffd0ceca),
+      darkSquare: Color(0xff755839),
+      image: AssetImage('lib/boards/wood3.jpg', package: 'chessground'),
+      coordinates: true,
+      orientation: Side.black,
+    ),
     lastMove: Color(0x809cc700),
     selected: Color(0x6014551e),
     validMoves: Color(0x2814551e),
@@ -257,9 +631,26 @@ class BoardColorScheme {
   );
 
   static const wood4 = BoardColorScheme(
-    background: Background.wood4,
-    whiteCoordBackground: Background.wood4WhiteCoords,
-    blackCoordBackground: Background.wood4BlackCoords,
+    lightSquare: Color(0xffcaaf7d),
+    darkSquare: Color(0xff7b5330),
+    background: ImageBackground(
+      lightSquare: Color(0xffcaaf7d),
+      darkSquare: Color(0xff7b5330),
+      image: AssetImage('lib/boards/wood4.jpg', package: 'chessground'),
+    ),
+    whiteCoordBackground: ImageBackground(
+      lightSquare: Color(0xffcaaf7d),
+      darkSquare: Color(0xff7b5330),
+      image: AssetImage('lib/boards/wood4.jpg', package: 'chessground'),
+      coordinates: true,
+    ),
+    blackCoordBackground: ImageBackground(
+      lightSquare: Color(0xffcaaf7d),
+      darkSquare: Color(0xff7b5330),
+      image: AssetImage('lib/boards/wood4.jpg', package: 'chessground'),
+      coordinates: true,
+      orientation: Side.black,
+    ),
     lastMove: Color(0x809cc700),
     selected: Color(0x6014551e),
     validMoves: Color(0x2814551e),
