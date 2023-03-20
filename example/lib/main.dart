@@ -63,6 +63,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 pieceAssets: pieceSet.assets,
                 colorScheme: boardTheme.colors,
                 enableCoordinates: true,
+                enablePremoves: true,
               ),
               data: BoardData(
                 interactableSide: InteractableSide.white,

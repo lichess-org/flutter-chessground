@@ -43,7 +43,7 @@ class BoardColorScheme {
     lastMove: Color(0x809cc700),
     selected: Color(0x8014551e),
     validMoves: Color(0x3C14551e),
-    validPremoves: Color(0x60203085),
+    validPremoves: Color(0x3C203085),
   );
 
   static const blue = BoardColorScheme(
@@ -53,7 +53,7 @@ class BoardColorScheme {
     lastMove: Color(0x809bc700),
     selected: Color(0x8014551e),
     validMoves: Color(0x3C14551e),
-    validPremoves: Color(0x60203085),
+    validPremoves: Color(0x3C203085),
   );
 
   static const green = BoardColorScheme(
@@ -63,7 +63,7 @@ class BoardColorScheme {
     lastMove: Color.fromRGBO(0, 155, 199, 0.41),
     selected: Color.fromRGBO(216, 85, 0, 0.3),
     validMoves: Color.fromRGBO(0, 0, 0, 0.2),
-    validPremoves: Color(0x60203085),
+    validPremoves: Color(0x3C203085),
   );
 
   static const blue2 = BoardColorScheme(
@@ -73,7 +73,7 @@ class BoardColorScheme {
     lastMove: Color(0x809cc700),
     selected: Color(0x8014551e),
     validMoves: Color(0x3C14551e),
-    validPremoves: Color(0x60203085),
+    validPremoves: Color(0x3C203085),
   );
 
   static const blue3 = BoardColorScheme(
@@ -83,7 +83,7 @@ class BoardColorScheme {
     lastMove: Color(0x809cc700),
     selected: Color(0x8014551e),
     validMoves: Color(0x3C14551e),
-    validPremoves: Color(0x60203085),
+    validPremoves: Color(0x3C203085),
   );
 
   static const blueMarble = BoardColorScheme(
@@ -93,7 +93,7 @@ class BoardColorScheme {
     lastMove: Color(0x809cc700),
     selected: Color(0x8014551e),
     validMoves: Color(0x3C14551e),
-    validPremoves: Color(0x60203085),
+    validPremoves: Color(0x3C203085),
   );
 
   static const canvas = BoardColorScheme(
@@ -103,7 +103,7 @@ class BoardColorScheme {
     lastMove: Color(0x809cc700),
     selected: Color(0x8014551e),
     validMoves: Color(0x3C14551e),
-    validPremoves: Color(0x60203085),
+    validPremoves: Color(0x3C203085),
   );
 
   static const greenPlastic = BoardColorScheme(
@@ -113,7 +113,7 @@ class BoardColorScheme {
     lastMove: Color.fromRGBO(0, 155, 199, 0.41),
     selected: Color.fromRGBO(216, 85, 0, 0.3),
     validMoves: Color(0x3C14551e),
-    validPremoves: Color(0x60203085),
+    validPremoves: Color(0x3C203085),
   );
 
   static const grey = BoardColorScheme(
@@ -123,7 +123,7 @@ class BoardColorScheme {
     lastMove: Color(0x809cc700),
     selected: Color(0x8014551e),
     validMoves: Color(0x3C14551e),
-    validPremoves: Color(0x60203085),
+    validPremoves: Color(0x3C203085),
   );
 
   static const horsey = BoardColorScheme(
@@ -133,7 +133,7 @@ class BoardColorScheme {
     lastMove: Color(0x809cc700),
     selected: Color(0x8014551e),
     validMoves: Color(0x3C14551e),
-    validPremoves: Color(0x60203085),
+    validPremoves: Color(0x3C203085),
   );
 
   static const leather = BoardColorScheme(
@@ -143,7 +143,7 @@ class BoardColorScheme {
     lastMove: Color(0x809cc700),
     selected: Color(0x8014551e),
     validMoves: Color(0x3C14551e),
-    validPremoves: Color(0x60203085),
+    validPremoves: Color(0x3C203085),
   );
 
   static const maple = BoardColorScheme(
@@ -153,7 +153,7 @@ class BoardColorScheme {
     lastMove: Color(0x809cc700),
     selected: Color(0x8014551e),
     validMoves: Color(0x3C14551e),
-    validPremoves: Color(0x60203085),
+    validPremoves: Color(0x3C203085),
   );
 
   static const maple2 = BoardColorScheme(
@@ -163,7 +163,7 @@ class BoardColorScheme {
     lastMove: Color(0x809cc700),
     selected: Color(0x8014551e),
     validMoves: Color(0x3C14551e),
-    validPremoves: Color(0x60203085),
+    validPremoves: Color(0x3C203085),
   );
 
   static const marble = BoardColorScheme(
@@ -173,7 +173,7 @@ class BoardColorScheme {
     lastMove: Color.fromRGBO(0, 155, 199, 0.41),
     selected: Color.fromRGBO(216, 85, 0, 0.3),
     validMoves: Color(0x3C14551e),
-    validPremoves: Color(0x60203085),
+    validPremoves: Color(0x3C203085),
   );
 
   static const metal = BoardColorScheme(
@@ -183,7 +183,7 @@ class BoardColorScheme {
     lastMove: Color(0x809cc700),
     selected: Color(0x8014551e),
     validMoves: Color(0x3C14551e),
-    validPremoves: Color(0x60203085),
+    validPremoves: Color(0x3C203085),
   );
 
   static const newspaper = BoardColorScheme(
@@ -193,7 +193,7 @@ class BoardColorScheme {
     lastMove: Color(0x809cc700),
     selected: Color(0x8014551e),
     validMoves: Color(0x3C14551e),
-    validPremoves: Color(0x60203085),
+    validPremoves: Color(0x3C203085),
   );
 
   static const olive = BoardColorScheme(
@@ -203,7 +203,7 @@ class BoardColorScheme {
     lastMove: Color(0x809cc700),
     selected: Color(0x8014551e),
     validMoves: Color(0x3C14551e),
-    validPremoves: Color(0x60203085),
+    validPremoves: Color(0x3C203085),
   );
 
   static const pinkPyramid = BoardColorScheme(
@@ -213,7 +213,7 @@ class BoardColorScheme {
     lastMove: Color(0x809cc700),
     selected: Color(0x8014551e),
     validMoves: Color(0x3C14551e),
-    validPremoves: Color(0x60203085),
+    validPremoves: Color(0x3C203085),
   );
 
   static const purpleDiag = BoardColorScheme(
@@ -223,7 +223,7 @@ class BoardColorScheme {
     lastMove: Color(0x809cc700),
     selected: Color(0x8014551e),
     validMoves: Color(0x3C14551e),
-    validPremoves: Color(0x60203085),
+    validPremoves: Color(0x3C203085),
   );
 
   static const wood = BoardColorScheme(
@@ -233,7 +233,7 @@ class BoardColorScheme {
     lastMove: Color(0x809cc700),
     selected: Color(0x8014551e),
     validMoves: Color(0x3C14551e),
-    validPremoves: Color(0x60203085),
+    validPremoves: Color(0x3C203085),
   );
 
   static const wood2 = BoardColorScheme(
@@ -243,7 +243,7 @@ class BoardColorScheme {
     lastMove: Color(0x809cc700),
     selected: Color(0x8014551e),
     validMoves: Color(0x3C14551e),
-    validPremoves: Color(0x60203085),
+    validPremoves: Color(0x3C203085),
   );
 
   static const wood3 = BoardColorScheme(
@@ -253,7 +253,7 @@ class BoardColorScheme {
     lastMove: Color(0x809cc700),
     selected: Color(0x8014551e),
     validMoves: Color(0x3C14551e),
-    validPremoves: Color(0x60203085),
+    validPremoves: Color(0x3C203085),
   );
 
   static const wood4 = BoardColorScheme(
@@ -263,6 +263,6 @@ class BoardColorScheme {
     lastMove: Color(0x809cc700),
     selected: Color(0x8014551e),
     validMoves: Color(0x3C14551e),
-    validPremoves: Color(0x60203085),
+    validPremoves: Color(0x3C203085),
   );
 }
