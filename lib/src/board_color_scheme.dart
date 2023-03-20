@@ -3,6 +3,9 @@ import './widgets/background.dart';
 import './models.dart';
 
 /// Describes the color scheme of a [Board].
+///
+/// Use the static const members to ensure flutter doesn't rebuild the board more
+/// than once.
 class BoardColorScheme {
   const BoardColorScheme({
     required this.lightSquare,

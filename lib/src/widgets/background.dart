@@ -2,9 +2,6 @@ import 'package:flutter/widgets.dart';
 import '../models.dart';
 
 /// Board background
-///
-/// Use the static const members to ensure flutter doesn't rebuild the board more
-/// than once
 abstract class Background extends StatelessWidget {
   const Background({
     super.key,
