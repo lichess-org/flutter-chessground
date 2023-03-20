@@ -31,7 +31,6 @@ class SolidColorBackground extends Background {
 
   @override
   Widget build(BuildContext context) {
-    print('building solid color background');
     return SizedBox.expand(
       child: Column(
         children: List.generate(
