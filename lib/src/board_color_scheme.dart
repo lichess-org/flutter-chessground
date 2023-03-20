@@ -42,7 +42,7 @@ class BoardColorScheme {
     blackCoordBackground: Background.brownBlackCoords,
     lastMove: Color(0x809cc700),
     selected: Color(0x8014551e),
-    validMoves: Color(0x6014551e),
+    validMoves: Color(0x3C14551e),
     validPremoves: Color(0x60203085),
   );
 
@@ -52,7 +52,7 @@ class BoardColorScheme {
     blackCoordBackground: Background.blueBlackCoords,
     lastMove: Color(0x809bc700),
     selected: Color(0x8014551e),
-    validMoves: Color(0x6014551e),
+    validMoves: Color(0x3C14551e),
     validPremoves: Color(0x60203085),
   );
 
@@ -72,7 +72,7 @@ class BoardColorScheme {
     blackCoordBackground: Background.blue2BlackCoords,
     lastMove: Color(0x809cc700),
     selected: Color(0x8014551e),
-    validMoves: Color(0x6014551e),
+    validMoves: Color(0x3C14551e),
     validPremoves: Color(0x60203085),
   );
 
@@ -82,7 +82,7 @@ class BoardColorScheme {
     blackCoordBackground: Background.blue3BlackCoords,
     lastMove: Color(0x809cc700),
     selected: Color(0x8014551e),
-    validMoves: Color(0x6014551e),
+    validMoves: Color(0x3C14551e),
     validPremoves: Color(0x60203085),
   );
 
@@ -92,7 +92,7 @@ class BoardColorScheme {
     blackCoordBackground: Background.blueMarbleBlackCoords,
     lastMove: Color(0x809cc700),
     selected: Color(0x8014551e),
-    validMoves: Color(0x6014551e),
+    validMoves: Color(0x3C14551e),
     validPremoves: Color(0x60203085),
   );
 
@@ -102,7 +102,7 @@ class BoardColorScheme {
     blackCoordBackground: Background.canvasBlackCoords,
     lastMove: Color(0x809cc700),
     selected: Color(0x8014551e),
-    validMoves: Color(0x6014551e),
+    validMoves: Color(0x3C14551e),
     validPremoves: Color(0x60203085),
   );
 
@@ -112,7 +112,7 @@ class BoardColorScheme {
     blackCoordBackground: Background.greenPlasticBlackCoords,
     lastMove: Color.fromRGBO(0, 155, 199, 0.41),
     selected: Color.fromRGBO(216, 85, 0, 0.3),
-    validMoves: Color(0x6014551e),
+    validMoves: Color(0x3C14551e),
     validPremoves: Color(0x60203085),
   );
 
@@ -122,7 +122,7 @@ class BoardColorScheme {
     blackCoordBackground: Background.greyBlackCoords,
     lastMove: Color(0x809cc700),
     selected: Color(0x8014551e),
-    validMoves: Color(0x6014551e),
+    validMoves: Color(0x3C14551e),
     validPremoves: Color(0x60203085),
   );
 
@@ -132,7 +132,7 @@ class BoardColorScheme {
     blackCoordBackground: Background.horseyBlackCoords,
     lastMove: Color(0x809cc700),
     selected: Color(0x8014551e),
-    validMoves: Color(0x6014551e),
+    validMoves: Color(0x3C14551e),
     validPremoves: Color(0x60203085),
   );
 
@@ -142,7 +142,7 @@ class BoardColorScheme {
     blackCoordBackground: Background.leatherBlackCoords,
     lastMove: Color(0x809cc700),
     selected: Color(0x8014551e),
-    validMoves: Color(0x6014551e),
+    validMoves: Color(0x3C14551e),
     validPremoves: Color(0x60203085),
   );
 
@@ -152,7 +152,7 @@ class BoardColorScheme {
     blackCoordBackground: Background.mapleBlackCoords,
     lastMove: Color(0x809cc700),
     selected: Color(0x8014551e),
-    validMoves: Color(0x6014551e),
+    validMoves: Color(0x3C14551e),
     validPremoves: Color(0x60203085),
   );
 
@@ -162,7 +162,7 @@ class BoardColorScheme {
     blackCoordBackground: Background.maple2BlackCoords,
     lastMove: Color(0x809cc700),
     selected: Color(0x8014551e),
-    validMoves: Color(0x6014551e),
+    validMoves: Color(0x3C14551e),
     validPremoves: Color(0x60203085),
   );
 
@@ -172,7 +172,7 @@ class BoardColorScheme {
     blackCoordBackground: Background.marbleBlackCoords,
     lastMove: Color.fromRGBO(0, 155, 199, 0.41),
     selected: Color.fromRGBO(216, 85, 0, 0.3),
-    validMoves: Color(0x6014551e),
+    validMoves: Color(0x3C14551e),
     validPremoves: Color(0x60203085),
   );
 
@@ -182,7 +182,7 @@ class BoardColorScheme {
     blackCoordBackground: Background.metalBlackCoords,
     lastMove: Color(0x809cc700),
     selected: Color(0x8014551e),
-    validMoves: Color(0x6014551e),
+    validMoves: Color(0x3C14551e),
     validPremoves: Color(0x60203085),
   );
 
@@ -192,7 +192,7 @@ class BoardColorScheme {
     blackCoordBackground: Background.newspaperBlackCoords,
     lastMove: Color(0x809cc700),
     selected: Color(0x8014551e),
-    validMoves: Color(0x6014551e),
+    validMoves: Color(0x3C14551e),
     validPremoves: Color(0x60203085),
   );
 
@@ -202,7 +202,7 @@ class BoardColorScheme {
     blackCoordBackground: Background.oliveBlackCoords,
     lastMove: Color(0x809cc700),
     selected: Color(0x8014551e),
-    validMoves: Color(0x6014551e),
+    validMoves: Color(0x3C14551e),
     validPremoves: Color(0x60203085),
   );
 
@@ -212,7 +212,7 @@ class BoardColorScheme {
     blackCoordBackground: Background.pinkPyramidBlackCoords,
     lastMove: Color(0x809cc700),
     selected: Color(0x8014551e),
-    validMoves: Color(0x6014551e),
+    validMoves: Color(0x3C14551e),
     validPremoves: Color(0x60203085),
   );
 
@@ -222,7 +222,7 @@ class BoardColorScheme {
     blackCoordBackground: Background.purpleDiagBlackCoords,
     lastMove: Color(0x809cc700),
     selected: Color(0x8014551e),
-    validMoves: Color(0x6014551e),
+    validMoves: Color(0x3C14551e),
     validPremoves: Color(0x60203085),
   );
 
@@ -232,7 +232,7 @@ class BoardColorScheme {
     blackCoordBackground: Background.woodBlackCoords,
     lastMove: Color(0x809cc700),
     selected: Color(0x8014551e),
-    validMoves: Color(0x6014551e),
+    validMoves: Color(0x3C14551e),
     validPremoves: Color(0x60203085),
   );
 
@@ -242,7 +242,7 @@ class BoardColorScheme {
     blackCoordBackground: Background.wood2BlackCoords,
     lastMove: Color(0x809cc700),
     selected: Color(0x8014551e),
-    validMoves: Color(0x6014551e),
+    validMoves: Color(0x3C14551e),
     validPremoves: Color(0x60203085),
   );
 
@@ -252,7 +252,7 @@ class BoardColorScheme {
     blackCoordBackground: Background.wood3BlackCoords,
     lastMove: Color(0x809cc700),
     selected: Color(0x8014551e),
-    validMoves: Color(0x6014551e),
+    validMoves: Color(0x3C14551e),
     validPremoves: Color(0x60203085),
   );
 
@@ -262,7 +262,7 @@ class BoardColorScheme {
     blackCoordBackground: Background.wood4BlackCoords,
     lastMove: Color(0x809cc700),
     selected: Color(0x8014551e),
-    validMoves: Color(0x6014551e),
+    validMoves: Color(0x3C14551e),
     validPremoves: Color(0x60203085),
   );
 }
