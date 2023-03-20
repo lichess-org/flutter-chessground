@@ -41,9 +41,9 @@ class BoardColorScheme {
     whiteCoordBackground: Background.brownWhiteCoords,
     blackCoordBackground: Background.brownBlackCoords,
     lastMove: Color(0x809cc700),
-    selected: Color(0x8014551e),
-    validMoves: Color(0x3C14551e),
-    validPremoves: Color(0x3C203085),
+    selected: Color(0x6014551e),
+    validMoves: Color(0x2814551e),
+    validPremoves: Color(0x28203085),
   );
 
   static const blue = BoardColorScheme(
@@ -51,9 +51,9 @@ class BoardColorScheme {
     whiteCoordBackground: Background.blueWhiteCoords,
     blackCoordBackground: Background.blueBlackCoords,
     lastMove: Color(0x809bc700),
-    selected: Color(0x8014551e),
-    validMoves: Color(0x3C14551e),
-    validPremoves: Color(0x3C203085),
+    selected: Color(0x6014551e),
+    validMoves: Color(0x2814551e),
+    validPremoves: Color(0x28203085),
   );
 
   static const green = BoardColorScheme(
@@ -62,8 +62,8 @@ class BoardColorScheme {
     blackCoordBackground: Background.greenBlackCoords,
     lastMove: Color.fromRGBO(0, 155, 199, 0.41),
     selected: Color.fromRGBO(216, 85, 0, 0.3),
-    validMoves: Color.fromRGBO(0, 0, 0, 0.2),
-    validPremoves: Color(0x3C203085),
+    validMoves: Color.fromRGBO(0, 0, 0, 0.15),
+    validPremoves: Color(0x28203085),
   );
 
   static const blue2 = BoardColorScheme(
@@ -71,9 +71,9 @@ class BoardColorScheme {
     whiteCoordBackground: Background.blue2WhiteCoords,
     blackCoordBackground: Background.blue2BlackCoords,
     lastMove: Color(0x809cc700),
-    selected: Color(0x8014551e),
-    validMoves: Color(0x3C14551e),
-    validPremoves: Color(0x3C203085),
+    selected: Color(0x6014551e),
+    validMoves: Color(0x2814551e),
+    validPremoves: Color(0x28203085),
   );
 
   static const blue3 = BoardColorScheme(
@@ -81,9 +81,9 @@ class BoardColorScheme {
     whiteCoordBackground: Background.blue3WhiteCoords,
     blackCoordBackground: Background.blue3BlackCoords,
     lastMove: Color(0x809cc700),
-    selected: Color(0x8014551e),
-    validMoves: Color(0x3C14551e),
-    validPremoves: Color(0x3C203085),
+    selected: Color(0x6014551e),
+    validMoves: Color(0x2814551e),
+    validPremoves: Color(0x28203085),
   );
 
   static const blueMarble = BoardColorScheme(
@@ -91,9 +91,9 @@ class BoardColorScheme {
     whiteCoordBackground: Background.blueMarbleWhiteCoords,
     blackCoordBackground: Background.blueMarbleBlackCoords,
     lastMove: Color(0x809cc700),
-    selected: Color(0x8014551e),
-    validMoves: Color(0x3C14551e),
-    validPremoves: Color(0x3C203085),
+    selected: Color(0x6014551e),
+    validMoves: Color(0x2814551e),
+    validPremoves: Color(0x28203085),
   );
 
   static const canvas = BoardColorScheme(
@@ -101,9 +101,9 @@ class BoardColorScheme {
     whiteCoordBackground: Background.canvasWhiteCoords,
     blackCoordBackground: Background.canvasBlackCoords,
     lastMove: Color(0x809cc700),
-    selected: Color(0x8014551e),
-    validMoves: Color(0x3C14551e),
-    validPremoves: Color(0x3C203085),
+    selected: Color(0x6014551e),
+    validMoves: Color(0x2814551e),
+    validPremoves: Color(0x28203085),
   );
 
   static const greenPlastic = BoardColorScheme(
@@ -112,8 +112,8 @@ class BoardColorScheme {
     blackCoordBackground: Background.greenPlasticBlackCoords,
     lastMove: Color.fromRGBO(0, 155, 199, 0.41),
     selected: Color.fromRGBO(216, 85, 0, 0.3),
-    validMoves: Color(0x3C14551e),
-    validPremoves: Color(0x3C203085),
+    validMoves: Color(0x2814551e),
+    validPremoves: Color(0x28203085),
   );
 
   static const grey = BoardColorScheme(
@@ -121,9 +121,9 @@ class BoardColorScheme {
     whiteCoordBackground: Background.greyWhiteCoords,
     blackCoordBackground: Background.greyBlackCoords,
     lastMove: Color(0x809cc700),
-    selected: Color(0x8014551e),
-    validMoves: Color(0x3C14551e),
-    validPremoves: Color(0x3C203085),
+    selected: Color(0x6014551e),
+    validMoves: Color(0x2814551e),
+    validPremoves: Color(0x28203085),
   );
 
   static const horsey = BoardColorScheme(
@@ -131,9 +131,9 @@ class BoardColorScheme {
     whiteCoordBackground: Background.horseyWhiteCoords,
     blackCoordBackground: Background.horseyBlackCoords,
     lastMove: Color(0x809cc700),
-    selected: Color(0x8014551e),
-    validMoves: Color(0x3C14551e),
-    validPremoves: Color(0x3C203085),
+    selected: Color(0x6014551e),
+    validMoves: Color(0x2814551e),
+    validPremoves: Color(0x28203085),
   );
 
   static const leather = BoardColorScheme(
@@ -141,9 +141,9 @@ class BoardColorScheme {
     whiteCoordBackground: Background.leatherWhiteCoords,
     blackCoordBackground: Background.leatherBlackCoords,
     lastMove: Color(0x809cc700),
-    selected: Color(0x8014551e),
-    validMoves: Color(0x3C14551e),
-    validPremoves: Color(0x3C203085),
+    selected: Color(0x6014551e),
+    validMoves: Color(0x2814551e),
+    validPremoves: Color(0x28203085),
   );
 
   static const maple = BoardColorScheme(
@@ -151,9 +151,9 @@ class BoardColorScheme {
     whiteCoordBackground: Background.mapleWhiteCoords,
     blackCoordBackground: Background.mapleBlackCoords,
     lastMove: Color(0x809cc700),
-    selected: Color(0x8014551e),
-    validMoves: Color(0x3C14551e),
-    validPremoves: Color(0x3C203085),
+    selected: Color(0x6014551e),
+    validMoves: Color(0x2814551e),
+    validPremoves: Color(0x28203085),
   );
 
   static const maple2 = BoardColorScheme(
@@ -161,9 +161,9 @@ class BoardColorScheme {
     whiteCoordBackground: Background.maple2WhiteCoords,
     blackCoordBackground: Background.maple2BlackCoords,
     lastMove: Color(0x809cc700),
-    selected: Color(0x8014551e),
-    validMoves: Color(0x3C14551e),
-    validPremoves: Color(0x3C203085),
+    selected: Color(0x6014551e),
+    validMoves: Color(0x2814551e),
+    validPremoves: Color(0x28203085),
   );
 
   static const marble = BoardColorScheme(
@@ -172,8 +172,8 @@ class BoardColorScheme {
     blackCoordBackground: Background.marbleBlackCoords,
     lastMove: Color.fromRGBO(0, 155, 199, 0.41),
     selected: Color.fromRGBO(216, 85, 0, 0.3),
-    validMoves: Color(0x3C14551e),
-    validPremoves: Color(0x3C203085),
+    validMoves: Color(0x2814551e),
+    validPremoves: Color(0x28203085),
   );
 
   static const metal = BoardColorScheme(
@@ -181,9 +181,9 @@ class BoardColorScheme {
     whiteCoordBackground: Background.metalWhiteCoords,
     blackCoordBackground: Background.metalBlackCoords,
     lastMove: Color(0x809cc700),
-    selected: Color(0x8014551e),
-    validMoves: Color(0x3C14551e),
-    validPremoves: Color(0x3C203085),
+    selected: Color(0x6014551e),
+    validMoves: Color(0x2814551e),
+    validPremoves: Color(0x28203085),
   );
 
   static const newspaper = BoardColorScheme(
@@ -191,9 +191,9 @@ class BoardColorScheme {
     whiteCoordBackground: Background.newspaperWhiteCoords,
     blackCoordBackground: Background.newspaperBlackCoords,
     lastMove: Color(0x809cc700),
-    selected: Color(0x8014551e),
-    validMoves: Color(0x3C14551e),
-    validPremoves: Color(0x3C203085),
+    selected: Color(0x6014551e),
+    validMoves: Color(0x2814551e),
+    validPremoves: Color(0x28203085),
   );
 
   static const olive = BoardColorScheme(
@@ -201,9 +201,9 @@ class BoardColorScheme {
     whiteCoordBackground: Background.oliveWhiteCoords,
     blackCoordBackground: Background.oliveBlackCoords,
     lastMove: Color(0x809cc700),
-    selected: Color(0x8014551e),
-    validMoves: Color(0x3C14551e),
-    validPremoves: Color(0x3C203085),
+    selected: Color(0x6014551e),
+    validMoves: Color(0x2814551e),
+    validPremoves: Color(0x28203085),
   );
 
   static const pinkPyramid = BoardColorScheme(
@@ -211,9 +211,9 @@ class BoardColorScheme {
     whiteCoordBackground: Background.pinkPyramidWhiteCoords,
     blackCoordBackground: Background.pinkPyramidBlackCoords,
     lastMove: Color(0x809cc700),
-    selected: Color(0x8014551e),
-    validMoves: Color(0x3C14551e),
-    validPremoves: Color(0x3C203085),
+    selected: Color(0x6014551e),
+    validMoves: Color(0x2814551e),
+    validPremoves: Color(0x28203085),
   );
 
   static const purpleDiag = BoardColorScheme(
@@ -221,9 +221,9 @@ class BoardColorScheme {
     whiteCoordBackground: Background.purpleDiagWhiteCoords,
     blackCoordBackground: Background.purpleDiagBlackCoords,
     lastMove: Color(0x809cc700),
-    selected: Color(0x8014551e),
-    validMoves: Color(0x3C14551e),
-    validPremoves: Color(0x3C203085),
+    selected: Color(0x6014551e),
+    validMoves: Color(0x2814551e),
+    validPremoves: Color(0x28203085),
   );
 
   static const wood = BoardColorScheme(
@@ -231,9 +231,9 @@ class BoardColorScheme {
     whiteCoordBackground: Background.woodWhiteCoords,
     blackCoordBackground: Background.woodBlackCoords,
     lastMove: Color(0x809cc700),
-    selected: Color(0x8014551e),
-    validMoves: Color(0x3C14551e),
-    validPremoves: Color(0x3C203085),
+    selected: Color(0x6014551e),
+    validMoves: Color(0x2814551e),
+    validPremoves: Color(0x28203085),
   );
 
   static const wood2 = BoardColorScheme(
@@ -241,9 +241,9 @@ class BoardColorScheme {
     whiteCoordBackground: Background.wood2WhiteCoords,
     blackCoordBackground: Background.wood2BlackCoords,
     lastMove: Color(0x809cc700),
-    selected: Color(0x8014551e),
-    validMoves: Color(0x3C14551e),
-    validPremoves: Color(0x3C203085),
+    selected: Color(0x6014551e),
+    validMoves: Color(0x2814551e),
+    validPremoves: Color(0x28203085),
   );
 
   static const wood3 = BoardColorScheme(
@@ -251,9 +251,9 @@ class BoardColorScheme {
     whiteCoordBackground: Background.wood3WhiteCoords,
     blackCoordBackground: Background.wood3BlackCoords,
     lastMove: Color(0x809cc700),
-    selected: Color(0x8014551e),
-    validMoves: Color(0x3C14551e),
-    validPremoves: Color(0x3C203085),
+    selected: Color(0x6014551e),
+    validMoves: Color(0x2814551e),
+    validPremoves: Color(0x28203085),
   );
 
   static const wood4 = BoardColorScheme(
@@ -261,8 +261,8 @@ class BoardColorScheme {
     whiteCoordBackground: Background.wood4WhiteCoords,
     blackCoordBackground: Background.wood4BlackCoords,
     lastMove: Color(0x809cc700),
-    selected: Color(0x8014551e),
-    validMoves: Color(0x3C14551e),
-    validPremoves: Color(0x3C203085),
+    selected: Color(0x6014551e),
+    validMoves: Color(0x2814551e),
+    validPremoves: Color(0x28203085),
   );
 }
