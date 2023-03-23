@@ -61,7 +61,7 @@ class Board extends StatefulWidget {
 
 class _BoardState extends State<Board> {
   Pieces pieces = {};
-  Map<String, Tuple2<Coord, Coord>> translatingPieces = {};
+  Map<String, Tuple2<PositionedPiece, PositionedPiece>> translatingPieces = {};
   Map<String, Piece> fadingPieces = {};
   SquareId? selected;
   Move? _promotionMove;
@@ -164,32 +164,39 @@ class _BoardState extends State<Board> {
             ),
           ),
         for (final entry in pieces.entries)
+          if (!translatingPieces.containsKey(entry.key))
+            PositionedSquare(
+              key: ValueKey('${entry.key}-${entry.value.kind.name}'),
+              size: widget.squareSize,
+              orientation: widget.data.orientation,
+              squareId: entry.key,
+              child: PieceWidget(
+                piece: entry.value,
+                size: widget.squareSize,
+                pieceAssets: widget.settings.pieceAssets,
+                opacity: _dragOrigin == entry.key ? 0.2 : 1.0,
+              ),
+            ),
+        for (final entry in translatingPieces.entries)
           PositionedSquare(
-            key: ValueKey('${entry.key}-${entry.value.kind.name}'),
+            key: ValueKey('${entry.key}-${entry.value.item1.piece.kind.name}'),
             size: widget.squareSize,
             orientation: widget.data.orientation,
             squareId: entry.key,
-            child: translatingPieces.containsKey(entry.key)
-                ? PieceTranslation(
-                    fromCoord: translatingPieces[entry.key]!.item1,
-                    toCoord: translatingPieces[entry.key]!.item2,
-                    orientation: widget.data.orientation,
-                    duration: widget.settings.animationDuration,
-                    onComplete: () {
-                      translatingPieces.remove(entry.key);
-                    },
-                    child: PieceWidget(
-                      piece: entry.value,
-                      size: widget.squareSize,
-                      pieceAssets: widget.settings.pieceAssets,
-                    ),
-                  )
-                : PieceWidget(
-                    piece: entry.value,
-                    size: widget.squareSize,
-                    pieceAssets: widget.settings.pieceAssets,
-                    opacity: _dragOrigin == entry.key ? 0.2 : 1.0,
-                  ),
+            child: PieceTranslation(
+              fromCoord: entry.value.item1.coord,
+              toCoord: entry.value.item2.coord,
+              orientation: widget.data.orientation,
+              duration: widget.settings.animationDuration,
+              onComplete: () {
+                translatingPieces.remove(entry.key);
+              },
+              child: PieceWidget(
+                piece: entry.value.item1.piece,
+                size: widget.squareSize,
+                pieceAssets: widget.settings.pieceAssets,
+              ),
+            ),
           ),
       ],
     );
@@ -290,12 +297,13 @@ class _BoardState extends State<Board> {
             .add(PositionedPiece(piece: oldP, squareId: s, coord: squareCoord));
       }
     }
-    for (final n in newOnSquare) {
-      final fromP =
-          n.closest(missingOnSquare.where((m) => m.piece == n.piece).toList());
+    for (final newPiece in newOnSquare) {
+      final fromP = newPiece.closest(
+        missingOnSquare.where((m) => m.piece == newPiece.piece).toList(),
+      );
       if (fromP != null) {
-        final t = Tuple2<Coord, Coord>(fromP.coord, n.coord);
-        translatingPieces[n.squareId] = t;
+        final t = Tuple2<PositionedPiece, PositionedPiece>(fromP, newPiece);
+        translatingPieces[newPiece.squareId] = t;
         animatedOrigins.add(fromP.squareId);
       }
     }
