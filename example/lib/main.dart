@@ -71,6 +71,9 @@ class _MyHomePageState extends State<MyHomePage> {
                 orientation: orientation,
                 fen: fen,
                 lastMove: lastMove,
+                shapes: ISet<Shape>({
+                  Shape(orig: 'd3', dest: 'f5', color: Colors.blue),
+                }),
                 sideToMove:
                     position.turn == dc.Side.white ? Side.white : Side.black,
                 onMove: _onUserMove,

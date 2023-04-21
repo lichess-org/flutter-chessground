@@ -1,4 +1,6 @@
 import 'package:flutter/widgets.dart';
+import 'package:fast_immutable_collections/fast_immutable_collections.dart'
+    hide Tuple2;
 
 import 'models.dart';
 
@@ -14,6 +16,7 @@ class BoardData {
     this.sideToMove = Side.white,
     this.lastMove,
     this.validMoves,
+    this.shapes,
     this.onMove,
   });
 
@@ -36,6 +39,9 @@ class BoardData {
 
   /// Set of [Move] allowed to be played by current side to move.
   final ValidMoves? validMoves;
+
+  /// Optional set of [Shape] to be drawn on the board.
+  final ISet<Shape>? shapes;
 
   /// Callback called after a move has been made.
   final void Function(Move, {bool? isPremove})? onMove;

@@ -80,6 +80,7 @@ class _BoardState extends State<Board> {
         ? widget.data.validMoves![selected!] ?? _emptyValidMoves
         : _emptyValidMoves;
     final premoveDests = _premoveDests ?? {};
+    final shapes = widget.data.shapes ?? _emptyShapes;
     final Widget board = Stack(
       children: [
         if (widget.settings.enableCoordinates)
@@ -198,6 +199,15 @@ class _BoardState extends State<Board> {
               ),
             ),
           ),
+        for (final shape in shapes)
+          if (shape.dest != null)
+            Arrow(
+              size: widget.size,
+              color: shape.color,
+              fromCoord: Coord.fromSquareId(shape.orig),
+              toCoord: Coord.fromSquareId(shape.dest!),
+              orientation: widget.data.orientation,
+            ),
       ],
     );
 
@@ -639,3 +649,4 @@ class _DragAvatar {
 }
 
 const ISet<String> _emptyValidMoves = ISetConst({});
+const ISet<Shape> _emptyShapes = ISetConst({});

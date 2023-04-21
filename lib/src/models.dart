@@ -289,3 +289,29 @@ Role _toRole(String uciLetter) {
       return Role.pawn;
   }
 }
+
+@immutable
+class Shape {
+  const Shape({
+    required this.color,
+    required this.orig,
+    this.dest,
+  });
+
+  final Color color;
+  final SquareId orig;
+  final SquareId? dest;
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        other is Shape &&
+            other.runtimeType == runtimeType &&
+            other.color == color &&
+            other.orig == orig &&
+            other.dest == dest;
+  }
+
+  @override
+  int get hashCode => Object.hash(color, orig, dest);
+}
