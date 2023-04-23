@@ -101,24 +101,29 @@ class _ArrowPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final lineWidth = size.width / 28;
+    final squareSize = size.width / 8;
+    final lineWidth = squareSize / 4;
     final paint = Paint()
       ..strokeWidth = lineWidth
-      ..color = color
-      ..strokeCap = StrokeCap.round
+      ..color = color.withOpacity(0.25)
       ..style = PaintingStyle.stroke;
 
-    final squareSize = size.width / 8;
+    final fromOffset = fromCoord.offset(orientation, squareSize);
+    final toOffset = toCoord.offset(orientation, squareSize);
     final shift = Offset(squareSize / 2, squareSize / 2);
-    final from = fromCoord.offset(orientation, squareSize) + shift;
-    final to = toCoord.offset(orientation, squareSize) + shift;
+    final margin = squareSize / 4;
 
-    final angle = math.atan2(to.dy - from.dy, to.dx - from.dx);
-    final arrowSize = 1.5 * lineWidth;
+    final angle =
+        math.atan2(toOffset.dy - fromOffset.dy, toOffset.dx - fromOffset.dx);
+    final fromMarginOffset =
+        Offset(margin * math.cos(angle), margin * math.sin(angle));
+    final arrowSize = squareSize * 0.7;
     const arrowAngle = math.pi / 6;
 
-    final path = Path();
+    final from = fromOffset + shift + fromMarginOffset;
+    final to = toOffset + shift;
 
+    final path = Path();
     path.moveTo(
       to.dx - arrowSize * math.cos(angle - arrowAngle),
       to.dy - arrowSize * math.sin(angle - arrowAngle),
@@ -130,15 +135,17 @@ class _ArrowPainter extends CustomPainter {
     );
     path.close();
 
-    final transparentPaint = Paint()..color = color.withOpacity(0.35);
-    canvas.saveLayer(
-      Rect.fromLTWH(0, 0, size.width, size.height),
-      transparentPaint,
-    );
+    final arrowHeight =
+        math.sqrt(math.pow(arrowSize, 2) - math.pow(arrowSize / 2, 2));
+    final arrowOffset =
+        Offset(arrowHeight * math.cos(angle), arrowHeight * math.sin(angle));
 
-    canvas.drawLine(from, to, paint);
-    canvas.drawPath(path, paint);
-    canvas.restore();
+    canvas.drawLine(from, to - arrowOffset, paint);
+
+    final pathPaint = paint
+      ..strokeWidth = 0
+      ..style = PaintingStyle.fill;
+    canvas.drawPath(path, pathPaint);
   }
 
   @override
