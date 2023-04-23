@@ -24,6 +24,7 @@ chess logic so you can use it with different chess variants.
 - board themes
 - piece sets from lichess
 - promotion selector
+- draw arrows on board
 
 ## Getting started
 
