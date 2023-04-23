@@ -291,21 +291,30 @@ Role _toRole(String uciLetter) {
 }
 
 @immutable
-class Shape {
+abstract class Shape {
   const Shape({
     required this.color,
     required this.orig,
-    this.dest,
   });
 
   final Color color;
   final SquareId orig;
-  final SquareId? dest;
+}
+
+@immutable
+class Arrow extends Shape {
+  const Arrow({
+    required super.color,
+    required super.orig,
+    required this.dest,
+  });
+
+  final SquareId dest;
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
-        other is Shape &&
+        other is Arrow &&
             other.runtimeType == runtimeType &&
             other.color == color &&
             other.orig == orig &&

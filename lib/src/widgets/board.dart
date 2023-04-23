@@ -8,6 +8,7 @@ import 'highlight.dart';
 import 'positioned_square.dart';
 import 'animation.dart';
 import 'promotion.dart';
+import 'shape.dart';
 import '../models.dart';
 import '../fen.dart';
 import '../premove.dart';
@@ -200,12 +201,12 @@ class _BoardState extends State<Board> {
             ),
           ),
         for (final shape in shapes)
-          if (shape.dest != null)
-            Arrow(
+          if (shape is Arrow)
+            ArrowWidget(
               size: widget.size,
               color: shape.color,
               fromCoord: Coord.fromSquareId(shape.orig),
-              toCoord: Coord.fromSquareId(shape.dest!),
+              toCoord: Coord.fromSquareId(shape.dest),
               orientation: widget.data.orientation,
             ),
       ],
