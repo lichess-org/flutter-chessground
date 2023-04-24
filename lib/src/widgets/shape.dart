@@ -50,14 +50,14 @@ class _ArrowPainter extends CustomPainter {
     final fromOffset = fromCoord.offset(orientation, squareSize);
     final toOffset = toCoord.offset(orientation, squareSize);
     final shift = Offset(squareSize / 2, squareSize / 2);
-    final margin = squareSize / 4;
+    final margin = squareSize / 3;
 
     final angle =
         math.atan2(toOffset.dy - fromOffset.dy, toOffset.dx - fromOffset.dx);
     final fromMarginOffset =
         Offset(margin * math.cos(angle), margin * math.sin(angle));
-    final arrowSize = squareSize * 0.7;
-    const arrowAngle = math.pi / 6;
+    final arrowSize = squareSize * 0.48;
+    const arrowAngle = math.pi / 5;
 
     final from = fromOffset + shift + fromMarginOffset;
     final to = toOffset + shift;
@@ -74,8 +74,7 @@ class _ArrowPainter extends CustomPainter {
     );
     path.close();
 
-    final arrowHeight =
-        math.sqrt(math.pow(arrowSize, 2) - math.pow(arrowSize / 2, 2));
+    final arrowHeight = arrowSize * math.sin((math.pi - (arrowAngle * 2)) / 2);
     final arrowOffset =
         Offset(arrowHeight * math.cos(angle), arrowHeight * math.sin(angle));
 
