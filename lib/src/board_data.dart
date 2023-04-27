@@ -16,6 +16,7 @@ class BoardData {
     this.sideToMove = Side.white,
     this.lastMove,
     this.validMoves,
+    this.isCheck = false,
     this.shapes,
     this.onMove,
     this.annotations,
@@ -40,6 +41,9 @@ class BoardData {
 
   /// Set of [Move] allowed to be played by current side to move.
   final ValidMoves? validMoves;
+
+  /// Highlight the king of current side to move
+  final bool isCheck;
 
   /// Optional set of [Shape] to be drawn on the board.
   final ISet<Shape>? shapes;

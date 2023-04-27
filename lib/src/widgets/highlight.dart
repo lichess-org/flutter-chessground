@@ -32,19 +32,20 @@ class CheckHighlight extends StatelessWidget {
       dimension: size,
       child: Container(
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(size / 2),
+          borderRadius: BorderRadius.circular(size),
           border: Border.all(
             color: const Color(0xFFFF0000).withOpacity(0.25),
             width: size,
           ),
           gradient: const RadialGradient(
+            radius: 0.6,
             colors: [
               Color(0xFFFF0000),
               Color(0xFFE70000),
               Color(0x00A90000),
               Color(0x009E0000),
             ],
-            stops: [0.0, 0.25, 0.89, 1.0],
+            stops: [0.0, 0.25, 0.90, 1.0],
           ),
         ),
       ),
