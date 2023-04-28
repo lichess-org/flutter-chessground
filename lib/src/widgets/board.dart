@@ -83,7 +83,7 @@ class _BoardState extends State<Board> {
         : _emptyValidMoves;
     final premoveDests = _premoveDests ?? {};
     final shapes = widget.data.shapes ?? _emptyShapes;
-    final annotations = widget.data.annotations ?? {};
+    final annotations = widget.data.annotations ?? _emptyAnnotations;
     final Widget board = Stack(
       children: [
         if (widget.settings.enableCoordinates)
@@ -663,3 +663,4 @@ class _DragAvatar {
 
 const ISet<String> _emptyValidMoves = ISetConst({});
 const ISet<Shape> _emptyShapes = ISetConst({});
+const IMap<SquareId, Annotation> _emptyAnnotations = IMapConst({});

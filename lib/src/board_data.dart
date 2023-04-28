@@ -45,7 +45,7 @@ class BoardData {
   final ISet<Shape>? shapes;
 
   /// Move annotations to be displayed on the board.
-  final Map<SquareId, Annotation>? annotations;
+  final IMap<SquareId, Annotation>? annotations;
 
   /// Callback called after a move has been made.
   final void Function(Move, {bool? isPremove})? onMove;

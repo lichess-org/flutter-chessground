@@ -62,7 +62,7 @@ class _BoardAnnotationState extends State<BoardAnnotation> {
       onRightEdge
           ? widget.squareSize - (size * 0.9)
           : widget.squareSize - (size * 0.7),
-      -(size * 0.4),
+      -(size * 0.3),
     );
     return Positioned(
       width: size,
