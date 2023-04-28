@@ -273,6 +273,37 @@ class Move {
   }
 }
 
+@immutable
+class Annotation {
+  const Annotation({
+    required this.symbol,
+    required this.color,
+    this.duration,
+  });
+
+  /// Annotation symbol. Two letters max.
+  final String symbol;
+
+  /// Annotation background color.
+  final Color color;
+
+  /// Specify a duration to create a transient annotation.
+  final Duration? duration;
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        other is Annotation &&
+            other.runtimeType == runtimeType &&
+            other.symbol == symbol &&
+            other.color == color &&
+            other.duration == duration;
+  }
+
+  @override
+  int get hashCode => Object.hash(symbol, color, duration);
+}
+
 Role _toRole(String uciLetter) {
   switch (uciLetter.trim().toLowerCase()) {
     case 'k':

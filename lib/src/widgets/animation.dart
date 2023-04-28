@@ -68,8 +68,8 @@ class _PieceTranslationState extends State<PieceTranslation>
   }
 }
 
-class PieceFade extends StatefulWidget {
-  const PieceFade({
+class PieceFadeOut extends StatefulWidget {
+  const PieceFadeOut({
     super.key,
     required this.piece,
     required this.size,
@@ -88,10 +88,11 @@ class PieceFade extends StatefulWidget {
   final void Function() onComplete;
 
   @override
-  State<PieceFade> createState() => _PieceFadeState();
+  State<PieceFadeOut> createState() => _PieceFadeOutState();
 }
 
-class _PieceFadeState extends State<PieceFade> with TickerProviderStateMixin {
+class _PieceFadeOutState extends State<PieceFadeOut>
+    with TickerProviderStateMixin {
   late final AnimationController _controller = AnimationController(
     duration: widget.duration,
     vsync: this,

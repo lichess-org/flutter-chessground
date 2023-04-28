@@ -18,6 +18,7 @@ class BoardData {
     this.validMoves,
     this.shapes,
     this.onMove,
+    this.annotations,
   });
 
   /// Which color is allowed to move? It can be both, none, white or black
@@ -42,6 +43,9 @@ class BoardData {
 
   /// Optional set of [Shape] to be drawn on the board.
   final ISet<Shape>? shapes;
+
+  /// Move annotations to be displayed on the board.
+  final IMap<SquareId, Annotation>? annotations;
 
   /// Callback called after a move has been made.
   final void Function(Move, {bool? isPremove})? onMove;
