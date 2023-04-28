@@ -312,6 +312,30 @@ void main() {
       expect(find.byKey(const Key('d1-premove')), findsOneWidget);
       expect(find.byKey(const Key('c2-premove')), findsOneWidget);
     });
+
+    testWidgets('king check square black', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        buildBoard(
+          initialFen:
+              'rnbqkbnr/ppp2ppp/3p4/4p3/3PP3/8/PPP2PPP/RNBQKBNR w KQkq - 0 3',
+          interactableSide: InteractableSide.white,
+        ),
+      );
+      await makeMove(tester, 'f1', 'b5');
+      expect(find.byKey(const Key('e8-check')), findsOneWidget);
+    });
+
+    testWidgets('king check square white', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        buildBoard(
+          initialFen:
+              'rnbqkbnr/pppp1ppp/8/4p3/3P4/4P3/PPP2PPP/RNBQKBNR b KQkq - 0 2',
+          interactableSide: InteractableSide.black,
+        ),
+      );
+      await makeMove(tester, 'f8', 'b4');
+      expect(find.byKey(const Key('e1-check')), findsOneWidget);
+    });
   });
 }
 
@@ -343,6 +367,7 @@ Widget buildBoard({
             orientation: orientation,
             fen: position.fen,
             lastMove: lastMove,
+            isCheck: position.isCheck,
             sideToMove:
                 position.turn == dc.Side.white ? Side.white : Side.black,
             validMoves: dc.algebraicLegalMoves(position),

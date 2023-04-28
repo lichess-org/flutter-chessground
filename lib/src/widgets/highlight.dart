@@ -34,7 +34,7 @@ class CheckHighlight extends StatelessWidget {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(size),
           border: Border.all(
-            color: const Color(0xFFFF0000).withOpacity(0.25),
+            color: const Color(0x40FF0000),
             width: size,
           ),
           gradient: const RadialGradient(

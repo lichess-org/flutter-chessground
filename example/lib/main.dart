@@ -74,6 +74,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 sideToMove:
                     position.turn == dc.Side.white ? Side.white : Side.black,
                 onMove: _onUserMove,
+                isCheck: position.isCheck,
               ),
             ),
             Column(
