@@ -84,6 +84,7 @@ class _BoardState extends State<Board> {
     final premoveDests = _premoveDests ?? {};
     final shapes = widget.data.shapes ?? _emptyShapes;
     final annotations = widget.data.annotations ?? _emptyAnnotations;
+    final checkSquare = widget.data.isCheck ? _getKingSquare() : null;
     final Widget board = Stack(
       children: [
         if (widget.settings.enableCoordinates)
@@ -150,6 +151,14 @@ class _BoardState extends State<Board> {
               color: colorScheme.validPremoves,
               occupied: pieces.containsKey(dest),
             ),
+          ),
+        if (checkSquare != null)
+          PositionedSquare(
+            key: ValueKey('$checkSquare-check'),
+            size: widget.squareSize,
+            orientation: widget.data.orientation,
+            squareId: checkSquare,
+            child: CheckHighlight(size: widget.squareSize),
           ),
         for (final entry in fadingPieces.entries)
           PositionedSquare(
@@ -337,6 +346,16 @@ class _BoardState extends State<Board> {
     }
     _lastDrop = null;
     pieces = newPieces;
+  }
+
+  SquareId? _getKingSquare() {
+    for (final square in pieces.keys) {
+      if (pieces[square]!.color == widget.data.sideToMove &&
+          pieces[square]!.role == Role.king) {
+        return square;
+      }
+    }
+    return null;
   }
 
   // returns the position of the square target during drag as a global offset

@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
 class Highlight extends StatelessWidget {
@@ -16,6 +17,38 @@ class Highlight extends StatelessWidget {
       width: size,
       height: size,
       color: color,
+    );
+  }
+}
+
+class CheckHighlight extends StatelessWidget {
+  const CheckHighlight({super.key, required this.size});
+
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox.square(
+      dimension: size,
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(size),
+          border: Border.all(
+            color: const Color(0x40FF0000),
+            width: size,
+          ),
+          gradient: const RadialGradient(
+            radius: 0.6,
+            colors: [
+              Color(0xFFFF0000),
+              Color(0xFFE70000),
+              Color(0x00A90000),
+              Color(0x009E0000),
+            ],
+            stops: [0.0, 0.25, 0.90, 1.0],
+          ),
+        ),
+      ),
     );
   }
 }
