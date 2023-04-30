@@ -89,6 +89,7 @@ class _ArrowPainter extends CustomPainter {
   @override
   bool shouldRepaint(_ArrowPainter oldDelegate) {
     return color != oldDelegate.color ||
+        orientation != oldDelegate.orientation ||
         fromCoord != oldDelegate.fromCoord ||
         toCoord != oldDelegate.toCoord;
   }

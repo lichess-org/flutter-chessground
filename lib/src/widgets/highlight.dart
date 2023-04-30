@@ -67,21 +67,11 @@ class MoveDest extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox.square(
-      dimension: size,
-      child: occupied
-          ? Container(
-              width: size,
-              height: size,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(size / 3),
-                border: Border.all(
-                  color: color,
-                  width: size / 12,
-                ),
-              ),
-            )
-          : Padding(
+    return occupied
+        ? OccupiedMoveDest(color: color, size: size)
+        : SizedBox.square(
+            dimension: size,
+            child: Padding(
               padding: EdgeInsets.all(size / 3),
               child: Container(
                 decoration: BoxDecoration(
@@ -90,6 +80,54 @@ class MoveDest extends StatelessWidget {
                 ),
               ),
             ),
+          );
+  }
+}
+
+class OccupiedMoveDest extends StatelessWidget {
+  const OccupiedMoveDest({
+    super.key,
+    required this.color,
+    required this.size,
+  });
+
+  final Color color;
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox.square(
+      dimension: size,
+      child: CustomPaint(
+        painter: _OccupiedMoveDestPainter(color),
+      ),
     );
+  }
+}
+
+class _OccupiedMoveDestPainter extends CustomPainter {
+  _OccupiedMoveDestPainter(this.color);
+
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..strokeWidth = size.width / 5
+      ..style = PaintingStyle.stroke;
+
+    canvas.clipRect(Rect.fromLTWH(0, 0, size.width, size.height));
+
+    canvas.drawCircle(
+      Offset(size.width / 2, size.height / 2),
+      size.width - (size.width / 3),
+      paint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(_OccupiedMoveDestPainter oldDelegate) {
+    return color != oldDelegate.color;
   }
 }
