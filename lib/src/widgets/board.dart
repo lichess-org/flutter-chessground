@@ -382,8 +382,10 @@ class _BoardState extends State<Board> {
     if (squareId == null) return;
 
     if (_shouldDeselect(squareId)) {
-      selected = null;
-      _premoveDests = null;
+      setState(() {
+        selected = null;
+        _premoveDests = null;
+      });
     } else if (_shouldSelect(squareId)) {
       setState(() {
         selected = squareId;
