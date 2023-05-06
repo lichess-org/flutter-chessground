@@ -47,11 +47,11 @@ void main() {
       expect(find.byKey(const Key('a2-selected')), findsOneWidget);
       expect(find.byType(MoveDest), findsNWidgets(2));
 
-      // selecting same keeps it selected
+      // selecting same deselects
       await tester.tap(find.byKey(const Key('a2-whitePawn')));
       await tester.pump();
-      expect(find.byKey(const Key('a2-selected')), findsOneWidget);
-      expect(find.byType(MoveDest), findsNWidgets(2));
+      expect(find.byKey(const Key('a2-selected')), findsNothing);
+      expect(find.byType(MoveDest), findsNothing);
 
       // selecting another square
       await tester.tap(find.byKey(const Key('a1-whiteRook')));
