@@ -14,6 +14,7 @@ class BoardColorScheme {
     required this.whiteCoordBackground,
     required this.blackCoordBackground,
     required this.lastMove,
+    required this.lastMoveDestination,
     required this.selected,
     required this.validMoves,
     required this.validPremoves,
@@ -36,11 +37,14 @@ class BoardColorScheme {
   /// facing coordinates included
   final Background blackCoordBackground;
 
-  /// Color of highlighted last move
-  final Color lastMove;
+  /// Color of highlighted last move that piece moved from
+  final HighlightDetails lastMove;
+
+  /// Color of highlighted last move that piece moved to
+  final HighlightDetails lastMoveDestination;
 
   /// Color of highlighted selected square
-  final Color selected;
+  final HighlightDetails selected;
 
   /// Color of squares occupied with valid moves dots
   final Color validMoves;
@@ -66,8 +70,9 @@ class BoardColorScheme {
       coordinates: true,
       orientation: Side.black,
     ),
-    lastMove: Color(0x809cc700),
-    selected: Color(0x6014551e),
+    lastMove: HighlightDetails(solidColor: Color(0x809cc700)),
+    lastMoveDestination: HighlightDetails(solidColor: Color(0x809cc700)),
+    selected: HighlightDetails(solidColor: Color(0x6014551e)),
     validMoves: Color(0x4014551e),
     validPremoves: Color(0x40203085),
   );
@@ -90,8 +95,9 @@ class BoardColorScheme {
       coordinates: true,
       orientation: Side.black,
     ),
-    lastMove: Color(0x809bc700),
-    selected: Color(0x6014551e),
+    lastMove: HighlightDetails(solidColor: Color(0x809bc700)),
+    lastMoveDestination: HighlightDetails(solidColor: Color(0x809bc700)),
+    selected: HighlightDetails(solidColor: Color(0x6014551e)),
     validMoves: Color(0x4014551e),
     validPremoves: Color(0x40203085),
   );
@@ -114,8 +120,9 @@ class BoardColorScheme {
       coordinates: true,
       orientation: Side.black,
     ),
-    lastMove: Color.fromRGBO(0, 155, 199, 0.41),
-    selected: Color.fromRGBO(216, 85, 0, 0.3),
+    lastMove: HighlightDetails(solidColor: Color.fromRGBO(0, 155, 199, 0.41)),
+    lastMoveDestination: HighlightDetails(solidColor: Color.fromRGBO(0, 155, 199, 0.41)),
+    selected: HighlightDetails(solidColor: Color.fromRGBO(216, 85, 0, 0.3)),
     validMoves: Color.fromRGBO(0, 0, 0, 0.20),
     validPremoves: Color(0x40203085),
   );
@@ -141,8 +148,9 @@ class BoardColorScheme {
       coordinates: true,
       orientation: Side.black,
     ),
-    lastMove: Color(0x809cc700),
-    selected: Color(0x6014551e),
+    lastMove: HighlightDetails(solidColor: Color(0x809cc700)),
+    lastMoveDestination: HighlightDetails(solidColor: Color(0x809cc700)),
+    selected: HighlightDetails(solidColor: Color(0x6014551e)),
     validMoves: Color(0x4014551e),
     validPremoves: Color(0x40203085),
   );
@@ -168,8 +176,9 @@ class BoardColorScheme {
       coordinates: true,
       orientation: Side.black,
     ),
-    lastMove: Color(0x809cc700),
-    selected: Color(0x6014551e),
+    lastMove: HighlightDetails(solidColor: Color(0x809cc700)),
+    lastMoveDestination: HighlightDetails(solidColor: Color(0x809cc700)),
+    selected: HighlightDetails(solidColor: Color(0x6014551e)),
     validMoves: Color(0x4014551e),
     validPremoves: Color(0x40203085),
   );
@@ -195,8 +204,9 @@ class BoardColorScheme {
       coordinates: true,
       orientation: Side.black,
     ),
-    lastMove: Color(0x809cc700),
-    selected: Color(0x6014551e),
+    lastMove: HighlightDetails(solidColor: Color(0x809cc700)),
+    lastMoveDestination: HighlightDetails(solidColor: Color(0x809cc700)),
+    selected: HighlightDetails(solidColor: Color(0x6014551e)),
     validMoves: Color(0x4014551e),
     validPremoves: Color(0x40203085),
   );
@@ -222,8 +232,9 @@ class BoardColorScheme {
       coordinates: true,
       orientation: Side.black,
     ),
-    lastMove: Color(0x809cc700),
-    selected: Color(0x6014551e),
+    lastMove: HighlightDetails(solidColor: Color(0x809cc700)),
+    lastMoveDestination: HighlightDetails(solidColor: Color(0x809cc700)),
+    selected: HighlightDetails(solidColor: Color(0x6014551e)),
     validMoves: Color(0x4014551e),
     validPremoves: Color(0x40203085),
   );
@@ -249,8 +260,9 @@ class BoardColorScheme {
       coordinates: true,
       orientation: Side.black,
     ),
-    lastMove: Color.fromRGBO(0, 155, 199, 0.41),
-    selected: Color.fromRGBO(216, 85, 0, 0.3),
+    lastMove: HighlightDetails(solidColor: Color.fromRGBO(0, 155, 199, 0.41)),
+    lastMoveDestination: HighlightDetails(solidColor: Color.fromRGBO(0, 155, 199, 0.41)),
+    selected: HighlightDetails(solidColor: Color.fromRGBO(216, 85, 0, 0.3)),
     validMoves: Color(0x4014551e),
     validPremoves: Color(0x40203085),
   );
@@ -258,7 +270,8 @@ class BoardColorScheme {
   static const grey = BoardColorScheme(
     lightSquare: Color(0xffb8b8b8),
     darkSquare: Color(0xff7d7d7d),
-    lastMove: Color(0x809cc700),
+    lastMove: HighlightDetails(solidColor: Color(0x809cc700)),
+    lastMoveDestination: HighlightDetails(solidColor: Color(0x809cc700)),
     background: ImageBackground(
       lightSquare: Color(0xffb8b8b8),
       darkSquare: Color(0xff7d7d7d),
@@ -277,7 +290,7 @@ class BoardColorScheme {
       coordinates: true,
       orientation: Side.black,
     ),
-    selected: Color(0x6014551e),
+    selected: HighlightDetails(solidColor: Color(0x6014551e)),
     validMoves: Color(0x4014551e),
     validPremoves: Color(0x40203085),
   );
@@ -303,8 +316,9 @@ class BoardColorScheme {
       coordinates: true,
       orientation: Side.black,
     ),
-    lastMove: Color(0x809cc700),
-    selected: Color(0x6014551e),
+    lastMove: HighlightDetails(image: AssetImage('lib/boards/horsey.last-move.png', package: 'chessground')),
+    lastMoveDestination: HighlightDetails(image: AssetImage('lib/boards/horsey.move-dest.png', package: 'chessground')),
+    selected: HighlightDetails(image: AssetImage('lib/boards/horsey.selected.png', package: 'chessground')),
     validMoves: Color(0x4014551e),
     validPremoves: Color(0x40203085),
   );
@@ -330,8 +344,9 @@ class BoardColorScheme {
       coordinates: true,
       orientation: Side.black,
     ),
-    lastMove: Color(0x809cc700),
-    selected: Color(0x6014551e),
+    lastMove: HighlightDetails(solidColor: Color(0x809cc700)),
+    lastMoveDestination: HighlightDetails(solidColor: Color(0x809cc700)),
+    selected: HighlightDetails(solidColor: Color(0x6014551e)),
     validMoves: Color(0x4014551e),
     validPremoves: Color(0x40203085),
   );
@@ -357,8 +372,9 @@ class BoardColorScheme {
       coordinates: true,
       orientation: Side.black,
     ),
-    lastMove: Color(0x809cc700),
-    selected: Color(0x6014551e),
+    lastMove: HighlightDetails(solidColor: Color(0x809cc700)),
+    lastMoveDestination: HighlightDetails(solidColor: Color(0x809cc700)),
+    selected: HighlightDetails(solidColor: Color(0x6014551e)),
     validMoves: Color(0x4014551e),
     validPremoves: Color(0x40203085),
   );
@@ -384,8 +400,9 @@ class BoardColorScheme {
       coordinates: true,
       orientation: Side.black,
     ),
-    lastMove: Color(0x809cc700),
-    selected: Color(0x6014551e),
+    lastMove: HighlightDetails(solidColor: Color(0x809cc700)),
+    lastMoveDestination: HighlightDetails(solidColor: Color(0x809cc700)),
+    selected: HighlightDetails(solidColor: Color(0x6014551e)),
     validMoves: Color(0x4014551e),
     validPremoves: Color(0x40203085),
   );
@@ -411,8 +428,9 @@ class BoardColorScheme {
       coordinates: true,
       orientation: Side.black,
     ),
-    lastMove: Color.fromRGBO(0, 155, 199, 0.41),
-    selected: Color.fromRGBO(216, 85, 0, 0.3),
+    lastMove: HighlightDetails(solidColor: Color.fromRGBO(0, 155, 199, 0.41)),
+    lastMoveDestination: HighlightDetails(solidColor: Color.fromRGBO(0, 155, 199, 0.41)),
+    selected: HighlightDetails(solidColor: Color.fromRGBO(216, 85, 0, 0.3)),
     validMoves: Color(0x4014551e),
     validPremoves: Color(0x40203085),
   );
@@ -438,8 +456,9 @@ class BoardColorScheme {
       coordinates: true,
       orientation: Side.black,
     ),
-    lastMove: Color(0x809cc700),
-    selected: Color(0x6014551e),
+    lastMove: HighlightDetails(solidColor: Color(0x809cc700)),
+    lastMoveDestination: HighlightDetails(solidColor: Color(0x809cc700)),
+    selected: HighlightDetails(solidColor: Color(0x6014551e)),
     validMoves: Color(0x4014551e),
     validPremoves: Color(0x40203085),
   );
@@ -465,8 +484,9 @@ class BoardColorScheme {
       coordinates: true,
       orientation: Side.black,
     ),
-    lastMove: Color(0x809cc700),
-    selected: Color(0x6014551e),
+    lastMove: HighlightDetails(solidColor: Color(0x809cc700)),
+    lastMoveDestination: HighlightDetails(solidColor: Color(0x809cc700)),
+    selected: HighlightDetails(solidColor: Color(0x6014551e)),
     validMoves: Color(0x4014551e),
     validPremoves: Color(0x40203085),
   );
@@ -492,8 +512,9 @@ class BoardColorScheme {
       coordinates: true,
       orientation: Side.black,
     ),
-    lastMove: Color(0x809cc700),
-    selected: Color(0x6014551e),
+    lastMove: HighlightDetails(solidColor: Color(0x809cc700)),
+    lastMoveDestination: HighlightDetails(solidColor: Color(0x809cc700)),
+    selected: HighlightDetails(solidColor: Color(0x6014551e)),
     validMoves: Color(0x4014551e),
     validPremoves: Color(0x40203085),
   );
@@ -519,8 +540,9 @@ class BoardColorScheme {
       coordinates: true,
       orientation: Side.black,
     ),
-    lastMove: Color(0x809cc700),
-    selected: Color(0x6014551e),
+    lastMove: HighlightDetails(solidColor: Color(0x809cc700)),
+    lastMoveDestination: HighlightDetails(solidColor: Color(0x809cc700)),
+    selected: HighlightDetails(solidColor: Color(0x6014551e)),
     validMoves: Color(0x4014551e),
     validPremoves: Color(0x40203085),
   );
@@ -546,8 +568,9 @@ class BoardColorScheme {
       coordinates: true,
       orientation: Side.black,
     ),
-    lastMove: Color(0x809cc700),
-    selected: Color(0x6014551e),
+    lastMove: HighlightDetails(solidColor: Color(0x809cc700)),
+    lastMoveDestination: HighlightDetails(solidColor: Color(0x809cc700)),
+    selected: HighlightDetails(solidColor: Color(0x6014551e)),
     validMoves: Color(0x4014551e),
     validPremoves: Color(0x40203085),
   );
@@ -573,8 +596,9 @@ class BoardColorScheme {
       coordinates: true,
       orientation: Side.black,
     ),
-    lastMove: Color(0x809cc700),
-    selected: Color(0x6014551e),
+    lastMove: HighlightDetails(solidColor: Color(0x809cc700)),
+    lastMoveDestination: HighlightDetails(solidColor: Color(0x809cc700)),
+    selected: HighlightDetails(solidColor: Color(0x6014551e)),
     validMoves: Color(0x4014551e),
     validPremoves: Color(0x40203085),
   );
@@ -600,8 +624,9 @@ class BoardColorScheme {
       coordinates: true,
       orientation: Side.black,
     ),
-    lastMove: Color(0x809cc700),
-    selected: Color(0x6014551e),
+    lastMove: HighlightDetails(solidColor: Color(0x809cc700)),
+    lastMoveDestination: HighlightDetails(solidColor: Color(0x809cc700)),
+    selected: HighlightDetails(solidColor: Color(0x6014551e)),
     validMoves: Color(0x4014551e),
     validPremoves: Color(0x40203085),
   );
@@ -627,8 +652,9 @@ class BoardColorScheme {
       coordinates: true,
       orientation: Side.black,
     ),
-    lastMove: Color(0x809cc700),
-    selected: Color(0x6014551e),
+    lastMove: HighlightDetails(solidColor: Color(0x809cc700)),
+    lastMoveDestination: HighlightDetails(solidColor: Color(0x809cc700)),
+    selected: HighlightDetails(solidColor: Color(0x6014551e)),
     validMoves: Color(0x4014551e),
     validPremoves: Color(0x40203085),
   );
@@ -654,9 +680,20 @@ class BoardColorScheme {
       coordinates: true,
       orientation: Side.black,
     ),
-    lastMove: Color(0x809cc700),
-    selected: Color(0x6014551e),
+    lastMove: HighlightDetails(solidColor: Color(0x809cc700)),
+    lastMoveDestination: HighlightDetails(solidColor: Color(0x809cc700)),
+    selected: HighlightDetails(solidColor: Color(0x6014551e)),
     validMoves: Color(0x4014551e),
     validPremoves: Color(0x40203085),
   );
+}
+
+class HighlightDetails {
+  const HighlightDetails({
+    this.solidColor,
+    this.image,
+  });
+
+  final Color? solidColor;
+  final AssetImage? image;
 }

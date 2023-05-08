@@ -1,3 +1,4 @@
+import 'package:chessground/chessground.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter/gestures.dart';
 import 'package:tuple/tuple.dart';
@@ -93,18 +94,28 @@ class _BoardState extends State<Board> {
               : colorScheme.blackCoordBackground
         else
           colorScheme.background,
-        if (widget.settings.showLastMove && widget.data.lastMove != null)
-          for (final squareId in widget.data.lastMove!.squares)
-            PositionedSquare(
-              key: ValueKey('$squareId-lastMove'),
+        if (widget.settings.showLastMove && widget.data.lastMove?.from != null)
+          PositionedSquare(
+            key: ValueKey('${widget.data.lastMove!.from}-lastMove'),
+            size: widget.squareSize,
+            orientation: widget.data.orientation,
+            squareId: widget.data.lastMove!.from,
+            child: Highlight(
               size: widget.squareSize,
-              orientation: widget.data.orientation,
-              squareId: squareId,
-              child: Highlight(
-                size: widget.squareSize,
-                color: colorScheme.lastMove,
-              ),
+              details: colorScheme.lastMove,
             ),
+          ),
+        if (widget.settings.showLastMove && widget.data.lastMove?.to != null)
+          PositionedSquare(
+            key: ValueKey('${widget.data.lastMove!.to}-lastMove'),
+            size: widget.squareSize,
+            orientation: widget.data.orientation,
+            squareId: widget.data.lastMove!.to,
+            child: Highlight(
+              size: widget.squareSize,
+              details: colorScheme.lastMoveDestination,
+            ),
+          ),
         if (_premove != null)
           for (final squareId in _premove!.squares)
             PositionedSquare(
@@ -114,7 +125,7 @@ class _BoardState extends State<Board> {
               squareId: squareId,
               child: Highlight(
                 size: widget.squareSize,
-                color: colorScheme.validPremoves,
+                details: HighlightDetails(solidColor: colorScheme.validPremoves),
               ),
             ),
         if (selected != null)
@@ -125,7 +136,7 @@ class _BoardState extends State<Board> {
             squareId: selected!,
             child: Highlight(
               size: widget.squareSize,
-              color: colorScheme.selected,
+              details: colorScheme.selected,
             ),
           ),
         for (final dest in moveDests)
