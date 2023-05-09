@@ -665,7 +665,7 @@ class HighlightDetails {
   const HighlightDetails({
     this.solidColor,
     this.image,
-  });
+  }) : assert(solidColor != null || image != null, 'You must provider either `solidColor` or `image`.');
 
   final Color? solidColor;
   final AssetImage? image;
