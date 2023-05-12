@@ -1,22 +1,37 @@
+import 'package:chessground/chessground.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
 class Highlight extends StatelessWidget {
   const Highlight({
     super.key,
-    required this.color,
+    required this.details,
     required this.size,
   });
 
-  final Color color;
+  final HighlightDetails details;
   final double size;
 
   @override
   Widget build(BuildContext context) {
+
+    if (details.image != null) {
+      return Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: details.image!,
+            fit: BoxFit.cover,
+          )
+        ),
+        color: details.solidColor,
+      );
+    }
     return Container(
       width: size,
       height: size,
-      color: color,
+      color: details.solidColor,
     );
   }
 }

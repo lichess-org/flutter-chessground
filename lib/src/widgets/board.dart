@@ -1,3 +1,4 @@
+import 'package:chessground/chessground.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter/gestures.dart';
 import 'package:tuple/tuple.dart';
@@ -102,7 +103,7 @@ class _BoardState extends State<Board> {
               squareId: squareId,
               child: Highlight(
                 size: widget.squareSize,
-                color: colorScheme.lastMove,
+                details: colorScheme.lastMove,
               ),
             ),
         if (_premove != null)
@@ -114,7 +115,7 @@ class _BoardState extends State<Board> {
               squareId: squareId,
               child: Highlight(
                 size: widget.squareSize,
-                color: colorScheme.validPremoves,
+                details: HighlightDetails(solidColor: colorScheme.validPremoves),
               ),
             ),
         if (selected != null)
@@ -125,7 +126,7 @@ class _BoardState extends State<Board> {
             squareId: selected!,
             child: Highlight(
               size: widget.squareSize,
-              color: colorScheme.selected,
+              details: colorScheme.selected,
             ),
           ),
         for (final dest in moveDests)
