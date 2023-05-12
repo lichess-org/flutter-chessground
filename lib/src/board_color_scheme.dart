@@ -303,8 +303,18 @@ class BoardColorScheme {
       coordinates: true,
       orientation: Side.black,
     ),
-    lastMove: HighlightDetails(image: AssetImage('lib/boards/horsey.last-move.png', package: 'chessground')),
-    selected: HighlightDetails(image: AssetImage('lib/boards/horsey.selected.png', package: 'chessground')),
+    lastMove: HighlightDetails(
+      image: AssetImage(
+        'lib/boards/horsey.last-move.png',
+        package: 'chessground',
+      ),
+    ),
+    selected: HighlightDetails(
+      image: AssetImage(
+        'lib/boards/horsey.selected.png',
+        package: 'chessground',
+      ),
+    ),
     validMoves: Color(0x4014551e),
     validPremoves: Color(0x40203085),
   );
@@ -659,14 +669,4 @@ class BoardColorScheme {
     validMoves: Color(0x4014551e),
     validPremoves: Color(0x40203085),
   );
-}
-
-class HighlightDetails {
-  const HighlightDetails({
-    this.solidColor,
-    this.image,
-  }) : assert(solidColor != null || image != null, 'You must provider either `solidColor` or `image`.');
-
-  final Color? solidColor;
-  final AssetImage? image;
 }

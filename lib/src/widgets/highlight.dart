@@ -1,6 +1,6 @@
-import 'package:chessground/chessground.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import '../models.dart';
 
 class Highlight extends StatelessWidget {
   const Highlight({
@@ -23,7 +23,7 @@ class Highlight extends StatelessWidget {
           image: DecorationImage(
             image: details.image!,
             fit: BoxFit.cover,
-          )
+          ),
         ),
         color: details.solidColor,
       );

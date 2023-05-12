@@ -1,3 +1,6 @@
+/// Chessboard package developed for lichess.org.
+///
+/// It doesn't handle chess logic so you can use it for any chess variant.
 library chessground;
 
 export 'src/board_color_scheme.dart';

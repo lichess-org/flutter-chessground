@@ -82,6 +82,20 @@ final List<Coord> allCoords = List.unmodifiable([
     for (final r in ranks) Coord.fromSquareId('$f$r')
 ]);
 
+/// Square highlight color or image
+class HighlightDetails {
+  const HighlightDetails({
+    this.solidColor,
+    this.image,
+  }) : assert(
+          solidColor != null || image != null,
+          'You must provide either `solidColor` or `image`.',
+        );
+
+  final Color? solidColor;
+  final AssetImage? image;
+}
+
 /// Zero-based numeric board coordinates
 ///
 /// For instance a1 is (0, 0), a2 is (0, 1), etc.
