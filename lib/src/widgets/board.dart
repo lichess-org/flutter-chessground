@@ -1,8 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter/gestures.dart';
-import 'package:tuple/tuple.dart';
-import 'package:fast_immutable_collections/fast_immutable_collections.dart'
-    hide Tuple2;
+import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'piece.dart';
 import 'highlight.dart';
 import 'positioned_square.dart';
@@ -63,7 +61,7 @@ class Board extends StatefulWidget {
 
 class _BoardState extends State<Board> {
   Pieces pieces = {};
-  Map<String, Tuple2<PositionedPiece, PositionedPiece>> translatingPieces = {};
+  Map<String, (PositionedPiece, PositionedPiece)> translatingPieces = {};
   Map<String, Piece> fadingPieces = {};
   SquareId? selected;
   Move? _promotionMove;
@@ -193,20 +191,20 @@ class _BoardState extends State<Board> {
             ),
         for (final entry in translatingPieces.entries)
           PositionedSquare(
-            key: ValueKey('${entry.key}-${entry.value.item1.piece.kind.name}'),
+            key: ValueKey('${entry.key}-${entry.value.$1.piece.kind.name}'),
             size: widget.squareSize,
             orientation: widget.data.orientation,
             squareId: entry.key,
             child: PieceTranslation(
-              fromCoord: entry.value.item1.coord,
-              toCoord: entry.value.item2.coord,
+              fromCoord: entry.value.$1.coord,
+              toCoord: entry.value.$2.coord,
               orientation: widget.data.orientation,
               duration: widget.settings.animationDuration,
               onComplete: () {
                 translatingPieces.remove(entry.key);
               },
               child: PieceWidget(
-                piece: entry.value.item1.piece,
+                piece: entry.value.$1.piece,
                 size: widget.squareSize,
                 pieceAssets: widget.settings.pieceAssets,
               ),
@@ -335,8 +333,7 @@ class _BoardState extends State<Board> {
         missingOnSquare.where((m) => m.piece == newPiece.piece).toList(),
       );
       if (fromP != null) {
-        final t = Tuple2<PositionedPiece, PositionedPiece>(fromP, newPiece);
-        translatingPieces[newPiece.squareId] = t;
+        translatingPieces[newPiece.squareId] = (fromP, newPiece);
         animatedOrigins.add(fromP.squareId);
       }
     }

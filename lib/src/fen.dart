@@ -14,14 +14,12 @@ Pieces readFen(String fen) {
         --row;
         if (row < 0) return pieces;
         col = 0;
-        break;
       case '~':
         final sid = Coord(x: col - 1, y: row).squareId;
         final piece = pieces[sid];
         if (piece != null) {
           pieces[sid] = piece.copyWith(promoted: true);
         }
-        break;
       default:
         final code = c.codeUnitAt(0);
         if (code < 57) {
