@@ -295,7 +295,7 @@ class _BoardState extends State<Board> {
   }
 
   void _clearAndroidGesturesExclusion() {
-    AndroidGestureExclusion.instance.setRects([]);
+    AndroidGestureExclusion.instance.clear();
   }
 
   @override
@@ -308,6 +308,14 @@ class _BoardState extends State<Board> {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _setAndroidGesturesExclusion(context);
       });
+    }
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    if (defaultTargetPlatform == TargetPlatform.android) {
+      _clearAndroidGesturesExclusion();
     }
   }
 
@@ -380,13 +388,12 @@ class _BoardState extends State<Board> {
     pieces = newPieces;
 
     if (defaultTargetPlatform == TargetPlatform.android) {
-      if (oldBoard.data.interactableSide != widget.data.interactableSide &&
+      if (oldBoard.data.interactableSide == InteractableSide.none &&
           widget.data.interactableSide != InteractableSide.none) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           _setAndroidGesturesExclusion(context);
         });
-      } else if (oldBoard.data.interactableSide !=
-              widget.data.interactableSide &&
+      } else if (oldBoard.data.interactableSide != InteractableSide.none &&
           widget.data.interactableSide == InteractableSide.none) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           _clearAndroidGesturesExclusion();
