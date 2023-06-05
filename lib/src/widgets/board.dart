@@ -1,6 +1,9 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter/gestures.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
+import 'package:android_gesture_exclusion/android_gesture_exclusion.dart';
+
 import 'piece.dart';
 import 'highlight.dart';
 import 'positioned_square.dart';
@@ -271,10 +274,41 @@ class _BoardState extends State<Board> {
     );
   }
 
+  void _setAndroidGesturesExclusion(BuildContext context) {
+    final box = context.findRenderObject();
+    if (box != null && box is RenderBox) {
+      final position = box.localToGlobal(Offset.zero);
+      final ratio = MediaQuery.of(context).devicePixelRatio;
+      final verticalThreshold = 10 * ratio;
+      final left = position.dx * ratio;
+      final top = position.dy * ratio;
+      final right = left + box.size.width * ratio;
+      final bottom = top + box.size.height * ratio;
+      final rect = Rect.fromLTRB(
+        left,
+        top - verticalThreshold,
+        right,
+        bottom + verticalThreshold,
+      );
+      AndroidGestureExclusion.instance.setRects([rect]);
+    }
+  }
+
+  void _clearAndroidGesturesExclusion() {
+    AndroidGestureExclusion.instance.setRects([]);
+  }
+
   @override
   void initState() {
     super.initState();
     pieces = readFen(widget.data.fen);
+
+    if (defaultTargetPlatform == TargetPlatform.android &&
+        widget.data.interactableSide != InteractableSide.none) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _setAndroidGesturesExclusion(context);
+      });
+    }
   }
 
   @override
@@ -344,6 +378,21 @@ class _BoardState extends State<Board> {
     }
     _lastDrop = null;
     pieces = newPieces;
+
+    if (defaultTargetPlatform == TargetPlatform.android) {
+      if (oldBoard.data.interactableSide != widget.data.interactableSide &&
+          widget.data.interactableSide != InteractableSide.none) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _setAndroidGesturesExclusion(context);
+        });
+      } else if (oldBoard.data.interactableSide !=
+              widget.data.interactableSide &&
+          widget.data.interactableSide == InteractableSide.none) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _clearAndroidGesturesExclusion();
+        });
+      }
+    }
   }
 
   SquareId? _getKingSquare() {

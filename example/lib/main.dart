@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:chessground/chessground.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart'
@@ -44,6 +45,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Side sideToMove = Side.white;
   PieceSet pieceSet = PieceSet.merida;
   BoardTheme boardTheme = BoardTheme.blue;
+  bool immersiveMode = false;
 
   @override
   Widget build(BuildContext context) {
@@ -78,7 +80,24 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ),
             Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
+                ElevatedButton(
+                  child:
+                      Text('Immersive mode: ${immersiveMode ? 'ON' : 'OFF'}'),
+                  onPressed: () {
+                    setState(() {
+                      immersiveMode = !immersiveMode;
+                    });
+                    if (immersiveMode) {
+                      SystemChrome.setEnabledSystemUIMode(
+                          SystemUiMode.immersiveSticky);
+                    } else {
+                      SystemChrome.setEnabledSystemUIMode(
+                          SystemUiMode.edgeToEdge);
+                    }
+                  },
+                ),
                 ElevatedButton(
                   child: Text('Orientation: ${orientation.name}'),
                   onPressed: () {
@@ -87,37 +106,44 @@ class _MyHomePageState extends State<MyHomePage> {
                     });
                   },
                 ),
-                ElevatedButton(
-                  child: Text('Piece set: ${pieceSet.label}'),
-                  onPressed: () => _showChoicesPicker<PieceSet>(
-                    context,
-                    choices: PieceSet.values,
-                    selectedItem: pieceSet,
-                    labelBuilder: (t) => Text(t.label),
-                    onSelectedItemChanged: (PieceSet? value) {
-                      setState(() {
-                        if (value != null) {
-                          pieceSet = value;
-                        }
-                      });
-                    },
-                  ),
-                ),
-                ElevatedButton(
-                  child: Text('Board theme: ${boardTheme.label}'),
-                  onPressed: () => _showChoicesPicker<BoardTheme>(
-                    context,
-                    choices: BoardTheme.values,
-                    selectedItem: boardTheme,
-                    labelBuilder: (t) => Text(t.label),
-                    onSelectedItemChanged: (BoardTheme? value) {
-                      setState(() {
-                        if (value != null) {
-                          boardTheme = value;
-                        }
-                      });
-                    },
-                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    ElevatedButton(
+                      child: Text('Piece set: ${pieceSet.label}'),
+                      onPressed: () => _showChoicesPicker<PieceSet>(
+                        context,
+                        choices: PieceSet.values,
+                        selectedItem: pieceSet,
+                        labelBuilder: (t) => Text(t.label),
+                        onSelectedItemChanged: (PieceSet? value) {
+                          setState(() {
+                            if (value != null) {
+                              pieceSet = value;
+                            }
+                          });
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    ElevatedButton(
+                      child: Text('Board theme: ${boardTheme.label}'),
+                      onPressed: () => _showChoicesPicker<BoardTheme>(
+                        context,
+                        choices: BoardTheme.values,
+                        selectedItem: boardTheme,
+                        labelBuilder: (t) => Text(t.label),
+                        onSelectedItemChanged: (BoardTheme? value) {
+                          setState(() {
+                            if (value != null) {
+                              boardTheme = value;
+                            }
+                          });
+                        },
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
