@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter/widgets.dart';
 import '../models.dart';
 
@@ -29,13 +30,24 @@ class PieceWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Image(
-      image: pieceAssets[piece.kind]!,
+    final asset = pieceAssets[piece.kind]!;
+    final deviceRatio = MediaQuery.devicePixelRatioOf(context);
+    // the ratio is defined by the resolution aware image assets defined in
+    // lib/piece_sets/
+    // that's why 4 is the maximum ratio
+    final ratio = math.min(deviceRatio.ceilToDouble(), 4.0);
+    final cacheSize = (size * ratio).toInt();
+    return Image.asset(
+      asset.assetName,
+      bundle: asset.bundle,
+      package: asset.package,
       color: Color.fromRGBO(255, 255, 255, opacity),
       colorBlendMode: BlendMode.modulate,
       opacity: animatedOpacity,
       width: size,
       height: size,
+      cacheWidth: cacheSize,
+      cacheHeight: cacheSize,
     );
   }
 }

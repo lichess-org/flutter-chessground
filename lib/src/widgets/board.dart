@@ -278,7 +278,7 @@ class _BoardState extends State<Board> {
     final box = context.findRenderObject();
     if (box != null && box is RenderBox) {
       final position = box.localToGlobal(Offset.zero);
-      final ratio = MediaQuery.of(context).devicePixelRatio;
+      final ratio = MediaQuery.devicePixelRatioOf(context);
       final verticalThreshold = 10 * ratio;
       final left = position.dx * ratio;
       final top = position.dy * ratio;
