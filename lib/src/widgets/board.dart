@@ -67,6 +67,7 @@ class _BoardState extends State<Board> {
   Map<String, (PositionedPiece, PositionedPiece)> translatingPieces = {};
   Map<String, Piece> fadingPieces = {};
   SquareId? selected;
+  bool _shouldDeselectOnTapUp = false;
   Move? _promotionMove;
   Move? _lastDrop;
   Move? _premove;
@@ -437,12 +438,8 @@ class _BoardState extends State<Board> {
     final squareId = widget.localOffset2SquareId(details.localPosition);
     if (squareId == null) return;
 
-    if (_shouldDeselect(squareId)) {
-      setState(() {
-        selected = null;
-        _premoveDests = null;
-      });
-    } else if (_shouldSelect(squareId)) {
+    if (_shouldSelect(squareId)) {
+      _shouldDeselectOnTapUp = selected == squareId;
       setState(() {
         selected = squareId;
       });
@@ -543,6 +540,14 @@ class _BoardState extends State<Board> {
       final squareId = widget.localOffset2SquareId(details.localPosition);
       if (squareId != null && squareId != selected) {
         _tryMoveTo(squareId);
+      } else if (squareId != null &&
+          selected == squareId &&
+          _shouldDeselectOnTapUp) {
+        _shouldDeselectOnTapUp = false;
+        setState(() {
+          selected = null;
+          _premoveDests = null;
+        });
       }
     }
   }
@@ -568,10 +573,6 @@ class _BoardState extends State<Board> {
       pieces[move.to] = pawn!;
       _promotionMove = move;
     });
-  }
-
-  bool _shouldDeselect(SquareId squareId) {
-    return selected == squareId;
   }
 
   bool _shouldSelect(SquareId squareId) {
