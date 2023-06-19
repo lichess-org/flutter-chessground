@@ -314,6 +314,7 @@ class _BoardState extends State<Board> {
   @override
   void dispose() {
     super.dispose();
+    _dragAvatar?.cancel();
     if (defaultTargetPlatform == TargetPlatform.android) {
       _clearAndroidGesturesExclusion();
     }
@@ -336,12 +337,12 @@ class _BoardState extends State<Board> {
       }
     }
     if (widget.data.interactableSide == InteractableSide.none) {
-      selected = null;
-      _premoveDests = null;
-      _premove = null;
       _dragAvatar?.cancel();
       _dragAvatar = null;
       _dragOrigin = null;
+      selected = null;
+      _premoveDests = null;
+      _premove = null;
     }
     if (oldBoard.data.sideToMove != widget.data.sideToMove) {
       _premoveDests = null;
