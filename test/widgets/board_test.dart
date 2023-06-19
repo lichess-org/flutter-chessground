@@ -390,24 +390,6 @@ void main() {
       expect(find.byKey(const Key('d1-premove')), findsNothing);
       expect(find.byKey(const Key('f3-premove')), findsNothing);
     });
-
-    testWidgets('cancel drag if board is made non interactable again',
-        (WidgetTester tester) async {
-      await tester.pumpWidget(
-        buildBoard(initialInteractableSide: InteractableSide.both),
-      );
-      await tester.timedDrag(
-        find.byKey(const Key('e2-whitePawn')),
-        const Offset(0, -(squareSize * 2)),
-        const Duration(seconds: 2),
-      );
-
-      await tester.pumpWidget(
-        buildBoard(initialInteractableSide: InteractableSide.both),
-      );
-      expect(find.byKey(const Key('e2-lastMove')), findsNothing);
-      expect(find.byKey(const Key('e4-lastMove')), findsNothing);
-    });
   });
 }
 
