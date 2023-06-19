@@ -39,8 +39,9 @@ void main() {
   group('Interactable board', () {
     testWidgets('selecting and deselecting a square',
         (WidgetTester tester) async {
-      await tester
-          .pumpWidget(buildBoard(interactableSide: InteractableSide.both));
+      await tester.pumpWidget(
+        buildBoard(initialInteractableSide: InteractableSide.both),
+      );
       await tester.tap(find.byKey(const Key('a2-whitePawn')));
       await tester.pump();
 
@@ -80,8 +81,9 @@ void main() {
     });
 
     testWidgets('play e2-e4 move by tap', (WidgetTester tester) async {
-      await tester
-          .pumpWidget(buildBoard(interactableSide: InteractableSide.both));
+      await tester.pumpWidget(
+        buildBoard(initialInteractableSide: InteractableSide.both),
+      );
       await tester.tap(find.byKey(const Key('e2-whitePawn')));
       await tester.pump();
 
@@ -104,7 +106,7 @@ void main() {
         buildBoard(
           initialFen:
               'r1bqk1nr/pppp1ppp/2n5/2b1p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4',
-          interactableSide: InteractableSide.both,
+          initialInteractableSide: InteractableSide.both,
         ),
       );
       await tester.tap(find.byKey(const Key('e1-whiteKing')));
@@ -120,8 +122,9 @@ void main() {
     });
 
     testWidgets('dragging off target ', (WidgetTester tester) async {
-      await tester
-          .pumpWidget(buildBoard(interactableSide: InteractableSide.both));
+      await tester.pumpWidget(
+        buildBoard(initialInteractableSide: InteractableSide.both),
+      );
 
       await tester.drag(
         find.byKey(const Key('e2-whitePawn')),
@@ -134,8 +137,9 @@ void main() {
     });
 
     testWidgets('e2-e4 drag move', (WidgetTester tester) async {
-      await tester
-          .pumpWidget(buildBoard(interactableSide: InteractableSide.both));
+      await tester.pumpWidget(
+        buildBoard(initialInteractableSide: InteractableSide.both),
+      );
       await tester.drag(
         find.byKey(const Key('e2-whitePawn')),
         const Offset(0, -(squareSize * 2)),
@@ -150,7 +154,7 @@ void main() {
     testWidgets('promotion', (WidgetTester tester) async {
       await tester.pumpWidget(
         buildBoard(
-          interactableSide: InteractableSide.both,
+          initialInteractableSide: InteractableSide.both,
           initialFen: '8/5P2/2RK2P1/8/4k3/8/8/7r w - - 0 1',
         ),
       );
@@ -169,7 +173,7 @@ void main() {
       await tester.pumpWidget(
         buildBoard(
           settings: const BoardSettings(autoQueenPromotion: true),
-          interactableSide: InteractableSide.both,
+          initialInteractableSide: InteractableSide.both,
           initialFen: '8/5P2/2RK2P1/8/4k3/8/8/7r w - - 0 1',
         ),
       );
@@ -188,7 +192,7 @@ void main() {
         buildBoard(
           initialFen:
               'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
-          interactableSide: InteractableSide.white,
+          initialInteractableSide: InteractableSide.white,
         ),
       );
 
@@ -209,7 +213,7 @@ void main() {
         buildBoard(
           initialFen:
               'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
-          interactableSide: InteractableSide.white,
+          initialInteractableSide: InteractableSide.white,
         ),
       );
 
@@ -229,7 +233,7 @@ void main() {
         buildBoard(
           initialFen:
               'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
-          interactableSide: InteractableSide.white,
+          initialInteractableSide: InteractableSide.white,
         ),
       );
 
@@ -259,7 +263,7 @@ void main() {
         buildBoard(
           initialFen:
               'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
-          interactableSide: InteractableSide.white,
+          initialInteractableSide: InteractableSide.white,
         ),
       );
 
@@ -284,7 +288,7 @@ void main() {
         buildBoard(
           initialFen:
               'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
-          interactableSide: InteractableSide.white,
+          initialInteractableSide: InteractableSide.white,
         ),
       );
 
@@ -304,7 +308,7 @@ void main() {
         buildBoard(
           initialFen:
               'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
-          interactableSide: InteractableSide.white,
+          initialInteractableSide: InteractableSide.white,
         ),
       );
 
@@ -318,7 +322,7 @@ void main() {
         buildBoard(
           initialFen:
               'rnbqkbnr/ppp2ppp/3p4/4p3/3PP3/8/PPP2PPP/RNBQKBNR w KQkq - 0 3',
-          interactableSide: InteractableSide.white,
+          initialInteractableSide: InteractableSide.white,
         ),
       );
       await makeMove(tester, 'f1', 'b5');
@@ -330,11 +334,79 @@ void main() {
         buildBoard(
           initialFen:
               'rnbqkbnr/pppp1ppp/8/4p3/3P4/4P3/PPP2PPP/RNBQKBNR b KQkq - 0 2',
-          interactableSide: InteractableSide.black,
+          initialInteractableSide: InteractableSide.black,
         ),
       );
       await makeMove(tester, 'f8', 'b4');
       expect(find.byKey(const Key('e1-check')), findsOneWidget);
+    });
+
+    testWidgets(
+        'cancel piece selection if board is made non interactable again',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(
+        buildBoard(
+          initialFen: dc.kInitialBoardFEN,
+          initialInteractableSide: InteractableSide.white,
+        ),
+      );
+
+      await tester.tapAt(squareOffset('e2'));
+      await tester.pump();
+      expect(find.byKey(const Key('e2-selected')), findsOneWidget);
+
+      await tester.pumpWidget(
+        buildBoard(
+          initialFen: dc.kInitialBoardFEN,
+          initialInteractableSide: InteractableSide.none,
+        ),
+      );
+
+      expect(find.byKey(const Key('e2-selected')), findsNothing);
+    });
+
+    testWidgets('cancel premoves if board is made non interactable again',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(
+        buildBoard(
+          initialFen:
+              'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
+          initialInteractableSide: InteractableSide.white,
+        ),
+      );
+
+      await makeMove(tester, 'd1', 'f3');
+      expect(find.byKey(const Key('d1-premove')), findsOneWidget);
+      expect(find.byKey(const Key('f3-premove')), findsOneWidget);
+
+      await tester.pumpWidget(
+        buildBoard(
+          initialFen:
+              'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
+          initialInteractableSide: InteractableSide.none,
+        ),
+      );
+
+      expect(find.byKey(const Key('d1-premove')), findsNothing);
+      expect(find.byKey(const Key('f3-premove')), findsNothing);
+    });
+
+    testWidgets('cancel drag if board is made non interactable again',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(
+        buildBoard(initialInteractableSide: InteractableSide.both),
+      );
+      await tester.timedDrag(
+        find.byKey(const Key('e2-whitePawn')),
+        const Offset(0, -(squareSize * 2)),
+        const Duration(seconds: 2),
+      );
+
+      await tester.pumpWidget(
+        buildBoard(initialInteractableSide: InteractableSide.both),
+      );
+      expect(find.byKey(const Key('e2-lastMove')), findsNothing);
+      expect(find.byKey(const Key('e4-lastMove')), findsNothing);
     });
   });
 }
@@ -347,11 +419,12 @@ Future<void> makeMove(WidgetTester tester, String from, String to) async {
 }
 
 Widget buildBoard({
-  required InteractableSide interactableSide,
+  required InteractableSide initialInteractableSide,
   BoardSettings? settings,
   Side orientation = Side.white,
   String initialFen = dc.kInitialFEN,
 }) {
+  InteractableSide interactableSide = initialInteractableSide;
   dc.Position<dc.Chess> position =
       dc.Chess.fromSetup(dc.Setup.parseFen(initialFen));
   Move? lastMove;
@@ -374,6 +447,12 @@ Widget buildBoard({
             onMove: (Move move, {bool? isPremove}) {
               setState(() {
                 position = position.playUnchecked(dc.Move.fromUci(move.uci)!);
+                interactableSide = position.turn == dc.Side.white
+                    ? InteractableSide.white
+                    : InteractableSide.black;
+                if (position.isGameOver) {
+                  interactableSide = InteractableSide.none;
+                }
                 lastMove = move;
               });
             },

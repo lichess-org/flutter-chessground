@@ -322,11 +322,26 @@ class _BoardState extends State<Board> {
   @override
   void didUpdateWidget(Board oldBoard) {
     super.didUpdateWidget(oldBoard);
+    if (defaultTargetPlatform == TargetPlatform.android) {
+      if (oldBoard.data.interactableSide == InteractableSide.none &&
+          widget.data.interactableSide != InteractableSide.none) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _setAndroidGesturesExclusion(context);
+        });
+      } else if (oldBoard.data.interactableSide != InteractableSide.none &&
+          widget.data.interactableSide == InteractableSide.none) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _clearAndroidGesturesExclusion();
+        });
+      }
+    }
     if (widget.data.interactableSide == InteractableSide.none) {
-      // remove highlights if board is made not interactable again (like at the end of a game)
       selected = null;
       _premoveDests = null;
       _premove = null;
+      _dragAvatar?.cancel();
+      _dragAvatar = null;
+      _dragOrigin = null;
     }
     if (oldBoard.data.sideToMove != widget.data.sideToMove) {
       _premoveDests = null;
@@ -386,20 +401,6 @@ class _BoardState extends State<Board> {
     }
     _lastDrop = null;
     pieces = newPieces;
-
-    if (defaultTargetPlatform == TargetPlatform.android) {
-      if (oldBoard.data.interactableSide == InteractableSide.none &&
-          widget.data.interactableSide != InteractableSide.none) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          _setAndroidGesturesExclusion(context);
-        });
-      } else if (oldBoard.data.interactableSide != InteractableSide.none &&
-          widget.data.interactableSide == InteractableSide.none) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          _clearAndroidGesturesExclusion();
-        });
-      }
-    }
   }
 
   SquareId? _getKingSquare() {
