@@ -17,7 +17,7 @@ import '../premove.dart';
 import '../board_settings.dart';
 import '../board_data.dart';
 
-/// A chessboard widget
+/// A chessboard widget.
 ///
 /// This widget can be used to display a static board, a dynamic board that
 /// shows a live game, or a full user interactable board.

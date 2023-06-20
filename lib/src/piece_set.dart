@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'models.dart';
 
+/// The chess piece set that will be displayed on the board.
 enum PieceSet {
   cburnett('Colin M.L. Burnett'),
   merida('Merida'),
@@ -39,6 +40,7 @@ enum PieceSet {
 
   const PieceSet(this.label);
 
+  /// The [PieceAssets] for this [PieceSet].
   PieceAssets get assets {
     switch (this) {
       case PieceSet.alpha:

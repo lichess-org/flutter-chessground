@@ -1,5 +1,6 @@
 import './models.dart';
 
+/// Returns the set of squares that the piece on [square] can potentially premove to.
 Set<SquareId> premovesOf(
   SquareId square,
   Pieces pieces, {

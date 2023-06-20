@@ -1,7 +1,7 @@
 import 'package:flutter/widgets.dart';
 import '../models.dart';
 
-/// Board background
+/// Board background.
 abstract class Background extends StatelessWidget {
   const Background({
     super.key,

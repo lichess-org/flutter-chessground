@@ -4,9 +4,9 @@ import 'package:fast_immutable_collections/fast_immutable_collections.dart'
 
 import 'models.dart';
 
-/// Board data
+/// Board data.
 ///
-/// Used to configure the board with state that will/may change during a game
+/// Used to configure the board with state that will/may change during a game.
 @immutable
 class BoardData {
   const BoardData({

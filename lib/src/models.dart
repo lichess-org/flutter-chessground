@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 
+/// The chessboard side, white or black.
 enum Side {
   white,
   black;
@@ -8,10 +9,13 @@ enum Side {
   Side get opposite => this == Side.white ? Side.black : Side.white;
 }
 
+/// The side that can interact with the board.
 enum InteractableSide { both, none, white, black }
 
+/// Piece role, such as pawn, knight, etc.
 enum Role { king, queen, knight, bishop, rook, pawn }
 
+/// Piece kind, such as white pawn, black knight, etc.
 enum PieceKind {
   whitePawn,
   whiteKnight,
@@ -58,31 +62,37 @@ enum PieceKind {
 
 /// Describes a set of piece assets.
 ///
-/// The Map keys must be the concatenation of role and color. Eg: 'blackpawn'.
 /// The [PieceAssets] must be complete with all the pieces for both sides.
 typedef PieceAssets = IMap<PieceKind, AssetImage>;
 
 /// Square identifier using the algebraic coordinate notation such as e2, c3, etc.
 typedef SquareId = String;
 
-/// Representation of the pieces on a board
+/// Representation of the piece positions on a board.
 typedef Pieces = Map<SquareId, Piece>;
 
-/// Sets of each valid destinations for an origin square
+/// Sets of each valid destinations for an origin square.
 typedef ValidMoves = IMap<SquareId, ISet<SquareId>>;
 
+/// Files of the chessboard.
 const files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+
+/// Ranks of the chessboard.
 const ranks = ['1', '2', '3', '4', '5', '6', '7', '8'];
+
+/// All the squares of the chessboard.
 final List<SquareId> allSquares = List.unmodifiable([
   for (final f in files)
     for (final r in ranks) '$f$r'
 ]);
+
+/// All the coordinates of the chessboard.
 final List<Coord> allCoords = List.unmodifiable([
   for (final f in files)
     for (final r in ranks) Coord.fromSquareId('$f$r')
 ]);
 
-/// Square highlight color or image
+/// Square highlight color or image on the chessboard.
 class HighlightDetails {
   const HighlightDetails({
     this.solidColor,
@@ -96,7 +106,7 @@ class HighlightDetails {
   final AssetImage? image;
 }
 
-/// Zero-based numeric board coordinates
+/// Zero-based numeric board coordinate.
 ///
 /// For instance a1 is (0, 0), a2 is (0, 1), etc.
 @immutable
@@ -140,6 +150,9 @@ class Coord {
   int get hashCode => Object.hash(x, y);
 }
 
+/// Describes a chess piece by its role and color.
+///
+/// Can be promoted.
 @immutable
 class Piece {
   const Piece({
@@ -199,6 +212,7 @@ class Piece {
   static const blackKing = Piece(color: Side.black, role: Role.king);
 }
 
+/// A piece and its position on the board.
 @immutable
 class PositionedPiece {
   const PositionedPiece({
@@ -225,6 +239,7 @@ class PositionedPiece {
   }
 }
 
+/// A chess move.
 @immutable
 class Move {
   const Move({
@@ -287,6 +302,7 @@ class Move {
   }
 }
 
+/// A chess move annotation represented by a symbol and a color.
 @immutable
 class Annotation {
   const Annotation({
@@ -335,6 +351,7 @@ Role _toRole(String uciLetter) {
   }
 }
 
+/// Base class for shapes that can be drawn on the board.
 @immutable
 abstract class Shape {
   const Shape({
@@ -346,6 +363,7 @@ abstract class Shape {
   final SquareId orig;
 }
 
+/// An arrow shape that can be drawn on the board.
 @immutable
 class Arrow extends Shape {
   const Arrow({

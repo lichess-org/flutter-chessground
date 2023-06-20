@@ -1,5 +1,6 @@
 import 'board_color_scheme.dart';
 
+/// The chessboard theme.
 enum BoardTheme {
   blue('Blue'),
   blue2('Blue2'),

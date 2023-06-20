@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'models.dart';
 
+/// Parse the board part of a FEN string.
 Pieces readFen(String fen) {
   final Pieces pieces = {};
   int row = 7;
