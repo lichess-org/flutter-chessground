@@ -3,8 +3,8 @@ import 'package:flutter/widgets.dart';
 
 import '../models.dart';
 
-class ArrowWidget extends StatelessWidget {
-  const ArrowWidget({
+class ShapeWidget extends StatelessWidget {
+  const ShapeWidget({
     super.key,
     required this.color,
     required this.size,
@@ -24,11 +24,46 @@ class ArrowWidget extends StatelessWidget {
     return SizedBox.square(
       dimension: size,
       child: CustomPaint(
-        painter: _ArrowPainter(color, orientation, fromCoord, toCoord),
+        painter: fromCoord == toCoord ?
+          _CirclePainter(color, orientation, fromCoord):
+          _ArrowPainter(color, orientation, fromCoord, toCoord),
       ),
     );
   }
 }
+
+class _CirclePainter extends CustomPainter {
+  _CirclePainter(this.color, this.orientation, this.circleCoord);
+  final Color color;
+  final Side orientation;
+  final Coord circleCoord;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final squareSize = size.width / 8;
+    final lineWidth = squareSize / 16;
+    final paint = Paint()
+      ..strokeWidth = lineWidth
+      ..color = color
+      ..style = PaintingStyle.stroke;
+
+    final circle = Path()
+      ..addOval(
+        Rect.fromCircle(
+          center: circleCoord.offset(orientation, squareSize) + Offset(squareSize / 2, squareSize / 2),
+          radius: squareSize / 2 - lineWidth / 2,
+        ),
+      );
+    canvas.drawPath(circle, paint);
+  }
+
+  @override
+  bool shouldRepaint(_CirclePainter oldDelegate) {
+    return color != oldDelegate.color ||
+        orientation != oldDelegate.orientation;
+  }
+}
+
 
 class _ArrowPainter extends CustomPainter {
   _ArrowPainter(this.color, this.orientation, this.fromCoord, this.toCoord);

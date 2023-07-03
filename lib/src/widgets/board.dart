@@ -226,7 +226,7 @@ class _BoardState extends State<Board> {
           ),
         for (final shape in shapes)
           if (shape is Arrow)
-            ArrowWidget(
+            ShapeWidget(
               size: widget.size,
               color: shape.color,
               fromCoord: Coord.fromSquareId(shape.orig),
