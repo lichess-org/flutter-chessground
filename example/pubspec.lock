@@ -77,7 +77,7 @@ packages:
     description:
       path: "."
       ref: main
-      resolved-ref: "0429df6274609db3d32bd324a9b3d6f5c6a8d663"
+      resolved-ref: ae8dc83a40591e45843a79940722ed1d107d3309
       url: "https://github.com/lichess-org/dartchess.git"
     source: git
     version: "0.1.0"
@@ -93,10 +93,10 @@ packages:
     dependency: transitive
     description:
       name: fast_immutable_collections
-      sha256: d1b97845a823572e5390383b93f23b7e8afb87234e03fed4c115a776fc72331f
+      sha256: b4f7d3af6e90a80cf7a3dddd0de3b4a46acb446320795b77b034535c4d267fbe
       url: "https://pub.dev"
     source: hosted
-    version: "9.1.1"
+    version: "9.1.5"
   flutter:
     dependency: "direct main"
     description: flutter
@@ -106,10 +106,10 @@ packages:
     dependency: "direct dev"
     description:
       name: flutter_lints
-      sha256: b543301ad291598523947dc534aaddc5aaad597b709d2426d3a0e0d44c5cb493
+      sha256: "2118df84ef0c3ca93f96123a616ae8540879991b8b57af2f81b76a7ada49b2a4"
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.4"
+    version: "2.0.2"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -127,10 +127,10 @@ packages:
     dependency: transitive
     description:
       name: lints
-      sha256: a2c3d198cb5ea2e179926622d433331d8b58374ab8f29cdda6e863bd62fd369c
+      sha256: "0a217c6c989d21039f1498c3ed9f3ed71b354e69873f13a8dfc3c9fe76f1b452"
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.1"
+    version: "2.1.1"
   matcher:
     dependency: transitive
     description:
