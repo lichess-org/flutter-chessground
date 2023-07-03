@@ -76,11 +76,12 @@ class _ArrowPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final squareSize = size.width / 8;
-    final lineWidth = squareSize / 4;
+    final lineWidth = squareSize / 6.4;
     final paint = Paint()
       ..strokeWidth = lineWidth
       ..color = color
-      ..style = PaintingStyle.stroke;
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round;
 
     final fromOffset = fromCoord.offset(orientation, squareSize);
     final toOffset = toCoord.offset(orientation, squareSize);
