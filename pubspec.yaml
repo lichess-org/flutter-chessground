@@ -26,6 +26,7 @@ flutter:
     - lib/piece_sets/alpha/
     - lib/piece_sets/anarcandy/
     - lib/piece_sets/california/
+    - lib/piece_sets/caliente/
     - lib/piece_sets/cardinal/
     - lib/piece_sets/cburnett/
     - lib/piece_sets/celtic/

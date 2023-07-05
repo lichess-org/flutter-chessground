@@ -18,6 +18,7 @@ enum PieceSet {
   fantasy('Fantasy'),
   spatial('Spatial'),
   celtic('Celtic'),
+  caliente('Caliente'),
   california('California'),
   pixel('Pixel'),
   maestro('Maestro'),
@@ -49,6 +50,8 @@ enum PieceSet {
         return PieceSet.anarcandyAssets;
       case PieceSet.california:
         return PieceSet.californiaAssets;
+      case PieceSet.caliente:
+        return PieceSet.calienteAssets;
       case PieceSet.cardinal:
         return PieceSet.cardinalAssets;
       case PieceSet.cburnett:
@@ -188,6 +191,34 @@ enum PieceSet {
     PieceKind.whiteKing:
         AssetImage('lib/piece_sets/california/wK.png', package: 'chessground'),
   });
+
+  static const PieceAssets calienteAssets = IMapConst({
+    PieceKind.blackRook:
+    AssetImage('lib/piece_sets/caliente/bR.png', package: 'chessground'),
+    PieceKind.blackPawn:
+    AssetImage('lib/piece_sets/caliente/bP.png', package: 'chessground'),
+    PieceKind.blackKnight:
+    AssetImage('lib/piece_sets/caliente/bN.png', package: 'chessground'),
+    PieceKind.blackBishop:
+    AssetImage('lib/piece_sets/caliente/bB.png', package: 'chessground'),
+    PieceKind.blackQueen:
+    AssetImage('lib/piece_sets/caliente/bQ.png', package: 'chessground'),
+    PieceKind.blackKing:
+    AssetImage('lib/piece_sets/caliente/bK.png', package: 'chessground'),
+    PieceKind.whiteRook:
+    AssetImage('lib/piece_sets/caliente/wR.png', package: 'chessground'),
+    PieceKind.whitePawn:
+    AssetImage('lib/piece_sets/caliente/wP.png', package: 'chessground'),
+    PieceKind.whiteKnight:
+    AssetImage('lib/piece_sets/caliente/wN.png', package: 'chessground'),
+    PieceKind.whiteBishop:
+    AssetImage('lib/piece_sets/caliente/wB.png', package: 'chessground'),
+    PieceKind.whiteQueen:
+    AssetImage('lib/piece_sets/caliente/wQ.png', package: 'chessground'),
+    PieceKind.whiteKing:
+    AssetImage('lib/piece_sets/caliente/wK.png', package: 'chessground'),
+  });
+
 
   static const PieceAssets cardinalAssets = IMapConst({
     PieceKind.blackRook:
