@@ -133,7 +133,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         setState(() {
                           interactableSide =
                             (interactableSide == InteractableSide.white) ?
-                            InteractableSide.annotate : InteractableSide.white;
+                            InteractableSide.drawShapes : InteractableSide.white;
                         });
                       },
                     ),
@@ -250,8 +250,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   _onLongPress() {
     setState(() {
-      interactableSide = (interactableSide == InteractableSide.annotate) ?
-      InteractableSide.white : InteractableSide.annotate;
+      interactableSide = (interactableSide == InteractableSide.drawShapes) ?
+      InteractableSide.white : InteractableSide.drawShapes;
       shapes = ISet();
       boardScale = boardScale == 1.0 ? 0.98 : 1.0;
     });
