@@ -47,9 +47,10 @@ class _MyHomePageState extends State<MyHomePage> {
   BoardTheme boardTheme = BoardTheme.blue;
   bool immersiveMode = false;
   InteractableSide interactableSide = InteractableSide.white;
-  ISet<Shape> annotations = ISet();
+  ISet<Shape> shapes = ISet();
   Color newShapeColor = const Color(0xAA15781b);
   final Color defaultShapeColor = const Color(0xAA15781b);
+  double boardScale = 1.0;
 
   @override
   Widget build(BuildContext context) {
@@ -63,29 +64,38 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            Board(
-              size: screenWidth,
-              settings: BoardSettings(
-                pieceAssets: pieceSet.assets,
-                colorScheme: boardTheme.colors,
-                enableCoordinates: true,
-                enablePremoves: true,
-              ),
-              data: BoardData(
-                interactableSide: interactableSide,
-                validMoves: validMoves,
-                orientation: orientation,
-                fen: fen,
-                lastMove: lastMove,
-                sideToMove:
-                    position.turn == dc.Side.white ? Side.white : Side.black,
-                onMove: _onUserMove,
-                onCompleteShape: _onCompleteShape,
-                isCheck: position.isCheck,
-                shapes: annotations.isNotEmpty ? annotations : null,
-                newShapeColor: newShapeColor,
+            GestureDetector(
+              onLongPress: _onLongPress,
+              child: AnimatedScale(
+                scale: boardScale,
+                duration: const Duration(milliseconds: 200),
+                child: Board(
+                  size: screenWidth,
+                  settings: BoardSettings(
+                    pieceAssets: pieceSet.assets,
+                    colorScheme: boardTheme.colors,
+                    enableCoordinates: true,
+                    enablePremoves: true,
+                  ),
+                  data: BoardData(
+                    interactableSide: interactableSide,
+                    validMoves: validMoves,
+                    orientation: orientation,
+                    fen: fen,
+                    lastMove: lastMove,
+                    sideToMove:
+                        position.turn == dc.Side.white ? Side.white : Side.black,
+                    onMove: _onUserMove,
+                    onCompleteShape: _onCompleteShape,
+                    isCheck: position.isCheck,
+                    shapes: shapes.isNotEmpty ? shapes : null,
+                    newShapeColor: newShapeColor,
+                  ),
+                ),
               ),
             ),
+
+
             Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
@@ -123,7 +133,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         setState(() {
                           interactableSide =
                             (interactableSide == InteractableSide.white) ?
-                            InteractableSide.annotate : InteractableSide.white;
+                            InteractableSide.drawShapes : InteractableSide.white;
                         });
                       },
                     ),
@@ -132,7 +142,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       child: const Text('Clear'),
                       onPressed: () {
                         setState(() {
-                          annotations = ISet();
+                          shapes = ISet();
                         });
                       },
                     ),
@@ -238,6 +248,15 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
+  _onLongPress() {
+    setState(() {
+      interactableSide = (interactableSide == InteractableSide.drawShapes) ?
+      InteractableSide.white : InteractableSide.drawShapes;
+      shapes = ISet();
+      boardScale = boardScale == 1.0 ? 0.98 : 1.0;
+    });
+  }
+
   @override
   void initState() {
     validMoves = dc.algebraicLegalMoves(position);
@@ -245,16 +264,16 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _onCompleteShape(Shape shape) {
-    if (annotations.any((element) => element == shape)) {
+    if (shapes.any((element) => element == shape)) {
       setState(() {
-        annotations = annotations.remove(shape);
+        shapes = shapes.remove(shape);
       });
       return;
     } else {
       setState(() {
-        annotations = ISet(annotations.where((element) =>
+        shapes = ISet(shapes.where((element) =>
         !(element.dest == shape.dest && element.orig == shape.orig))); // Removes shapes with same dest and orig
-        annotations = annotations.add(shape);
+        shapes = shapes.add(shape);
       });
     }
   }
@@ -266,6 +285,7 @@ class _MyHomePageState extends State<MyHomePage> {
       lastMove = move;
       fen = position.fen;
       validMoves = IMap(const {});
+      shapes = ISet();
     });
     Future.delayed(const Duration(milliseconds: 100)).then((value) {
       setState(() {});

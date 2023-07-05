@@ -10,7 +10,7 @@ enum Side {
 }
 
 /// The side that can interact with the board.
-enum InteractableSide { both, none, white, black, annotate }
+enum InteractableSide { both, none, white, black, drawShapes }
 
 /// Piece role, such as pawn, knight, etc.
 enum Role { king, queen, knight, bishop, rook, pawn }
@@ -366,6 +366,7 @@ class Shape {
   #e68f00 - yellow
   #003088 - blue
   #882020 - red
+  Perhaps implement these into an annotation color class for strong typing
  */
 
   final Color color;

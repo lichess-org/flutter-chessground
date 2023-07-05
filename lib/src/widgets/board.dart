@@ -247,7 +247,7 @@ class _BoardState extends State<Board> {
           // Consider using Listener instead as we don't control the drag start threshold with
           // GestureDetector (TODO)
           if (!(widget.data.interactableSide == InteractableSide.none ||
-              widget.data.interactableSide == InteractableSide.annotate))
+              widget.data.interactableSide == InteractableSide.drawShapes))
             GestureDetector(
               // registering onTapDown is needed to prevent the panStart event to win the
               // competition too early
@@ -263,7 +263,7 @@ class _BoardState extends State<Board> {
               dragStartBehavior: DragStartBehavior.down,
               child: board,
             )
-          else if (widget.data.interactableSide == InteractableSide.annotate)
+          else if (widget.data.interactableSide == InteractableSide.drawShapes)
             GestureDetector(
               onTapDown: (TapDownDetails? details) {},
               onTapUp: _onTapUpShape,
