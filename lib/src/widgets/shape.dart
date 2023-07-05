@@ -77,7 +77,7 @@ class _ArrowPainter extends CustomPainter {
       ..strokeWidth = lineWidth
       ..color = color
       ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round;
+      ..strokeCap = StrokeCap.round; // Deal with overlap (probably requires path generation for the entire arrow, TODO)
 
     final fromOffset = fromCoord.offset(orientation, squareSize);
     final toOffset = toCoord.offset(orientation, squareSize);

@@ -137,15 +137,18 @@ class _MyHomePageState extends State<MyHomePage> {
                       },
                     ),
                     const SizedBox(width: 8),
-                    ElevatedButton(
-                      child: Text('$newShapeColor'),
-                      onPressed: () {
-                        setState(() {
-                          newShapeColor = (newShapeColor == defaultShapeColor) ?
-                          Color(Random().nextInt(0x00ffffff) + 0xAA000000) :
-                          defaultShapeColor;
-                        });
-                      },
+                    Tooltip(
+                      message: 'Toggles Color between a random color and default green.',
+                      child: ElevatedButton(
+                        child: Text('$newShapeColor'),
+                        onPressed: () {
+                          setState(() {
+                            newShapeColor = (newShapeColor == defaultShapeColor) ?
+                            Color(Random().nextInt(0x00ffffff) + 0xAA000000) :
+                            defaultShapeColor;
+                          });
+                        },
+                      ),
                     ),
                   ],
                 ),
