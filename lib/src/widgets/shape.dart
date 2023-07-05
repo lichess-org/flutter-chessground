@@ -6,27 +6,23 @@ import '../models.dart';
 class ShapeWidget extends StatelessWidget {
   const ShapeWidget({
     super.key,
-    required this.color,
     required this.size,
     required this.orientation,
-    required this.fromCoord,
-    required this.toCoord,
+    required this.shape,
   });
 
-  final Color color;
   final double size;
   final Side orientation;
-  final Coord fromCoord;
-  final Coord toCoord;
+  final Shape shape;
 
   @override
   Widget build(BuildContext context) {
     return SizedBox.square(
       dimension: size,
       child: CustomPaint(
-        painter: fromCoord == toCoord ?
-          _CirclePainter(color, orientation, fromCoord):
-          _ArrowPainter(color, orientation, fromCoord, toCoord),
+        painter: (shape.dest == null || shape.orig == shape.dest) ?
+          _CirclePainter(shape.color, orientation, Coord.fromSquareId(shape.orig)):
+          _ArrowPainter(shape.color, orientation, Coord.fromSquareId(shape.orig), Coord.fromSquareId(shape.dest!)),
       ),
     );
   }
