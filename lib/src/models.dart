@@ -10,7 +10,7 @@ enum Side {
 }
 
 /// The side that can interact with the board.
-enum InteractableSide { both, none, white, black }
+enum InteractableSide { both, none, white, black, annotate }
 
 /// Piece role, such as pawn, knight, etc.
 enum Role { king, queen, knight, bishop, rook, pawn }
@@ -351,33 +351,39 @@ Role _toRole(String uciLetter) {
   }
 }
 
-/// Base class for shapes that can be drawn on the board.
+/// Class for shapes to be drawn on the board. Draws an arrow from orig to dest or a circle if orig == dest
 @immutable
-abstract class Shape {
+class Shape {
   const Shape({
     required this.color,
     required this.orig,
+    this.dest, // Shape is circle if orig == dest or dest == null
   });
+
+  /*
+  Colors from website: (I haven't found the alpha value yet, blindly guessing AA)
+  #15781B - green
+  #e68f00 - yellow
+  #003088 - blue
+  #882020 - red
+ */
 
   final Color color;
   final SquareId orig;
-}
+  final SquareId? dest;
 
-/// An arrow shape that can be drawn on the board.
-@immutable
-class Arrow extends Shape {
-  const Arrow({
-    required super.color,
-    required super.orig,
-    required this.dest,
-  });
-
-  final SquareId dest;
+  Shape newDest (SquareId newDest) {
+    return Shape(
+      color: color,
+      orig: orig,
+      dest: newDest,
+    );
+  }
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
-        other is Arrow &&
+        other is Shape &&
             other.runtimeType == runtimeType &&
             other.color == color &&
             other.orig == orig &&

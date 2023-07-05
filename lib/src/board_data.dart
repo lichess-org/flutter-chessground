@@ -20,6 +20,8 @@ class BoardData {
     this.shapes,
     this.onMove,
     this.annotations,
+    this.onCompleteShape,
+    this.newShapeColor = const Color(0xAA15781b), // default to green
   });
 
   /// Which color is allowed to move? It can be both, none, white or black
@@ -53,4 +55,10 @@ class BoardData {
 
   /// Callback called after a move has been made.
   final void Function(Move, {bool? isPremove})? onMove;
+
+  /// Callback called after a shape has been drawn.
+  final void Function(Shape shape)? onCompleteShape;
+
+  /// Default color for shapes.
+  final Color newShapeColor;
 }

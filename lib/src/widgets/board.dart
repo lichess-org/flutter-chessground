@@ -74,6 +74,7 @@ class _BoardState extends State<Board> {
   Set<SquareId>? _premoveDests;
   _DragAvatar? _dragAvatar;
   SquareId? _dragOrigin;
+  Shape? _shapeAvatar;
 
   @override
   Widget build(BuildContext context) {
@@ -225,14 +226,17 @@ class _BoardState extends State<Board> {
             annotation: entry.value,
           ),
         for (final shape in shapes)
-          if (shape is Arrow)
             ShapeWidget(
               size: widget.size,
-              color: shape.color,
-              fromCoord: Coord.fromSquareId(shape.orig),
-              toCoord: Coord.fromSquareId(shape.dest),
               orientation: widget.data.orientation,
+              shape: shape,
             ),
+        if (_shapeAvatar != null)
+          ShapeWidget(
+            size: widget.size,
+            orientation: widget.data.orientation,
+            shape: _shapeAvatar!,
+          ),
       ],
     );
 
@@ -242,19 +246,32 @@ class _BoardState extends State<Board> {
         children: [
           // Consider using Listener instead as we don't control the drag start threshold with
           // GestureDetector (TODO)
-          if (widget.data.interactableSide != InteractableSide.none)
+          if (!(widget.data.interactableSide == InteractableSide.none ||
+              widget.data.interactableSide == InteractableSide.annotate))
             GestureDetector(
               // registering onTapDown is needed to prevent the panStart event to win the
               // competition too early
               // there is no need to implement the callback since we handle the selection login
               // in onPanDown; plus this way we avoid the timeout before onTapDown is called
               onTapDown: (TapDownDetails? details) {},
-              onTapUp: _onTapUp,
-              onPanDown: _onPanDown,
-              onPanStart: _onPanStart,
-              onPanUpdate: _onPanUpdate,
-              onPanEnd: _onPanEnd,
-              onPanCancel: _onPanCancel,
+              onTapUp: _onTapUpPiece,
+              onPanDown: _onPanDownPiece,
+              onPanStart: _onPanStartPiece,
+              onPanUpdate: _onPanUpdatePiece,
+              onPanEnd: _onPanEndPiece,
+              onPanCancel: _onPanCancelPiece,
+              dragStartBehavior: DragStartBehavior.down,
+              child: board,
+            )
+          else if (widget.data.interactableSide == InteractableSide.annotate)
+            GestureDetector(
+              onTapDown: (TapDownDetails? details) {},
+              onTapUp: _onTapUpShape,
+              onPanDown: _onPanDownShape,
+              onPanStart: _onPanStartShape,
+              onPanUpdate: _onPanUpdateShape,
+              onPanEnd: _onPanEndShape,
+              onPanCancel: _onPanCancelShape,
               dragStartBehavior: DragStartBehavior.down,
               child: board,
             )
@@ -432,7 +449,7 @@ class _BoardState extends State<Board> {
     }
   }
 
-  void _onPanDown(DragDownDetails? details) {
+  void _onPanDownPiece(DragDownDetails? details) {
     if (details == null) return;
 
     final squareId = widget.localOffset2SquareId(details.localPosition);
@@ -461,7 +478,7 @@ class _BoardState extends State<Board> {
     }
   }
 
-  void _onPanStart(DragStartDetails? details) {
+  void _onPanStartPiece(DragStartDetails? details) {
     if (details != null) {
       final squareId = widget.localOffset2SquareId(details.localPosition);
       final piece = squareId != null ? pieces[squareId] : null;
@@ -502,7 +519,7 @@ class _BoardState extends State<Board> {
     }
   }
 
-  void _onPanUpdate(DragUpdateDetails? details) {
+  void _onPanUpdatePiece(DragUpdateDetails? details) {
     if (details != null && _dragAvatar != null) {
       final squareTargetOffset =
           _squareTargetGlobalOffset(details.localPosition);
@@ -511,7 +528,7 @@ class _BoardState extends State<Board> {
     }
   }
 
-  void _onPanEnd(DragEndDetails? details) {
+  void _onPanEndPiece(DragEndDetails? details) {
     if (_dragAvatar != null) {
       final RenderBox box = context.findRenderObject()! as RenderBox;
       final localPos = box.globalToLocal(_dragAvatar!._position);
@@ -527,7 +544,7 @@ class _BoardState extends State<Board> {
     });
   }
 
-  void _onPanCancel() {
+  void _onPanCancelPiece() {
     _dragAvatar?.cancel();
     _dragAvatar = null;
     setState(() {
@@ -535,7 +552,7 @@ class _BoardState extends State<Board> {
     });
   }
 
-  void _onTapUp(TapUpDetails? details) {
+  void _onTapUpPiece(TapUpDetails? details) {
     if (details != null) {
       final squareId = widget.localOffset2SquareId(details.localPosition);
       if (squareId != null && squareId != selected) {
@@ -550,6 +567,74 @@ class _BoardState extends State<Board> {
         });
       }
     }
+  }
+
+  void _onPanDownShape(DragDownDetails? details) {
+    if (details == null) return;
+    final squareId = widget.localOffset2SquareId(details.localPosition);
+    if (squareId == null) return;
+    setState(() { // Initialize shapeAvatar on tap down (Analogous to website)
+      _shapeAvatar = Shape(
+          color: widget.data.newShapeColor,
+          orig: squareId,
+          dest: squareId,);
+    });
+  }
+
+  void _onPanStartShape(DragStartDetails? details) {
+    if (details != null && _shapeAvatar != null) {
+      final squareId = widget.localOffset2SquareId(details.localPosition);
+      if (squareId != null) {
+        setState(() { // Update shapeAvatar on starting pan
+          _shapeAvatar = _shapeAvatar!.newDest(squareId);
+          print('Updated dest to ${_shapeAvatar!.dest}');
+        });
+      }
+    }
+  }
+
+  void _onPanUpdateShape(DragUpdateDetails? details) {
+    if (details != null && _shapeAvatar != null) {
+      final squareId = widget.localOffset2SquareId(details.localPosition);
+      if (squareId != null && squareId != _shapeAvatar!.dest) {
+        setState(() { // Update shapeAvatar on panning once a new square is reached
+          _shapeAvatar = _shapeAvatar!.newDest(squareId);
+          print('Updated dest to ${_shapeAvatar!.dest}');
+        });
+      }
+    }
+  }
+
+  void _onPanEndShape(DragEndDetails? details) {
+    if (_shapeAvatar == null) return;
+    // First call the callback
+    widget.data.onCompleteShape?.call(_shapeAvatar!);
+    // Then remove the shapeAvatar
+    setState(() {
+      _shapeAvatar = null;
+    });
+  }
+
+  void _onPanCancelShape() {
+    setState(() {
+      _shapeAvatar = null;
+    });
+  }
+
+  void _onTapUpShape(TapUpDetails? details) {
+    print('Tap up shape');
+    if (details == null) return;
+    final squareId = widget.localOffset2SquareId(details.localPosition);
+    if (squareId == null) return;
+    widget.data.onCompleteShape?.call(Shape(
+        color: widget.data.newShapeColor,
+        orig: squareId,
+        dest: squareId,
+      ),
+    );
+    setState(() {
+      _shapeAvatar = null;
+    });
   }
 
   void _onPromotionSelect(Move move, Piece promoted) {

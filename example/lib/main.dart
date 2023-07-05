@@ -46,6 +46,10 @@ class _MyHomePageState extends State<MyHomePage> {
   PieceSet pieceSet = PieceSet.merida;
   BoardTheme boardTheme = BoardTheme.blue;
   bool immersiveMode = false;
+  InteractableSide interactableSide = InteractableSide.white;
+  ISet<Shape> annotations = ISet();
+  Color newShapeColor = const Color(0xAA15781b);
+  final Color defaultShapeColor = const Color(0xAA15781b);
 
   @override
   Widget build(BuildContext context) {
@@ -68,7 +72,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 enablePremoves: true,
               ),
               data: BoardData(
-                interactableSide: InteractableSide.white,
+                interactableSide: interactableSide,
                 validMoves: validMoves,
                 orientation: orientation,
                 fen: fen,
@@ -76,7 +80,10 @@ class _MyHomePageState extends State<MyHomePage> {
                 sideToMove:
                     position.turn == dc.Side.white ? Side.white : Side.black,
                 onMove: _onUserMove,
+                onCompleteShape: _onCompleteShape,
                 isCheck: position.isCheck,
+                shapes: annotations.isNotEmpty ? annotations : null,
+                newShapeColor: newShapeColor,
               ),
             ),
             Column(
@@ -106,6 +113,43 @@ class _MyHomePageState extends State<MyHomePage> {
                     });
                   },
                 ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    ElevatedButton(
+                      child: Text('Mode: ${interactableSide.name}'),
+                      onPressed: () {
+                        setState(() {
+                          interactableSide =
+                            (interactableSide == InteractableSide.white) ?
+                            InteractableSide.annotate : InteractableSide.white;
+                        });
+                      },
+                    ),
+                    const SizedBox(width: 8),
+                    ElevatedButton(
+                      child: const Text('Clear'),
+                      onPressed: () {
+                        setState(() {
+                          annotations = ISet();
+                        });
+                      },
+                    ),
+                    const SizedBox(width: 8),
+                    ElevatedButton(
+                      child: Text('$newShapeColor'),
+                      onPressed: () {
+                        setState(() {
+                          newShapeColor = (newShapeColor == defaultShapeColor) ?
+                          Color(Random().nextInt(0x00ffffff) + 0xAA000000) :
+                          defaultShapeColor;
+                        });
+                      },
+                    ),
+                  ],
+                ),
+
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   mainAxisSize: MainAxisSize.max,
@@ -195,6 +239,21 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     validMoves = dc.algebraicLegalMoves(position);
     super.initState();
+  }
+
+  void _onCompleteShape(Shape shape) {
+    if (annotations.any((element) => element == shape)) {
+      setState(() {
+        annotations = annotations.remove(shape);
+      });
+      return;
+    } else {
+      setState(() {
+        annotations = ISet(annotations.where((element) =>
+        !(element.dest == shape.dest && element.orig == shape.orig))); // Removes shapes with same dest and orig
+        annotations = annotations.add(shape);
+      });
+    }
   }
 
   void _onUserMove(Move move, {bool? isPremove}) async {
