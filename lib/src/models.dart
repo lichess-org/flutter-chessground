@@ -261,6 +261,10 @@ class Move {
 
   String get uci => '$from$to${_toPieceLetter(promotion)}';
 
+  bool hasSquare(SquareId squareId) {
+    return from == squareId || to == squareId;
+  }
+
   Move withPromotion(Role promotion) {
     return Move(
       from: from,

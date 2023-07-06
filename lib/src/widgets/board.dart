@@ -97,16 +97,17 @@ class _BoardState extends State<Board> {
           colorScheme.background,
         if (widget.settings.showLastMove && widget.data.lastMove != null)
           for (final squareId in widget.data.lastMove!.squares)
-            PositionedSquare(
-              key: ValueKey('$squareId-lastMove'),
-              size: widget.squareSize,
-              orientation: widget.data.orientation,
-              squareId: squareId,
-              child: Highlight(
+            if (_premove == null || !_premove!.hasSquare(squareId))
+              PositionedSquare(
+                key: ValueKey('$squareId-lastMove'),
                 size: widget.squareSize,
-                details: colorScheme.lastMove,
+                orientation: widget.data.orientation,
+                squareId: squareId,
+                child: Highlight(
+                  size: widget.squareSize,
+                  details: colorScheme.lastMove,
+                ),
               ),
-            ),
         if (_premove != null)
           for (final squareId in _premove!.squares)
             PositionedSquare(
