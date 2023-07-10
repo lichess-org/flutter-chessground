@@ -439,13 +439,17 @@ class _BoardState extends State<Board> {
     final squareId = widget.localOffset2SquareId(details.localPosition);
     if (squareId == null) return;
 
-    if (_shouldSelect(squareId)) {
+    // allow to castle by selecting the king and then the rook, so we must prevent
+    // the re-selection of the rook
+    if (_isMovable(squareId) &&
+        (selected == null || !_canMove(selected!, squareId))) {
       _shouldDeselectOnTapUp = selected == squareId;
       setState(() {
         selected = squareId;
       });
     } else if (_isPremovable(squareId) &&
         (selected == null || !_canPremove(selected!, squareId))) {
+      _shouldDeselectOnTapUp = selected == squareId;
       setState(() {
         selected = squareId;
         _premoveDests = premovesOf(
@@ -574,13 +578,6 @@ class _BoardState extends State<Board> {
       pieces[move.to] = pawn!;
       _promotionMove = move;
     });
-  }
-
-  bool _shouldSelect(SquareId squareId) {
-    // allow to castle by selecting the king and then the rook, so we must prevent the
-    // re-selection of the rook
-    return _isMovable(squareId) &&
-        (selected == null || !_canMove(selected!, squareId));
   }
 
   bool _isMovable(SquareId squareId) {

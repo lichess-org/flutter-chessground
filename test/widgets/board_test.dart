@@ -186,137 +186,6 @@ void main() {
       expect(find.byKey(const Key('f7-whitePawn')), findsNothing);
     });
 
-    testWidgets('premoves: select and deselect with empty square',
-        (WidgetTester tester) async {
-      await tester.pumpWidget(
-        buildBoard(
-          initialFen:
-              'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
-          initialInteractableSide: InteractableSide.white,
-        ),
-      );
-
-      await tester.tapAt(squareOffset('f1'));
-      await tester.pump();
-      expect(find.byKey(const Key('f1-selected')), findsOneWidget);
-      expect(find.byType(MoveDest), findsNWidgets(7));
-
-      await tester.tapAt(squareOffset('b4'));
-      await tester.pump();
-      expect(find.byKey(const Key('e4-selected')), findsNothing);
-      expect(find.byType(MoveDest), findsNothing);
-    });
-
-    testWidgets('premoves: select and deselect with opponent piece',
-        (WidgetTester tester) async {
-      await tester.pumpWidget(
-        buildBoard(
-          initialFen:
-              'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
-          initialInteractableSide: InteractableSide.white,
-        ),
-      );
-
-      await tester.tapAt(squareOffset('f1'));
-      await tester.pump();
-      expect(find.byKey(const Key('f1-selected')), findsOneWidget);
-      expect(find.byType(MoveDest), findsNWidgets(7));
-
-      await tester.tapAt(squareOffset('f8'));
-      await tester.pump();
-      expect(find.byKey(const Key('e4-selected')), findsNothing);
-      expect(find.byType(MoveDest), findsNothing);
-    });
-
-    testWidgets('premoves: set/unset', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        buildBoard(
-          initialFen:
-              'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
-          initialInteractableSide: InteractableSide.white,
-        ),
-      );
-
-      // set premove
-      await makeMove(tester, 'e4', 'f5');
-      expect(find.byKey(const Key('e4-premove')), findsOneWidget);
-      expect(find.byKey(const Key('f5-premove')), findsOneWidget);
-
-      // unset by tapping empty square
-      await tester.tapAt(squareOffset('c5'));
-      await tester.pump();
-      expect(find.byKey(const Key('e4-premove')), findsNothing);
-      expect(find.byKey(const Key('f5-premove')), findsNothing);
-
-      // unset by tapping opponent's piece
-      await makeMove(tester, 'd1', 'f3');
-      expect(find.byKey(const Key('d1-premove')), findsOneWidget);
-      expect(find.byKey(const Key('f3-premove')), findsOneWidget);
-      await tester.tapAt(squareOffset('g8'));
-      await tester.pump();
-      expect(find.byKey(const Key('d1-premove')), findsNothing);
-      expect(find.byKey(const Key('f3-premove')), findsNothing);
-    });
-
-    testWidgets('premoves: set and change', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        buildBoard(
-          initialFen:
-              'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
-          initialInteractableSide: InteractableSide.white,
-        ),
-      );
-
-      await makeMove(tester, 'd1', 'f3');
-      expect(find.byKey(const Key('d1-premove')), findsOneWidget);
-      expect(find.byKey(const Key('f3-premove')), findsOneWidget);
-      await tester.tapAt(squareOffset('d2'));
-      await tester.pump();
-      expect(find.byKey(const Key('d1-premove')), findsOneWidget);
-      expect(find.byKey(const Key('f3-premove')), findsOneWidget);
-      expect(find.byType(MoveDest), findsNWidgets(4));
-      await tester.tapAt(squareOffset('d4'));
-      await tester.pump();
-      expect(find.byKey(const Key('d1-premove')), findsNothing);
-      expect(find.byKey(const Key('f3-premove')), findsNothing);
-      expect(find.byKey(const Key('d2-premove')), findsOneWidget);
-      expect(find.byKey(const Key('d4-premove')), findsOneWidget);
-    });
-
-    testWidgets('premoves: drag to set', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        buildBoard(
-          initialFen:
-              'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
-          initialInteractableSide: InteractableSide.white,
-        ),
-      );
-
-      await tester.drag(
-        find.byKey(const Key('e4-whitePawn')),
-        const Offset(0, -squareSize),
-      );
-      await tester.pumpAndSettle();
-      expect(find.byKey(const Key('e4-premove')), findsOneWidget);
-      expect(find.byKey(const Key('e5-premove')), findsOneWidget);
-      expect(find.byKey(const Key('e4-selected')), findsNothing);
-    });
-
-    testWidgets('premoves: select pieces from same side',
-        (WidgetTester tester) async {
-      await tester.pumpWidget(
-        buildBoard(
-          initialFen:
-              'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
-          initialInteractableSide: InteractableSide.white,
-        ),
-      );
-
-      await makeMove(tester, 'd1', 'c2');
-      expect(find.byKey(const Key('d1-premove')), findsOneWidget);
-      expect(find.byKey(const Key('c2-premove')), findsOneWidget);
-    });
-
     testWidgets('king check square black', (WidgetTester tester) async {
       await tester.pumpWidget(
         buildBoard(
@@ -363,6 +232,159 @@ void main() {
       );
 
       expect(find.byKey(const Key('e2-selected')), findsNothing);
+    });
+  });
+
+  group('premoves', () {
+    testWidgets('select and deselect with empty square',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(
+        buildBoard(
+          initialFen:
+              'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
+          initialInteractableSide: InteractableSide.white,
+        ),
+      );
+
+      await tester.tapAt(squareOffset('f1'));
+      await tester.pump();
+      expect(find.byKey(const Key('f1-selected')), findsOneWidget);
+      expect(find.byType(MoveDest), findsNWidgets(7));
+
+      await tester.tapAt(squareOffset('b4'));
+      await tester.pump();
+      expect(find.byKey(const Key('e4-selected')), findsNothing);
+      expect(find.byType(MoveDest), findsNothing);
+    });
+
+    testWidgets('select and deselect with opponent piece',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(
+        buildBoard(
+          initialFen:
+              'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
+          initialInteractableSide: InteractableSide.white,
+        ),
+      );
+
+      await tester.tapAt(squareOffset('f1'));
+      await tester.pump();
+      expect(find.byKey(const Key('f1-selected')), findsOneWidget);
+      expect(find.byType(MoveDest), findsNWidgets(7));
+
+      await tester.tapAt(squareOffset('f8'));
+      await tester.pump();
+      expect(find.byKey(const Key('e4-selected')), findsNothing);
+      expect(find.byType(MoveDest), findsNothing);
+    });
+
+    testWidgets('select and deselect with same piece',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(
+        buildBoard(
+          initialFen:
+              'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
+          initialInteractableSide: InteractableSide.white,
+        ),
+      );
+
+      await tester.tapAt(squareOffset('f1'));
+      await tester.pump();
+      expect(find.byKey(const Key('f1-selected')), findsOneWidget);
+      expect(find.byType(MoveDest), findsNWidgets(7));
+
+      await tester.tapAt(squareOffset('f1'));
+      await tester.pump();
+      expect(find.byKey(const Key('e4-selected')), findsNothing);
+      expect(find.byType(MoveDest), findsNothing);
+    });
+
+    testWidgets('set/unset', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        buildBoard(
+          initialFen:
+              'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
+          initialInteractableSide: InteractableSide.white,
+        ),
+      );
+
+      // set premove
+      await makeMove(tester, 'e4', 'f5');
+      expect(find.byKey(const Key('e4-premove')), findsOneWidget);
+      expect(find.byKey(const Key('f5-premove')), findsOneWidget);
+
+      // unset by tapping empty square
+      await tester.tapAt(squareOffset('c5'));
+      await tester.pump();
+      expect(find.byKey(const Key('e4-premove')), findsNothing);
+      expect(find.byKey(const Key('f5-premove')), findsNothing);
+
+      // unset by tapping opponent's piece
+      await makeMove(tester, 'd1', 'f3');
+      expect(find.byKey(const Key('d1-premove')), findsOneWidget);
+      expect(find.byKey(const Key('f3-premove')), findsOneWidget);
+      await tester.tapAt(squareOffset('g8'));
+      await tester.pump();
+      expect(find.byKey(const Key('d1-premove')), findsNothing);
+      expect(find.byKey(const Key('f3-premove')), findsNothing);
+    });
+
+    testWidgets('set and change', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        buildBoard(
+          initialFen:
+              'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
+          initialInteractableSide: InteractableSide.white,
+        ),
+      );
+
+      await makeMove(tester, 'd1', 'f3');
+      expect(find.byKey(const Key('d1-premove')), findsOneWidget);
+      expect(find.byKey(const Key('f3-premove')), findsOneWidget);
+      await tester.tapAt(squareOffset('d2'));
+      await tester.pump();
+      expect(find.byKey(const Key('d1-premove')), findsOneWidget);
+      expect(find.byKey(const Key('f3-premove')), findsOneWidget);
+      expect(find.byType(MoveDest), findsNWidgets(4));
+      await tester.tapAt(squareOffset('d4'));
+      await tester.pump();
+      expect(find.byKey(const Key('d1-premove')), findsNothing);
+      expect(find.byKey(const Key('f3-premove')), findsNothing);
+      expect(find.byKey(const Key('d2-premove')), findsOneWidget);
+      expect(find.byKey(const Key('d4-premove')), findsOneWidget);
+    });
+
+    testWidgets('drag to set', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        buildBoard(
+          initialFen:
+              'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
+          initialInteractableSide: InteractableSide.white,
+        ),
+      );
+
+      await tester.drag(
+        find.byKey(const Key('e4-whitePawn')),
+        const Offset(0, -squareSize),
+      );
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('e4-premove')), findsOneWidget);
+      expect(find.byKey(const Key('e5-premove')), findsOneWidget);
+      expect(find.byKey(const Key('e4-selected')), findsNothing);
+    });
+
+    testWidgets('select pieces from same side', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        buildBoard(
+          initialFen:
+              'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
+          initialInteractableSide: InteractableSide.white,
+        ),
+      );
+
+      await makeMove(tester, 'd1', 'c2');
+      expect(find.byKey(const Key('d1-premove')), findsOneWidget);
+      expect(find.byKey(const Key('c2-premove')), findsOneWidget);
     });
 
     testWidgets('cancel premoves if board is made non interactable again',
