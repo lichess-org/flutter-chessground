@@ -2,6 +2,8 @@ import 'package:flutter/widgets.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'models.dart';
 
+const _pieceSetsPath = 'assets/piece_sets';
+
 /// The chess piece set that will be displayed on the board.
 enum PieceSet {
   cburnett('Colin M.L. Burnett'),
@@ -110,838 +112,838 @@ enum PieceSet {
 
   static const PieceAssets alphaAssets = IMapConst({
     PieceKind.blackRook:
-        AssetImage('lib/piece_sets/alpha/bR.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/alpha/bR.png', package: 'chessground'),
     PieceKind.blackPawn:
-        AssetImage('lib/piece_sets/alpha/bP.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/alpha/bP.png', package: 'chessground'),
     PieceKind.blackKnight:
-        AssetImage('lib/piece_sets/alpha/bN.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/alpha/bN.png', package: 'chessground'),
     PieceKind.blackBishop:
-        AssetImage('lib/piece_sets/alpha/bB.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/alpha/bB.png', package: 'chessground'),
     PieceKind.blackQueen:
-        AssetImage('lib/piece_sets/alpha/bQ.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/alpha/bQ.png', package: 'chessground'),
     PieceKind.blackKing:
-        AssetImage('lib/piece_sets/alpha/bK.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/alpha/bK.png', package: 'chessground'),
     PieceKind.whiteRook:
-        AssetImage('lib/piece_sets/alpha/wR.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/alpha/wR.png', package: 'chessground'),
     PieceKind.whitePawn:
-        AssetImage('lib/piece_sets/alpha/wP.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/alpha/wP.png', package: 'chessground'),
     PieceKind.whiteKnight:
-        AssetImage('lib/piece_sets/alpha/wN.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/alpha/wN.png', package: 'chessground'),
     PieceKind.whiteBishop:
-        AssetImage('lib/piece_sets/alpha/wB.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/alpha/wB.png', package: 'chessground'),
     PieceKind.whiteQueen:
-        AssetImage('lib/piece_sets/alpha/wQ.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/alpha/wQ.png', package: 'chessground'),
     PieceKind.whiteKing:
-        AssetImage('lib/piece_sets/alpha/wK.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/alpha/wK.png', package: 'chessground'),
   });
 
   static const PieceAssets anarcandyAssets = IMapConst({
     PieceKind.blackRook:
-        AssetImage('lib/piece_sets/anarcandy/bR.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/anarcandy/bR.png', package: 'chessground'),
     PieceKind.blackPawn:
-        AssetImage('lib/piece_sets/anarcandy/bP.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/anarcandy/bP.png', package: 'chessground'),
     PieceKind.blackKnight:
-        AssetImage('lib/piece_sets/anarcandy/bN.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/anarcandy/bN.png', package: 'chessground'),
     PieceKind.blackBishop:
-        AssetImage('lib/piece_sets/anarcandy/bB.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/anarcandy/bB.png', package: 'chessground'),
     PieceKind.blackQueen:
-        AssetImage('lib/piece_sets/anarcandy/bQ.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/anarcandy/bQ.png', package: 'chessground'),
     PieceKind.blackKing:
-        AssetImage('lib/piece_sets/anarcandy/bK.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/anarcandy/bK.png', package: 'chessground'),
     PieceKind.whiteRook:
-        AssetImage('lib/piece_sets/anarcandy/wR.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/anarcandy/wR.png', package: 'chessground'),
     PieceKind.whitePawn:
-        AssetImage('lib/piece_sets/anarcandy/wP.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/anarcandy/wP.png', package: 'chessground'),
     PieceKind.whiteKnight:
-        AssetImage('lib/piece_sets/anarcandy/wN.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/anarcandy/wN.png', package: 'chessground'),
     PieceKind.whiteBishop:
-        AssetImage('lib/piece_sets/anarcandy/wB.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/anarcandy/wB.png', package: 'chessground'),
     PieceKind.whiteQueen:
-        AssetImage('lib/piece_sets/anarcandy/wQ.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/anarcandy/wQ.png', package: 'chessground'),
     PieceKind.whiteKing:
-        AssetImage('lib/piece_sets/anarcandy/wK.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/anarcandy/wK.png', package: 'chessground'),
   });
 
   static const PieceAssets californiaAssets = IMapConst({
     PieceKind.blackRook:
-        AssetImage('lib/piece_sets/california/bR.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/california/bR.png', package: 'chessground'),
     PieceKind.blackPawn:
-        AssetImage('lib/piece_sets/california/bP.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/california/bP.png', package: 'chessground'),
     PieceKind.blackKnight:
-        AssetImage('lib/piece_sets/california/bN.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/california/bN.png', package: 'chessground'),
     PieceKind.blackBishop:
-        AssetImage('lib/piece_sets/california/bB.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/california/bB.png', package: 'chessground'),
     PieceKind.blackQueen:
-        AssetImage('lib/piece_sets/california/bQ.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/california/bQ.png', package: 'chessground'),
     PieceKind.blackKing:
-        AssetImage('lib/piece_sets/california/bK.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/california/bK.png', package: 'chessground'),
     PieceKind.whiteRook:
-        AssetImage('lib/piece_sets/california/wR.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/california/wR.png', package: 'chessground'),
     PieceKind.whitePawn:
-        AssetImage('lib/piece_sets/california/wP.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/california/wP.png', package: 'chessground'),
     PieceKind.whiteKnight:
-        AssetImage('lib/piece_sets/california/wN.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/california/wN.png', package: 'chessground'),
     PieceKind.whiteBishop:
-        AssetImage('lib/piece_sets/california/wB.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/california/wB.png', package: 'chessground'),
     PieceKind.whiteQueen:
-        AssetImage('lib/piece_sets/california/wQ.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/california/wQ.png', package: 'chessground'),
     PieceKind.whiteKing:
-        AssetImage('lib/piece_sets/california/wK.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/california/wK.png', package: 'chessground'),
   });
 
   static const PieceAssets cardinalAssets = IMapConst({
     PieceKind.blackRook:
-        AssetImage('lib/piece_sets/cardinal/bR.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/cardinal/bR.png', package: 'chessground'),
     PieceKind.blackPawn:
-        AssetImage('lib/piece_sets/cardinal/bP.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/cardinal/bP.png', package: 'chessground'),
     PieceKind.blackKnight:
-        AssetImage('lib/piece_sets/cardinal/bN.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/cardinal/bN.png', package: 'chessground'),
     PieceKind.blackBishop:
-        AssetImage('lib/piece_sets/cardinal/bB.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/cardinal/bB.png', package: 'chessground'),
     PieceKind.blackQueen:
-        AssetImage('lib/piece_sets/cardinal/bQ.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/cardinal/bQ.png', package: 'chessground'),
     PieceKind.blackKing:
-        AssetImage('lib/piece_sets/cardinal/bK.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/cardinal/bK.png', package: 'chessground'),
     PieceKind.whiteRook:
-        AssetImage('lib/piece_sets/cardinal/wR.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/cardinal/wR.png', package: 'chessground'),
     PieceKind.whitePawn:
-        AssetImage('lib/piece_sets/cardinal/wP.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/cardinal/wP.png', package: 'chessground'),
     PieceKind.whiteKnight:
-        AssetImage('lib/piece_sets/cardinal/wN.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/cardinal/wN.png', package: 'chessground'),
     PieceKind.whiteBishop:
-        AssetImage('lib/piece_sets/cardinal/wB.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/cardinal/wB.png', package: 'chessground'),
     PieceKind.whiteQueen:
-        AssetImage('lib/piece_sets/cardinal/wQ.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/cardinal/wQ.png', package: 'chessground'),
     PieceKind.whiteKing:
-        AssetImage('lib/piece_sets/cardinal/wK.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/cardinal/wK.png', package: 'chessground'),
   });
 
   static const PieceAssets cburnettAssets = IMapConst({
     PieceKind.blackRook:
-        AssetImage('lib/piece_sets/cburnett/bR.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/cburnett/bR.png', package: 'chessground'),
     PieceKind.blackPawn:
-        AssetImage('lib/piece_sets/cburnett/bP.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/cburnett/bP.png', package: 'chessground'),
     PieceKind.blackKnight:
-        AssetImage('lib/piece_sets/cburnett/bN.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/cburnett/bN.png', package: 'chessground'),
     PieceKind.blackBishop:
-        AssetImage('lib/piece_sets/cburnett/bB.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/cburnett/bB.png', package: 'chessground'),
     PieceKind.blackQueen:
-        AssetImage('lib/piece_sets/cburnett/bQ.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/cburnett/bQ.png', package: 'chessground'),
     PieceKind.blackKing:
-        AssetImage('lib/piece_sets/cburnett/bK.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/cburnett/bK.png', package: 'chessground'),
     PieceKind.whiteRook:
-        AssetImage('lib/piece_sets/cburnett/wR.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/cburnett/wR.png', package: 'chessground'),
     PieceKind.whitePawn:
-        AssetImage('lib/piece_sets/cburnett/wP.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/cburnett/wP.png', package: 'chessground'),
     PieceKind.whiteKnight:
-        AssetImage('lib/piece_sets/cburnett/wN.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/cburnett/wN.png', package: 'chessground'),
     PieceKind.whiteBishop:
-        AssetImage('lib/piece_sets/cburnett/wB.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/cburnett/wB.png', package: 'chessground'),
     PieceKind.whiteQueen:
-        AssetImage('lib/piece_sets/cburnett/wQ.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/cburnett/wQ.png', package: 'chessground'),
     PieceKind.whiteKing:
-        AssetImage('lib/piece_sets/cburnett/wK.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/cburnett/wK.png', package: 'chessground'),
   });
 
   static const PieceAssets celticAssets = IMapConst({
     PieceKind.blackRook:
-        AssetImage('lib/piece_sets/celtic/bR.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/celtic/bR.png', package: 'chessground'),
     PieceKind.blackPawn:
-        AssetImage('lib/piece_sets/celtic/bP.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/celtic/bP.png', package: 'chessground'),
     PieceKind.blackKnight:
-        AssetImage('lib/piece_sets/celtic/bN.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/celtic/bN.png', package: 'chessground'),
     PieceKind.blackBishop:
-        AssetImage('lib/piece_sets/celtic/bB.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/celtic/bB.png', package: 'chessground'),
     PieceKind.blackQueen:
-        AssetImage('lib/piece_sets/celtic/bQ.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/celtic/bQ.png', package: 'chessground'),
     PieceKind.blackKing:
-        AssetImage('lib/piece_sets/celtic/bK.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/celtic/bK.png', package: 'chessground'),
     PieceKind.whiteRook:
-        AssetImage('lib/piece_sets/celtic/wR.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/celtic/wR.png', package: 'chessground'),
     PieceKind.whitePawn:
-        AssetImage('lib/piece_sets/celtic/wP.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/celtic/wP.png', package: 'chessground'),
     PieceKind.whiteKnight:
-        AssetImage('lib/piece_sets/celtic/wN.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/celtic/wN.png', package: 'chessground'),
     PieceKind.whiteBishop:
-        AssetImage('lib/piece_sets/celtic/wB.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/celtic/wB.png', package: 'chessground'),
     PieceKind.whiteQueen:
-        AssetImage('lib/piece_sets/celtic/wQ.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/celtic/wQ.png', package: 'chessground'),
     PieceKind.whiteKing:
-        AssetImage('lib/piece_sets/celtic/wK.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/celtic/wK.png', package: 'chessground'),
   });
 
   static const PieceAssets chess7Assets = IMapConst({
     PieceKind.blackRook:
-        AssetImage('lib/piece_sets/chess7/bR.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/chess7/bR.png', package: 'chessground'),
     PieceKind.blackPawn:
-        AssetImage('lib/piece_sets/chess7/bP.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/chess7/bP.png', package: 'chessground'),
     PieceKind.blackKnight:
-        AssetImage('lib/piece_sets/chess7/bN.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/chess7/bN.png', package: 'chessground'),
     PieceKind.blackBishop:
-        AssetImage('lib/piece_sets/chess7/bB.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/chess7/bB.png', package: 'chessground'),
     PieceKind.blackQueen:
-        AssetImage('lib/piece_sets/chess7/bQ.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/chess7/bQ.png', package: 'chessground'),
     PieceKind.blackKing:
-        AssetImage('lib/piece_sets/chess7/bK.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/chess7/bK.png', package: 'chessground'),
     PieceKind.whiteRook:
-        AssetImage('lib/piece_sets/chess7/wR.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/chess7/wR.png', package: 'chessground'),
     PieceKind.whitePawn:
-        AssetImage('lib/piece_sets/chess7/wP.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/chess7/wP.png', package: 'chessground'),
     PieceKind.whiteKnight:
-        AssetImage('lib/piece_sets/chess7/wN.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/chess7/wN.png', package: 'chessground'),
     PieceKind.whiteBishop:
-        AssetImage('lib/piece_sets/chess7/wB.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/chess7/wB.png', package: 'chessground'),
     PieceKind.whiteQueen:
-        AssetImage('lib/piece_sets/chess7/wQ.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/chess7/wQ.png', package: 'chessground'),
     PieceKind.whiteKing:
-        AssetImage('lib/piece_sets/chess7/wK.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/chess7/wK.png', package: 'chessground'),
   });
 
   static const PieceAssets chessnutAssets = IMapConst({
     PieceKind.blackRook:
-        AssetImage('lib/piece_sets/chessnut/bR.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/chessnut/bR.png', package: 'chessground'),
     PieceKind.blackPawn:
-        AssetImage('lib/piece_sets/chessnut/bP.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/chessnut/bP.png', package: 'chessground'),
     PieceKind.blackKnight:
-        AssetImage('lib/piece_sets/chessnut/bN.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/chessnut/bN.png', package: 'chessground'),
     PieceKind.blackBishop:
-        AssetImage('lib/piece_sets/chessnut/bB.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/chessnut/bB.png', package: 'chessground'),
     PieceKind.blackQueen:
-        AssetImage('lib/piece_sets/chessnut/bQ.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/chessnut/bQ.png', package: 'chessground'),
     PieceKind.blackKing:
-        AssetImage('lib/piece_sets/chessnut/bK.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/chessnut/bK.png', package: 'chessground'),
     PieceKind.whiteRook:
-        AssetImage('lib/piece_sets/chessnut/wR.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/chessnut/wR.png', package: 'chessground'),
     PieceKind.whitePawn:
-        AssetImage('lib/piece_sets/chessnut/wP.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/chessnut/wP.png', package: 'chessground'),
     PieceKind.whiteKnight:
-        AssetImage('lib/piece_sets/chessnut/wN.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/chessnut/wN.png', package: 'chessground'),
     PieceKind.whiteBishop:
-        AssetImage('lib/piece_sets/chessnut/wB.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/chessnut/wB.png', package: 'chessground'),
     PieceKind.whiteQueen:
-        AssetImage('lib/piece_sets/chessnut/wQ.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/chessnut/wQ.png', package: 'chessground'),
     PieceKind.whiteKing:
-        AssetImage('lib/piece_sets/chessnut/wK.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/chessnut/wK.png', package: 'chessground'),
   });
 
   static const PieceAssets companionAssets = IMapConst({
     PieceKind.blackRook:
-        AssetImage('lib/piece_sets/companion/bR.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/companion/bR.png', package: 'chessground'),
     PieceKind.blackPawn:
-        AssetImage('lib/piece_sets/companion/bP.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/companion/bP.png', package: 'chessground'),
     PieceKind.blackKnight:
-        AssetImage('lib/piece_sets/companion/bN.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/companion/bN.png', package: 'chessground'),
     PieceKind.blackBishop:
-        AssetImage('lib/piece_sets/companion/bB.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/companion/bB.png', package: 'chessground'),
     PieceKind.blackQueen:
-        AssetImage('lib/piece_sets/companion/bQ.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/companion/bQ.png', package: 'chessground'),
     PieceKind.blackKing:
-        AssetImage('lib/piece_sets/companion/bK.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/companion/bK.png', package: 'chessground'),
     PieceKind.whiteRook:
-        AssetImage('lib/piece_sets/companion/wR.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/companion/wR.png', package: 'chessground'),
     PieceKind.whitePawn:
-        AssetImage('lib/piece_sets/companion/wP.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/companion/wP.png', package: 'chessground'),
     PieceKind.whiteKnight:
-        AssetImage('lib/piece_sets/companion/wN.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/companion/wN.png', package: 'chessground'),
     PieceKind.whiteBishop:
-        AssetImage('lib/piece_sets/companion/wB.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/companion/wB.png', package: 'chessground'),
     PieceKind.whiteQueen:
-        AssetImage('lib/piece_sets/companion/wQ.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/companion/wQ.png', package: 'chessground'),
     PieceKind.whiteKing:
-        AssetImage('lib/piece_sets/companion/wK.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/companion/wK.png', package: 'chessground'),
   });
 
   static const PieceAssets disguisedAssets = IMapConst({
     PieceKind.blackRook:
-        AssetImage('lib/piece_sets/disguised/bR.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/disguised/bR.png', package: 'chessground'),
     PieceKind.blackPawn:
-        AssetImage('lib/piece_sets/disguised/bP.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/disguised/bP.png', package: 'chessground'),
     PieceKind.blackKnight:
-        AssetImage('lib/piece_sets/disguised/bN.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/disguised/bN.png', package: 'chessground'),
     PieceKind.blackBishop:
-        AssetImage('lib/piece_sets/disguised/bB.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/disguised/bB.png', package: 'chessground'),
     PieceKind.blackQueen:
-        AssetImage('lib/piece_sets/disguised/bQ.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/disguised/bQ.png', package: 'chessground'),
     PieceKind.blackKing:
-        AssetImage('lib/piece_sets/disguised/bK.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/disguised/bK.png', package: 'chessground'),
     PieceKind.whiteRook:
-        AssetImage('lib/piece_sets/disguised/wR.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/disguised/wR.png', package: 'chessground'),
     PieceKind.whitePawn:
-        AssetImage('lib/piece_sets/disguised/wP.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/disguised/wP.png', package: 'chessground'),
     PieceKind.whiteKnight:
-        AssetImage('lib/piece_sets/disguised/wN.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/disguised/wN.png', package: 'chessground'),
     PieceKind.whiteBishop:
-        AssetImage('lib/piece_sets/disguised/wB.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/disguised/wB.png', package: 'chessground'),
     PieceKind.whiteQueen:
-        AssetImage('lib/piece_sets/disguised/wQ.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/disguised/wQ.png', package: 'chessground'),
     PieceKind.whiteKing:
-        AssetImage('lib/piece_sets/disguised/wK.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/disguised/wK.png', package: 'chessground'),
   });
 
   static const PieceAssets dubrovnyAssets = IMapConst({
     PieceKind.blackRook:
-        AssetImage('lib/piece_sets/dubrovny/bR.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/dubrovny/bR.png', package: 'chessground'),
     PieceKind.blackPawn:
-        AssetImage('lib/piece_sets/dubrovny/bP.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/dubrovny/bP.png', package: 'chessground'),
     PieceKind.blackKnight:
-        AssetImage('lib/piece_sets/dubrovny/bN.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/dubrovny/bN.png', package: 'chessground'),
     PieceKind.blackBishop:
-        AssetImage('lib/piece_sets/dubrovny/bB.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/dubrovny/bB.png', package: 'chessground'),
     PieceKind.blackQueen:
-        AssetImage('lib/piece_sets/dubrovny/bQ.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/dubrovny/bQ.png', package: 'chessground'),
     PieceKind.blackKing:
-        AssetImage('lib/piece_sets/dubrovny/bK.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/dubrovny/bK.png', package: 'chessground'),
     PieceKind.whiteRook:
-        AssetImage('lib/piece_sets/dubrovny/wR.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/dubrovny/wR.png', package: 'chessground'),
     PieceKind.whitePawn:
-        AssetImage('lib/piece_sets/dubrovny/wP.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/dubrovny/wP.png', package: 'chessground'),
     PieceKind.whiteKnight:
-        AssetImage('lib/piece_sets/dubrovny/wN.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/dubrovny/wN.png', package: 'chessground'),
     PieceKind.whiteBishop:
-        AssetImage('lib/piece_sets/dubrovny/wB.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/dubrovny/wB.png', package: 'chessground'),
     PieceKind.whiteQueen:
-        AssetImage('lib/piece_sets/dubrovny/wQ.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/dubrovny/wQ.png', package: 'chessground'),
     PieceKind.whiteKing:
-        AssetImage('lib/piece_sets/dubrovny/wK.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/dubrovny/wK.png', package: 'chessground'),
   });
 
   static const PieceAssets fantasyAssets = IMapConst({
     PieceKind.blackRook:
-        AssetImage('lib/piece_sets/fantasy/bR.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/fantasy/bR.png', package: 'chessground'),
     PieceKind.blackPawn:
-        AssetImage('lib/piece_sets/fantasy/bP.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/fantasy/bP.png', package: 'chessground'),
     PieceKind.blackKnight:
-        AssetImage('lib/piece_sets/fantasy/bN.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/fantasy/bN.png', package: 'chessground'),
     PieceKind.blackBishop:
-        AssetImage('lib/piece_sets/fantasy/bB.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/fantasy/bB.png', package: 'chessground'),
     PieceKind.blackQueen:
-        AssetImage('lib/piece_sets/fantasy/bQ.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/fantasy/bQ.png', package: 'chessground'),
     PieceKind.blackKing:
-        AssetImage('lib/piece_sets/fantasy/bK.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/fantasy/bK.png', package: 'chessground'),
     PieceKind.whiteRook:
-        AssetImage('lib/piece_sets/fantasy/wR.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/fantasy/wR.png', package: 'chessground'),
     PieceKind.whitePawn:
-        AssetImage('lib/piece_sets/fantasy/wP.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/fantasy/wP.png', package: 'chessground'),
     PieceKind.whiteKnight:
-        AssetImage('lib/piece_sets/fantasy/wN.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/fantasy/wN.png', package: 'chessground'),
     PieceKind.whiteBishop:
-        AssetImage('lib/piece_sets/fantasy/wB.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/fantasy/wB.png', package: 'chessground'),
     PieceKind.whiteQueen:
-        AssetImage('lib/piece_sets/fantasy/wQ.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/fantasy/wQ.png', package: 'chessground'),
     PieceKind.whiteKing:
-        AssetImage('lib/piece_sets/fantasy/wK.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/fantasy/wK.png', package: 'chessground'),
   });
 
   static const PieceAssets frescaAssets = IMapConst({
     PieceKind.blackRook:
-        AssetImage('lib/piece_sets/fresca/bR.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/fresca/bR.png', package: 'chessground'),
     PieceKind.blackPawn:
-        AssetImage('lib/piece_sets/fresca/bP.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/fresca/bP.png', package: 'chessground'),
     PieceKind.blackKnight:
-        AssetImage('lib/piece_sets/fresca/bN.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/fresca/bN.png', package: 'chessground'),
     PieceKind.blackBishop:
-        AssetImage('lib/piece_sets/fresca/bB.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/fresca/bB.png', package: 'chessground'),
     PieceKind.blackQueen:
-        AssetImage('lib/piece_sets/fresca/bQ.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/fresca/bQ.png', package: 'chessground'),
     PieceKind.blackKing:
-        AssetImage('lib/piece_sets/fresca/bK.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/fresca/bK.png', package: 'chessground'),
     PieceKind.whiteRook:
-        AssetImage('lib/piece_sets/fresca/wR.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/fresca/wR.png', package: 'chessground'),
     PieceKind.whitePawn:
-        AssetImage('lib/piece_sets/fresca/wP.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/fresca/wP.png', package: 'chessground'),
     PieceKind.whiteKnight:
-        AssetImage('lib/piece_sets/fresca/wN.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/fresca/wN.png', package: 'chessground'),
     PieceKind.whiteBishop:
-        AssetImage('lib/piece_sets/fresca/wB.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/fresca/wB.png', package: 'chessground'),
     PieceKind.whiteQueen:
-        AssetImage('lib/piece_sets/fresca/wQ.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/fresca/wQ.png', package: 'chessground'),
     PieceKind.whiteKing:
-        AssetImage('lib/piece_sets/fresca/wK.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/fresca/wK.png', package: 'chessground'),
   });
 
   static const PieceAssets giocoAssets = IMapConst({
     PieceKind.blackRook:
-        AssetImage('lib/piece_sets/gioco/bR.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/gioco/bR.png', package: 'chessground'),
     PieceKind.blackPawn:
-        AssetImage('lib/piece_sets/gioco/bP.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/gioco/bP.png', package: 'chessground'),
     PieceKind.blackKnight:
-        AssetImage('lib/piece_sets/gioco/bN.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/gioco/bN.png', package: 'chessground'),
     PieceKind.blackBishop:
-        AssetImage('lib/piece_sets/gioco/bB.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/gioco/bB.png', package: 'chessground'),
     PieceKind.blackQueen:
-        AssetImage('lib/piece_sets/gioco/bQ.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/gioco/bQ.png', package: 'chessground'),
     PieceKind.blackKing:
-        AssetImage('lib/piece_sets/gioco/bK.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/gioco/bK.png', package: 'chessground'),
     PieceKind.whiteRook:
-        AssetImage('lib/piece_sets/gioco/wR.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/gioco/wR.png', package: 'chessground'),
     PieceKind.whitePawn:
-        AssetImage('lib/piece_sets/gioco/wP.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/gioco/wP.png', package: 'chessground'),
     PieceKind.whiteKnight:
-        AssetImage('lib/piece_sets/gioco/wN.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/gioco/wN.png', package: 'chessground'),
     PieceKind.whiteBishop:
-        AssetImage('lib/piece_sets/gioco/wB.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/gioco/wB.png', package: 'chessground'),
     PieceKind.whiteQueen:
-        AssetImage('lib/piece_sets/gioco/wQ.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/gioco/wQ.png', package: 'chessground'),
     PieceKind.whiteKing:
-        AssetImage('lib/piece_sets/gioco/wK.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/gioco/wK.png', package: 'chessground'),
   });
 
   static const PieceAssets governorAssets = IMapConst({
     PieceKind.blackRook:
-        AssetImage('lib/piece_sets/governor/bR.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/governor/bR.png', package: 'chessground'),
     PieceKind.blackPawn:
-        AssetImage('lib/piece_sets/governor/bP.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/governor/bP.png', package: 'chessground'),
     PieceKind.blackKnight:
-        AssetImage('lib/piece_sets/governor/bN.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/governor/bN.png', package: 'chessground'),
     PieceKind.blackBishop:
-        AssetImage('lib/piece_sets/governor/bB.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/governor/bB.png', package: 'chessground'),
     PieceKind.blackQueen:
-        AssetImage('lib/piece_sets/governor/bQ.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/governor/bQ.png', package: 'chessground'),
     PieceKind.blackKing:
-        AssetImage('lib/piece_sets/governor/bK.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/governor/bK.png', package: 'chessground'),
     PieceKind.whiteRook:
-        AssetImage('lib/piece_sets/governor/wR.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/governor/wR.png', package: 'chessground'),
     PieceKind.whitePawn:
-        AssetImage('lib/piece_sets/governor/wP.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/governor/wP.png', package: 'chessground'),
     PieceKind.whiteKnight:
-        AssetImage('lib/piece_sets/governor/wN.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/governor/wN.png', package: 'chessground'),
     PieceKind.whiteBishop:
-        AssetImage('lib/piece_sets/governor/wB.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/governor/wB.png', package: 'chessground'),
     PieceKind.whiteQueen:
-        AssetImage('lib/piece_sets/governor/wQ.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/governor/wQ.png', package: 'chessground'),
     PieceKind.whiteKing:
-        AssetImage('lib/piece_sets/governor/wK.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/governor/wK.png', package: 'chessground'),
   });
 
   static const PieceAssets horseyAssets = IMapConst({
     PieceKind.blackRook:
-        AssetImage('lib/piece_sets/horsey/bR.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/horsey/bR.png', package: 'chessground'),
     PieceKind.blackPawn:
-        AssetImage('lib/piece_sets/horsey/bP.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/horsey/bP.png', package: 'chessground'),
     PieceKind.blackKnight:
-        AssetImage('lib/piece_sets/horsey/bN.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/horsey/bN.png', package: 'chessground'),
     PieceKind.blackBishop:
-        AssetImage('lib/piece_sets/horsey/bB.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/horsey/bB.png', package: 'chessground'),
     PieceKind.blackQueen:
-        AssetImage('lib/piece_sets/horsey/bQ.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/horsey/bQ.png', package: 'chessground'),
     PieceKind.blackKing:
-        AssetImage('lib/piece_sets/horsey/bK.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/horsey/bK.png', package: 'chessground'),
     PieceKind.whiteRook:
-        AssetImage('lib/piece_sets/horsey/wR.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/horsey/wR.png', package: 'chessground'),
     PieceKind.whitePawn:
-        AssetImage('lib/piece_sets/horsey/wP.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/horsey/wP.png', package: 'chessground'),
     PieceKind.whiteKnight:
-        AssetImage('lib/piece_sets/horsey/wN.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/horsey/wN.png', package: 'chessground'),
     PieceKind.whiteBishop:
-        AssetImage('lib/piece_sets/horsey/wB.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/horsey/wB.png', package: 'chessground'),
     PieceKind.whiteQueen:
-        AssetImage('lib/piece_sets/horsey/wQ.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/horsey/wQ.png', package: 'chessground'),
     PieceKind.whiteKing:
-        AssetImage('lib/piece_sets/horsey/wK.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/horsey/wK.png', package: 'chessground'),
   });
 
   static const PieceAssets icpiecesAssets = IMapConst({
     PieceKind.blackRook:
-        AssetImage('lib/piece_sets/icpieces/bR.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/icpieces/bR.png', package: 'chessground'),
     PieceKind.blackPawn:
-        AssetImage('lib/piece_sets/icpieces/bP.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/icpieces/bP.png', package: 'chessground'),
     PieceKind.blackKnight:
-        AssetImage('lib/piece_sets/icpieces/bN.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/icpieces/bN.png', package: 'chessground'),
     PieceKind.blackBishop:
-        AssetImage('lib/piece_sets/icpieces/bB.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/icpieces/bB.png', package: 'chessground'),
     PieceKind.blackQueen:
-        AssetImage('lib/piece_sets/icpieces/bQ.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/icpieces/bQ.png', package: 'chessground'),
     PieceKind.blackKing:
-        AssetImage('lib/piece_sets/icpieces/bK.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/icpieces/bK.png', package: 'chessground'),
     PieceKind.whiteRook:
-        AssetImage('lib/piece_sets/icpieces/wR.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/icpieces/wR.png', package: 'chessground'),
     PieceKind.whitePawn:
-        AssetImage('lib/piece_sets/icpieces/wP.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/icpieces/wP.png', package: 'chessground'),
     PieceKind.whiteKnight:
-        AssetImage('lib/piece_sets/icpieces/wN.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/icpieces/wN.png', package: 'chessground'),
     PieceKind.whiteBishop:
-        AssetImage('lib/piece_sets/icpieces/wB.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/icpieces/wB.png', package: 'chessground'),
     PieceKind.whiteQueen:
-        AssetImage('lib/piece_sets/icpieces/wQ.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/icpieces/wQ.png', package: 'chessground'),
     PieceKind.whiteKing:
-        AssetImage('lib/piece_sets/icpieces/wK.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/icpieces/wK.png', package: 'chessground'),
   });
 
   static const PieceAssets kosalAssets = IMapConst({
     PieceKind.blackRook:
-        AssetImage('lib/piece_sets/kosal/bR.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/kosal/bR.png', package: 'chessground'),
     PieceKind.blackPawn:
-        AssetImage('lib/piece_sets/kosal/bP.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/kosal/bP.png', package: 'chessground'),
     PieceKind.blackKnight:
-        AssetImage('lib/piece_sets/kosal/bN.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/kosal/bN.png', package: 'chessground'),
     PieceKind.blackBishop:
-        AssetImage('lib/piece_sets/kosal/bB.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/kosal/bB.png', package: 'chessground'),
     PieceKind.blackQueen:
-        AssetImage('lib/piece_sets/kosal/bQ.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/kosal/bQ.png', package: 'chessground'),
     PieceKind.blackKing:
-        AssetImage('lib/piece_sets/kosal/bK.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/kosal/bK.png', package: 'chessground'),
     PieceKind.whiteRook:
-        AssetImage('lib/piece_sets/kosal/wR.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/kosal/wR.png', package: 'chessground'),
     PieceKind.whitePawn:
-        AssetImage('lib/piece_sets/kosal/wP.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/kosal/wP.png', package: 'chessground'),
     PieceKind.whiteKnight:
-        AssetImage('lib/piece_sets/kosal/wN.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/kosal/wN.png', package: 'chessground'),
     PieceKind.whiteBishop:
-        AssetImage('lib/piece_sets/kosal/wB.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/kosal/wB.png', package: 'chessground'),
     PieceKind.whiteQueen:
-        AssetImage('lib/piece_sets/kosal/wQ.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/kosal/wQ.png', package: 'chessground'),
     PieceKind.whiteKing:
-        AssetImage('lib/piece_sets/kosal/wK.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/kosal/wK.png', package: 'chessground'),
   });
 
   static const PieceAssets leipzigAssets = IMapConst({
     PieceKind.blackRook:
-        AssetImage('lib/piece_sets/leipzig/bR.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/leipzig/bR.png', package: 'chessground'),
     PieceKind.blackPawn:
-        AssetImage('lib/piece_sets/leipzig/bP.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/leipzig/bP.png', package: 'chessground'),
     PieceKind.blackKnight:
-        AssetImage('lib/piece_sets/leipzig/bN.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/leipzig/bN.png', package: 'chessground'),
     PieceKind.blackBishop:
-        AssetImage('lib/piece_sets/leipzig/bB.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/leipzig/bB.png', package: 'chessground'),
     PieceKind.blackQueen:
-        AssetImage('lib/piece_sets/leipzig/bQ.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/leipzig/bQ.png', package: 'chessground'),
     PieceKind.blackKing:
-        AssetImage('lib/piece_sets/leipzig/bK.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/leipzig/bK.png', package: 'chessground'),
     PieceKind.whiteRook:
-        AssetImage('lib/piece_sets/leipzig/wR.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/leipzig/wR.png', package: 'chessground'),
     PieceKind.whitePawn:
-        AssetImage('lib/piece_sets/leipzig/wP.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/leipzig/wP.png', package: 'chessground'),
     PieceKind.whiteKnight:
-        AssetImage('lib/piece_sets/leipzig/wN.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/leipzig/wN.png', package: 'chessground'),
     PieceKind.whiteBishop:
-        AssetImage('lib/piece_sets/leipzig/wB.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/leipzig/wB.png', package: 'chessground'),
     PieceKind.whiteQueen:
-        AssetImage('lib/piece_sets/leipzig/wQ.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/leipzig/wQ.png', package: 'chessground'),
     PieceKind.whiteKing:
-        AssetImage('lib/piece_sets/leipzig/wK.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/leipzig/wK.png', package: 'chessground'),
   });
 
   static const PieceAssets letterAssets = IMapConst({
     PieceKind.blackRook:
-        AssetImage('lib/piece_sets/letter/bR.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/letter/bR.png', package: 'chessground'),
     PieceKind.blackPawn:
-        AssetImage('lib/piece_sets/letter/bP.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/letter/bP.png', package: 'chessground'),
     PieceKind.blackKnight:
-        AssetImage('lib/piece_sets/letter/bN.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/letter/bN.png', package: 'chessground'),
     PieceKind.blackBishop:
-        AssetImage('lib/piece_sets/letter/bB.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/letter/bB.png', package: 'chessground'),
     PieceKind.blackQueen:
-        AssetImage('lib/piece_sets/letter/bQ.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/letter/bQ.png', package: 'chessground'),
     PieceKind.blackKing:
-        AssetImage('lib/piece_sets/letter/bK.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/letter/bK.png', package: 'chessground'),
     PieceKind.whiteRook:
-        AssetImage('lib/piece_sets/letter/wR.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/letter/wR.png', package: 'chessground'),
     PieceKind.whitePawn:
-        AssetImage('lib/piece_sets/letter/wP.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/letter/wP.png', package: 'chessground'),
     PieceKind.whiteKnight:
-        AssetImage('lib/piece_sets/letter/wN.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/letter/wN.png', package: 'chessground'),
     PieceKind.whiteBishop:
-        AssetImage('lib/piece_sets/letter/wB.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/letter/wB.png', package: 'chessground'),
     PieceKind.whiteQueen:
-        AssetImage('lib/piece_sets/letter/wQ.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/letter/wQ.png', package: 'chessground'),
     PieceKind.whiteKing:
-        AssetImage('lib/piece_sets/letter/wK.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/letter/wK.png', package: 'chessground'),
   });
 
   static const PieceAssets libraAssets = IMapConst({
     PieceKind.blackRook:
-        AssetImage('lib/piece_sets/libra/bR.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/libra/bR.png', package: 'chessground'),
     PieceKind.blackPawn:
-        AssetImage('lib/piece_sets/libra/bP.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/libra/bP.png', package: 'chessground'),
     PieceKind.blackKnight:
-        AssetImage('lib/piece_sets/libra/bN.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/libra/bN.png', package: 'chessground'),
     PieceKind.blackBishop:
-        AssetImage('lib/piece_sets/libra/bB.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/libra/bB.png', package: 'chessground'),
     PieceKind.blackQueen:
-        AssetImage('lib/piece_sets/libra/bQ.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/libra/bQ.png', package: 'chessground'),
     PieceKind.blackKing:
-        AssetImage('lib/piece_sets/libra/bK.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/libra/bK.png', package: 'chessground'),
     PieceKind.whiteRook:
-        AssetImage('lib/piece_sets/libra/wR.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/libra/wR.png', package: 'chessground'),
     PieceKind.whitePawn:
-        AssetImage('lib/piece_sets/libra/wP.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/libra/wP.png', package: 'chessground'),
     PieceKind.whiteKnight:
-        AssetImage('lib/piece_sets/libra/wN.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/libra/wN.png', package: 'chessground'),
     PieceKind.whiteBishop:
-        AssetImage('lib/piece_sets/libra/wB.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/libra/wB.png', package: 'chessground'),
     PieceKind.whiteQueen:
-        AssetImage('lib/piece_sets/libra/wQ.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/libra/wQ.png', package: 'chessground'),
     PieceKind.whiteKing:
-        AssetImage('lib/piece_sets/libra/wK.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/libra/wK.png', package: 'chessground'),
   });
 
   static const PieceAssets maestroAssets = IMapConst({
     PieceKind.blackRook:
-        AssetImage('lib/piece_sets/maestro/bR.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/maestro/bR.png', package: 'chessground'),
     PieceKind.blackPawn:
-        AssetImage('lib/piece_sets/maestro/bP.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/maestro/bP.png', package: 'chessground'),
     PieceKind.blackKnight:
-        AssetImage('lib/piece_sets/maestro/bN.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/maestro/bN.png', package: 'chessground'),
     PieceKind.blackBishop:
-        AssetImage('lib/piece_sets/maestro/bB.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/maestro/bB.png', package: 'chessground'),
     PieceKind.blackQueen:
-        AssetImage('lib/piece_sets/maestro/bQ.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/maestro/bQ.png', package: 'chessground'),
     PieceKind.blackKing:
-        AssetImage('lib/piece_sets/maestro/bK.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/maestro/bK.png', package: 'chessground'),
     PieceKind.whiteRook:
-        AssetImage('lib/piece_sets/maestro/wR.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/maestro/wR.png', package: 'chessground'),
     PieceKind.whitePawn:
-        AssetImage('lib/piece_sets/maestro/wP.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/maestro/wP.png', package: 'chessground'),
     PieceKind.whiteKnight:
-        AssetImage('lib/piece_sets/maestro/wN.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/maestro/wN.png', package: 'chessground'),
     PieceKind.whiteBishop:
-        AssetImage('lib/piece_sets/maestro/wB.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/maestro/wB.png', package: 'chessground'),
     PieceKind.whiteQueen:
-        AssetImage('lib/piece_sets/maestro/wQ.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/maestro/wQ.png', package: 'chessground'),
     PieceKind.whiteKing:
-        AssetImage('lib/piece_sets/maestro/wK.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/maestro/wK.png', package: 'chessground'),
   });
 
   static const PieceAssets meridaAssets = IMapConst({
     PieceKind.blackRook:
-        AssetImage('lib/piece_sets/merida/bR.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/merida/bR.png', package: 'chessground'),
     PieceKind.blackPawn:
-        AssetImage('lib/piece_sets/merida/bP.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/merida/bP.png', package: 'chessground'),
     PieceKind.blackKnight:
-        AssetImage('lib/piece_sets/merida/bN.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/merida/bN.png', package: 'chessground'),
     PieceKind.blackBishop:
-        AssetImage('lib/piece_sets/merida/bB.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/merida/bB.png', package: 'chessground'),
     PieceKind.blackQueen:
-        AssetImage('lib/piece_sets/merida/bQ.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/merida/bQ.png', package: 'chessground'),
     PieceKind.blackKing:
-        AssetImage('lib/piece_sets/merida/bK.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/merida/bK.png', package: 'chessground'),
     PieceKind.whiteRook:
-        AssetImage('lib/piece_sets/merida/wR.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/merida/wR.png', package: 'chessground'),
     PieceKind.whitePawn:
-        AssetImage('lib/piece_sets/merida/wP.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/merida/wP.png', package: 'chessground'),
     PieceKind.whiteKnight:
-        AssetImage('lib/piece_sets/merida/wN.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/merida/wN.png', package: 'chessground'),
     PieceKind.whiteBishop:
-        AssetImage('lib/piece_sets/merida/wB.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/merida/wB.png', package: 'chessground'),
     PieceKind.whiteQueen:
-        AssetImage('lib/piece_sets/merida/wQ.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/merida/wQ.png', package: 'chessground'),
     PieceKind.whiteKing:
-        AssetImage('lib/piece_sets/merida/wK.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/merida/wK.png', package: 'chessground'),
   });
 
   static const PieceAssets pirouettiAssets = IMapConst({
     PieceKind.blackRook:
-        AssetImage('lib/piece_sets/pirouetti/bR.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/pirouetti/bR.png', package: 'chessground'),
     PieceKind.blackPawn:
-        AssetImage('lib/piece_sets/pirouetti/bP.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/pirouetti/bP.png', package: 'chessground'),
     PieceKind.blackKnight:
-        AssetImage('lib/piece_sets/pirouetti/bN.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/pirouetti/bN.png', package: 'chessground'),
     PieceKind.blackBishop:
-        AssetImage('lib/piece_sets/pirouetti/bB.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/pirouetti/bB.png', package: 'chessground'),
     PieceKind.blackQueen:
-        AssetImage('lib/piece_sets/pirouetti/bQ.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/pirouetti/bQ.png', package: 'chessground'),
     PieceKind.blackKing:
-        AssetImage('lib/piece_sets/pirouetti/bK.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/pirouetti/bK.png', package: 'chessground'),
     PieceKind.whiteRook:
-        AssetImage('lib/piece_sets/pirouetti/wR.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/pirouetti/wR.png', package: 'chessground'),
     PieceKind.whitePawn:
-        AssetImage('lib/piece_sets/pirouetti/wP.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/pirouetti/wP.png', package: 'chessground'),
     PieceKind.whiteKnight:
-        AssetImage('lib/piece_sets/pirouetti/wN.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/pirouetti/wN.png', package: 'chessground'),
     PieceKind.whiteBishop:
-        AssetImage('lib/piece_sets/pirouetti/wB.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/pirouetti/wB.png', package: 'chessground'),
     PieceKind.whiteQueen:
-        AssetImage('lib/piece_sets/pirouetti/wQ.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/pirouetti/wQ.png', package: 'chessground'),
     PieceKind.whiteKing:
-        AssetImage('lib/piece_sets/pirouetti/wK.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/pirouetti/wK.png', package: 'chessground'),
   });
 
   static const PieceAssets pixelAssets = IMapConst({
     PieceKind.blackRook:
-        AssetImage('lib/piece_sets/pixel/bR.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/pixel/bR.png', package: 'chessground'),
     PieceKind.blackPawn:
-        AssetImage('lib/piece_sets/pixel/bP.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/pixel/bP.png', package: 'chessground'),
     PieceKind.blackKnight:
-        AssetImage('lib/piece_sets/pixel/bN.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/pixel/bN.png', package: 'chessground'),
     PieceKind.blackBishop:
-        AssetImage('lib/piece_sets/pixel/bB.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/pixel/bB.png', package: 'chessground'),
     PieceKind.blackQueen:
-        AssetImage('lib/piece_sets/pixel/bQ.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/pixel/bQ.png', package: 'chessground'),
     PieceKind.blackKing:
-        AssetImage('lib/piece_sets/pixel/bK.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/pixel/bK.png', package: 'chessground'),
     PieceKind.whiteRook:
-        AssetImage('lib/piece_sets/pixel/wR.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/pixel/wR.png', package: 'chessground'),
     PieceKind.whitePawn:
-        AssetImage('lib/piece_sets/pixel/wP.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/pixel/wP.png', package: 'chessground'),
     PieceKind.whiteKnight:
-        AssetImage('lib/piece_sets/pixel/wN.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/pixel/wN.png', package: 'chessground'),
     PieceKind.whiteBishop:
-        AssetImage('lib/piece_sets/pixel/wB.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/pixel/wB.png', package: 'chessground'),
     PieceKind.whiteQueen:
-        AssetImage('lib/piece_sets/pixel/wQ.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/pixel/wQ.png', package: 'chessground'),
     PieceKind.whiteKing:
-        AssetImage('lib/piece_sets/pixel/wK.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/pixel/wK.png', package: 'chessground'),
   });
 
   static const PieceAssets reillycraigAssets = IMapConst({
     PieceKind.blackRook:
-        AssetImage('lib/piece_sets/reillycraig/bR.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/reillycraig/bR.png', package: 'chessground'),
     PieceKind.blackPawn:
-        AssetImage('lib/piece_sets/reillycraig/bP.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/reillycraig/bP.png', package: 'chessground'),
     PieceKind.blackKnight:
-        AssetImage('lib/piece_sets/reillycraig/bN.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/reillycraig/bN.png', package: 'chessground'),
     PieceKind.blackBishop:
-        AssetImage('lib/piece_sets/reillycraig/bB.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/reillycraig/bB.png', package: 'chessground'),
     PieceKind.blackQueen:
-        AssetImage('lib/piece_sets/reillycraig/bQ.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/reillycraig/bQ.png', package: 'chessground'),
     PieceKind.blackKing:
-        AssetImage('lib/piece_sets/reillycraig/bK.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/reillycraig/bK.png', package: 'chessground'),
     PieceKind.whiteRook:
-        AssetImage('lib/piece_sets/reillycraig/wR.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/reillycraig/wR.png', package: 'chessground'),
     PieceKind.whitePawn:
-        AssetImage('lib/piece_sets/reillycraig/wP.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/reillycraig/wP.png', package: 'chessground'),
     PieceKind.whiteKnight:
-        AssetImage('lib/piece_sets/reillycraig/wN.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/reillycraig/wN.png', package: 'chessground'),
     PieceKind.whiteBishop:
-        AssetImage('lib/piece_sets/reillycraig/wB.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/reillycraig/wB.png', package: 'chessground'),
     PieceKind.whiteQueen:
-        AssetImage('lib/piece_sets/reillycraig/wQ.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/reillycraig/wQ.png', package: 'chessground'),
     PieceKind.whiteKing:
-        AssetImage('lib/piece_sets/reillycraig/wK.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/reillycraig/wK.png', package: 'chessground'),
   });
 
   static const PieceAssets riohachaAssets = IMapConst({
     PieceKind.blackRook:
-        AssetImage('lib/piece_sets/riohacha/bR.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/riohacha/bR.png', package: 'chessground'),
     PieceKind.blackPawn:
-        AssetImage('lib/piece_sets/riohacha/bP.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/riohacha/bP.png', package: 'chessground'),
     PieceKind.blackKnight:
-        AssetImage('lib/piece_sets/riohacha/bN.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/riohacha/bN.png', package: 'chessground'),
     PieceKind.blackBishop:
-        AssetImage('lib/piece_sets/riohacha/bB.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/riohacha/bB.png', package: 'chessground'),
     PieceKind.blackQueen:
-        AssetImage('lib/piece_sets/riohacha/bQ.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/riohacha/bQ.png', package: 'chessground'),
     PieceKind.blackKing:
-        AssetImage('lib/piece_sets/riohacha/bK.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/riohacha/bK.png', package: 'chessground'),
     PieceKind.whiteRook:
-        AssetImage('lib/piece_sets/riohacha/wR.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/riohacha/wR.png', package: 'chessground'),
     PieceKind.whitePawn:
-        AssetImage('lib/piece_sets/riohacha/wP.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/riohacha/wP.png', package: 'chessground'),
     PieceKind.whiteKnight:
-        AssetImage('lib/piece_sets/riohacha/wN.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/riohacha/wN.png', package: 'chessground'),
     PieceKind.whiteBishop:
-        AssetImage('lib/piece_sets/riohacha/wB.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/riohacha/wB.png', package: 'chessground'),
     PieceKind.whiteQueen:
-        AssetImage('lib/piece_sets/riohacha/wQ.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/riohacha/wQ.png', package: 'chessground'),
     PieceKind.whiteKing:
-        AssetImage('lib/piece_sets/riohacha/wK.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/riohacha/wK.png', package: 'chessground'),
   });
 
   static const PieceAssets shapesAssets = IMapConst({
     PieceKind.blackRook:
-        AssetImage('lib/piece_sets/shapes/bR.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/shapes/bR.png', package: 'chessground'),
     PieceKind.blackPawn:
-        AssetImage('lib/piece_sets/shapes/bP.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/shapes/bP.png', package: 'chessground'),
     PieceKind.blackKnight:
-        AssetImage('lib/piece_sets/shapes/bN.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/shapes/bN.png', package: 'chessground'),
     PieceKind.blackBishop:
-        AssetImage('lib/piece_sets/shapes/bB.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/shapes/bB.png', package: 'chessground'),
     PieceKind.blackQueen:
-        AssetImage('lib/piece_sets/shapes/bQ.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/shapes/bQ.png', package: 'chessground'),
     PieceKind.blackKing:
-        AssetImage('lib/piece_sets/shapes/bK.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/shapes/bK.png', package: 'chessground'),
     PieceKind.whiteRook:
-        AssetImage('lib/piece_sets/shapes/wR.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/shapes/wR.png', package: 'chessground'),
     PieceKind.whitePawn:
-        AssetImage('lib/piece_sets/shapes/wP.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/shapes/wP.png', package: 'chessground'),
     PieceKind.whiteKnight:
-        AssetImage('lib/piece_sets/shapes/wN.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/shapes/wN.png', package: 'chessground'),
     PieceKind.whiteBishop:
-        AssetImage('lib/piece_sets/shapes/wB.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/shapes/wB.png', package: 'chessground'),
     PieceKind.whiteQueen:
-        AssetImage('lib/piece_sets/shapes/wQ.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/shapes/wQ.png', package: 'chessground'),
     PieceKind.whiteKing:
-        AssetImage('lib/piece_sets/shapes/wK.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/shapes/wK.png', package: 'chessground'),
   });
 
   static const PieceAssets spatialAssets = IMapConst({
     PieceKind.blackRook:
-        AssetImage('lib/piece_sets/spatial/bR.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/spatial/bR.png', package: 'chessground'),
     PieceKind.blackPawn:
-        AssetImage('lib/piece_sets/spatial/bP.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/spatial/bP.png', package: 'chessground'),
     PieceKind.blackKnight:
-        AssetImage('lib/piece_sets/spatial/bN.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/spatial/bN.png', package: 'chessground'),
     PieceKind.blackBishop:
-        AssetImage('lib/piece_sets/spatial/bB.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/spatial/bB.png', package: 'chessground'),
     PieceKind.blackQueen:
-        AssetImage('lib/piece_sets/spatial/bQ.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/spatial/bQ.png', package: 'chessground'),
     PieceKind.blackKing:
-        AssetImage('lib/piece_sets/spatial/bK.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/spatial/bK.png', package: 'chessground'),
     PieceKind.whiteRook:
-        AssetImage('lib/piece_sets/spatial/wR.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/spatial/wR.png', package: 'chessground'),
     PieceKind.whitePawn:
-        AssetImage('lib/piece_sets/spatial/wP.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/spatial/wP.png', package: 'chessground'),
     PieceKind.whiteKnight:
-        AssetImage('lib/piece_sets/spatial/wN.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/spatial/wN.png', package: 'chessground'),
     PieceKind.whiteBishop:
-        AssetImage('lib/piece_sets/spatial/wB.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/spatial/wB.png', package: 'chessground'),
     PieceKind.whiteQueen:
-        AssetImage('lib/piece_sets/spatial/wQ.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/spatial/wQ.png', package: 'chessground'),
     PieceKind.whiteKing:
-        AssetImage('lib/piece_sets/spatial/wK.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/spatial/wK.png', package: 'chessground'),
   });
 
   static const PieceAssets stauntyAssets = IMapConst({
     PieceKind.blackRook:
-        AssetImage('lib/piece_sets/staunty/bR.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/staunty/bR.png', package: 'chessground'),
     PieceKind.blackPawn:
-        AssetImage('lib/piece_sets/staunty/bP.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/staunty/bP.png', package: 'chessground'),
     PieceKind.blackKnight:
-        AssetImage('lib/piece_sets/staunty/bN.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/staunty/bN.png', package: 'chessground'),
     PieceKind.blackBishop:
-        AssetImage('lib/piece_sets/staunty/bB.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/staunty/bB.png', package: 'chessground'),
     PieceKind.blackQueen:
-        AssetImage('lib/piece_sets/staunty/bQ.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/staunty/bQ.png', package: 'chessground'),
     PieceKind.blackKing:
-        AssetImage('lib/piece_sets/staunty/bK.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/staunty/bK.png', package: 'chessground'),
     PieceKind.whiteRook:
-        AssetImage('lib/piece_sets/staunty/wR.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/staunty/wR.png', package: 'chessground'),
     PieceKind.whitePawn:
-        AssetImage('lib/piece_sets/staunty/wP.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/staunty/wP.png', package: 'chessground'),
     PieceKind.whiteKnight:
-        AssetImage('lib/piece_sets/staunty/wN.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/staunty/wN.png', package: 'chessground'),
     PieceKind.whiteBishop:
-        AssetImage('lib/piece_sets/staunty/wB.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/staunty/wB.png', package: 'chessground'),
     PieceKind.whiteQueen:
-        AssetImage('lib/piece_sets/staunty/wQ.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/staunty/wQ.png', package: 'chessground'),
     PieceKind.whiteKing:
-        AssetImage('lib/piece_sets/staunty/wK.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/staunty/wK.png', package: 'chessground'),
   });
 
   static const PieceAssets tatianaAssets = IMapConst({
     PieceKind.blackRook:
-        AssetImage('lib/piece_sets/tatiana/bR.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/tatiana/bR.png', package: 'chessground'),
     PieceKind.blackPawn:
-        AssetImage('lib/piece_sets/tatiana/bP.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/tatiana/bP.png', package: 'chessground'),
     PieceKind.blackKnight:
-        AssetImage('lib/piece_sets/tatiana/bN.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/tatiana/bN.png', package: 'chessground'),
     PieceKind.blackBishop:
-        AssetImage('lib/piece_sets/tatiana/bB.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/tatiana/bB.png', package: 'chessground'),
     PieceKind.blackQueen:
-        AssetImage('lib/piece_sets/tatiana/bQ.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/tatiana/bQ.png', package: 'chessground'),
     PieceKind.blackKing:
-        AssetImage('lib/piece_sets/tatiana/bK.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/tatiana/bK.png', package: 'chessground'),
     PieceKind.whiteRook:
-        AssetImage('lib/piece_sets/tatiana/wR.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/tatiana/wR.png', package: 'chessground'),
     PieceKind.whitePawn:
-        AssetImage('lib/piece_sets/tatiana/wP.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/tatiana/wP.png', package: 'chessground'),
     PieceKind.whiteKnight:
-        AssetImage('lib/piece_sets/tatiana/wN.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/tatiana/wN.png', package: 'chessground'),
     PieceKind.whiteBishop:
-        AssetImage('lib/piece_sets/tatiana/wB.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/tatiana/wB.png', package: 'chessground'),
     PieceKind.whiteQueen:
-        AssetImage('lib/piece_sets/tatiana/wQ.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/tatiana/wQ.png', package: 'chessground'),
     PieceKind.whiteKing:
-        AssetImage('lib/piece_sets/tatiana/wK.png', package: 'chessground'),
+        AssetImage('$_pieceSetsPath/tatiana/wK.png', package: 'chessground'),
   });
 }
