@@ -10,3 +10,7 @@ Initial release.
 
 - When premoving, tapping same piece will now deselect it (to be consistent with
 normal moves).
+
+## 1.0.3
+
+- `showValidMoves` board setting now applies to premoves.
