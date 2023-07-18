@@ -83,7 +83,8 @@ class _BoardState extends State<Board> {
             widget.data.validMoves != null
         ? widget.data.validMoves![selected!] ?? _emptyValidMoves
         : _emptyValidMoves;
-    final premoveDests = _premoveDests ?? {};
+    final Set<SquareId> premoveDests =
+        widget.settings.showValidMoves ? _premoveDests ?? {} : {};
     final shapes = widget.data.shapes ?? _emptyShapes;
     final annotations = widget.data.annotations ?? _emptyAnnotations;
     final checkSquare = widget.data.isCheck ? _getKingSquare() : null;
