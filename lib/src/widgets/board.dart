@@ -437,13 +437,6 @@ class _BoardState extends State<Board> {
     final squareId = widget.localOffset2SquareId(details.localPosition);
     if (squareId == null) return;
 
-    // cancel premove
-    if (_premove != null) {
-      setState(() {
-        _premove = null;
-      });
-    }
-
     // allow to castle by selecting the king and then the rook, so we must prevent
     // the re-selection of the rook
     if (_isMovable(squareId) &&
@@ -457,6 +450,7 @@ class _BoardState extends State<Board> {
       _shouldDeselectOnTapUp = selected == squareId;
       setState(() {
         selected = squareId;
+        _premove = null;
         _premoveDests = premovesOf(
           squareId,
           pieces,
