@@ -19,7 +19,6 @@ class BoardSettings {
     this.animationDuration = const Duration(milliseconds: 250),
     this.showLastMove = true,
     this.showValidMoves = true,
-    this.showPremovesDestinations = false,
     this.dragFeedbackSize = 2.0,
     this.dragFeedbackOffset = const Offset(0.0, -1.0),
 
@@ -47,9 +46,6 @@ class BoardSettings {
   /// Whether to show valid moves
   final bool showValidMoves;
 
-  /// Whether to show possible premove destinations.
-  final bool showPremovesDestinations;
-
   // Scale up factor for the piece currently under drag
   final double dragFeedbackSize;
 
@@ -73,7 +69,6 @@ class BoardSettings {
     Duration? animationDuration,
     bool? showLastMove,
     bool? showValidMoves,
-    bool? showPremovesDestinations,
     double? dragFeedbackSize,
     Offset? dragFeedbackOffset,
     bool? enablePremoves,
@@ -87,8 +82,6 @@ class BoardSettings {
       animationDuration: animationDuration ?? this.animationDuration,
       showLastMove: showLastMove ?? this.showLastMove,
       showValidMoves: showValidMoves ?? this.showValidMoves,
-      showPremovesDestinations:
-          showPremovesDestinations ?? this.showPremovesDestinations,
       dragFeedbackSize: dragFeedbackSize ?? this.dragFeedbackSize,
       dragFeedbackOffset: dragFeedbackOffset ?? this.dragFeedbackOffset,
       enablePremoves: enablePremoves ?? this.enablePremoves,
