@@ -420,18 +420,15 @@ class _BoardState extends State<Board> {
   // returns the position of the square target during drag as a global offset
   Offset? _squareTargetGlobalOffset(Offset localPosition) {
     final coord = widget.localOffset2Coord(localPosition);
-    if (coord != null) {
-      final localOffset =
-          coord.offset(widget.data.orientation, widget.squareSize);
-      final RenderBox box = context.findRenderObject()! as RenderBox;
-      final tmpOffset = box.localToGlobal(localOffset);
-      return Offset(
-        tmpOffset.dx - widget.squareSize / 2,
-        tmpOffset.dy - widget.squareSize / 2,
-      );
-    } else {
-      return null;
-    }
+    if (coord == null) return null;
+    final localOffset =
+        coord.offset(widget.data.orientation, widget.squareSize);
+    final RenderBox box = context.findRenderObject()! as RenderBox;
+    final tmpOffset = box.localToGlobal(localOffset);
+    return Offset(
+      tmpOffset.dx - widget.squareSize / 2,
+      tmpOffset.dy - widget.squareSize / 2,
+    );
   }
 
   void _onPanDown(DragDownDetails? details) {
@@ -439,6 +436,13 @@ class _BoardState extends State<Board> {
 
     final squareId = widget.localOffset2SquareId(details.localPosition);
     if (squareId == null) return;
+
+    // cancel premove
+    if (_premove != null) {
+      setState(() {
+        _premove = null;
+      });
+    }
 
     // allow to castle by selecting the king and then the rook, so we must prevent
     // the re-selection of the rook
@@ -468,43 +472,43 @@ class _BoardState extends State<Board> {
   }
 
   void _onPanStart(DragStartDetails? details) {
-    if (details != null) {
-      final squareId = widget.localOffset2SquareId(details.localPosition);
-      final piece = squareId != null ? pieces[squareId] : null;
-      final feedbackSize = widget.squareSize * widget.settings.dragFeedbackSize;
-      if (squareId != null &&
-          piece != null &&
-          (_isMovable(squareId) || _isPremovable(squareId))) {
-        setState(() {
-          _dragOrigin = squareId;
-        });
-        final squareTargetOffset =
-            _squareTargetGlobalOffset(details.localPosition);
-        _dragAvatar = _DragAvatar(
-          overlayState: Overlay.of(context, debugRequiredFor: widget),
-          initialPosition: details.globalPosition,
-          initialTargetPosition: squareTargetOffset,
-          squareTargetFeedback: Container(
-            width: widget.squareSize * 2,
-            height: widget.squareSize * 2,
-            decoration: const BoxDecoration(
-              color: Color(0x33000000),
-              shape: BoxShape.circle,
-            ),
+    if (details == null) return;
+
+    final squareId = widget.localOffset2SquareId(details.localPosition);
+    final piece = squareId != null ? pieces[squareId] : null;
+    final feedbackSize = widget.squareSize * widget.settings.dragFeedbackSize;
+    if (squareId != null &&
+        piece != null &&
+        (_isMovable(squareId) || _isPremovable(squareId))) {
+      setState(() {
+        _dragOrigin = squareId;
+      });
+      final squareTargetOffset =
+          _squareTargetGlobalOffset(details.localPosition);
+      _dragAvatar = _DragAvatar(
+        overlayState: Overlay.of(context, debugRequiredFor: widget),
+        initialPosition: details.globalPosition,
+        initialTargetPosition: squareTargetOffset,
+        squareTargetFeedback: Container(
+          width: widget.squareSize * 2,
+          height: widget.squareSize * 2,
+          decoration: const BoxDecoration(
+            color: Color(0x33000000),
+            shape: BoxShape.circle,
           ),
-          pieceFeedback: Transform.translate(
-            offset: Offset(
-              ((widget.settings.dragFeedbackOffset.dx - 1) * feedbackSize) / 2,
-              ((widget.settings.dragFeedbackOffset.dy - 1) * feedbackSize) / 2,
-            ),
-            child: PieceWidget(
-              piece: piece,
-              size: feedbackSize,
-              pieceAssets: widget.settings.pieceAssets,
-            ),
+        ),
+        pieceFeedback: Transform.translate(
+          offset: Offset(
+            ((widget.settings.dragFeedbackOffset.dx - 1) * feedbackSize) / 2,
+            ((widget.settings.dragFeedbackOffset.dy - 1) * feedbackSize) / 2,
           ),
-        );
-      }
+          child: PieceWidget(
+            piece: piece,
+            size: feedbackSize,
+            pieceAssets: widget.settings.pieceAssets,
+          ),
+        ),
+      );
     }
   }
 
@@ -542,19 +546,18 @@ class _BoardState extends State<Board> {
   }
 
   void _onTapUp(TapUpDetails? details) {
-    if (details != null) {
-      final squareId = widget.localOffset2SquareId(details.localPosition);
-      if (squareId != null && squareId != selected) {
-        _tryMoveTo(squareId);
-      } else if (squareId != null &&
-          selected == squareId &&
-          _shouldDeselectOnTapUp) {
-        _shouldDeselectOnTapUp = false;
-        setState(() {
-          selected = null;
-          _premoveDests = null;
-        });
-      }
+    if (details == null) return;
+    final squareId = widget.localOffset2SquareId(details.localPosition);
+    if (squareId != null && squareId != selected) {
+      _tryMoveTo(squareId);
+    } else if (squareId != null &&
+        selected == squareId &&
+        _shouldDeselectOnTapUp) {
+      _shouldDeselectOnTapUp = false;
+      setState(() {
+        selected = null;
+        _premoveDests = null;
+      });
     }
   }
 

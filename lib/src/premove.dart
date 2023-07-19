@@ -10,21 +10,27 @@ Set<SquareId> premovesOf(
   if (piece == null) return {};
   final coord = Coord.fromSquareId(square);
   final r = piece.role;
-  final mobility = r == Role.pawn
-      ? _pawn(piece.color)
-      : r == Role.knight
-          ? _knight
-          : r == Role.bishop
-              ? _bishop
-              : r == Role.rook
-                  ? _rook
-                  : r == Role.queen
-                      ? _queen
-                      : _king(
-                          piece.color,
-                          _rookFilesOf(pieces, piece.color),
-                          canCastle,
-                        );
+
+  final mobility = (() {
+    switch (r) {
+      case Role.pawn:
+        return _pawn(piece.color);
+      case Role.knight:
+        return _knight;
+      case Role.bishop:
+        return _bishop;
+      case Role.rook:
+        return _rook;
+      case Role.queen:
+        return _queen;
+      case Role.king:
+        return _king(
+          piece.color,
+          _rookFilesOf(pieces, piece.color),
+          canCastle,
+        );
+    }
+  })();
 
   return Set.unmodifiable({
     for (final coord2 in allCoords)
