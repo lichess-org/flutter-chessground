@@ -46,8 +46,8 @@ class _MyHomePageState extends State<MyHomePage> {
   PieceSet pieceSet = PieceSet.merida;
   BoardTheme boardTheme = BoardTheme.blue;
   bool immersiveMode = false;
-  InteractableSide interactableSide = InteractableSide.white;
   ISet<Shape> shapes = ISet();
+  bool drawShapes = false;
   Color newShapeColor = const Color(0xAA15781b);
   final Color defaultShapeColor = const Color(0xAA15781b);
   double boardScale = 1.0;
@@ -65,10 +65,11 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             GestureDetector(
-              onLongPress: _onLongPress,
+              onLongPress: _toggleDrawing,
               child: AnimatedScale(
                 scale: boardScale,
                 duration: const Duration(milliseconds: 200),
+                curve: Curves.easeIn,
                 child: Board(
                   size: screenWidth,
                   settings: BoardSettings(
@@ -78,7 +79,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     enablePremoves: true,
                   ),
                   data: BoardData(
-                    interactableSide: interactableSide,
+                    interactableSide: InteractableSide.white,
                     validMoves: validMoves,
                     orientation: orientation,
                     fen: fen,
@@ -86,10 +87,13 @@ class _MyHomePageState extends State<MyHomePage> {
                     sideToMove:
                         position.turn == dc.Side.white ? Side.white : Side.black,
                     onMove: _onUserMove,
-                    onCompleteShape: _onCompleteShape,
+                    shapeData: ShapeData(
+                      onCompleteShape: _onCompleteShape,
+                      newShapeColor: newShapeColor,
+                      drawShapes: drawShapes,
+                    ),
                     isCheck: position.isCheck,
                     shapes: shapes.isNotEmpty ? shapes : null,
-                    newShapeColor: newShapeColor,
                   ),
                 ),
               ),
@@ -128,13 +132,9 @@ class _MyHomePageState extends State<MyHomePage> {
                   mainAxisSize: MainAxisSize.max,
                   children: [
                     ElevatedButton(
-                      child: Text('Mode: ${interactableSide.name}'),
+                      child: Text('Drawing: ${drawShapes ? 'ON' : 'OFF'}'),
                       onPressed: () {
-                        setState(() {
-                          interactableSide =
-                            (interactableSide == InteractableSide.white) ?
-                            InteractableSide.drawShapes : InteractableSide.white;
-                        });
+                        _toggleDrawing();
                       },
                     ),
                     const SizedBox(width: 8),
@@ -248,12 +248,10 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  _onLongPress() {
+  _toggleDrawing() {
     setState(() {
-      interactableSide = (interactableSide == InteractableSide.drawShapes) ?
-      InteractableSide.white : InteractableSide.drawShapes;
-      shapes = ISet();
-      boardScale = boardScale == 1.0 ? 0.98 : 1.0;
+      drawShapes = !drawShapes;
+      boardScale = boardScale == 1.0 ? 0.95 : 1.0;
     });
   }
 
