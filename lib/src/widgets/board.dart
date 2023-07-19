@@ -249,7 +249,7 @@ class _BoardState extends State<Board> {
           // Consider using Listener instead as we don't control the drag start threshold with
           // GestureDetector (TODO)
           if (!(widget.data.interactableSide == InteractableSide.none ||
-              widget.data.interactableSide == InteractableSide.drawShapes))
+              widget.data.shapeData.drawShapes)) // Disable moving pieces when drawing is enabled
             GestureDetector(
               // registering onTapDown is needed to prevent the panStart event to win the
               // competition too early
@@ -265,7 +265,7 @@ class _BoardState extends State<Board> {
               dragStartBehavior: DragStartBehavior.down,
               child: board,
             )
-          else if (widget.data.interactableSide == InteractableSide.drawShapes)
+          else if (widget.data.shapeData.drawShapes)
             GestureDetector(
               onTapDown: (TapDownDetails? details) {},
               onTapUp: _onTapUpShape,
@@ -577,7 +577,7 @@ class _BoardState extends State<Board> {
     if (squareId == null) return;
     setState(() { // Initialize shapeAvatar on tap down (Analogous to website)
       _shapeAvatar = Shape(
-          color: widget.data.newShapeColor,
+          color: widget.data.shapeData.newShapeColor,
           orig: squareId,
           dest: squareId,);
     });
@@ -603,7 +603,7 @@ class _BoardState extends State<Board> {
 
   void _onPanEndShape(DragEndDetails? details) {
     if (_shapeAvatar == null) return;
-    widget.data.onCompleteShape?.call(_shapeAvatar!);
+    widget.data.shapeData.onCompleteShape?.call(_shapeAvatar!);
     setState(() {
       _shapeAvatar = null;
     });
@@ -619,8 +619,8 @@ class _BoardState extends State<Board> {
     if (details == null) return;
     final squareId = widget.localOffset2SquareId(details.localPosition);
     if (squareId == null) return;
-    widget.data.onCompleteShape?.call(Shape(
-        color: widget.data.newShapeColor,
+    widget.data.shapeData.onCompleteShape?.call(Shape(
+        color: widget.data.shapeData.newShapeColor,
         orig: squareId,
         dest: squareId,
       ),

@@ -3,6 +3,7 @@ import 'package:fast_immutable_collections/fast_immutable_collections.dart'
     hide Tuple2;
 
 import 'models.dart';
+import 'shape_data.dart';
 
 /// Board data.
 ///
@@ -20,8 +21,7 @@ class BoardData {
     this.shapes,
     this.onMove,
     this.annotations,
-    this.onCompleteShape,
-    this.newShapeColor = const Color(0xAA15781b), // default to green
+    this.shapeData = const ShapeData(),
   });
 
   /// Which color is allowed to move? It can be both, none, white or black
@@ -53,12 +53,9 @@ class BoardData {
   /// Move annotations to be displayed on the board.
   final IMap<SquareId, Annotation>? annotations;
 
+  /// Shape data object containing data about how shapes are drawn.
+  final ShapeData shapeData;
+
   /// Callback called after a move has been made.
   final void Function(Move, {bool? isPremove})? onMove;
-
-  /// Callback called after a shape has been drawn.
-  final void Function(Shape shape)? onCompleteShape;
-
-  /// Default color for shapes.
-  final Color newShapeColor;
 }

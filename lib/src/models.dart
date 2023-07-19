@@ -10,7 +10,7 @@ enum Side {
 }
 
 /// The side that can interact with the board.
-enum InteractableSide { both, none, white, black, drawShapes }
+enum InteractableSide { both, none, white, black }
 
 /// Piece role, such as pawn, knight, etc.
 enum Role { king, queen, knight, bishop, rook, pawn }
