@@ -398,3 +398,12 @@ class Shape {
   @override
   int get hashCode => Object.hash(color, orig, dest);
 }
+
+/// Class for arrows to be drawn on the board. Just for backwards compatibility, also requires a dest.
+class Arrow extends Shape {
+  const Arrow({
+    required super.color,
+    required super.orig,
+    required SquareId super.dest,
+  });
+}
