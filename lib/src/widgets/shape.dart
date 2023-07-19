@@ -9,11 +9,13 @@ class ShapeWidget extends StatelessWidget {
     required this.size,
     required this.orientation,
     required this.shape,
+    this.widthRatio = 1 / 6.4, // Default pulled from lichess.org
   });
 
   final double size;
   final Side orientation;
   final Shape shape;
+  final double widthRatio; // Only applies to arrows
 
   @override
   Widget build(BuildContext context) {
@@ -21,8 +23,18 @@ class ShapeWidget extends StatelessWidget {
       dimension: size,
       child: CustomPaint(
         painter: (shape.dest == null || shape.orig == shape.dest) ?
-          _CirclePainter(shape.color, orientation, Coord.fromSquareId(shape.orig)):
-          _ArrowPainter(shape.color, orientation, Coord.fromSquareId(shape.orig), Coord.fromSquareId(shape.dest!)),
+          _CirclePainter(
+              shape.color,
+              orientation,
+              Coord.fromSquareId(shape.orig),
+          ):
+          _ArrowPainter(
+            shape.color,
+            orientation,
+            Coord.fromSquareId(shape.orig),
+            Coord.fromSquareId(shape.dest!),
+            widthRatio,
+          ),
       ),
     );
   }
@@ -62,22 +74,18 @@ class _CirclePainter extends CustomPainter {
 
 
 class _ArrowPainter extends CustomPainter {
-  _ArrowPainter(this.color, this.orientation, this.fromCoord, this.toCoord);
+  _ArrowPainter(this.color, this.orientation, this.fromCoord, this.toCoord, this.widthRatio);
 
   final Color color;
+  final double widthRatio; // 1/6.4 pulled from lichess.org
   final Side orientation;
   final Coord fromCoord;
   final Coord toCoord;
 
   @override
-  void paint(Canvas canvas, Size size) {
+  void paint(Canvas canvas, Size size) { // TODO: Custom painter for entire arrow for round caps
     final squareSize = size.width / 8;
-    final lineWidth = squareSize / 6.4;
-    final paint = Paint()
-      ..strokeWidth = lineWidth
-      ..color = color
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round; // Deal with overlap (probably requires path generation for the entire arrow, TODO)
+    final lineWidth = squareSize * widthRatio;
 
     final fromOffset = fromCoord.offset(orientation, squareSize);
     final toOffset = toCoord.offset(orientation, squareSize);
@@ -110,12 +118,17 @@ class _ArrowPainter extends CustomPainter {
     final arrowOffset =
         Offset(arrowHeight * math.cos(angle), arrowHeight * math.sin(angle));
 
+    final paint = Paint()
+      ..strokeWidth = lineWidth
+      ..color = color
+      ..style = PaintingStyle.stroke; // Missing round caps but they lead to ugly overlapping alpha
+
     canvas.drawLine(from, to - arrowOffset, paint);
 
-    final pathPaint = paint
+    final arrowHeadPaint = paint
       ..strokeWidth = 0
       ..style = PaintingStyle.fill;
-    canvas.drawPath(path, pathPaint);
+    canvas.drawPath(path, arrowHeadPaint);
   }
 
   @override
