@@ -14,3 +14,7 @@ normal moves).
 ## 1.0.3
 
 - `showValidMoves` board setting now applies to premoves.
+
+## 1.0.4
+
+- tapping one's piece now cancels premove.
