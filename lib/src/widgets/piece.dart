@@ -33,7 +33,7 @@ class PieceWidget extends StatelessWidget {
     final asset = pieceAssets[piece.kind]!;
     final deviceRatio = MediaQuery.devicePixelRatioOf(context);
     // the ratio is defined by the resolution aware image assets defined in
-    // lib/piece_sets/
+    // assets/piece_sets/
     // that's why 4 is the maximum ratio
     final ratio = math.min(deviceRatio.ceilToDouble(), 4.0);
     final cacheSize = (size * ratio).toInt();
