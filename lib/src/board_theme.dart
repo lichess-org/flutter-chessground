@@ -2,59 +2,33 @@ import 'board_color_scheme.dart';
 
 /// The chessboard theme.
 enum BoardTheme {
-  blue('Blue'),
-  blue2('Blue2'),
-  blue3('Blue3'),
-  blueMarble('Blue Marble'),
-  canvas('Canvas'),
-  wood('Wood'),
-  wood2('Wood2'),
-  wood3('Wood3'),
-  wood4('Wood4'),
-  maple('Maple'),
-  maple2('Maple 2'),
-  brown('Brown'),
-  leather('Leather'),
-  green('Green'),
-  marble('Marble'),
-  greenPlastic('Green Plastic'),
-  grey('Grey'),
-  metal('Metal'),
-  olive('Olive'),
-  newspaper('Newspaper'),
-  purpleDiag('Purple-Diag'),
-  pinkPyramid('Pink'),
-  horsey('Horsey');
+  blue('Blue', BoardColorScheme.blue),
+  blue2('Blue2', BoardColorScheme.blue2),
+  blue3('Blue3', BoardColorScheme.blue3),
+  blueMarble('Blue Marble', BoardColorScheme.blueMarble),
+  canvas('Canvas', BoardColorScheme.canvas),
+  wood('Wood', BoardColorScheme.wood),
+  wood2('Wood2', BoardColorScheme.wood2),
+  wood3('Wood3', BoardColorScheme.wood3),
+  wood4('Wood4', BoardColorScheme.wood4),
+  maple('Maple', BoardColorScheme.maple),
+  maple2('Maple 2', BoardColorScheme.maple2),
+  brown('Brown', BoardColorScheme.brown),
+  leather('Leather', BoardColorScheme.leather),
+  green('Green', BoardColorScheme.green),
+  marble('Marble', BoardColorScheme.marble),
+  greenPlastic('Green Plastic', BoardColorScheme.greenPlastic),
+  grey('Grey', BoardColorScheme.grey),
+  metal('Metal', BoardColorScheme.metal),
+  olive('Olive', BoardColorScheme.olive),
+  newspaper('Newspaper', BoardColorScheme.newspaper),
+  purpleDiag('Purple-Diag', BoardColorScheme.purpleDiag),
+  pinkPyramid('Pink', BoardColorScheme.pinkPyramid),
+  horsey('Horsey', BoardColorScheme.horsey);
 
   final String label;
 
-  const BoardTheme(this.label);
+  final BoardColorScheme colors;
 
-  BoardColorScheme get colors {
-    return switch (this) {
-      BoardTheme.brown => BoardColorScheme.brown,
-      BoardTheme.blue => BoardColorScheme.blue,
-      BoardTheme.green => BoardColorScheme.green,
-      BoardTheme.blue2 => BoardColorScheme.blue2,
-      BoardTheme.blue3 => BoardColorScheme.blue3,
-      BoardTheme.blueMarble => BoardColorScheme.blueMarble,
-      BoardTheme.canvas => BoardColorScheme.canvas,
-      BoardTheme.greenPlastic => BoardColorScheme.greenPlastic,
-      BoardTheme.grey => BoardColorScheme.grey,
-      BoardTheme.horsey => BoardColorScheme.horsey,
-      BoardTheme.leather => BoardColorScheme.leather,
-      BoardTheme.maple => BoardColorScheme.maple,
-      BoardTheme.maple2 => BoardColorScheme.maple2,
-      BoardTheme.marble => BoardColorScheme.marble,
-      BoardTheme.metal => BoardColorScheme.metal,
-      BoardTheme.newspaper => BoardColorScheme.newspaper,
-      BoardTheme.olive => BoardColorScheme.olive,
-      BoardTheme.pinkPyramid => BoardColorScheme.pinkPyramid,
-      BoardTheme.purpleDiag => BoardColorScheme.purpleDiag,
-      BoardTheme.wood => BoardColorScheme.wood,
-      BoardTheme.wood2 => BoardColorScheme.wood2,
-      BoardTheme.wood3 => BoardColorScheme.wood3,
-      BoardTheme.wood4 => BoardColorScheme.wood4
-    };
-  }
+  const BoardTheme(this.label, this.colors);
 }

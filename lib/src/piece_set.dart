@@ -4,78 +4,44 @@ import 'models.dart';
 
 /// The chess piece set that will be displayed on the board.
 enum PieceSet {
-  cburnett('Colin M.L. Burnett'),
-  merida('Merida'),
-  pirouetti('Pirouetti'),
-  chessnut('Chessnut'),
-  chess7('Chess7'),
-  alpha('Alpha'),
-  reillycraig('Reillycraig'),
-  companion('Companion'),
-  riohacha('Riohacha'),
-  kosal('Kosal'),
-  leipzig('Leipzig'),
-  fantasy('Fantasy'),
-  spatial('Spatial'),
-  celtic('Celtic'),
-  california('California'),
-  pixel('Pixel'),
-  maestro('Maestro'),
-  fresca('Fresca'),
-  cardinal('Cardinal'),
-  gioco('Gioco'),
-  tatiana('Tatiana'),
-  staunty('Staunty'),
-  governor('Governor'),
-  dubrovny('Dubrovny'),
-  icpieces('Icpieces'),
-  libra('Libra'),
-  shapes('Shapes'),
-  horsey('Horsey'),
-  anarcandy('Anarcandy'),
-  letter('Letter'),
-  disguised('Disguised');
+  cburnett('Colin M.L. Burnett', PieceSet.cburnettAssets),
+  merida('Merida', PieceSet.meridaAssets),
+  pirouetti('Pirouetti', PieceSet.pirouettiAssets),
+  chessnut('Chessnut', PieceSet.chessnutAssets),
+  chess7('Chess7', PieceSet.chess7Assets),
+  alpha('Alpha', PieceSet.alphaAssets),
+  reillycraig('Reillycraig', PieceSet.reillycraigAssets),
+  companion('Companion', PieceSet.companionAssets),
+  riohacha('Riohacha', PieceSet.riohachaAssets),
+  kosal('Kosal', PieceSet.kosalAssets),
+  leipzig('Leipzig', PieceSet.leipzigAssets),
+  fantasy('Fantasy', PieceSet.fantasyAssets),
+  spatial('Spatial', PieceSet.spatialAssets),
+  celtic('Celtic', PieceSet.celticAssets),
+  california('California', PieceSet.californiaAssets),
+  pixel('Pixel', PieceSet.pixelAssets),
+  maestro('Maestro', PieceSet.maestroAssets),
+  fresca('Fresca', PieceSet.frescaAssets),
+  cardinal('Cardinal', PieceSet.cardinalAssets),
+  gioco('Gioco', PieceSet.giocoAssets),
+  tatiana('Tatiana', PieceSet.tatianaAssets),
+  staunty('Staunty', PieceSet.stauntyAssets),
+  governor('Governor', PieceSet.governorAssets),
+  dubrovny('Dubrovny', PieceSet.dubrovnyAssets),
+  icpieces('Icpieces', PieceSet.icpiecesAssets),
+  libra('Libra', PieceSet.libraAssets),
+  shapes('Shapes', PieceSet.shapesAssets),
+  horsey('Horsey', PieceSet.horseyAssets),
+  anarcandy('Anarcandy', PieceSet.anarcandyAssets),
+  letter('Letter', PieceSet.letterAssets),
+  disguised('Disguised', PieceSet.disguisedAssets);
 
   final String label;
 
-  const PieceSet(this.label);
-
   /// The [PieceAssets] for this [PieceSet].
-  PieceAssets get assets {
-    return switch (this) {
-      PieceSet.alpha => PieceSet.alphaAssets,
-      PieceSet.anarcandy => PieceSet.anarcandyAssets,
-      PieceSet.california => PieceSet.californiaAssets,
-      PieceSet.cardinal => PieceSet.cardinalAssets,
-      PieceSet.cburnett => PieceSet.cburnettAssets,
-      PieceSet.celtic => PieceSet.celticAssets,
-      PieceSet.chess7 => PieceSet.chess7Assets,
-      PieceSet.chessnut => PieceSet.chessnutAssets,
-      PieceSet.companion => PieceSet.companionAssets,
-      PieceSet.disguised => PieceSet.disguisedAssets,
-      PieceSet.dubrovny => PieceSet.dubrovnyAssets,
-      PieceSet.fantasy => PieceSet.fantasyAssets,
-      PieceSet.fresca => PieceSet.frescaAssets,
-      PieceSet.gioco => PieceSet.giocoAssets,
-      PieceSet.governor => PieceSet.governorAssets,
-      PieceSet.horsey => PieceSet.horseyAssets,
-      PieceSet.icpieces => PieceSet.icpiecesAssets,
-      PieceSet.kosal => PieceSet.kosalAssets,
-      PieceSet.leipzig => PieceSet.leipzigAssets,
-      PieceSet.letter => PieceSet.letterAssets,
-      PieceSet.libra => PieceSet.libraAssets,
-      PieceSet.maestro => PieceSet.maestroAssets,
-      PieceSet.merida => PieceSet.meridaAssets,
-      PieceSet.pirouetti => PieceSet.pirouettiAssets,
-      PieceSet.pixel => PieceSet.pixelAssets,
-      PieceSet.reillycraig => PieceSet.reillycraigAssets,
-      PieceSet.riohacha => PieceSet.riohachaAssets,
-      PieceSet.shapes => PieceSet.shapesAssets,
-      PieceSet.spatial => PieceSet.spatialAssets,
-      PieceSet.staunty => PieceSet.stauntyAssets,
-      PieceSet.tatiana => PieceSet.tatianaAssets
-    };
-  }
+  final PieceAssets assets;
+
+  const PieceSet(this.label, this.assets);
 
   static const PieceAssets alphaAssets = IMapConst({
     PieceKind.blackRook:
