@@ -42,70 +42,39 @@ enum PieceSet {
 
   /// The [PieceAssets] for this [PieceSet].
   PieceAssets get assets {
-    switch (this) {
-      case PieceSet.alpha:
-        return PieceSet.alphaAssets;
-      case PieceSet.anarcandy:
-        return PieceSet.anarcandyAssets;
-      case PieceSet.california:
-        return PieceSet.californiaAssets;
-      case PieceSet.cardinal:
-        return PieceSet.cardinalAssets;
-      case PieceSet.cburnett:
-        return PieceSet.cburnettAssets;
-      case PieceSet.celtic:
-        return PieceSet.celticAssets;
-      case PieceSet.chess7:
-        return PieceSet.chess7Assets;
-      case PieceSet.chessnut:
-        return PieceSet.chessnutAssets;
-      case PieceSet.companion:
-        return PieceSet.companionAssets;
-      case PieceSet.disguised:
-        return PieceSet.disguisedAssets;
-      case PieceSet.dubrovny:
-        return PieceSet.dubrovnyAssets;
-      case PieceSet.fantasy:
-        return PieceSet.fantasyAssets;
-      case PieceSet.fresca:
-        return PieceSet.frescaAssets;
-      case PieceSet.gioco:
-        return PieceSet.giocoAssets;
-      case PieceSet.governor:
-        return PieceSet.governorAssets;
-      case PieceSet.horsey:
-        return PieceSet.horseyAssets;
-      case PieceSet.icpieces:
-        return PieceSet.icpiecesAssets;
-      case PieceSet.kosal:
-        return PieceSet.kosalAssets;
-      case PieceSet.leipzig:
-        return PieceSet.leipzigAssets;
-      case PieceSet.letter:
-        return PieceSet.letterAssets;
-      case PieceSet.libra:
-        return PieceSet.libraAssets;
-      case PieceSet.maestro:
-        return PieceSet.maestroAssets;
-      case PieceSet.merida:
-        return PieceSet.meridaAssets;
-      case PieceSet.pirouetti:
-        return PieceSet.pirouettiAssets;
-      case PieceSet.pixel:
-        return PieceSet.pixelAssets;
-      case PieceSet.reillycraig:
-        return PieceSet.reillycraigAssets;
-      case PieceSet.riohacha:
-        return PieceSet.riohachaAssets;
-      case PieceSet.shapes:
-        return PieceSet.shapesAssets;
-      case PieceSet.spatial:
-        return PieceSet.spatialAssets;
-      case PieceSet.staunty:
-        return PieceSet.stauntyAssets;
-      case PieceSet.tatiana:
-        return PieceSet.tatianaAssets;
-    }
+    return switch (this) {
+      PieceSet.alpha => PieceSet.alphaAssets,
+      PieceSet.anarcandy => PieceSet.anarcandyAssets,
+      PieceSet.california => PieceSet.californiaAssets,
+      PieceSet.cardinal => PieceSet.cardinalAssets,
+      PieceSet.cburnett => PieceSet.cburnettAssets,
+      PieceSet.celtic => PieceSet.celticAssets,
+      PieceSet.chess7 => PieceSet.chess7Assets,
+      PieceSet.chessnut => PieceSet.chessnutAssets,
+      PieceSet.companion => PieceSet.companionAssets,
+      PieceSet.disguised => PieceSet.disguisedAssets,
+      PieceSet.dubrovny => PieceSet.dubrovnyAssets,
+      PieceSet.fantasy => PieceSet.fantasyAssets,
+      PieceSet.fresca => PieceSet.frescaAssets,
+      PieceSet.gioco => PieceSet.giocoAssets,
+      PieceSet.governor => PieceSet.governorAssets,
+      PieceSet.horsey => PieceSet.horseyAssets,
+      PieceSet.icpieces => PieceSet.icpiecesAssets,
+      PieceSet.kosal => PieceSet.kosalAssets,
+      PieceSet.leipzig => PieceSet.leipzigAssets,
+      PieceSet.letter => PieceSet.letterAssets,
+      PieceSet.libra => PieceSet.libraAssets,
+      PieceSet.maestro => PieceSet.maestroAssets,
+      PieceSet.merida => PieceSet.meridaAssets,
+      PieceSet.pirouetti => PieceSet.pirouettiAssets,
+      PieceSet.pixel => PieceSet.pixelAssets,
+      PieceSet.reillycraig => PieceSet.reillycraigAssets,
+      PieceSet.riohacha => PieceSet.riohachaAssets,
+      PieceSet.shapes => PieceSet.shapesAssets,
+      PieceSet.spatial => PieceSet.spatialAssets,
+      PieceSet.staunty => PieceSet.stauntyAssets,
+      PieceSet.tatiana => PieceSet.tatianaAssets
+    };
   }
 
   static const PieceAssets alphaAssets = IMapConst({
