@@ -21,6 +21,7 @@ enum PieceSet {
   spatial('Spatial', PieceSet.spatialAssets),
   celtic('Celtic', PieceSet.celticAssets),
   california('California', PieceSet.californiaAssets),
+  caliente('Caliente', PieceSet.calienteAssets),
   pixel('Pixel', PieceSet.pixelAssets),
   maestro('Maestro', PieceSet.maestroAssets),
   fresca('Fresca', PieceSet.frescaAssets),
@@ -70,6 +71,33 @@ enum PieceSet {
         AssetImage('$_pieceSetsPath/alpha/wQ.png', package: 'chessground'),
     PieceKind.whiteKing:
         AssetImage('$_pieceSetsPath/alpha/wK.png', package: 'chessground'),
+  });
+
+  static const PieceAssets calienteAssets = IMapConst({
+    PieceKind.blackRook:
+        AssetImage('$_pieceSetsPath/caliente/bR.png', package: 'chessground'),
+    PieceKind.blackPawn:
+        AssetImage('$_pieceSetsPath/caliente/bP.png', package: 'chessground'),
+    PieceKind.blackKnight:
+        AssetImage('$_pieceSetsPath/caliente/bN.png', package: 'chessground'),
+    PieceKind.blackBishop:
+        AssetImage('$_pieceSetsPath/caliente/bB.png', package: 'chessground'),
+    PieceKind.blackQueen:
+        AssetImage('$_pieceSetsPath/caliente/bQ.png', package: 'chessground'),
+    PieceKind.blackKing:
+        AssetImage('$_pieceSetsPath/caliente/bK.png', package: 'chessground'),
+    PieceKind.whiteRook:
+        AssetImage('$_pieceSetsPath/caliente/wR.png', package: 'chessground'),
+    PieceKind.whitePawn:
+        AssetImage('$_pieceSetsPath/caliente/wP.png', package: 'chessground'),
+    PieceKind.whiteKnight:
+        AssetImage('$_pieceSetsPath/caliente/wN.png', package: 'chessground'),
+    PieceKind.whiteBishop:
+        AssetImage('$_pieceSetsPath/caliente/wB.png', package: 'chessground'),
+    PieceKind.whiteQueen:
+        AssetImage('$_pieceSetsPath/caliente/wQ.png', package: 'chessground'),
+    PieceKind.whiteKing:
+        AssetImage('$_pieceSetsPath/caliente/wK.png', package: 'chessground'),
   });
 
   static const PieceAssets anarcandyAssets = IMapConst({
