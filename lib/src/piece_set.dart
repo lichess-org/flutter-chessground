@@ -33,8 +33,9 @@ enum PieceSet {
   dubrovny('Dubrovny', PieceSet.dubrovnyAssets),
   icpieces('Icpieces', PieceSet.icpiecesAssets),
   libra('Libra', PieceSet.libraAssets),
+  mpchess('Mpchess', PieceSet.mpchessAssets),
   shapes('Shapes', PieceSet.shapesAssets),
-  kiwen_suwi('Kiwen-suwi', PieceSet.kiwenSuwiAssets),
+  kiwenSuwi('Kiwen-suwi', PieceSet.kiwenSuwiAssets),
   horsey('Horsey', PieceSet.horseyAssets),
   anarcandy('Anarcandy', PieceSet.anarcandyAssets),
   letter('Letter', PieceSet.letterAssets),
@@ -747,6 +748,33 @@ enum PieceSet {
         AssetImage('$_pieceSetsPath/pirouetti/wQ.png', package: 'chessground'),
     PieceKind.whiteKing:
         AssetImage('$_pieceSetsPath/pirouetti/wK.png', package: 'chessground'),
+  });
+
+  static const PieceAssets mpchessAssets = IMapConst({
+    PieceKind.blackRook:
+        AssetImage('$_pieceSetsPath/mpchess/bR.png', package: 'chessground'),
+    PieceKind.blackPawn:
+        AssetImage('$_pieceSetsPath/mpchess/bP.png', package: 'chessground'),
+    PieceKind.blackKnight:
+        AssetImage('$_pieceSetsPath/mpchess/bN.png', package: 'chessground'),
+    PieceKind.blackBishop:
+        AssetImage('$_pieceSetsPath/mpchess/bB.png', package: 'chessground'),
+    PieceKind.blackQueen:
+        AssetImage('$_pieceSetsPath/mpchess/bQ.png', package: 'chessground'),
+    PieceKind.blackKing:
+        AssetImage('$_pieceSetsPath/mpchess/bK.png', package: 'chessground'),
+    PieceKind.whiteRook:
+        AssetImage('$_pieceSetsPath/mpchess/wR.png', package: 'chessground'),
+    PieceKind.whitePawn:
+        AssetImage('$_pieceSetsPath/mpchess/wP.png', package: 'chessground'),
+    PieceKind.whiteKnight:
+        AssetImage('$_pieceSetsPath/mpchess/wN.png', package: 'chessground'),
+    PieceKind.whiteBishop:
+        AssetImage('$_pieceSetsPath/mpchess/wB.png', package: 'chessground'),
+    PieceKind.whiteQueen:
+        AssetImage('$_pieceSetsPath/mpchess/wQ.png', package: 'chessground'),
+    PieceKind.whiteKing:
+        AssetImage('$_pieceSetsPath/mpchess/wK.png', package: 'chessground'),
   });
 
   static const PieceAssets pixelAssets = IMapConst({

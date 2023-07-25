@@ -48,6 +48,7 @@ flutter:
     - assets/piece_sets/libra/
     - assets/piece_sets/maestro/
     - assets/piece_sets/merida/
+    - assets/piece_sets/mpchess/
     - assets/piece_sets/pirouetti/
     - assets/piece_sets/pixel/
     - assets/piece_sets/reillycraig/
