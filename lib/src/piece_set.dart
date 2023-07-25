@@ -34,6 +34,7 @@ enum PieceSet {
   icpieces('Icpieces', PieceSet.icpiecesAssets),
   libra('Libra', PieceSet.libraAssets),
   shapes('Shapes', PieceSet.shapesAssets),
+  kiwen_suwi('Kiwen-suwi', PieceSet.kiwenSuwiAssets),
   horsey('Horsey', PieceSet.horseyAssets),
   anarcandy('Anarcandy', PieceSet.anarcandyAssets),
   letter('Letter', PieceSet.letterAssets),
@@ -530,6 +531,33 @@ enum PieceSet {
         AssetImage('$_pieceSetsPath/icpieces/wQ.png', package: 'chessground'),
     PieceKind.whiteKing:
         AssetImage('$_pieceSetsPath/icpieces/wK.png', package: 'chessground'),
+  });
+
+  static const PieceAssets kiwenSuwiAssets = IMapConst({
+    PieceKind.blackRook:
+        AssetImage('$_pieceSetsPath/kiwen-suwi/bR.png', package: 'chessground'),
+    PieceKind.blackPawn:
+        AssetImage('$_pieceSetsPath/kiwen-suwi/bP.png', package: 'chessground'),
+    PieceKind.blackKnight:
+        AssetImage('$_pieceSetsPath/kiwen-suwi/bN.png', package: 'chessground'),
+    PieceKind.blackBishop:
+        AssetImage('$_pieceSetsPath/kiwen-suwi/bB.png', package: 'chessground'),
+    PieceKind.blackQueen:
+        AssetImage('$_pieceSetsPath/kiwen-suwi/bQ.png', package: 'chessground'),
+    PieceKind.blackKing:
+        AssetImage('$_pieceSetsPath/kiwen-suwi/bK.png', package: 'chessground'),
+    PieceKind.whiteRook:
+        AssetImage('$_pieceSetsPath/kiwen-suwi/wR.png', package: 'chessground'),
+    PieceKind.whitePawn:
+        AssetImage('$_pieceSetsPath/kiwen-suwi/wP.png', package: 'chessground'),
+    PieceKind.whiteKnight:
+        AssetImage('$_pieceSetsPath/kiwen-suwi/wN.png', package: 'chessground'),
+    PieceKind.whiteBishop:
+        AssetImage('$_pieceSetsPath/kiwen-suwi/wB.png', package: 'chessground'),
+    PieceKind.whiteQueen:
+        AssetImage('$_pieceSetsPath/kiwen-suwi/wQ.png', package: 'chessground'),
+    PieceKind.whiteKing:
+        AssetImage('$_pieceSetsPath/kiwen-suwi/wK.png', package: 'chessground'),
   });
 
   static const PieceAssets kosalAssets = IMapConst({
