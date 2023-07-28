@@ -18,3 +18,8 @@ normal moves).
 ## 1.0.4
 
 - tapping one's piece now cancels premove.
+
+## 1.1.0
+
+- Add Caliente, Kiwen-Suwi and MPChess piece sets
+- Fix promotion menu still showing when going back in moves history
