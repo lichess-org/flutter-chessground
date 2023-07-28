@@ -1,6 +1,6 @@
 import 'dart:math';
-import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:chessground/chessground.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart'
     hide Tuple2;
@@ -22,21 +22,26 @@ class MyApp extends StatelessWidget {
         brightness: Brightness.dark,
         primaryColor: Colors.blueGrey,
       ),
-      home: const MyHomePage(title: 'Chessground Demo'),
+      home: const HomePage(title: 'Chessground Demo'),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key, required this.title}) : super(key: key);
+enum Mode {
+  botPlay,
+  freePlay,
+}
+
+class HomePage extends StatefulWidget {
+  const HomePage({Key? key, required this.title}) : super(key: key);
 
   final String title;
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<HomePage> createState() => _HomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _HomePageState extends State<HomePage> {
   dc.Position<dc.Chess> position = dc.Chess.initial;
   Side orientation = Side.white;
   String fen = dc.kInitialBoardFEN;
@@ -46,6 +51,8 @@ class _MyHomePageState extends State<MyHomePage> {
   PieceSet pieceSet = PieceSet.merida;
   BoardTheme boardTheme = BoardTheme.blue;
   bool immersiveMode = false;
+  Mode playMode = Mode.botPlay;
+  dc.Position<dc.Chess>? lastPos;
 
   @override
   Widget build(BuildContext context) {
@@ -55,6 +62,32 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: Text(widget.title),
       ),
+      drawer: Drawer(
+          child: ListView(
+        children: [
+          ListTile(
+            title: const Text('Play Against Random Bot'),
+            onTap: () {
+              setState(() {
+                playMode = Mode.botPlay;
+              });
+              if (position.turn == dc.Side.black) {
+                _playBlackMove();
+              }
+              Navigator.pop(context);
+            },
+          ),
+          ListTile(
+            title: const Text('Free Play'),
+            onTap: () {
+              setState(() {
+                playMode = Mode.freePlay;
+              });
+              Navigator.pop(context);
+            },
+          ),
+        ],
+      )),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -68,14 +101,20 @@ class _MyHomePageState extends State<MyHomePage> {
                 enablePremoves: true,
               ),
               data: BoardData(
-                interactableSide: InteractableSide.white,
+                interactableSide: playMode == Mode.botPlay
+                    ? InteractableSide.white
+                    : (position.turn == dc.Side.white
+                        ? InteractableSide.white
+                        : InteractableSide.black),
                 validMoves: validMoves,
                 orientation: orientation,
                 fen: fen,
                 lastMove: lastMove,
                 sideToMove:
                     position.turn == dc.Side.white ? Side.white : Side.black,
-                onMove: _onUserMove,
+                onMove: playMode == Mode.botPlay
+                    ? _onUserMoveAgainstBot
+                    : _onUserMoveFreePlay,
                 isCheck: position.isCheck,
               ),
             ),
@@ -84,7 +123,7 @@ class _MyHomePageState extends State<MyHomePage> {
               children: [
                 ElevatedButton(
                   child:
-                      Text('Immersive mode: ${immersiveMode ? 'ON' : 'OFF'}'),
+                      Text("Immersive mode: ${immersiveMode ? 'ON' : 'OFF'}"),
                   onPressed: () {
                     setState(() {
                       immersiveMode = !immersiveMode;
@@ -145,6 +184,19 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
                   ],
                 ),
+                if (playMode == Mode.freePlay)
+                  Center(
+                      child: IconButton(
+                          onPressed: lastPos != null
+                              ? () => setState(() {
+                                    position = lastPos!;
+                                    fen = position.fen;
+                                    validMoves =
+                                        dc.algebraicLegalMoves(position);
+                                    lastPos = null;
+                                  })
+                              : null,
+                          icon: const Icon(Icons.chevron_left_sharp))),
               ],
             ),
           ],
@@ -197,7 +249,19 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
   }
 
-  void _onUserMove(Move move, {bool? isPremove}) async {
+  void _onUserMoveFreePlay(Move move, {bool? isPremove}) {
+    lastPos = position;
+    final m = dc.Move.fromUci(move.uci)!;
+    setState(() {
+      position = position.playUnchecked(m);
+      lastMove = move;
+      fen = position.fen;
+      validMoves = dc.algebraicLegalMoves(position);
+    });
+  }
+
+  void _onUserMoveAgainstBot(Move move, {bool? isPremove}) async {
+    lastPos = position;
     final m = dc.Move.fromUci(move.uci)!;
     setState(() {
       position = position.playUnchecked(m);
@@ -205,6 +269,10 @@ class _MyHomePageState extends State<MyHomePage> {
       fen = position.fen;
       validMoves = IMap(const {});
     });
+    await _playBlackMove();
+  }
+
+  Future<void> _playBlackMove() async {
     Future.delayed(const Duration(milliseconds: 100)).then((value) {
       setState(() {});
     });
@@ -225,6 +293,7 @@ class _MyHomePageState extends State<MyHomePage> {
           fen = position.fen;
           validMoves = dc.algebraicLegalMoves(position);
         });
+        lastPos = position;
       }
     }
   }
