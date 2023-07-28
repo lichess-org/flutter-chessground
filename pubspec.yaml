@@ -26,6 +26,7 @@ flutter:
     - assets/piece_sets/alpha/
     - assets/piece_sets/anarcandy/
     - assets/piece_sets/california/
+    - assets/piece_sets/caliente/
     - assets/piece_sets/cardinal/
     - assets/piece_sets/cburnett/
     - assets/piece_sets/celtic/
@@ -40,12 +41,14 @@ flutter:
     - assets/piece_sets/governor/
     - assets/piece_sets/horsey/
     - assets/piece_sets/icpieces/
+    - assets/piece_sets/kiwen-suwi/
     - assets/piece_sets/kosal/
     - assets/piece_sets/leipzig/
     - assets/piece_sets/letter/
     - assets/piece_sets/libra/
     - assets/piece_sets/maestro/
     - assets/piece_sets/merida/
+    - assets/piece_sets/mpchess/
     - assets/piece_sets/pirouetti/
     - assets/piece_sets/pixel/
     - assets/piece_sets/reillycraig/
