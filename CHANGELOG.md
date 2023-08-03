@@ -23,3 +23,7 @@ normal moves).
 
 - Add Caliente, Kiwen-Suwi and MPChess piece sets
 - Fix promotion menu still showing when going back in moves history
+
+## 1.2.0
+
+- Add `isDrop` meta info to `onMove` callback.
