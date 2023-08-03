@@ -249,7 +249,7 @@ class _HomePageState extends State<HomePage> {
     super.initState();
   }
 
-  void _onUserMoveFreePlay(Move move, {bool? isPremove}) {
+  void _onUserMoveFreePlay(Move move, {bool? isDrop, bool? isPremove}) {
     lastPos = position;
     final m = dc.Move.fromUci(move.uci)!;
     setState(() {
@@ -260,7 +260,7 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  void _onUserMoveAgainstBot(Move move, {bool? isPremove}) async {
+  void _onUserMoveAgainstBot(Move move, {bool? isDrop, bool? isPremove}) async {
     lastPos = position;
     final m = dc.Move.fromUci(move.uci)!;
     setState(() {

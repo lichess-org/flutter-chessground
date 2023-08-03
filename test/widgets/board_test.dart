@@ -337,8 +337,6 @@ void main() {
       await tester.pump();
       expect(find.byKey(const Key('f1-premove')), findsNothing);
       expect(find.byKey(const Key('c4-premove')), findsNothing);
-
-
     });
 
     testWidgets('set and change', (WidgetTester tester) async {
@@ -460,7 +458,7 @@ Widget buildBoard({
             sideToMove:
                 position.turn == dc.Side.white ? Side.white : Side.black,
             validMoves: dc.algebraicLegalMoves(position),
-            onMove: (Move move, {bool? isPremove}) {
+            onMove: (Move move, {bool? isDrop, bool? isPremove}) {
               setState(() {
                 position = position.playUnchecked(dc.Move.fromUci(move.uci)!);
                 interactableSide = position.turn == dc.Side.white

@@ -561,7 +561,7 @@ class _BoardState extends State<Board> {
       pieces[move.to] = promoted;
       _promotionMove = null;
     });
-    widget.data.onMove?.call(move.withPromotion(promoted.role));
+    widget.data.onMove?.call(move.withPromotion(promoted.role), isDrop: true);
   }
 
   void _onPromotionCancel(Move move) {
@@ -624,12 +624,13 @@ class _BoardState extends State<Board> {
       }
       if (_isPromoMove(selectedPiece, squareId)) {
         if (widget.settings.autoQueenPromotion) {
-          widget.data.onMove?.call(move.withPromotion(Role.queen));
+          widget.data.onMove
+              ?.call(move.withPromotion(Role.queen), isDrop: drop);
         } else {
           _openPromotionSelector(move);
         }
       } else {
-        widget.data.onMove?.call(move);
+        widget.data.onMove?.call(move, isDrop: drop);
       }
     } else if (selectedPiece != null && _canPremove(selected!, squareId)) {
       setState(() {

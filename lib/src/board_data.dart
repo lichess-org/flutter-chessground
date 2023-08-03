@@ -52,5 +52,5 @@ class BoardData {
   final IMap<SquareId, Annotation>? annotations;
 
   /// Callback called after a move has been made.
-  final void Function(Move, {bool? isPremove})? onMove;
+  final void Function(Move, {bool? isDrop, bool? isPremove})? onMove;
 }
