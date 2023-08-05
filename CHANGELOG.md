@@ -27,3 +27,8 @@ normal moves).
 ## 1.2.0
 
 - Add `isDrop` meta info to `onMove` callback.
+
+## 1.3.0
+
+- Remove opacity on origin piece when dragging because of performance issue with
+  impeller engine.
