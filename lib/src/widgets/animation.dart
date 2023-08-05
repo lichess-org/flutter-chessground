@@ -124,7 +124,7 @@ class _PieceFadeOutState extends State<PieceFadeOut>
     return PieceWidget(
       piece: widget.piece,
       size: widget.size,
-      animatedOpacity: _animation,
+      opacity: _animation,
       pieceAssets: widget.pieceAssets,
     );
   }

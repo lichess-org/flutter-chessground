@@ -182,7 +182,8 @@ class _BoardState extends State<Board> {
             ),
           ),
         for (final entry in pieces.entries)
-          if (!translatingPieces.containsKey(entry.key))
+          if (!translatingPieces.containsKey(entry.key) &&
+              entry.key != _dragOrigin)
             PositionedSquare(
               key: ValueKey('${entry.key}-${entry.value.kind.name}'),
               size: widget.squareSize,
@@ -192,7 +193,6 @@ class _BoardState extends State<Board> {
                 piece: entry.value,
                 size: widget.squareSize,
                 pieceAssets: widget.settings.pieceAssets,
-                opacity: _dragOrigin == entry.key ? 0.2 : 1.0,
               ),
             ),
         for (final entry in translatingPieces.entries)
