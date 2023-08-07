@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import '../models.dart';
@@ -14,7 +15,6 @@ class Highlight extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     if (details.image != null) {
       return Container(
         width: size,
@@ -45,22 +45,23 @@ class CheckHighlight extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox.square(
       dimension: size,
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(size),
-          border: Border.all(
-            color: const Color(0x40FF0000),
-            width: size,
-          ),
-          gradient: const RadialGradient(
-            radius: 0.6,
-            colors: [
-              Color(0xFFFF0000),
-              Color(0xFFE70000),
-              Color(0x00A90000),
-              Color(0x009E0000),
-            ],
-            stops: [0.0, 0.25, 0.90, 1.0],
+      child: ClipRect(
+        child: ImageFiltered(
+          imageFilter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(size),
+              gradient: const RadialGradient(
+                radius: 0.6,
+                colors: [
+                  Color(0xFFFF0000),
+                  Color(0xFFE70000),
+                  Color(0x00A90000),
+                  Color(0x009E0000),
+                ],
+                stops: [0.0, 0.25, 0.90, 1.0],
+              ),
+            ),
           ),
         ),
       ),
