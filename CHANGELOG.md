@@ -32,3 +32,7 @@ normal moves).
 
 - Remove opacity on origin piece when dragging because of performance issue with
   impeller engine.
+
+## 1.3.1
+
+- Improve check highlight appearance and fix rendering with Impeller.
