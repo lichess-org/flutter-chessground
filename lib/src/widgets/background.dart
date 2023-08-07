@@ -81,32 +81,30 @@ class ImageBackground extends Background {
       child: Stack(
         children: [
           Image(image: image),
-          Column(
-            children: List.generate(
-              8,
-              (rank) => Expanded(
-                child: Row(
-                  children: List.generate(
-                    8,
-                    (file) => Expanded(
-                      child: SizedBox.expand(
-                        child: coordinates
-                            ? Coordinate(
-                                rank: rank,
-                                file: file,
-                                orientation: orientation,
-                                color: (rank + file).isEven
-                                    ? darkSquare
-                                    : lightSquare,
-                              )
-                            : null,
+          if (coordinates)
+            Column(
+              children: List.generate(
+                8,
+                (rank) => Expanded(
+                  child: Row(
+                    children: List.generate(
+                      8,
+                      (file) => Expanded(
+                        child: SizedBox.expand(
+                          child: Coordinate(
+                            rank: rank,
+                            file: file,
+                            orientation: orientation,
+                            color:
+                                (rank + file).isEven ? darkSquare : lightSquare,
+                          ),
+                        ),
                       ),
                     ),
                   ),
                 ),
               ),
             ),
-          ),
         ],
       ),
     );
