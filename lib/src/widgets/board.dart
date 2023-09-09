@@ -228,17 +228,36 @@ class _BoardState extends State<Board> {
             annotation: entry.value,
           ),
         for (final shape in shapes)
-            ShapeWidget(
-              size: widget.size,
-              orientation: widget.data.orientation,
-              shape: shape,
-            ),
-        if (_shapeAvatar != null)
-          ShapeWidget(
+            if (shape is Arrow)
+              ArrowWidget(
+                color: shape.color,
+                size: widget.size,
+                orientation: widget.data.orientation,
+                fromCoord: Coord.fromSquareId(shape.orig),
+                toCoord: Coord.fromSquareId(shape.dest!), // Can assume that dest is initialized as it is of type Arrow
+              )
+            else if (shape is Circle)
+              CircleWidget(
+                color: shape.color,
+                size: widget.size,
+                orientation: widget.data.orientation,
+                coord: Coord.fromSquareId(shape.orig),
+              ),
+        if (_shapeAvatar is Arrow)
+          ArrowWidget(
+            color: _shapeAvatar!.color,
             size: widget.size,
             orientation: widget.data.orientation,
-            shape: _shapeAvatar!,
-          ),
+            fromCoord: Coord.fromSquareId(_shapeAvatar!.orig),
+            toCoord: Coord.fromSquareId(_shapeAvatar!.dest!),
+          )
+        else if (_shapeAvatar is Circle)
+          CircleWidget(
+            color: _shapeAvatar!.color,
+            size: widget.size,
+            orientation: widget.data.orientation,
+            coord: Coord.fromSquareId(_shapeAvatar!.orig),
+          )
       ],
     );
 
