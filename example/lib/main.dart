@@ -138,7 +138,7 @@ class _HomePageState extends State<HomePage> {
                     onMove: playMode == Mode.botPlay
                     ? _onUserMoveAgainstBot
                     : _onUserMoveFreePlay,
-                    shapeData: ShapeData(
+                    shapeData: DrawShapeOptions(
                       onCompleteShape: _onCompleteShape,
                       newShapeColor: newShapeColor,
                       drawShapes: drawShapes,
