@@ -287,22 +287,15 @@ class Move {
   int get hashCode => Object.hash(from, to, promotion);
 
   String _toPieceLetter(Role? role) {
-    switch (role) {
-      case Role.king:
-        return 'k';
-      case Role.queen:
-        return 'q';
-      case Role.rook:
-        return 'r';
-      case Role.bishop:
-        return 'b';
-      case Role.knight:
-        return 'n';
-      case Role.pawn:
-        return 'p';
-      default:
-        return '';
-    }
+    return switch (role) {
+      Role.king => 'k',
+      Role.queen => 'q',
+      Role.rook => 'r',
+      Role.bishop => 'b',
+      Role.knight => 'n',
+      Role.pawn => 'p',
+      _ => ''
+    };
   }
 }
 

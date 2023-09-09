@@ -1,3 +1,8 @@
+[![Tests](https://github.com/lichess-org/flutter-chessground/workflows/Test/badge.svg)](https://github.com/lichess-org/flutter-chessground/actions?query=workflow%3A%22Test%22)
+[![pub package](https://img.shields.io/pub/v/chessground.svg)](https://pub.dev/packages/chessground)
+[![package publisher](https://img.shields.io/pub/publisher/chessground.svg)](https://pub.dev/packages/chessground/publisher)
+[![Discord](https://img.shields.io/discord/280713822073913354?label=Discord&logo=discord&style=flat)](https://discord.com/channels/280713822073913354/807722604478988348)
+
 Chessground is a chessboard package developed for lichess.org. It doesn't handle
 chess logic so you can use it with different chess variants.
 

@@ -183,7 +183,8 @@ class _BoardState extends State<Board> {
             ),
           ),
         for (final entry in pieces.entries)
-          if (!translatingPieces.containsKey(entry.key))
+          if (!translatingPieces.containsKey(entry.key) &&
+              entry.key != _dragOrigin)
             PositionedSquare(
               key: ValueKey('${entry.key}-${entry.value.kind.name}'),
               size: widget.squareSize,
@@ -193,7 +194,6 @@ class _BoardState extends State<Board> {
                 piece: entry.value,
                 size: widget.squareSize,
                 pieceAssets: widget.settings.pieceAssets,
-                opacity: _dragOrigin == entry.key ? 0.2 : 1.0,
               ),
             ),
         for (final entry in translatingPieces.entries)
@@ -366,6 +366,7 @@ class _BoardState extends State<Board> {
     }
     if (oldBoard.data.sideToMove != widget.data.sideToMove) {
       _premoveDests = null;
+      _promotionMove = null;
       WidgetsBinding.instance.addPostFrameCallback((_) => _tryPlayPremove());
     }
     if (oldBoard.data.fen == widget.data.fen) {
@@ -437,18 +438,15 @@ class _BoardState extends State<Board> {
   // returns the position of the square target during drag as a global offset
   Offset? _squareTargetGlobalOffset(Offset localPosition) {
     final coord = widget.localOffset2Coord(localPosition);
-    if (coord != null) {
-      final localOffset =
-          coord.offset(widget.data.orientation, widget.squareSize);
-      final RenderBox box = context.findRenderObject()! as RenderBox;
-      final tmpOffset = box.localToGlobal(localOffset);
-      return Offset(
-        tmpOffset.dx - widget.squareSize / 2,
-        tmpOffset.dy - widget.squareSize / 2,
-      );
-    } else {
-      return null;
-    }
+    if (coord == null) return null;
+    final localOffset =
+        coord.offset(widget.data.orientation, widget.squareSize);
+    final RenderBox box = context.findRenderObject()! as RenderBox;
+    final tmpOffset = box.localToGlobal(localOffset);
+    return Offset(
+      tmpOffset.dx - widget.squareSize / 2,
+      tmpOffset.dy - widget.squareSize / 2,
+    );
   }
 
   void _onPanDownPiece(DragDownDetails? details) {
@@ -470,6 +468,7 @@ class _BoardState extends State<Board> {
       _shouldDeselectOnTapUp = selected == squareId;
       setState(() {
         selected = squareId;
+        _premove = null;
         _premoveDests = premovesOf(
           squareId,
           pieces,
@@ -486,41 +485,43 @@ class _BoardState extends State<Board> {
 
   void _onPanStartPiece(DragStartDetails? details) {
     if (details == null) return;
+
     final squareId = widget.localOffset2SquareId(details.localPosition);
     final piece = squareId != null ? pieces[squareId] : null;
     final feedbackSize = widget.squareSize * widget.settings.dragFeedbackSize;
-    if (squareId == null ||
-        piece == null ||
-        !(_isMovable(squareId) || _isPremovable(squareId))) return;
-    setState(() {
-      _dragOrigin = squareId;
-    });
-    final squareTargetOffset =
-        _squareTargetGlobalOffset(details.localPosition);
-    _dragAvatar = _DragAvatar(
-      overlayState: Overlay.of(context, debugRequiredFor: widget),
-      initialPosition: details.globalPosition,
-      initialTargetPosition: squareTargetOffset,
-      squareTargetFeedback: Container(
-        width: widget.squareSize * 2,
-        height: widget.squareSize * 2,
-        decoration: const BoxDecoration(
-          color: Color(0x33000000),
-          shape: BoxShape.circle,
+    if (squareId != null &&
+        piece != null &&
+        (_isMovable(squareId) || _isPremovable(squareId))) {
+      setState(() {
+        _dragOrigin = squareId;
+      });
+      final squareTargetOffset =
+          _squareTargetGlobalOffset(details.localPosition);
+      _dragAvatar = _DragAvatar(
+        overlayState: Overlay.of(context, debugRequiredFor: widget),
+        initialPosition: details.globalPosition,
+        initialTargetPosition: squareTargetOffset,
+        squareTargetFeedback: Container(
+          width: widget.squareSize * 2,
+          height: widget.squareSize * 2,
+          decoration: const BoxDecoration(
+            color: Color(0x33000000),
+            shape: BoxShape.circle,
+          ),
         ),
-      ),
-      pieceFeedback: Transform.translate(
-        offset: Offset(
-          ((widget.settings.dragFeedbackOffset.dx - 1) * feedbackSize) / 2,
-          ((widget.settings.dragFeedbackOffset.dy - 1) * feedbackSize) / 2,
+        pieceFeedback: Transform.translate(
+          offset: Offset(
+            ((widget.settings.dragFeedbackOffset.dx - 1) * feedbackSize) / 2,
+            ((widget.settings.dragFeedbackOffset.dy - 1) * feedbackSize) / 2,
+          ),
+          child: PieceWidget(
+            piece: piece,
+            size: feedbackSize,
+            pieceAssets: widget.settings.pieceAssets,
+          ),
         ),
-        child: PieceWidget(
-          piece: piece,
-          size: feedbackSize,
-          pieceAssets: widget.settings.pieceAssets,
-        ),
-      ),
-    );
+      );
+    }
   }
 
   void _onPanUpdatePiece(DragUpdateDetails? details) {
@@ -635,7 +636,7 @@ class _BoardState extends State<Board> {
       pieces[move.to] = promoted;
       _promotionMove = null;
     });
-    widget.data.onMove?.call(move.withPromotion(promoted.role));
+    widget.data.onMove?.call(move.withPromotion(promoted.role), isDrop: true);
   }
 
   void _onPromotionCancel(Move move) {
@@ -698,12 +699,13 @@ class _BoardState extends State<Board> {
       }
       if (_isPromoMove(selectedPiece, squareId)) {
         if (widget.settings.autoQueenPromotion) {
-          widget.data.onMove?.call(move.withPromotion(Role.queen));
+          widget.data.onMove
+              ?.call(move.withPromotion(Role.queen), isDrop: drop);
         } else {
           _openPromotionSelector(move);
         }
       } else {
-        widget.data.onMove?.call(move);
+        widget.data.onMove?.call(move, isDrop: drop);
       }
     } else if (selectedPiece != null && _canPremove(selected!, squareId)) {
       setState(() {
