@@ -3,6 +3,8 @@ import 'package:flutter/widgets.dart';
 import 'board_color_scheme.dart';
 import 'models.dart';
 import 'piece_set.dart';
+import 'draw_shape_options.dart';
+
 
 /// Board settings that control the theme, behavior and purpose of the board.
 ///
@@ -21,6 +23,7 @@ class BoardSettings {
     this.showValidMoves = true,
     this.dragFeedbackSize = 2.0,
     this.dragFeedbackOffset = const Offset(0.0, -1.0),
+    this.drawShapeOptions,
 
     // behavior settings
     this.enablePremoves = true,
@@ -61,6 +64,9 @@ class BoardSettings {
   /// If true the promotion selector won't appear and pawn will be promoted
   // automatically to queen
   final bool autoQueenPromotion;
+
+  /// Shape drawing options object containing data about how new shapes can be drawn.
+  final DrawShapeOptions? drawShapeOptions;
 
   BoardSettings copyWith({
     BoardColorScheme? colorScheme,

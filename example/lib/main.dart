@@ -123,6 +123,10 @@ class _HomePageState extends State<HomePage> {
                     colorScheme: boardTheme.colors,
                     enableCoordinates: true,
                     enablePremoves: true,
+                    drawShapeOptions: drawShapes ? DrawShapeOptions(
+                      onCompleteShape: _onCompleteShape,
+                      newShapeColor: newShapeColor,
+                    ) : null,
                   ),
                   data: BoardData(
                     interactableSide: playMode == Mode.botPlay
@@ -138,10 +142,6 @@ class _HomePageState extends State<HomePage> {
                     onMove: playMode == Mode.botPlay
                     ? _onUserMoveAgainstBot
                     : _onUserMoveFreePlay,
-                    drawShapeOptions: drawShapes ? DrawShapeOptions(
-                      onCompleteShape: _onCompleteShape,
-                      newShapeColor: newShapeColor,
-                    ) : null,
                     isCheck: position.isCheck,
                     shapes: shapes.isNotEmpty ? shapes : null,
                   ),
