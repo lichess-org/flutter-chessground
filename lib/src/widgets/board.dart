@@ -268,7 +268,7 @@ class _BoardState extends State<Board> {
           // Consider using Listener instead as we don't control the drag start threshold with
           // GestureDetector (TODO)
           if (!(widget.data.interactableSide == InteractableSide.none ||
-              widget.data.shapeData.drawShapes)) // Disable moving pieces when drawing is enabled
+              widget.data.shapeData != null)) // Disable moving pieces when drawing is enabled
             GestureDetector(
               // registering onTapDown is needed to prevent the panStart event to win the
               // competition too early
@@ -284,7 +284,7 @@ class _BoardState extends State<Board> {
               dragStartBehavior: DragStartBehavior.down,
               child: board,
             )
-          else if (widget.data.shapeData.drawShapes)
+          else if (widget.data.shapeData != null)
             GestureDetector(
               onTapDown: (TapDownDetails? details) {},
               onTapUp: _onTapUpShape,
@@ -592,19 +592,20 @@ class _BoardState extends State<Board> {
   }
 
   void _onPanDownShape(DragDownDetails? details) {
-    if (details == null) return;
+    if (details == null || widget.data.shapeData == null) return;
     final squareId = widget.localOffset2SquareId(details.localPosition);
     if (squareId == null) return;
     setState(() { // Initialize shapeAvatar on tap down (Analogous to website)
-      _shapeAvatar = Shape(
-          color: widget.data.shapeData.newShapeColor,
+      _shapeAvatar = Circle(
+          color: widget.data.shapeData!.newShapeColor,
           orig: squareId,
-          dest: squareId,);
+      );
     });
   }
 
   void _onPanStartShape(DragStartDetails? details) {
-    if (details == null || _shapeAvatar == null) return;
+    if (details == null || _shapeAvatar == null
+        || widget.data.shapeData == null) return;
     final squareId = widget.localOffset2SquareId(details.localPosition);
     if (squareId == null) return;
     setState(() { // Update shapeAvatar on starting pan
@@ -613,7 +614,8 @@ class _BoardState extends State<Board> {
   }
 
   void _onPanUpdateShape(DragUpdateDetails? details) {
-    if (details == null || _shapeAvatar == null) return;
+    if (details == null || _shapeAvatar == null
+        || widget.data.shapeData == null) return;
     final squareId = widget.localOffset2SquareId(details.localPosition);
     if (squareId == null || squareId == _shapeAvatar!.dest) return;
     setState(() { // Update shapeAvatar on panning once a new square is reached
@@ -622,8 +624,8 @@ class _BoardState extends State<Board> {
   }
 
   void _onPanEndShape(DragEndDetails? details) {
-    if (_shapeAvatar == null) return;
-    widget.data.shapeData.onCompleteShape?.call(_shapeAvatar!);
+    if (_shapeAvatar == null || widget.data.shapeData == null) return;
+    widget.data.shapeData!.onCompleteShape?.call(_shapeAvatar!);
     setState(() {
       _shapeAvatar = null;
     });
@@ -636,13 +638,12 @@ class _BoardState extends State<Board> {
   }
 
   void _onTapUpShape(TapUpDetails? details) {
-    if (details == null) return;
+    if (details == null || widget.data.shapeData == null) return;
     final squareId = widget.localOffset2SquareId(details.localPosition);
     if (squareId == null) return;
-    widget.data.shapeData.onCompleteShape?.call(Shape(
-        color: widget.data.shapeData.newShapeColor,
+    widget.data.shapeData!.onCompleteShape?.call(Circle(
+        color: widget.data.shapeData!.newShapeColor,
         orig: squareId,
-        dest: squareId,
       ),
     );
     setState(() {
