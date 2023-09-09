@@ -354,10 +354,12 @@ abstract class Shape {
   const Shape({
     required this.color,
     required this.orig,
+    this.dest
   });
 
   final Color color;
   final SquareId orig;
+  final SquareId? dest;
 
   Shape newDest (SquareId newDest);
 
@@ -373,10 +375,8 @@ class Arrow extends Shape {
   const Arrow({
     required super.color,
     required super.orig,
-    required this.dest,
+    required super.dest,
   });
-
-  final SquareId dest;
 
   @override
   Shape newDest(SquareId newDest){
