@@ -7,7 +7,6 @@ class DrawShapeOptions {
     // onCompletion should default to an empty function
     this.onCompleteShape,
     this.newShapeColor = const Color(0xAA15781b), // default to lichess.org green
-    this.drawShapes = false,
   });
 
   /// A callback for when shape drawing gesture is completed.
@@ -15,7 +14,4 @@ class DrawShapeOptions {
 
   /// The color of the shape being drawn.
   final Color newShapeColor;
-
-  /// Whether or not to draw shapes.
-  final bool drawShapes;
 }
