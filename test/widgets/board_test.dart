@@ -327,6 +327,16 @@ void main() {
       await tester.pump();
       expect(find.byKey(const Key('d1-premove')), findsNothing);
       expect(find.byKey(const Key('f3-premove')), findsNothing);
+
+      // unset by tapping own piece
+      await makeMove(tester, 'f1', 'c4');
+      await tester.pump();
+      expect(find.byKey(const Key('f1-premove')), findsOneWidget);
+      expect(find.byKey(const Key('c4-premove')), findsOneWidget);
+      await tester.tapAt(squareOffset('f1'));
+      await tester.pump();
+      expect(find.byKey(const Key('f1-premove')), findsNothing);
+      expect(find.byKey(const Key('c4-premove')), findsNothing);
     });
 
     testWidgets('set and change', (WidgetTester tester) async {
@@ -343,8 +353,8 @@ void main() {
       expect(find.byKey(const Key('f3-premove')), findsOneWidget);
       await tester.tapAt(squareOffset('d2'));
       await tester.pump();
-      expect(find.byKey(const Key('d1-premove')), findsOneWidget);
-      expect(find.byKey(const Key('f3-premove')), findsOneWidget);
+      expect(find.byKey(const Key('d1-premove')), findsNothing);
+      expect(find.byKey(const Key('f3-premove')), findsNothing);
       expect(find.byType(MoveDest), findsNWidgets(4));
       await tester.tapAt(squareOffset('d4'));
       await tester.pump();
@@ -448,7 +458,7 @@ Widget buildBoard({
             sideToMove:
                 position.turn == dc.Side.white ? Side.white : Side.black,
             validMoves: dc.algebraicLegalMoves(position),
-            onMove: (Move move, {bool? isPremove}) {
+            onMove: (Move move, {bool? isDrop, bool? isPremove}) {
               setState(() {
                 position = position.playUnchecked(dc.Move.fromUci(move.uci)!);
                 interactableSide = position.turn == dc.Side.white
