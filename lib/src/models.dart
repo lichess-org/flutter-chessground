@@ -357,15 +357,6 @@ class Shape {
     this.dest, // Shape is circle if orig == dest or dest == null
   });
 
-  /*
-  Colors from website: (I haven't found the alpha value yet, blindly guessing AA)
-  #15781B - green
-  #e68f00 - yellow
-  #003088 - blue
-  #882020 - red
-  Perhaps implement these into an annotation color class for strong typing
- */
-
   final Color color;
   final SquareId orig;
   final SquareId? dest;
