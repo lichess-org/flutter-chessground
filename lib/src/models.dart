@@ -348,46 +348,80 @@ Role _toRole(String uciLetter) {
   }
 }
 
-/// Class for shapes to be drawn on the board. Draws an arrow from orig to dest or a circle if orig == dest
+/// Abstract class as a super for Arrows and Circles
 @immutable
-class Shape {
+abstract class Shape {
   const Shape({
     required this.color,
     required this.orig,
-    this.dest, // Shape is circle if orig == dest or dest == null
   });
 
   final Color color;
   final SquareId orig;
-  final SquareId? dest;
 
-  Shape newDest (SquareId newDest) {
-    return Shape(
-      color: color,
-      orig: orig,
-      dest: newDest,
-    );
+  Shape newDest (SquareId newDest);
+
+  @override
+  bool operator ==(Object other);
+
+  @override
+  int get hashCode;
+}
+
+/// Class for arrows to be drawn on the board.
+class Arrow extends Shape {
+  const Arrow({
+    required super.color,
+    required super.orig,
+    required this.dest,
+  });
+
+  final SquareId dest;
+
+  @override
+  Shape newDest(SquareId newDest){
+    return newDest == orig ?
+        Circle(color: color, orig: orig) :
+        Arrow(color: color, orig: orig, dest: newDest);
   }
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
-        other is Shape &&
+        other is Arrow &&
             other.runtimeType == runtimeType &&
-            other.color == color &&
             other.orig == orig &&
-            other.dest == dest;
+            other.dest == dest &&
+            other.color == color;
   }
 
   @override
   int get hashCode => Object.hash(color, orig, dest);
 }
 
-/// Class for arrows to be drawn on the board. Just for backwards compatibility, also requires a dest.
-class Arrow extends Shape {
-  const Arrow({
+/// Class for circles to be drawn on the board.
+class Circle extends Shape {
+  const Circle({
     required super.color,
     required super.orig,
-    required SquareId super.dest,
   });
+
+  @override
+  Shape newDest(SquareId newDest){
+    return newDest == orig ?
+    Circle(color: color, orig: orig) :
+    Arrow(color: color, orig: orig, dest: newDest);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        other is Circle &&
+            other.runtimeType == runtimeType &&
+            other.orig == orig &&
+            other.color == color;
+  }
+
+  @override
+  int get hashCode => Object.hash(color, orig);
 }
