@@ -32,7 +32,7 @@ class Board extends StatefulWidget {
   /// Visal size of the board
   final double size;
 
-  /// Use this to change the theme and behavior of the board
+  /// Settings that control the theme, behavior and purpose of the board.
   final BoardSettings settings;
 
   /// Data that represents the current state of the board
@@ -737,7 +737,8 @@ class _BoardState extends State<Board> {
     final fromPiece = pieces[_premove!.from];
     if (fromPiece != null && _canMove(_premove!.from, _premove!.to)) {
       if (_isPromoMove(fromPiece, _premove!.to)) {
-        if (widget.settings.autoQueenPromotion) {
+        if (widget.settings.autoQueenPromotion ||
+            widget.settings.autoQueenPromotionOnPremove) {
           widget.data.onMove
               ?.call(_premove!.withPromotion(Role.queen), isPremove: true);
         } else {

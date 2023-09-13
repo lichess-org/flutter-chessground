@@ -30,6 +30,7 @@ class BoardSettings {
     this.enablePremoves = true,
     this.enablePremoveCastling = true,
     this.autoQueenPromotion = false,
+    this.autoQueenPromotionOnPremove = false,
   });
 
   /// Theme of the board
@@ -66,6 +67,10 @@ class BoardSettings {
   // automatically to queen
   final bool autoQueenPromotion;
 
+  /// If true the promotion selector won't appear and pawn will be promoted
+  /// automatically to queen only if the premove is confirmed
+  final bool autoQueenPromotionOnPremove;
+
   /// Shape drawing options object containing data about how new shapes can be drawn.
   final DrawShapeOptions drawShape;
 
@@ -81,6 +86,7 @@ class BoardSettings {
     bool? enablePremoves,
     bool? enablePremoveCastling,
     bool? autoQueenPromotion,
+    bool? autoQueenPromotionOnPremove,
     DrawShapeOptions? drawShape,
   }) {
     return BoardSettings(
@@ -95,6 +101,8 @@ class BoardSettings {
       enablePremoves: enablePremoves ?? this.enablePremoves,
       enablePremoveCastling:
           enablePremoveCastling ?? this.enablePremoveCastling,
+      autoQueenPromotionOnPremove:
+          autoQueenPromotionOnPremove ?? this.autoQueenPromotionOnPremove,
       autoQueenPromotion: autoQueenPromotion ?? this.autoQueenPromotion,
       drawShape: drawShape ?? this.drawShape,
     );
