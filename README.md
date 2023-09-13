@@ -16,7 +16,7 @@ chess logic so you can use it with different chess variants.
 - board themes
 - piece sets from lichess
 - promotion selector
-- draw arrows on board
+- draw shapes on board
 - move annotations
 - exclude android 10+ navigation gestures around board (needs immersive mode)
 
