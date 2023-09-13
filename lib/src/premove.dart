@@ -36,7 +36,7 @@ Set<SquareId> premovesOf(
     for (final coord2 in allCoords)
       if ((coord.x != coord2.x || coord.y != coord2.y) &&
           mobility(coord.x, coord.y, coord2.x, coord2.y))
-        coord2.squareId
+        coord2.squareId,
   });
 }
 

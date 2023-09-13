@@ -3,6 +3,7 @@ import 'package:flutter/widgets.dart';
 import 'board_color_scheme.dart';
 import 'models.dart';
 import 'piece_set.dart';
+import 'draw_shape_options.dart';
 
 /// Board settings that control the theme, behavior and purpose of the board.
 ///
@@ -21,6 +22,9 @@ class BoardSettings {
     this.showValidMoves = true,
     this.dragFeedbackSize = 2.0,
     this.dragFeedbackOffset = const Offset(0.0, -1.0),
+
+    // shape drawing
+    this.drawShape = const DrawShapeOptions(),
 
     // behavior settings
     this.enablePremoves = true,
@@ -62,6 +66,9 @@ class BoardSettings {
   // automatically to queen
   final bool autoQueenPromotion;
 
+  /// Shape drawing options object containing data about how new shapes can be drawn.
+  final DrawShapeOptions drawShape;
+
   BoardSettings copyWith({
     BoardColorScheme? colorScheme,
     PieceAssets? pieceAssets,
@@ -74,6 +81,7 @@ class BoardSettings {
     bool? enablePremoves,
     bool? enablePremoveCastling,
     bool? autoQueenPromotion,
+    DrawShapeOptions? drawShape,
   }) {
     return BoardSettings(
       colorScheme: colorScheme ?? this.colorScheme,
@@ -88,6 +96,7 @@ class BoardSettings {
       enablePremoveCastling:
           enablePremoveCastling ?? this.enablePremoveCastling,
       autoQueenPromotion: autoQueenPromotion ?? this.autoQueenPromotion,
+      drawShape: drawShape ?? this.drawShape,
     );
   }
 }

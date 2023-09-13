@@ -3,6 +3,43 @@ import 'package:flutter/widgets.dart';
 
 import '../models.dart';
 
+class ShapeWidget extends StatelessWidget {
+  const ShapeWidget({
+    super.key,
+    required this.shape,
+    required this.size,
+    required this.orientation,
+  });
+
+  final Shape shape;
+  final double size;
+  final Side orientation;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox.square(
+      dimension: size,
+      child: CustomPaint(
+        painter: switch (shape) {
+          Arrow(
+            color: final color,
+            orig: final orig,
+            dest: final dest,
+          ) =>
+            _ArrowPainter(
+              color,
+              orientation,
+              Coord.fromSquareId(orig),
+              Coord.fromSquareId(dest),
+            ),
+          Circle(color: final color, orig: final orig) =>
+            _CirclePainter(color, orientation, Coord.fromSquareId(orig)),
+        },
+      ),
+    );
+  }
+}
+
 class ArrowWidget extends StatelessWidget {
   const ArrowWidget({
     super.key,
@@ -25,6 +62,31 @@ class ArrowWidget extends StatelessWidget {
       dimension: size,
       child: CustomPaint(
         painter: _ArrowPainter(color, orientation, fromCoord, toCoord),
+      ),
+    );
+  }
+}
+
+class CircleWidget extends StatelessWidget {
+  const CircleWidget({
+    super.key,
+    required this.color,
+    required this.size,
+    required this.orientation,
+    required this.coord,
+  });
+
+  final Color color;
+  final double size;
+  final Side orientation;
+  final Coord coord;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox.square(
+      dimension: size,
+      child: CustomPaint(
+        painter: _CirclePainter(color, orientation, coord),
       ),
     );
   }
@@ -92,5 +154,37 @@ class _ArrowPainter extends CustomPainter {
         orientation != oldDelegate.orientation ||
         fromCoord != oldDelegate.fromCoord ||
         toCoord != oldDelegate.toCoord;
+  }
+}
+
+class _CirclePainter extends CustomPainter {
+  _CirclePainter(this.color, this.orientation, this.circleCoord);
+  final Color color;
+  final Side orientation;
+  final Coord circleCoord;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final squareSize = size.width / 8;
+    final lineWidth = squareSize / 16;
+    final paint = Paint()
+      ..strokeWidth = lineWidth
+      ..color = color
+      ..style = PaintingStyle.stroke;
+
+    final circle = Path()
+      ..addOval(
+        Rect.fromCircle(
+          center: circleCoord.offset(orientation, squareSize) +
+              Offset(squareSize / 2, squareSize / 2),
+          radius: squareSize / 2 - lineWidth / 2,
+        ),
+      );
+    canvas.drawPath(circle, paint);
+  }
+
+  @override
+  bool shouldRepaint(_CirclePainter oldDelegate) {
+    return color != oldDelegate.color || orientation != oldDelegate.orientation;
   }
 }

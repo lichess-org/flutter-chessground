@@ -83,13 +83,13 @@ const ranks = ['1', '2', '3', '4', '5', '6', '7', '8'];
 /// All the squares of the chessboard.
 final List<SquareId> allSquares = List.unmodifiable([
   for (final f in files)
-    for (final r in ranks) '$f$r'
+    for (final r in ranks) '$f$r',
 ]);
 
 /// All the coordinates of the chessboard.
 final List<Coord> allCoords = List.unmodifiable([
   for (final f in files)
-    for (final r in ranks) Coord.fromSquareId('$f$r')
+    for (final r in ranks) Coord.fromSquareId('$f$r'),
 ]);
 
 /// Square highlight color or image on the chessboard.
@@ -349,36 +349,65 @@ Role _toRole(String uciLetter) {
 }
 
 /// Base class for shapes that can be drawn on the board.
+sealed class Shape {
+  /// Decide what shape to draw based on the current shape and the new destination.
+  Shape newDest(SquareId newDest);
+}
+
+/// An circle shape that can be drawn on the board.
 @immutable
-abstract class Shape {
-  const Shape({
-    required this.color,
-    required this.orig,
-  });
+class Circle implements Shape {
+  const Circle({required this.color, required this.orig});
 
   final Color color;
   final SquareId orig;
+
+  @override
+  Shape newDest(SquareId newDest) {
+    return newDest == orig
+        ? this
+        : Arrow(color: color, orig: orig, dest: newDest);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        other is Circle &&
+            other.runtimeType == runtimeType &&
+            other.orig == orig &&
+            other.color == color;
+  }
+
+  @override
+  int get hashCode => Object.hash(color, orig);
 }
 
 /// An arrow shape that can be drawn on the board.
 @immutable
-class Arrow extends Shape {
+class Arrow implements Shape {
+  final Color color;
+  final SquareId orig;
+  final SquareId dest;
+
   const Arrow({
-    required super.color,
-    required super.orig,
+    required this.color,
+    required this.orig,
     required this.dest,
   });
 
-  final SquareId dest;
+  @override
+  Shape newDest(SquareId newDest) {
+    return Arrow(color: color, orig: orig, dest: newDest);
+  }
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         other is Arrow &&
             other.runtimeType == runtimeType &&
-            other.color == color &&
             other.orig == orig &&
-            other.dest == dest;
+            other.dest == dest &&
+            other.color == color;
   }
 
   @override
