@@ -228,36 +228,17 @@ class _BoardState extends State<Board> {
             annotation: entry.value,
           ),
         for (final shape in shapes)
-            if (shape is Arrow)
-              ArrowWidget(
-                color: shape.color,
-                size: widget.size,
-                orientation: widget.data.orientation,
-                fromCoord: Coord.fromSquareId(shape.orig),
-                toCoord: Coord.fromSquareId(shape.dest!), // Can assume that dest is initialized as it is of type Arrow
-              )
-            else if (shape is Circle)
-              CircleWidget(
-                color: shape.color,
-                size: widget.size,
-                orientation: widget.data.orientation,
-                coord: Coord.fromSquareId(shape.orig),
-              ),
-        if (_shapeAvatar is Arrow)
-          ArrowWidget(
-            color: _shapeAvatar!.color,
+          ShapeWidget(
+            shape: shape,
             size: widget.size,
             orientation: widget.data.orientation,
-            fromCoord: Coord.fromSquareId(_shapeAvatar!.orig),
-            toCoord: Coord.fromSquareId(_shapeAvatar!.dest!),
-          )
-        else if (_shapeAvatar is Circle)
-          CircleWidget(
-            color: _shapeAvatar!.color,
+          ),
+        if (_shapeAvatar != null)
+          ShapeWidget(
+            shape: _shapeAvatar!,
             size: widget.size,
             orientation: widget.data.orientation,
-            coord: Coord.fromSquareId(_shapeAvatar!.orig),
-          )
+          ),
       ],
     );
 
@@ -267,8 +248,9 @@ class _BoardState extends State<Board> {
         children: [
           // Consider using Listener instead as we don't control the drag start threshold with
           // GestureDetector (TODO)
-          if (!(widget.data.interactableSide == InteractableSide.none ||
-              widget.settings.drawShapeOptions != null)) // Disable moving pieces when drawing is enabled
+          if (widget.data.interactableSide != InteractableSide.none &&
+              !widget.settings.drawShape
+                  .enable) // Disable moving pieces when drawing is enabled
             GestureDetector(
               // registering onTapDown is needed to prevent the panStart event to win the
               // competition too early
@@ -284,7 +266,7 @@ class _BoardState extends State<Board> {
               dragStartBehavior: DragStartBehavior.down,
               child: board,
             )
-          else if (widget.settings.drawShapeOptions != null)
+          else if (widget.settings.drawShape.enable)
             GestureDetector(
               onTapDown: (TapDownDetails? details) {},
               onTapUp: _onTapUpShape,
@@ -545,8 +527,7 @@ class _BoardState extends State<Board> {
 
   void _onPanUpdatePiece(DragUpdateDetails? details) {
     if (details == null || _dragAvatar == null) return;
-    final squareTargetOffset =
-        _squareTargetGlobalOffset(details.localPosition);
+    final squareTargetOffset = _squareTargetGlobalOffset(details.localPosition);
     _dragAvatar?.update(details);
     _dragAvatar?.updateSquareTarget(squareTargetOffset);
   }
@@ -592,40 +573,50 @@ class _BoardState extends State<Board> {
   }
 
   void _onPanDownShape(DragDownDetails? details) {
-    if (details == null || widget.settings.drawShapeOptions == null) return;
+    if (details == null || widget.settings.drawShape.enable == false) return;
     final squareId = widget.localOffset2SquareId(details.localPosition);
     if (squareId == null) return;
-    setState(() { // Initialize shapeAvatar on tap down (Analogous to website)
+    setState(() {
+      // Initialize shapeAvatar on tap down (Analogous to website)
       _shapeAvatar = Circle(
-          color: widget.settings.drawShapeOptions!.newShapeColor,
-          orig: squareId,
+        color: widget.settings.drawShape.newShapeColor,
+        orig: squareId,
       );
     });
   }
 
   void _onPanStartShape(DragStartDetails? details) {
-    if (details == null || _shapeAvatar == null
-        || widget.settings.drawShapeOptions == null) return;
+    if (details == null ||
+        _shapeAvatar == null ||
+        widget.settings.drawShape.enable == false) return;
     final squareId = widget.localOffset2SquareId(details.localPosition);
     if (squareId == null) return;
-    setState(() { // Update shapeAvatar on starting pan
+    setState(() {
+      // Update shapeAvatar on starting pan
       _shapeAvatar = _shapeAvatar!.newDest(squareId);
     });
   }
 
   void _onPanUpdateShape(DragUpdateDetails? details) {
-    if (details == null || _shapeAvatar == null
-        || widget.settings.drawShapeOptions == null) return;
+    if (details == null ||
+        _shapeAvatar == null ||
+        widget.settings.drawShape.enable == false) return;
     final squareId = widget.localOffset2SquareId(details.localPosition);
-    if (squareId == null || squareId == _shapeAvatar!.dest) return;
-    setState(() { // Update shapeAvatar on panning once a new square is reached
+    if (squareId == null ||
+        (_shapeAvatar! is Arrow && squareId == (_shapeAvatar! as Arrow).dest)) {
+      return;
+    }
+    setState(() {
+      // Update shapeAvatar on panning once a new square is reached
       _shapeAvatar = _shapeAvatar!.newDest(squareId);
     });
   }
 
   void _onPanEndShape(DragEndDetails? details) {
-    if (_shapeAvatar == null || widget.settings.drawShapeOptions == null) return;
-    widget.settings.drawShapeOptions!.onCompleteShape?.call(_shapeAvatar!);
+    if (_shapeAvatar == null || widget.settings.drawShape.enable == false) {
+      return;
+    }
+    widget.settings.drawShape.onCompleteShape?.call(_shapeAvatar!);
     setState(() {
       _shapeAvatar = null;
     });
@@ -638,11 +629,12 @@ class _BoardState extends State<Board> {
   }
 
   void _onTapUpShape(TapUpDetails? details) {
-    if (details == null || widget.settings.drawShapeOptions == null) return;
+    if (details == null || widget.settings.drawShape.enable == false) return;
     final squareId = widget.localOffset2SquareId(details.localPosition);
     if (squareId == null) return;
-    widget.settings.drawShapeOptions!.onCompleteShape?.call(Circle(
-        color: widget.settings.drawShapeOptions!.newShapeColor,
+    widget.settings.drawShape.onCompleteShape?.call(
+      Circle(
+        color: widget.settings.drawShape.newShapeColor,
         orig: squareId,
       ),
     );

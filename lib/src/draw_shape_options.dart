@@ -4,10 +4,14 @@ import 'models.dart';
 @immutable
 class DrawShapeOptions {
   const DrawShapeOptions({
-    // onCompletion should default to an empty function
+    this.enable = false,
     this.onCompleteShape,
-    this.newShapeColor = const Color(0xAA15781b), // default to lichess.org green
+    this.newShapeColor =
+        const Color(0xAA15781b), // default to lichess.org green
   });
+
+  /// Whether to enable shape drawing.
+  final bool enable;
 
   /// A callback for when shape drawing gesture is completed.
   final void Function(Shape shape)? onCompleteShape;

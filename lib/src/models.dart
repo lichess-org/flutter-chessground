@@ -83,13 +83,13 @@ const ranks = ['1', '2', '3', '4', '5', '6', '7', '8'];
 /// All the squares of the chessboard.
 final List<SquareId> allSquares = List.unmodifiable([
   for (final f in files)
-    for (final r in ranks) '$f$r'
+    for (final r in ranks) '$f$r',
 ]);
 
 /// All the coordinates of the chessboard.
 final List<Coord> allCoords = List.unmodifiable([
   for (final f in files)
-    for (final r in ranks) Coord.fromSquareId('$f$r')
+    for (final r in ranks) Coord.fromSquareId('$f$r'),
 ]);
 
 /// Square highlight color or image on the chessboard.
@@ -348,41 +348,56 @@ Role _toRole(String uciLetter) {
   }
 }
 
-/// Abstract class as a super for Arrows and Circles
+/// Base class for shapes that can be drawn on the board.
+sealed class Shape {
+  /// Decide what shape to draw based on the current shape and the new destination.
+  Shape newDest(SquareId newDest);
+}
+
+/// An circle shape that can be drawn on the board.
 @immutable
-abstract class Shape {
-  const Shape({
-    required this.color,
-    required this.orig,
-    this.dest
-  });
+class Circle implements Shape {
+  const Circle({required this.color, required this.orig});
 
   final Color color;
   final SquareId orig;
-  final SquareId? dest;
-
-  Shape newDest (SquareId newDest);
 
   @override
-  bool operator ==(Object other);
+  Shape newDest(SquareId newDest) {
+    return newDest == orig
+        ? this
+        : Arrow(color: color, orig: orig, dest: newDest);
+  }
 
   @override
-  int get hashCode;
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        other is Circle &&
+            other.runtimeType == runtimeType &&
+            other.orig == orig &&
+            other.color == color;
+  }
+
+  @override
+  int get hashCode => Object.hash(color, orig);
 }
 
-/// Class for arrows to be drawn on the board.
-class Arrow extends Shape {
+/// An arrow shape that can be drawn on the board.
+@immutable
+class Arrow implements Shape {
+  final Color color;
+  final SquareId orig;
+  final SquareId dest;
+
   const Arrow({
-    required super.color,
-    required super.orig,
-    required super.dest,
+    required this.color,
+    required this.orig,
+    required this.dest,
   });
 
   @override
-  Shape newDest(SquareId newDest){
-    return newDest == orig ?
-        Circle(color: color, orig: orig) :
-        Arrow(color: color, orig: orig, dest: newDest);
+  Shape newDest(SquareId newDest) {
+    return Arrow(color: color, orig: orig, dest: newDest);
   }
 
   @override
@@ -397,31 +412,4 @@ class Arrow extends Shape {
 
   @override
   int get hashCode => Object.hash(color, orig, dest);
-}
-
-/// Class for circles to be drawn on the board.
-class Circle extends Shape {
-  const Circle({
-    required super.color,
-    required super.orig,
-  });
-
-  @override
-  Shape newDest(SquareId newDest){
-    return newDest == orig ?
-    Circle(color: color, orig: orig) :
-    Arrow(color: color, orig: orig, dest: newDest);
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        other is Circle &&
-            other.runtimeType == runtimeType &&
-            other.orig == orig &&
-            other.color == color;
-  }
-
-  @override
-  int get hashCode => Object.hash(color, orig);
 }

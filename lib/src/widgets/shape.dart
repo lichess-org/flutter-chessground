@@ -3,6 +3,43 @@ import 'package:flutter/widgets.dart';
 
 import '../models.dart';
 
+class ShapeWidget extends StatelessWidget {
+  const ShapeWidget({
+    super.key,
+    required this.shape,
+    required this.size,
+    required this.orientation,
+  });
+
+  final Shape shape;
+  final double size;
+  final Side orientation;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox.square(
+      dimension: size,
+      child: CustomPaint(
+        painter: switch (shape) {
+          Arrow(
+            color: final color,
+            orig: final orig,
+            dest: final dest,
+          ) =>
+            _ArrowPainter(
+              color,
+              orientation,
+              Coord.fromSquareId(orig),
+              Coord.fromSquareId(dest),
+            ),
+          Circle(color: final color, orig: final orig) =>
+            _CirclePainter(color, orientation, Coord.fromSquareId(orig)),
+        },
+      ),
+    );
+  }
+}
+
 class ArrowWidget extends StatelessWidget {
   const ArrowWidget({
     super.key,
@@ -30,7 +67,6 @@ class ArrowWidget extends StatelessWidget {
   }
 }
 
-
 class CircleWidget extends StatelessWidget {
   const CircleWidget({
     super.key,
@@ -56,7 +92,6 @@ class CircleWidget extends StatelessWidget {
   }
 }
 
-
 class _ArrowPainter extends CustomPainter {
   _ArrowPainter(this.color, this.orientation, this.fromCoord, this.toCoord);
 
@@ -80,9 +115,9 @@ class _ArrowPainter extends CustomPainter {
     final margin = squareSize / 3;
 
     final angle =
-    math.atan2(toOffset.dy - fromOffset.dy, toOffset.dx - fromOffset.dx);
+        math.atan2(toOffset.dy - fromOffset.dy, toOffset.dx - fromOffset.dx);
     final fromMarginOffset =
-    Offset(margin * math.cos(angle), margin * math.sin(angle));
+        Offset(margin * math.cos(angle), margin * math.sin(angle));
     final arrowSize = squareSize * 0.48;
     const arrowAngle = math.pi / 5;
 
@@ -103,7 +138,7 @@ class _ArrowPainter extends CustomPainter {
 
     final arrowHeight = arrowSize * math.sin((math.pi - (arrowAngle * 2)) / 2);
     final arrowOffset =
-    Offset(arrowHeight * math.cos(angle), arrowHeight * math.sin(angle));
+        Offset(arrowHeight * math.cos(angle), arrowHeight * math.sin(angle));
 
     canvas.drawLine(from, to - arrowOffset, paint);
 
@@ -121,7 +156,6 @@ class _ArrowPainter extends CustomPainter {
         toCoord != oldDelegate.toCoord;
   }
 }
-
 
 class _CirclePainter extends CustomPainter {
   _CirclePainter(this.color, this.orientation, this.circleCoord);
@@ -141,7 +175,8 @@ class _CirclePainter extends CustomPainter {
     final circle = Path()
       ..addOval(
         Rect.fromCircle(
-          center: circleCoord.offset(orientation, squareSize) + Offset(squareSize / 2, squareSize / 2),
+          center: circleCoord.offset(orientation, squareSize) +
+              Offset(squareSize / 2, squareSize / 2),
           radius: squareSize / 2 - lineWidth / 2,
         ),
       );
@@ -150,7 +185,6 @@ class _CirclePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_CirclePainter oldDelegate) {
-    return color != oldDelegate.color ||
-        orientation != oldDelegate.orientation;
+    return color != oldDelegate.color || orientation != oldDelegate.orientation;
   }
 }
