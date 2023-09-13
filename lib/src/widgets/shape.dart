@@ -40,58 +40,6 @@ class ShapeWidget extends StatelessWidget {
   }
 }
 
-class ArrowWidget extends StatelessWidget {
-  const ArrowWidget({
-    super.key,
-    required this.color,
-    required this.size,
-    required this.orientation,
-    required this.fromCoord,
-    required this.toCoord,
-  });
-
-  final Color color;
-  final double size;
-  final Side orientation;
-  final Coord fromCoord;
-  final Coord toCoord;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox.square(
-      dimension: size,
-      child: CustomPaint(
-        painter: _ArrowPainter(color, orientation, fromCoord, toCoord),
-      ),
-    );
-  }
-}
-
-class CircleWidget extends StatelessWidget {
-  const CircleWidget({
-    super.key,
-    required this.color,
-    required this.size,
-    required this.orientation,
-    required this.coord,
-  });
-
-  final Color color;
-  final double size;
-  final Side orientation;
-  final Coord coord;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox.square(
-      dimension: size,
-      child: CustomPaint(
-        painter: _CirclePainter(color, orientation, coord),
-      ),
-    );
-  }
-}
-
 class _ArrowPainter extends CustomPainter {
   _ArrowPainter(this.color, this.orientation, this.fromCoord, this.toCoord);
 
