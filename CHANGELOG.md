@@ -36,3 +36,8 @@ normal moves).
 ## 1.3.1
 
 - Improve check highlight appearance and fix rendering with Impeller.
+
+## 1.4.0
+
+- Add a drawing shapes option
+- Add the `autoQueenPromotionOnPremove` setting
