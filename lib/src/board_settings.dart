@@ -30,7 +30,7 @@ class BoardSettings {
     this.enablePremoves = true,
     this.enablePremoveCastling = true,
     this.autoQueenPromotion = false,
-    this.autoQueenPromotionOnPremove = false,
+    this.autoQueenPromotionOnPremove = true,
   });
 
   /// Theme of the board
