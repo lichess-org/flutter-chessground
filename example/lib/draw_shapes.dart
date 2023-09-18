@@ -45,7 +45,6 @@ class _DrawShapesPageState extends State<DrawShapesPage> {
                 pieceAssets: pieceSet.assets,
                 colorScheme: boardTheme.colors,
                 enableCoordinates: true,
-                enablePremoves: true,
                 drawShape: DrawShapeOptions(
                   enable: drawShapes,
                   onCompleteShape: _onCompleteShape,
@@ -62,10 +61,10 @@ class _DrawShapesPageState extends State<DrawShapesPage> {
                 lastMove: lastMove,
                 sideToMove:
                     position.turn == dc.Side.white ? Side.white : Side.black,
-                onMove: _onUserMoveFreePlay,
                 isCheck: position.isCheck,
                 shapes: shapes.isNotEmpty ? shapes : null,
               ),
+              onMove: _onUserMoveFreePlay,
             ),
             Column(
               crossAxisAlignment: CrossAxisAlignment.center,

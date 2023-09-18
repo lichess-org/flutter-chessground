@@ -14,11 +14,11 @@ class BoardData {
     required this.orientation,
     required this.fen,
     this.sideToMove = Side.white,
+    this.premove,
     this.lastMove,
     this.validMoves,
     this.isCheck = false,
     this.shapes,
-    this.onMove,
     this.annotations,
   });
 
@@ -36,6 +36,9 @@ class BoardData {
   /// FEN string describing the position of the board.
   final String fen;
 
+  /// Registered premove. Will be played right after the next opponent move.
+  final Move? premove;
+
   /// Last move played, used to highlight corresponding squares.
   final Move? lastMove;
 
@@ -50,7 +53,4 @@ class BoardData {
 
   /// Move annotations to be displayed on the board.
   final IMap<SquareId, Annotation>? annotations;
-
-  /// Callback called after a move has been made.
-  final void Function(Move, {bool? isDrop, bool? isPremove})? onMove;
 }

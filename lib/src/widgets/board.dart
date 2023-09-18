@@ -27,6 +27,8 @@ class Board extends StatefulWidget {
     required this.size,
     required this.data,
     this.settings = const BoardSettings(),
+    this.onMove,
+    this.onPremove,
   });
 
   /// Visal size of the board
@@ -37,6 +39,14 @@ class Board extends StatefulWidget {
 
   /// Data that represents the current state of the board
   final BoardData data;
+
+  /// Callback called after a move has been made.
+  final void Function(Move, {bool? isDrop, bool? isPremove})? onMove;
+
+  /// Callback called after a premove has been set/unset.
+  ///
+  /// If the callback is null, the board will not allow premoves.
+  final void Function(Move?)? onPremove;
 
   double get squareSize => size / 8;
 
@@ -70,7 +80,6 @@ class _BoardState extends State<Board> {
   bool _shouldDeselectOnTapUp = false;
   Move? _promotionMove;
   Move? _lastDrop;
-  Move? _premove;
   Set<SquareId>? _premoveDests;
   _DragAvatar? _dragAvatar;
   SquareId? _dragOrigin;
@@ -99,7 +108,8 @@ class _BoardState extends State<Board> {
           colorScheme.background,
         if (widget.settings.showLastMove && widget.data.lastMove != null)
           for (final squareId in widget.data.lastMove!.squares)
-            if (_premove == null || !_premove!.hasSquare(squareId))
+            if (widget.data.premove == null ||
+                !widget.data.premove!.hasSquare(squareId))
               PositionedSquare(
                 key: ValueKey('$squareId-lastMove'),
                 size: widget.squareSize,
@@ -110,8 +120,8 @@ class _BoardState extends State<Board> {
                   details: colorScheme.lastMove,
                 ),
               ),
-        if (_premove != null)
-          for (final squareId in _premove!.squares)
+        if (widget.data.premove != null)
+          for (final squareId in widget.data.premove!.squares)
             PositionedSquare(
               key: ValueKey('$squareId-premove'),
               size: widget.squareSize,
@@ -363,7 +373,6 @@ class _BoardState extends State<Board> {
       _dragOrigin = null;
       selected = null;
       _premoveDests = null;
-      _premove = null;
     }
     if (oldBoard.data.sideToMove != widget.data.sideToMove) {
       _premoveDests = null;
@@ -456,20 +465,23 @@ class _BoardState extends State<Board> {
     final squareId = widget.localOffset2SquareId(details.localPosition);
     if (squareId == null) return;
 
-    // allow to castle by selecting the king and then the rook, so we must prevent
-    // the re-selection of the rook
+    // if a movable piece is already selected, we want to allow castling by
+    // selecting the king and then the rook, so `canMove` check must be false
+    // to ensure we can select another piece
     if (_isMovable(squareId) &&
         (selected == null || !_canMove(selected!, squareId))) {
       _shouldDeselectOnTapUp = selected == squareId;
       setState(() {
         selected = squareId;
       });
-    } else if (_isPremovable(squareId) &&
+    }
+    // same as above comment, but for premoves
+    else if (_isPremovable(squareId) &&
         (selected == null || !_canPremove(selected!, squareId))) {
       _shouldDeselectOnTapUp = selected == squareId;
+      widget.onPremove?.call(null);
       setState(() {
         selected = squareId;
-        _premove = null;
         _premoveDests = premovesOf(
           squareId,
           pieces,
@@ -477,8 +489,8 @@ class _BoardState extends State<Board> {
         );
       });
     } else {
+      widget.onPremove?.call(null);
       setState(() {
-        _premove = null;
         _premoveDests = null;
       });
     }
@@ -648,7 +660,7 @@ class _BoardState extends State<Board> {
       pieces[move.to] = promoted;
       _promotionMove = null;
     });
-    widget.data.onMove?.call(move.withPromotion(promoted.role), isDrop: true);
+    widget.onMove?.call(move.withPromotion(promoted.role), isDrop: true);
   }
 
   void _onPromotionCancel(Move move) {
@@ -682,7 +694,7 @@ class _BoardState extends State<Board> {
   bool _isPremovable(SquareId squareId) {
     final piece = pieces[squareId];
     return piece != null &&
-        (widget.settings.enablePremoves &&
+        (widget.onPremove != null &&
             widget.data.interactableSide.name == piece.color.name &&
             widget.data.sideToMove != piece.color);
   }
@@ -711,18 +723,15 @@ class _BoardState extends State<Board> {
       }
       if (_isPromoMove(selectedPiece, squareId)) {
         if (widget.settings.autoQueenPromotion) {
-          widget.data.onMove
-              ?.call(move.withPromotion(Role.queen), isDrop: drop);
+          widget.onMove?.call(move.withPromotion(Role.queen), isDrop: drop);
         } else {
           _openPromotionSelector(move);
         }
       } else {
-        widget.data.onMove?.call(move, isDrop: drop);
+        widget.onMove?.call(move, isDrop: drop);
       }
     } else if (selectedPiece != null && _canPremove(selected!, squareId)) {
-      setState(() {
-        _premove = Move(from: selected!, to: squareId);
-      });
+      widget.onPremove?.call(Move(from: selected!, to: squareId));
     }
     setState(() {
       selected = null;
@@ -731,26 +740,27 @@ class _BoardState extends State<Board> {
   }
 
   void _tryPlayPremove() {
-    if (_premove == null) {
+    if (widget.data.premove == null) {
       return;
     }
-    final fromPiece = pieces[_premove!.from];
-    if (fromPiece != null && _canMove(_premove!.from, _premove!.to)) {
-      if (_isPromoMove(fromPiece, _premove!.to)) {
+    final fromPiece = pieces[widget.data.premove!.from];
+    if (fromPiece != null &&
+        _canMove(widget.data.premove!.from, widget.data.premove!.to)) {
+      if (_isPromoMove(fromPiece, widget.data.premove!.to)) {
         if (widget.settings.autoQueenPromotion ||
             widget.settings.autoQueenPromotionOnPremove) {
-          widget.data.onMove
-              ?.call(_premove!.withPromotion(Role.queen), isPremove: true);
+          widget.onMove?.call(
+            widget.data.premove!.withPromotion(Role.queen),
+            isPremove: true,
+          );
         } else {
-          _openPromotionSelector(_premove!);
+          _openPromotionSelector(widget.data.premove!);
         }
       } else {
-        widget.data.onMove?.call(_premove!, isPremove: true);
+        widget.onMove?.call(widget.data.premove!, isPremove: true);
       }
     }
-    setState(() {
-      _premove = null;
-    });
+    widget.onPremove?.call(null);
   }
 }
 

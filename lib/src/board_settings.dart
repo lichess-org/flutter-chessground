@@ -27,7 +27,6 @@ class BoardSettings {
     this.drawShape = const DrawShapeOptions(),
 
     // behavior settings
-    this.enablePremoves = true,
     this.enablePremoveCastling = true,
     this.autoQueenPromotion = false,
     this.autoQueenPromotionOnPremove = true,
@@ -57,9 +56,6 @@ class BoardSettings {
   // Offset for the piece currently under drag
   final Offset dragFeedbackOffset;
 
-  /// Whether premoves are authorized or not.
-  final bool enablePremoves;
-
   /// Whether castling is enabled with a premove.
   final bool enablePremoveCastling;
 
@@ -83,7 +79,6 @@ class BoardSettings {
     bool? showValidMoves,
     double? dragFeedbackSize,
     Offset? dragFeedbackOffset,
-    bool? enablePremoves,
     bool? enablePremoveCastling,
     bool? autoQueenPromotion,
     bool? autoQueenPromotionOnPremove,
@@ -98,7 +93,6 @@ class BoardSettings {
       showValidMoves: showValidMoves ?? this.showValidMoves,
       dragFeedbackSize: dragFeedbackSize ?? this.dragFeedbackSize,
       dragFeedbackOffset: dragFeedbackOffset ?? this.dragFeedbackOffset,
-      enablePremoves: enablePremoves ?? this.enablePremoves,
       enablePremoveCastling:
           enablePremoveCastling ?? this.enablePremoveCastling,
       autoQueenPromotionOnPremove:

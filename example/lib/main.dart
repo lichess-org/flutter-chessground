@@ -49,6 +49,7 @@ class _HomePageState extends State<HomePage> {
   Side orientation = Side.white;
   String fen = dc.kInitialBoardFEN;
   Move? lastMove;
+  Move? premove;
   ValidMoves validMoves = IMap(const {});
   Side sideToMove = Side.white;
   PieceSet pieceSet = PieceSet.merida;
@@ -125,7 +126,6 @@ class _HomePageState extends State<HomePage> {
                 pieceAssets: pieceSet.assets,
                 colorScheme: boardTheme.colors,
                 enableCoordinates: true,
-                enablePremoves: true,
               ),
               data: BoardData(
                 interactableSide: playMode == Mode.botPlay
@@ -139,11 +139,13 @@ class _HomePageState extends State<HomePage> {
                 lastMove: lastMove,
                 sideToMove:
                     position.turn == dc.Side.white ? Side.white : Side.black,
-                onMove: playMode == Mode.botPlay
-                    ? _onUserMoveAgainstBot
-                    : _onUserMoveFreePlay,
                 isCheck: position.isCheck,
+                premove: premove,
               ),
+              onMove: playMode == Mode.botPlay
+                  ? _onUserMoveAgainstBot
+                  : _onUserMoveFreePlay,
+              onPremove: _onSetPremove,
             ),
             Column(
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -274,6 +276,12 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     validMoves = dc.algebraicLegalMoves(position);
     super.initState();
+  }
+
+  void _onSetPremove(Move? move) {
+    setState(() {
+      premove = move;
+    });
   }
 
   void _onUserMoveFreePlay(Move move, {bool? isDrop, bool? isPremove}) {

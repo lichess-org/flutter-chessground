@@ -442,6 +442,7 @@ Widget buildBoard({
   dc.Position<dc.Chess> position =
       dc.Chess.fromSetup(dc.Setup.parseFen(initialFen));
   Move? lastMove;
+  Move? premove;
 
   return MaterialApp(
     home: StatefulBuilder(
@@ -458,19 +459,25 @@ Widget buildBoard({
             sideToMove:
                 position.turn == dc.Side.white ? Side.white : Side.black,
             validMoves: dc.algebraicLegalMoves(position),
-            onMove: (Move move, {bool? isDrop, bool? isPremove}) {
-              setState(() {
-                position = position.playUnchecked(dc.Move.fromUci(move.uci)!);
-                interactableSide = position.turn == dc.Side.white
-                    ? InteractableSide.white
-                    : InteractableSide.black;
-                if (position.isGameOver) {
-                  interactableSide = InteractableSide.none;
-                }
-                lastMove = move;
-              });
-            },
+            premove: premove,
           ),
+          onMove: (Move move, {bool? isDrop, bool? isPremove}) {
+            setState(() {
+              position = position.playUnchecked(dc.Move.fromUci(move.uci)!);
+              interactableSide = position.turn == dc.Side.white
+                  ? InteractableSide.white
+                  : InteractableSide.black;
+              if (position.isGameOver) {
+                interactableSide = InteractableSide.none;
+              }
+              lastMove = move;
+            });
+          },
+          onPremove: (Move? move) {
+            setState(() {
+              premove = move;
+            });
+          },
         );
       },
     ),
