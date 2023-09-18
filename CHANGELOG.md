@@ -1,3 +1,7 @@
+## 1.5.0
+
+- `premove` is not anymore a local state, so it can be controlled by the parent
+
 ## 1.4.1
 
 - Change the `autoQueenPromotionOnPremove` default setting to true
