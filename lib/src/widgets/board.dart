@@ -377,7 +377,9 @@ class _BoardState extends State<Board> {
     if (oldBoard.data.sideToMove != widget.data.sideToMove) {
       _premoveDests = null;
       _promotionMove = null;
-      WidgetsBinding.instance.addPostFrameCallback((_) => _tryPlayPremove());
+      if (widget.data.sideToMove.name == widget.data.interactableSide.name) {
+        WidgetsBinding.instance.addPostFrameCallback((_) => _tryPlayPremove());
+      }
     }
     if (oldBoard.data.fen == widget.data.fen) {
       _lastDrop = null;
