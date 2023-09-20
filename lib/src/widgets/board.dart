@@ -98,6 +98,7 @@ class _BoardState extends State<Board> {
     final shapes = widget.data.shapes ?? _emptyShapes;
     final annotations = widget.data.annotations ?? _emptyAnnotations;
     final checkSquare = widget.data.isCheck ? _getKingSquare() : null;
+    final premove = widget.data.premove;
     final Widget board = Stack(
       children: [
         if (widget.settings.enableCoordinates)
@@ -108,8 +109,7 @@ class _BoardState extends State<Board> {
           colorScheme.background,
         if (widget.settings.showLastMove && widget.data.lastMove != null)
           for (final squareId in widget.data.lastMove!.squares)
-            if (widget.data.premove == null ||
-                !widget.data.premove!.hasSquare(squareId))
+            if (premove == null || !premove.hasSquare(squareId))
               PositionedSquare(
                 key: ValueKey('$squareId-lastMove'),
                 size: widget.squareSize,
@@ -120,8 +120,8 @@ class _BoardState extends State<Board> {
                   details: colorScheme.lastMove,
                 ),
               ),
-        if (widget.data.premove != null)
-          for (final squareId in widget.data.premove!.squares)
+        if (premove != null)
+          for (final squareId in premove.squares)
             PositionedSquare(
               key: ValueKey('$squareId-premove'),
               size: widget.squareSize,
@@ -742,24 +742,24 @@ class _BoardState extends State<Board> {
   }
 
   void _tryPlayPremove() {
-    if (widget.data.premove == null) {
+    final premove = widget.data.premove;
+    if (premove == null) {
       return;
     }
-    final fromPiece = pieces[widget.data.premove!.from];
-    if (fromPiece != null &&
-        _canMove(widget.data.premove!.from, widget.data.premove!.to)) {
-      if (_isPromoMove(fromPiece, widget.data.premove!.to)) {
+    final fromPiece = pieces[premove.from];
+    if (fromPiece != null && _canMove(premove.from, premove.to)) {
+      if (_isPromoMove(fromPiece, premove.to)) {
         if (widget.settings.autoQueenPromotion ||
             widget.settings.autoQueenPromotionOnPremove) {
           widget.onMove?.call(
-            widget.data.premove!.withPromotion(Role.queen),
+            premove.withPromotion(Role.queen),
             isPremove: true,
           );
         } else {
-          _openPromotionSelector(widget.data.premove!);
+          _openPromotionSelector(premove);
         }
       } else {
-        widget.onMove?.call(widget.data.premove!, isPremove: true);
+        widget.onMove?.call(premove, isPremove: true);
       }
     }
     widget.onPremove?.call(null);

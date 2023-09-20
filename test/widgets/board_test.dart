@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:dartchess/dartchess.dart' as dc;
@@ -422,6 +423,37 @@ void main() {
       expect(find.byKey(const Key('d1-premove')), findsNothing);
       expect(find.byKey(const Key('f3-premove')), findsNothing);
     });
+
+    testWidgets('play premove', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        buildBoard(
+          initialInteractableSide: InteractableSide.white,
+          shouldPlayOpponentMove: true,
+        ),
+      );
+
+      await makeMove(tester, 'e2', 'e4');
+
+      await makeMove(tester, 'd1', 'f3');
+      expect(find.byKey(const Key('d1-premove')), findsOneWidget);
+      expect(find.byKey(const Key('f3-premove')), findsOneWidget);
+
+      // wait for opponent move to be played
+      await tester.pump(const Duration(milliseconds: 200));
+
+      // opponent move is played
+      expect(find.byKey(const Key('a5-blackPawn')), findsOneWidget);
+
+      // wait for the premove to be played
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('d1-premove')), findsNothing);
+      expect(find.byKey(const Key('f3-premove')), findsNothing);
+
+      // premove has been played
+      expect(find.byKey(const Key('d1-whiteQueen')), findsNothing);
+      expect(find.byKey(const Key('f3-whiteQueen')), findsOneWidget);
+    });
   });
 }
 
@@ -437,6 +469,9 @@ Widget buildBoard({
   BoardSettings? settings,
   Side orientation = Side.white,
   String initialFen = dc.kInitialFEN,
+
+  /// play the first available move for the opponent after a delay of 200ms
+  bool shouldPlayOpponentMove = false,
 }) {
   InteractableSide interactableSide = initialInteractableSide;
   dc.Position<dc.Chess> position =
@@ -464,14 +499,29 @@ Widget buildBoard({
           onMove: (Move move, {bool? isDrop, bool? isPremove}) {
             setState(() {
               position = position.playUnchecked(dc.Move.fromUci(move.uci)!);
-              interactableSide = position.turn == dc.Side.white
-                  ? InteractableSide.white
-                  : InteractableSide.black;
               if (position.isGameOver) {
                 interactableSide = InteractableSide.none;
               }
               lastMove = move;
             });
+
+            if (shouldPlayOpponentMove) {
+              Timer(const Duration(milliseconds: 200), () {
+                setState(() {
+                  final allMoves = [
+                    for (final entry in position.legalMoves.entries)
+                      for (final dest in entry.value.squares)
+                        dc.NormalMove(from: entry.key, to: dest),
+                  ];
+                  final opponentMove = allMoves.first;
+                  position = position.playUnchecked(opponentMove);
+                  if (position.isGameOver) {
+                    interactableSide = InteractableSide.none;
+                  }
+                  lastMove = Move.fromUci(opponentMove.uci);
+                });
+              });
+            }
           },
           onPremove: (Move? move) {
             setState(() {
