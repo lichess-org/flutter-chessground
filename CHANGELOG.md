@@ -1,3 +1,7 @@
+## 1.5.1
+
+- Use an immediate timer to execute premove, instead of a post frame callback.
+
 ## 1.5.0
 
 - `premove` is not anymore a local state, so it can be controlled by the parent
