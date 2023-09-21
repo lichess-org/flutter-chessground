@@ -1,3 +1,7 @@
+## 1.5.2
+
+- Don't try to execute a premove if it is not allowed.
+
 ## 1.5.1
 
 - Use an immediate timer to execute premove, instead of a post frame callback.
