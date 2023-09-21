@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter/gestures.dart';
@@ -378,7 +379,11 @@ class _BoardState extends State<Board> {
       _premoveDests = null;
       _promotionMove = null;
       if (widget.data.sideToMove.name == widget.data.interactableSide.name) {
-        WidgetsBinding.instance.addPostFrameCallback((_) => _tryPlayPremove());
+        Timer(Duration.zero, () {
+          if (mounted) {
+            _tryPlayPremove();
+          }
+        });
       }
     }
     if (oldBoard.data.fen == widget.data.fen) {
