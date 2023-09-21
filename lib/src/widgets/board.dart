@@ -378,7 +378,8 @@ class _BoardState extends State<Board> {
     if (oldBoard.data.sideToMove != widget.data.sideToMove) {
       _premoveDests = null;
       _promotionMove = null;
-      if (widget.data.sideToMove.name == widget.data.interactableSide.name) {
+      if (widget.onPremove != null &&
+          widget.data.sideToMove.name == widget.data.interactableSide.name) {
         Timer(Duration.zero, () {
           if (mounted) {
             _tryPlayPremove();
