@@ -379,11 +379,10 @@ class _BoardState extends State<Board> {
       _premoveDests = null;
       _promotionMove = null;
       if (widget.onPremove != null &&
+          widget.data.premove != null &&
           widget.data.sideToMove.name == widget.data.interactableSide.name) {
-        Timer(Duration.zero, () {
-          if (mounted) {
-            _tryPlayPremove();
-          }
+        Timer.run(() {
+          if (mounted) _tryPlayPremove();
         });
       }
     }
