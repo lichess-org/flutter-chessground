@@ -1,3 +1,7 @@
+## 1.5.3
+
+- Don't run premove timer if premove is not set
+
 ## 1.5.2
 
 - Don't try to execute a premove if it is not allowed.
