@@ -1,3 +1,7 @@
+## 1.6.0
+
+- Add blindfold mode
+
 ## 1.5.3
 
 - Don't run premove timer if premove is not set
