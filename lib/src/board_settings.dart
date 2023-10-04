@@ -81,6 +81,7 @@ class BoardSettings {
     Duration? animationDuration,
     bool? showLastMove,
     bool? showValidMoves,
+    bool? blindfoldMode,
     double? dragFeedbackSize,
     Offset? dragFeedbackOffset,
     bool? enablePremoveCastling,
@@ -95,6 +96,7 @@ class BoardSettings {
       animationDuration: animationDuration ?? this.animationDuration,
       showLastMove: showLastMove ?? this.showLastMove,
       showValidMoves: showValidMoves ?? this.showValidMoves,
+      blindfoldMode: blindfoldMode ?? this.blindfoldMode,
       dragFeedbackSize: dragFeedbackSize ?? this.dragFeedbackSize,
       dragFeedbackOffset: dragFeedbackOffset ?? this.dragFeedbackOffset,
       enablePremoveCastling:
