@@ -20,6 +20,7 @@ class BoardSettings {
     this.animationDuration = const Duration(milliseconds: 250),
     this.showLastMove = true,
     this.showValidMoves = true,
+    this.blindfoldMode = false,
     this.dragFeedbackSize = 2.0,
     this.dragFeedbackOffset = const Offset(0.0, -1.0),
 
@@ -49,6 +50,9 @@ class BoardSettings {
 
   /// Whether to show valid moves
   final bool showValidMoves;
+
+  /// Pieces are hidden in blindfold mode
+  final bool blindfoldMode;
 
   // Scale up factor for the piece currently under drag
   final double dragFeedbackSize;

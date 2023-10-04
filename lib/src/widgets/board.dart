@@ -188,6 +188,7 @@ class _BoardState extends State<Board> {
               piece: entry.value,
               size: widget.squareSize,
               pieceAssets: widget.settings.pieceAssets,
+              blindfoldMode: widget.settings.blindfoldMode,
               onComplete: () {
                 fadingPieces.remove(entry.key);
               },
@@ -205,6 +206,7 @@ class _BoardState extends State<Board> {
                 piece: entry.value,
                 size: widget.squareSize,
                 pieceAssets: widget.settings.pieceAssets,
+                blindfoldMode: widget.settings.blindfoldMode,
               ),
             ),
         for (final entry in translatingPieces.entries)
@@ -225,6 +227,7 @@ class _BoardState extends State<Board> {
                 piece: entry.value.$1.piece,
                 size: widget.squareSize,
                 pieceAssets: widget.settings.pieceAssets,
+                blindfoldMode: widget.settings.blindfoldMode,
               ),
             ),
           ),
@@ -538,6 +541,7 @@ class _BoardState extends State<Board> {
             piece: piece,
             size: feedbackSize,
             pieceAssets: widget.settings.pieceAssets,
+            blindfoldMode: widget.settings.blindfoldMode,
           ),
         ),
       );

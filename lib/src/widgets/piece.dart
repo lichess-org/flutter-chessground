@@ -10,6 +10,7 @@ class PieceWidget extends StatelessWidget {
     required this.size,
     required this.pieceAssets,
     this.opacity,
+    this.blindfoldMode = false,
   });
 
   /// Specifies the role and color of the piece
@@ -21,11 +22,18 @@ class PieceWidget extends StatelessWidget {
   /// Piece set
   final PieceAssets pieceAssets;
 
+  /// Pieces are hidden in blindfold mode
+  final bool blindfoldMode;
+
   /// Use this value to animate the opacity of the piece
   final Animation<double>? opacity;
 
   @override
   Widget build(BuildContext context) {
+    if (blindfoldMode) {
+      return SizedBox(width: size, height: size);
+    }
+
     final asset = pieceAssets[piece.kind]!;
     final deviceRatio = MediaQuery.devicePixelRatioOf(context);
     // the ratio is defined by the resolution aware image assets defined in

@@ -75,6 +75,7 @@ class PieceFadeOut extends StatefulWidget {
     required this.size,
     required this.onComplete,
     required this.pieceAssets,
+    this.blindfoldMode = false,
     Duration? duration,
     Curve? curve,
   })  : duration = duration ?? const Duration(milliseconds: 150),
@@ -83,6 +84,7 @@ class PieceFadeOut extends StatefulWidget {
   final Piece piece;
   final double size;
   final PieceAssets pieceAssets;
+  final bool blindfoldMode;
   final Duration duration;
   final Curve curve;
   final void Function() onComplete;
@@ -126,6 +128,7 @@ class _PieceFadeOutState extends State<PieceFadeOut>
       size: widget.size,
       opacity: _animation,
       pieceAssets: widget.pieceAssets,
+      blindfoldMode: widget.blindfoldMode,
     );
   }
 }
