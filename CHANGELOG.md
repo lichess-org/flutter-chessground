@@ -1,3 +1,7 @@
+## 1.6.1
+
+- Fix missing blindfoldMode to BoardSettings.copyWith
+
 ## 1.6.0
 
 - Add blindfold mode
