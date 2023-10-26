@@ -1,3 +1,7 @@
+## 2.0.0
+
+- `BoardData.sideToMove` is now a required parameter.
+
 ## 1.6.1
 
 - Fix missing blindfoldMode to BoardSettings.copyWith

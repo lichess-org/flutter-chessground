@@ -13,7 +13,7 @@ class BoardData {
     required this.interactableSide,
     required this.orientation,
     required this.fen,
-    this.sideToMove = Side.white,
+    required this.sideToMove,
     this.premove,
     this.lastMove,
     this.validMoves,

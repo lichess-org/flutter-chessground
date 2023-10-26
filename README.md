@@ -58,6 +58,7 @@ class _MyHomePageState extends State<MyHomePage> {
           data: BoardData(
             interactableSide: InteractableSide.none,
             orientation: Side.white,
+            sideToMove: Side.white,
             fen: fen,
           ),
         ),

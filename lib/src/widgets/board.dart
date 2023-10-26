@@ -121,7 +121,8 @@ class _BoardState extends State<Board> {
                   details: colorScheme.lastMove,
                 ),
               ),
-        if (premove != null)
+        if (premove != null &&
+            widget.data.interactableSide != InteractableSide.none)
           for (final squareId in premove.squares)
             PositionedSquare(
               key: ValueKey('$squareId-premove'),

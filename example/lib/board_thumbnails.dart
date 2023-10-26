@@ -23,6 +23,7 @@ class BoardThumbnailsPage extends StatelessWidget {
                 data: BoardData(
                   interactableSide: InteractableSide.none,
                   orientation: Side.white,
+                  sideToMove: Side.white,
                   fen: fen,
                 ),
               );

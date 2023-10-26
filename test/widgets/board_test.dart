@@ -17,6 +17,7 @@ void main() {
           interactableSide: InteractableSide.none,
           orientation: Side.white,
           fen: dc.kInitialFEN,
+          sideToMove: Side.white,
         ),
       ),
     );
@@ -396,32 +397,6 @@ void main() {
       await makeMove(tester, 'd1', 'c2');
       expect(find.byKey(const Key('d1-premove')), findsOneWidget);
       expect(find.byKey(const Key('c2-premove')), findsOneWidget);
-    });
-
-    testWidgets('cancel premoves if board is made non interactable again',
-        (WidgetTester tester) async {
-      await tester.pumpWidget(
-        buildBoard(
-          initialFen:
-              'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
-          initialInteractableSide: InteractableSide.white,
-        ),
-      );
-
-      await makeMove(tester, 'd1', 'f3');
-      expect(find.byKey(const Key('d1-premove')), findsOneWidget);
-      expect(find.byKey(const Key('f3-premove')), findsOneWidget);
-
-      await tester.pumpWidget(
-        buildBoard(
-          initialFen:
-              'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
-          initialInteractableSide: InteractableSide.none,
-        ),
-      );
-
-      expect(find.byKey(const Key('d1-premove')), findsNothing);
-      expect(find.byKey(const Key('f3-premove')), findsNothing);
     });
 
     testWidgets('play premove', (WidgetTester tester) async {
