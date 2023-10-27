@@ -98,7 +98,7 @@ class _BoardState extends State<Board> {
         widget.settings.showValidMoves ? _premoveDests ?? {} : {};
     final shapes = widget.data.shapes ?? _emptyShapes;
     final annotations = widget.data.annotations ?? _emptyAnnotations;
-    final checkSquare = widget.data.isCheck ? _getKingSquare() : null;
+    final checkSquare = widget.data.isCheck == true ? _getKingSquare() : null;
     final premove = widget.data.premove;
     final Widget board = Stack(
       children: [
@@ -295,12 +295,12 @@ class _BoardState extends State<Board> {
             )
           else
             board,
-          if (_promotionMove != null)
+          if (_promotionMove != null && widget.data.sideToMove != null)
             PromotionSelector(
               pieceAssets: widget.settings.pieceAssets,
               move: _promotionMove!,
               squareSize: widget.squareSize,
-              color: widget.data.sideToMove,
+              color: widget.data.sideToMove!,
               orientation: widget.data.orientation,
               onSelect: _onPromotionSelect,
               onCancel: _onPromotionCancel,
@@ -384,7 +384,7 @@ class _BoardState extends State<Board> {
       _promotionMove = null;
       if (widget.onPremove != null &&
           widget.data.premove != null &&
-          widget.data.sideToMove.name == widget.data.interactableSide.name) {
+          widget.data.sideToMove?.name == widget.data.interactableSide.name) {
         Timer.run(() {
           if (mounted) _tryPlayPremove();
         });

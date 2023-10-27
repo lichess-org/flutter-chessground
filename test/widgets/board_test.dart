@@ -17,7 +17,6 @@ void main() {
           interactableSide: InteractableSide.none,
           orientation: Side.white,
           fen: dc.kInitialFEN,
-          sideToMove: Side.white,
         ),
       ),
     );

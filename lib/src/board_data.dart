@@ -13,14 +13,18 @@ class BoardData {
     required this.interactableSide,
     required this.orientation,
     required this.fen,
-    required this.sideToMove,
+    this.sideToMove,
     this.premove,
     this.lastMove,
     this.validMoves,
-    this.isCheck = false,
+    this.isCheck,
     this.shapes,
     this.annotations,
-  });
+  }) : assert(
+          (isCheck == null && interactableSide == InteractableSide.none) ||
+              sideToMove != null,
+          'sideToMove must be set when isCheck is set, or when the board is interactable.',
+        );
 
   /// Which color is allowed to move? It can be both, none, white or black
   ///
@@ -31,7 +35,7 @@ class BoardData {
   final Side orientation;
 
   /// Side which is to move.
-  final Side sideToMove;
+  final Side? sideToMove;
 
   /// FEN string describing the position of the board.
   final String fen;
@@ -46,7 +50,7 @@ class BoardData {
   final ValidMoves? validMoves;
 
   /// Highlight the king of current side to move
-  final bool isCheck;
+  final bool? isCheck;
 
   /// Optional set of [Shape] to be drawn on the board.
   final ISet<Shape>? shapes;
