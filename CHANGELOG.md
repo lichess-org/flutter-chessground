@@ -1,3 +1,9 @@
+## 2.1.0
+
+- `BoardData.sideToMove` is now optional with no default value, as well as
+`BoardData.isCheck` and constructor assertion will guarantee they are set when
+needed.
+
 ## 2.0.0
 
 - `BoardData.sideToMove` is now a required parameter.
