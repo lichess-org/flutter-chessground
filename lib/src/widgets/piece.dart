@@ -40,7 +40,7 @@ class PieceWidget extends StatelessWidget {
     // assets/piece_sets/
     // that's why 4 is the maximum ratio
     final ratio = math.min(deviceRatio.ceilToDouble(), 4.0);
-    final cacheSize = (size * ratio).toInt();
+    final cacheSize = (size * ratio).ceil();
     return Image.asset(
       asset.assetName,
       bundle: asset.bundle,
