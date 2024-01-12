@@ -1,3 +1,9 @@
+## 2.2.0
+
+- Improve quality of PNG files, fix wrong rendering of some piece set like
+  "Cardinal". More info: https://github.com/lichess-org/flutter-chessground/pull/28.
+- Piece cache size is now rounded to the nearest integer above the actual value.
+
 ## 2.1.0
 
 - `BoardData.sideToMove` is now optional with no default value, as well as
