@@ -1,3 +1,7 @@
+## 2.2.1
+
+- Upgrade fast_immutable_collections to version 10.0.0.
+
 ## 2.2.0
 
 - Improve quality of PNG files, fix wrong rendering of some piece set like
