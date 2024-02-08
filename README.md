@@ -18,7 +18,6 @@ chess logic so you can use it with different chess variants.
 - promotion selector
 - draw shapes on board
 - move annotations
-- exclude android 10+ navigation gestures around board (needs immersive mode)
 
 ## Getting started
 
