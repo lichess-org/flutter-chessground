@@ -1,3 +1,7 @@
+## 2.3.0
+
+- Remove handling of android gestures exclusion.
+
 ## 2.2.1
 
 - Upgrade fast_immutable_collections to version 10.0.0.
