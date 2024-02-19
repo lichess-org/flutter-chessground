@@ -15,3 +15,4 @@ export 'src/premove.dart';
 export 'src/widgets/board.dart';
 export 'src/widgets/highlight.dart';
 export 'src/widgets/piece.dart';
+export 'src/widgets/background.dart';

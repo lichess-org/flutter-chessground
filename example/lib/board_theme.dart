@@ -1,7 +1,6 @@
-import 'board_color_scheme.dart';
+import 'package:chessground/chessground.dart';
 
 /// The chessboard theme.
-@Deprecated('Use BoardColorScheme directly.')
 enum BoardTheme {
   blue('Blue', BoardColorScheme.blue),
   blue2('Blue2', BoardColorScheme.blue2),
@@ -31,6 +30,5 @@ enum BoardTheme {
 
   final BoardColorScheme colors;
 
-  @Deprecated('Use BoardColorScheme directly.')
   const BoardTheme(this.label, this.colors);
 }

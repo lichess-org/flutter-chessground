@@ -1,7 +1,9 @@
 import 'package:flutter/widgets.dart';
 import '../models.dart';
 
-/// Board background.
+/// Base widget for the background of the chessboard.
+///
+/// See [SolidColorBackground] and [ImageBackground] for concrete implementations.
 abstract class Background extends StatelessWidget {
   const Background({
     super.key,
@@ -17,6 +19,7 @@ abstract class Background extends StatelessWidget {
   final Color darkSquare;
 }
 
+/// A chessboard background with solid color squares.
 class SolidColorBackground extends Background {
   const SolidColorBackground({
     super.key,
@@ -42,7 +45,7 @@ class SolidColorBackground extends Background {
                     height: double.infinity,
                     color: (rank + file).isEven ? lightSquare : darkSquare,
                     child: coordinates
-                        ? Coordinate(
+                        ? _Coordinate(
                             rank: rank,
                             file: file,
                             orientation: orientation,
@@ -61,6 +64,7 @@ class SolidColorBackground extends Background {
   }
 }
 
+/// A chessboard background made of an image.
 class ImageBackground extends Background {
   const ImageBackground({
     super.key,
@@ -89,7 +93,7 @@ class ImageBackground extends Background {
                       8,
                       (file) => Expanded(
                         child: SizedBox.expand(
-                          child: Coordinate(
+                          child: _Coordinate(
                             rank: rank,
                             file: file,
                             orientation: orientation,
@@ -109,9 +113,8 @@ class ImageBackground extends Background {
   }
 }
 
-class Coordinate extends StatelessWidget {
-  const Coordinate({
-    super.key,
+class _Coordinate extends StatelessWidget {
+  const _Coordinate({
     required this.rank,
     required this.file,
     required this.color,

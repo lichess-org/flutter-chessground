@@ -1,8 +1,10 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:chessground/chessground.dart';
+import 'package:chessground/chessground.dart' hide BoardTheme;
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:dartchess/dartchess.dart' as dc;
+
+import 'board_theme.dart';
 
 class DrawShapesPage extends StatefulWidget {
   const DrawShapesPage({Key? key}) : super(key: key);
