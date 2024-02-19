@@ -1,3 +1,7 @@
+## 2.4.0
+
+- Deprecate `BoardTheme` and export `Background`.
+
 ## 2.3.0
 
 - Remove handling of android gestures exclusion.
