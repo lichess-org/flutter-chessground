@@ -99,6 +99,7 @@ class _BoardState extends State<Board> {
     final checkSquare = widget.data.isCheck == true ? _getKingSquare() : null;
     final premove = widget.data.premove;
     final Widget board = Stack(
+      clipBehavior: Clip.none,
       children: [
         if (widget.settings.enableCoordinates)
           widget.data.orientation == Side.white
@@ -258,6 +259,7 @@ class _BoardState extends State<Board> {
     return SizedBox.square(
       dimension: widget.size,
       child: Stack(
+        clipBehavior: Clip.none,
         children: [
           // Consider using Listener instead as we don't control the drag start threshold with
           // GestureDetector (TODO)
