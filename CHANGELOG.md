@@ -1,3 +1,7 @@
+## 2.4.1
+
+- Don't clip board: fix annotations display on edge.
+
 ## 2.4.0
 
 - Deprecate `BoardTheme` and export `Background`.
