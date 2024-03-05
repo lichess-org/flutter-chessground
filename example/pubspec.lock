@@ -77,10 +77,10 @@ packages:
     dependency: transitive
     description:
       name: fast_immutable_collections
-      sha256: "97fc98d7304013421b4ad802386949578d1311c549f0c15ff1d61052cb8fc2ce"
+      sha256: "6df5b5bb29f52644c4c653ef0ae7d26c8463f8d6551b0ac94561103ff6c5ca17"
       url: "https://pub.dev"
     source: hosted
-    version: "10.1.0"
+    version: "10.1.1"
   flutter:
     dependency: "direct main"
     description: flutter
