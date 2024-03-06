@@ -1,3 +1,7 @@
+## 2.5.0
+
+- Add a new shape type: piece (useful to show promotion hints).
+
 ## 2.4.1
 
 - Don't clip board: fix annotations display on edge.
