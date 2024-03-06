@@ -2,41 +2,62 @@ import 'dart:math' as math;
 import 'package:flutter/widgets.dart';
 
 import '../models.dart';
+import 'positioned_square.dart';
 
 class ShapeWidget extends StatelessWidget {
   const ShapeWidget({
     super.key,
     required this.shape,
-    required this.size,
+    required this.boardSize,
     required this.orientation,
   });
 
   final Shape shape;
-  final double size;
+  final double boardSize;
   final Side orientation;
+
+  double get squareSize => boardSize / 8;
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox.square(
-      dimension: size,
-      child: CustomPaint(
-        painter: switch (shape) {
-          Arrow(
-            color: final color,
-            orig: final orig,
-            dest: final dest,
-          ) =>
-            _ArrowPainter(
+    return switch (shape) {
+      Arrow(
+        color: final color,
+        orig: final orig,
+        dest: final dest,
+      ) =>
+        SizedBox.square(
+          dimension: boardSize,
+          child: CustomPaint(
+            painter: _ArrowPainter(
               color,
               orientation,
               Coord.fromSquareId(orig),
               Coord.fromSquareId(dest),
             ),
-          Circle(color: final color, orig: final orig) =>
-            _CirclePainter(color, orientation, Coord.fromSquareId(orig)),
-        },
-      ),
-    );
+          ),
+        ),
+      Circle(color: final color, orig: final orig) => SizedBox.square(
+          dimension: boardSize,
+          child: CustomPaint(
+            painter:
+                _CirclePainter(color, orientation, Coord.fromSquareId(orig)),
+          ),
+        ),
+      PieceShape(orig: final orig, role: final role, color: final color) =>
+        PositionedSquare(
+          size: squareSize,
+          orientation: orientation,
+          squareId: orig,
+          child: Image.asset(
+            'assets/piece_sets/mono/${role.letter}.png',
+            package: 'chessground',
+            color: color,
+            width: squareSize,
+            height: squareSize,
+          ),
+        ),
+    };
   }
 }
 

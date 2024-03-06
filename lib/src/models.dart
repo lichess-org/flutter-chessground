@@ -13,7 +13,23 @@ enum Side {
 enum InteractableSide { both, none, white, black }
 
 /// Piece role, such as pawn, knight, etc.
-enum Role { king, queen, knight, bishop, rook, pawn }
+enum Role {
+  king,
+  queen,
+  knight,
+  bishop,
+  rook,
+  pawn;
+
+  String get letter => switch (this) {
+        Role.king => 'K',
+        Role.queen => 'Q',
+        Role.knight => 'N',
+        Role.bishop => 'B',
+        Role.rook => 'R',
+        Role.pawn => 'P',
+      };
+}
 
 /// Piece kind, such as white pawn, black knight, etc.
 enum PieceKind {
@@ -412,4 +428,35 @@ class Arrow implements Shape {
 
   @override
   int get hashCode => Object.hash(color, orig, dest);
+}
+
+@immutable
+class PieceShape implements Shape {
+  final Color color;
+  final Role role;
+  final SquareId orig;
+
+  const PieceShape({
+    required this.color,
+    required this.role,
+    required this.orig,
+  });
+
+  @override
+  Shape newDest(SquareId newDest) {
+    return this;
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        other is PieceShape &&
+            other.runtimeType == runtimeType &&
+            other.color == color &&
+            other.role == role &&
+            other.orig == orig;
+  }
+
+  @override
+  int get hashCode => Object.hash(color, role, orig);
 }

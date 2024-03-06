@@ -244,13 +244,13 @@ class _BoardState extends State<Board> {
         for (final shape in shapes)
           ShapeWidget(
             shape: shape,
-            size: widget.size,
+            boardSize: widget.size,
             orientation: widget.data.orientation,
           ),
         if (_shapeAvatar != null)
           ShapeWidget(
             shape: _shapeAvatar!,
-            size: widget.size,
+            boardSize: widget.size,
             orientation: widget.data.orientation,
           ),
       ],
