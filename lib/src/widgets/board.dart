@@ -189,6 +189,7 @@ class _BoardState extends State<Board> {
               size: widget.squareSize,
               pieceAssets: widget.settings.pieceAssets,
               blindfoldMode: widget.settings.blindfoldMode,
+              upsideDown: _upsideDown(entry.value),
               onComplete: () {
                 fadingPieces.remove(entry.key);
               },
@@ -207,6 +208,7 @@ class _BoardState extends State<Board> {
                 size: widget.squareSize,
                 pieceAssets: widget.settings.pieceAssets,
                 blindfoldMode: widget.settings.blindfoldMode,
+                upsideDown: _upsideDown(entry.value),
               ),
             ),
         for (final entry in translatingPieces.entries)
@@ -228,6 +230,7 @@ class _BoardState extends State<Board> {
                 size: widget.squareSize,
                 pieceAssets: widget.settings.pieceAssets,
                 blindfoldMode: widget.settings.blindfoldMode,
+                upsideDown: _upsideDown(entry.value.$1.piece),
               ),
             ),
           ),
@@ -302,6 +305,7 @@ class _BoardState extends State<Board> {
               squareSize: widget.squareSize,
               color: widget.data.sideToMove!,
               orientation: widget.data.orientation,
+              piecesUpsideDown: _promotionPiecesUpsideDown(),
               onSelect: _onPromotionSelect,
               onCancel: _onPromotionCancel,
             ),
@@ -496,6 +500,7 @@ class _BoardState extends State<Board> {
             size: feedbackSize,
             pieceAssets: widget.settings.pieceAssets,
             blindfoldMode: widget.settings.blindfoldMode,
+            upsideDown: _upsideDown(piece),
           ),
         ),
       );
@@ -641,6 +646,16 @@ class _BoardState extends State<Board> {
       pieces[move.to] = pawn!;
       _promotionMove = move;
     });
+  }
+
+  bool _upsideDown(Piece piece) {
+    return widget.data.opponentsPiecesUpsideDown &&
+        piece.color != widget.data.orientation;
+  }
+
+  bool _promotionPiecesUpsideDown() {
+    return widget.data.opponentsPiecesUpsideDown &&
+        widget.data.sideToMove! != widget.data.orientation;
   }
 
   bool _isMovable(SquareId squareId) {

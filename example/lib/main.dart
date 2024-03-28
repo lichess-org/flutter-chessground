@@ -135,6 +135,7 @@ class _HomePageState extends State<HomePage> {
                         : InteractableSide.black),
                 validMoves: validMoves,
                 orientation: orientation,
+                opponentsPiecesUpsideDown: playMode == Mode.freePlay,
                 fen: fen,
                 lastMove: lastMove,
                 sideToMove:
