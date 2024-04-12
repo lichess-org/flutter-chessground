@@ -108,8 +108,8 @@ class _BoardState extends State<Board> {
     final Widget board = Stack(
       clipBehavior: Clip.none,
       children: [
-        if (widget.settings.boxShadow != null ||
-            widget.settings.borderRadius != null)
+        if (widget.settings.boxShadow.isNotEmpty ||
+            widget.settings.borderRadius != BorderRadius.zero)
           Container(
             clipBehavior: Clip.hardEdge,
             decoration: BoxDecoration(
