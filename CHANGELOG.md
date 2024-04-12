@@ -1,3 +1,7 @@
+## 2.6.0
+
+- Add 2 new settings: `borderRadius` and `boxShadow`.
+
 ## 2.5.0
 
 - Add a new shape type: piece (useful to show promotion hints).
