@@ -98,15 +98,28 @@ class _BoardState extends State<Board> {
     final annotations = widget.data.annotations ?? _emptyAnnotations;
     final checkSquare = widget.data.isCheck == true ? _getKingSquare() : null;
     final premove = widget.data.premove;
+
+    final background = widget.settings.enableCoordinates
+        ? widget.data.orientation == Side.white
+            ? colorScheme.whiteCoordBackground
+            : colorScheme.blackCoordBackground
+        : colorScheme.background;
+
     final Widget board = Stack(
       clipBehavior: Clip.none,
       children: [
-        if (widget.settings.enableCoordinates)
-          widget.data.orientation == Side.white
-              ? colorScheme.whiteCoordBackground
-              : colorScheme.blackCoordBackground
+        if (widget.settings.boxShadow != null ||
+            widget.settings.borderRadius != null)
+          Container(
+            clipBehavior: Clip.hardEdge,
+            decoration: BoxDecoration(
+              borderRadius: widget.settings.borderRadius,
+              boxShadow: widget.settings.boxShadow,
+            ),
+            child: background,
+          )
         else
-          colorScheme.background,
+          background,
         if (widget.settings.showLastMove && widget.data.lastMove != null)
           for (final squareId in widget.data.lastMove!.squares)
             if (premove == null || !premove.hasSquare(squareId))

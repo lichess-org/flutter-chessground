@@ -16,6 +16,8 @@ class BoardSettings {
     this.colorScheme = BoardColorScheme.brown,
     this.pieceAssets = PieceSet.cburnettAssets,
     // visual settings
+    this.borderRadius,
+    this.boxShadow,
     this.enableCoordinates = true,
     this.animationDuration = const Duration(milliseconds: 250),
     this.showLastMove = true,
@@ -38,6 +40,12 @@ class BoardSettings {
 
   /// Piece set
   final PieceAssets pieceAssets;
+
+  /// Border radius of the board
+  final BorderRadiusGeometry? borderRadius;
+
+  /// Box shadow of the board
+  final List<BoxShadow>? boxShadow;
 
   /// Whether to show board coordinates
   final bool enableCoordinates;
