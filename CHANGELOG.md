@@ -1,3 +1,7 @@
+## 2.6.1
+
+- Fix BoardSettings `copyWith` method.
+
 ## 2.6.0
 
 - Add 2 new settings: `borderRadius` and `boxShadow`.
