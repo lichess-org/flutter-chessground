@@ -20,6 +20,28 @@ class BoardThumbnailsPage extends StatelessWidget {
             LayoutBuilder(builder: (context, constraints) {
               return Board(
                 size: constraints.biggest.width,
+                settings: BoardSettings(
+                  enableCoordinates: false,
+                  borderRadius: BorderRadius.circular(4),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0x00000000).withOpacity(0.14),
+                      blurRadius: 2,
+                      offset: const Offset(0, 2),
+                    ),
+                    BoxShadow(
+                      color: const Color(0x00000000).withOpacity(0.2),
+                      blurRadius: 1,
+                      spreadRadius: -2,
+                      offset: const Offset(0, 3),
+                    ),
+                    BoxShadow(
+                      color: const Color(0x00000000).withOpacity(0.12),
+                      blurRadius: 5,
+                      offset: const Offset(0, 1),
+                    ),
+                  ],
+                ),
                 data: BoardData(
                   interactableSide: InteractableSide.none,
                   orientation: Side.white,

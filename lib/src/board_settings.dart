@@ -16,6 +16,8 @@ class BoardSettings {
     this.colorScheme = BoardColorScheme.brown,
     this.pieceAssets = PieceSet.cburnettAssets,
     // visual settings
+    this.borderRadius = BorderRadius.zero,
+    this.boxShadow = const <BoxShadow>[],
     this.enableCoordinates = true,
     this.animationDuration = const Duration(milliseconds: 250),
     this.showLastMove = true,
@@ -38,6 +40,12 @@ class BoardSettings {
 
   /// Piece set
   final PieceAssets pieceAssets;
+
+  /// Border radius of the board
+  final BorderRadiusGeometry borderRadius;
+
+  /// Box shadow of the board
+  final List<BoxShadow> boxShadow;
 
   /// Whether to show board coordinates
   final bool enableCoordinates;
@@ -77,6 +85,8 @@ class BoardSettings {
   BoardSettings copyWith({
     BoardColorScheme? colorScheme,
     PieceAssets? pieceAssets,
+    BorderRadiusGeometry? borderRadius,
+    List<BoxShadow>? boxShadow,
     bool? enableCoordinates,
     Duration? animationDuration,
     bool? showLastMove,
@@ -92,6 +102,8 @@ class BoardSettings {
     return BoardSettings(
       colorScheme: colorScheme ?? this.colorScheme,
       pieceAssets: pieceAssets ?? this.pieceAssets,
+      borderRadius: borderRadius ?? this.borderRadius,
+      boxShadow: boxShadow ?? this.boxShadow,
       enableCoordinates: enableCoordinates ?? this.enableCoordinates,
       animationDuration: animationDuration ?? this.animationDuration,
       showLastMove: showLastMove ?? this.showLastMove,
