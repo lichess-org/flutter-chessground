@@ -18,6 +18,7 @@ chess logic so you can use it with different chess variants.
 - promotion selector
 - draw shapes on board
 - move annotations
+- opponent's pieces can be displayed upside down
 
 ## Getting started
 
@@ -66,4 +67,8 @@ class _MyHomePageState extends State<MyHomePage> {
 }
 ```
 
-See the example app for an interactable version against a random bot.
+See the example app for:
+- Random Bot: an interactable board for one player playing against a random bot,
+- Free Play: an interactable board for two players sitting opposite to each other,
+- Board Thumbnails: a demo screen showing over hundred different boards in a grid,
+- Draw Shapes: a demo screen where the user can highlight squares and draw arrows on a board.

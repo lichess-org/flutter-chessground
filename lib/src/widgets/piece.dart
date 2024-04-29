@@ -11,6 +11,7 @@ class PieceWidget extends StatelessWidget {
     required this.pieceAssets,
     this.opacity,
     this.blindfoldMode = false,
+    this.upsideDown = false,
   });
 
   /// Specifies the role and color of the piece
@@ -24,6 +25,9 @@ class PieceWidget extends StatelessWidget {
 
   /// Pieces are hidden in blindfold mode
   final bool blindfoldMode;
+
+  /// If `true` the piece is displayed rotated by 180 degrees
+  final bool upsideDown;
 
   /// Use this value to animate the opacity of the piece
   final Animation<double>? opacity;
@@ -41,7 +45,7 @@ class PieceWidget extends StatelessWidget {
     // that's why 4 is the maximum ratio
     final ratio = math.min(deviceRatio.ceilToDouble(), 4.0);
     final cacheSize = (size * ratio).ceil();
-    return Image.asset(
+    final image = Image.asset(
       asset.assetName,
       bundle: asset.bundle,
       package: asset.package,
@@ -51,5 +55,6 @@ class PieceWidget extends StatelessWidget {
       cacheWidth: cacheSize,
       cacheHeight: cacheSize,
     );
+    return upsideDown ? Transform.rotate(angle: math.pi, child: image) : image;
   }
 }

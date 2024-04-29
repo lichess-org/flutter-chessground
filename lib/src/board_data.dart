@@ -19,6 +19,7 @@ class BoardData {
     this.isCheck,
     this.shapes,
     this.annotations,
+    this.opponentsPiecesUpsideDown = false,
   }) : assert(
           (isCheck == null && interactableSide == InteractableSide.none) ||
               sideToMove != null,
@@ -32,6 +33,9 @@ class BoardData {
 
   /// Side by which the board is oriented.
   final Side orientation;
+
+  /// If `true` the opponent`s pieces are displayed rotated by 180 degrees.
+  final bool opponentsPiecesUpsideDown;
 
   /// Side which is to move.
   final Side? sideToMove;
