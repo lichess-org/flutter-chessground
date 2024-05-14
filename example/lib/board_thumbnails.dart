@@ -22,7 +22,7 @@ class BoardThumbnailsPage extends StatelessWidget {
                 size: constraints.biggest.width,
                 settings: BoardSettings(
                   enableCoordinates: false,
-                  borderRadius: BorderRadius.circular(4),
+                  borderRadius: BorderRadius.circular(5),
                   boxShadow: [
                     BoxShadow(
                       color: const Color(0x00000000).withOpacity(0.14),

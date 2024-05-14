@@ -109,6 +109,7 @@ final List<Coord> allCoords = List.unmodifiable([
 ]);
 
 /// Square highlight color or image on the chessboard.
+@immutable
 class HighlightDetails {
   const HighlightDetails({
     this.solidColor,

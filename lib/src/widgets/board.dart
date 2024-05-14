@@ -105,212 +105,179 @@ class _BoardState extends State<Board> {
             : colorScheme.blackCoordBackground
         : colorScheme.background;
 
-    final Widget board = Stack(
-      clipBehavior: Clip.none,
-      children: [
-        if (widget.settings.boxShadow.isNotEmpty ||
-            widget.settings.borderRadius != BorderRadius.zero)
-          Container(
-            clipBehavior: Clip.hardEdge,
-            decoration: BoxDecoration(
-              borderRadius: widget.settings.borderRadius,
-              boxShadow: widget.settings.boxShadow,
-            ),
-            child: background,
-          )
-        else
-          background,
-        if (widget.settings.showLastMove && widget.data.lastMove != null)
-          for (final squareId in widget.data.lastMove!.squares)
-            if (premove == null || !premove.hasSquare(squareId))
-              PositionedSquare(
-                key: ValueKey('$squareId-lastMove'),
-                size: widget.squareSize,
-                orientation: widget.data.orientation,
-                squareId: squareId,
-                child: Highlight(
-                  size: widget.squareSize,
-                  details: colorScheme.lastMove,
-                ),
-              ),
-        if (premove != null &&
-            widget.data.interactableSide != InteractableSide.none)
-          for (final squareId in premove.squares)
+    final List<Widget> highlightedBackground = [
+      background,
+      if (widget.settings.showLastMove && widget.data.lastMove != null)
+        for (final squareId in widget.data.lastMove!.squares)
+          if (premove == null || !premove.hasSquare(squareId))
             PositionedSquare(
-              key: ValueKey('$squareId-premove'),
+              key: ValueKey('$squareId-lastMove'),
               size: widget.squareSize,
               orientation: widget.data.orientation,
               squareId: squareId,
               child: Highlight(
                 size: widget.squareSize,
-                details:
-                    HighlightDetails(solidColor: colorScheme.validPremoves),
+                details: colorScheme.lastMove,
               ),
             ),
-        if (selected != null)
+      if (premove != null &&
+          widget.data.interactableSide != InteractableSide.none)
+        for (final squareId in premove.squares)
           PositionedSquare(
-            key: ValueKey('${selected!}-selected'),
+            key: ValueKey('$squareId-premove'),
             size: widget.squareSize,
             orientation: widget.data.orientation,
-            squareId: selected!,
+            squareId: squareId,
             child: Highlight(
               size: widget.squareSize,
-              details: colorScheme.selected,
+              details: HighlightDetails(solidColor: colorScheme.validPremoves),
             ),
           ),
-        for (final dest in moveDests)
-          PositionedSquare(
-            key: ValueKey('$dest-dest'),
+      if (selected != null)
+        PositionedSquare(
+          key: ValueKey('${selected!}-selected'),
+          size: widget.squareSize,
+          orientation: widget.data.orientation,
+          squareId: selected!,
+          child: Highlight(
             size: widget.squareSize,
-            orientation: widget.data.orientation,
-            squareId: dest,
-            child: MoveDest(
-              size: widget.squareSize,
-              color: colorScheme.validMoves,
-              occupied: pieces.containsKey(dest),
-            ),
+            details: colorScheme.selected,
           ),
-        for (final dest in premoveDests)
-          PositionedSquare(
-            key: ValueKey('$dest-premove-dest'),
+        ),
+      for (final dest in moveDests)
+        PositionedSquare(
+          key: ValueKey('$dest-dest'),
+          size: widget.squareSize,
+          orientation: widget.data.orientation,
+          squareId: dest,
+          child: MoveDest(
             size: widget.squareSize,
-            orientation: widget.data.orientation,
-            squareId: dest,
-            child: MoveDest(
-              size: widget.squareSize,
-              color: colorScheme.validPremoves,
-              occupied: pieces.containsKey(dest),
-            ),
+            color: colorScheme.validMoves,
+            occupied: pieces.containsKey(dest),
           ),
-        if (checkSquare != null)
-          PositionedSquare(
-            key: ValueKey('$checkSquare-check'),
+        ),
+      for (final dest in premoveDests)
+        PositionedSquare(
+          key: ValueKey('$dest-premove-dest'),
+          size: widget.squareSize,
+          orientation: widget.data.orientation,
+          squareId: dest,
+          child: MoveDest(
             size: widget.squareSize,
-            orientation: widget.data.orientation,
-            squareId: checkSquare,
-            child: CheckHighlight(size: widget.squareSize),
+            color: colorScheme.validPremoves,
+            occupied: pieces.containsKey(dest),
           ),
-        for (final entry in fadingPieces.entries)
+        ),
+      if (checkSquare != null)
+        PositionedSquare(
+          key: ValueKey('$checkSquare-check'),
+          size: widget.squareSize,
+          orientation: widget.data.orientation,
+          squareId: checkSquare,
+          child: CheckHighlight(size: widget.squareSize),
+        ),
+    ];
+
+    final List<Widget> objects = [
+      for (final entry in fadingPieces.entries)
+        PositionedSquare(
+          key: ValueKey('${entry.key}-${entry.value.kind.name}-fading'),
+          size: widget.squareSize,
+          orientation: widget.data.orientation,
+          squareId: entry.key,
+          child: PieceFadeOut(
+            duration: widget.settings.animationDuration,
+            piece: entry.value,
+            size: widget.squareSize,
+            pieceAssets: widget.settings.pieceAssets,
+            blindfoldMode: widget.settings.blindfoldMode,
+            upsideDown: _upsideDown(entry.value),
+            onComplete: () {
+              fadingPieces.remove(entry.key);
+            },
+          ),
+        ),
+      for (final entry in pieces.entries)
+        if (!translatingPieces.containsKey(entry.key) &&
+            entry.key != _dragOrigin)
           PositionedSquare(
-            key: ValueKey('${entry.key}-${entry.value.kind.name}-fading'),
+            key: ValueKey('${entry.key}-${entry.value.kind.name}'),
             size: widget.squareSize,
             orientation: widget.data.orientation,
             squareId: entry.key,
-            child: PieceFadeOut(
-              duration: widget.settings.animationDuration,
+            child: PieceWidget(
               piece: entry.value,
               size: widget.squareSize,
               pieceAssets: widget.settings.pieceAssets,
               blindfoldMode: widget.settings.blindfoldMode,
               upsideDown: _upsideDown(entry.value),
-              onComplete: () {
-                fadingPieces.remove(entry.key);
-              },
             ),
           ),
-        for (final entry in pieces.entries)
-          if (!translatingPieces.containsKey(entry.key) &&
-              entry.key != _dragOrigin)
-            PositionedSquare(
-              key: ValueKey('${entry.key}-${entry.value.kind.name}'),
+      for (final entry in translatingPieces.entries)
+        PositionedSquare(
+          key: ValueKey('${entry.key}-${entry.value.$1.piece.kind.name}'),
+          size: widget.squareSize,
+          orientation: widget.data.orientation,
+          squareId: entry.key,
+          child: PieceTranslation(
+            fromCoord: entry.value.$1.coord,
+            toCoord: entry.value.$2.coord,
+            orientation: widget.data.orientation,
+            duration: widget.settings.animationDuration,
+            onComplete: () {
+              translatingPieces.remove(entry.key);
+            },
+            child: PieceWidget(
+              piece: entry.value.$1.piece,
               size: widget.squareSize,
-              orientation: widget.data.orientation,
-              squareId: entry.key,
-              child: PieceWidget(
-                piece: entry.value,
-                size: widget.squareSize,
-                pieceAssets: widget.settings.pieceAssets,
-                blindfoldMode: widget.settings.blindfoldMode,
-                upsideDown: _upsideDown(entry.value),
-              ),
-            ),
-        for (final entry in translatingPieces.entries)
-          PositionedSquare(
-            key: ValueKey('${entry.key}-${entry.value.$1.piece.kind.name}'),
-            size: widget.squareSize,
-            orientation: widget.data.orientation,
-            squareId: entry.key,
-            child: PieceTranslation(
-              fromCoord: entry.value.$1.coord,
-              toCoord: entry.value.$2.coord,
-              orientation: widget.data.orientation,
-              duration: widget.settings.animationDuration,
-              onComplete: () {
-                translatingPieces.remove(entry.key);
-              },
-              child: PieceWidget(
-                piece: entry.value.$1.piece,
-                size: widget.squareSize,
-                pieceAssets: widget.settings.pieceAssets,
-                blindfoldMode: widget.settings.blindfoldMode,
-                upsideDown: _upsideDown(entry.value.$1.piece),
-              ),
+              pieceAssets: widget.settings.pieceAssets,
+              blindfoldMode: widget.settings.blindfoldMode,
+              upsideDown: _upsideDown(entry.value.$1.piece),
             ),
           ),
-        for (final entry in annotations.entries)
-          BoardAnnotation(
-            key: ValueKey(
-              '${entry.key}-${entry.value.symbol}-${entry.value.color}',
-            ),
-            squareSize: widget.squareSize,
-            orientation: widget.data.orientation,
-            squareId: entry.key,
-            annotation: entry.value,
+        ),
+      for (final entry in annotations.entries)
+        BoardAnnotation(
+          key: ValueKey(
+            '${entry.key}-${entry.value.symbol}-${entry.value.color}',
           ),
-        for (final shape in shapes)
-          ShapeWidget(
-            shape: shape,
-            boardSize: widget.size,
-            orientation: widget.data.orientation,
-          ),
-        if (_shapeAvatar != null)
-          ShapeWidget(
-            shape: _shapeAvatar!,
-            boardSize: widget.size,
-            orientation: widget.data.orientation,
-          ),
-      ],
-    );
+          squareSize: widget.squareSize,
+          orientation: widget.data.orientation,
+          squareId: entry.key,
+          annotation: entry.value,
+        ),
+      for (final shape in shapes)
+        ShapeWidget(
+          shape: shape,
+          boardSize: widget.size,
+          orientation: widget.data.orientation,
+        ),
+      if (_shapeAvatar != null)
+        ShapeWidget(
+          shape: _shapeAvatar!,
+          boardSize: widget.size,
+          orientation: widget.data.orientation,
+        ),
+    ];
 
-    return SizedBox.square(
+    final board = SizedBox.square(
       dimension: widget.size,
       child: Stack(
         clipBehavior: Clip.none,
         children: [
-          // Consider using Listener instead as we don't control the drag start threshold with
-          // GestureDetector (TODO)
-          if (widget.data.interactableSide != InteractableSide.none &&
-              !widget.settings.drawShape
-                  .enable) // Disable moving pieces when drawing is enabled
-            GestureDetector(
-              // registering onTapDown is needed to prevent the panStart event to win the
-              // competition too early
-              // there is no need to implement the callback since we handle the selection login
-              // in onPanDown; plus this way we avoid the timeout before onTapDown is called
-              onTapDown: (TapDownDetails? details) {},
-              onTapUp: _onTapUpPiece,
-              onPanDown: _onPanDownPiece,
-              onPanStart: _onPanStartPiece,
-              onPanUpdate: _onPanUpdatePiece,
-              onPanEnd: _onPanEndPiece,
-              onPanCancel: _onPanCancelPiece,
-              dragStartBehavior: DragStartBehavior.down,
-              child: board,
-            )
-          else if (widget.settings.drawShape.enable)
-            GestureDetector(
-              onTapDown: (TapDownDetails? details) {},
-              onTapUp: _onTapUpShape,
-              onPanDown: _onPanDownShape,
-              onPanStart: _onPanStartShape,
-              onPanUpdate: _onPanUpdateShape,
-              onPanEnd: _onPanEndShape,
-              onPanCancel: _onPanCancelShape,
-              dragStartBehavior: DragStartBehavior.down,
-              child: board,
+          if (widget.settings.boxShadow.isNotEmpty ||
+              widget.settings.borderRadius != BorderRadius.zero)
+            Container(
+              clipBehavior: Clip.hardEdge,
+              decoration: BoxDecoration(
+                borderRadius: widget.settings.borderRadius,
+                boxShadow: widget.settings.boxShadow,
+              ),
+              child: Stack(children: highlightedBackground),
             )
           else
-            board,
+            ...highlightedBackground,
+          ...objects,
           if (_promotionMove != null && widget.data.sideToMove != null)
             PromotionSelector(
               pieceAssets: widget.settings.pieceAssets,
@@ -325,6 +292,42 @@ class _BoardState extends State<Board> {
         ],
       ),
     );
+
+    // Consider using Listener instead as we don't control the drag start threshold with
+    // GestureDetector (TODO)
+    if (widget.data.interactableSide != InteractableSide.none &&
+        !widget.settings.drawShape.enable) {
+      // Disable moving pieces when drawing is enabled
+      return GestureDetector(
+        // registering onTapDown is needed to prevent the panStart event to win the
+        // competition too early
+        // there is no need to implement the callback since we handle the selection login
+        // in onPanDown; plus this way we avoid the timeout before onTapDown is called
+        onTapDown: (TapDownDetails? details) {},
+        onTapUp: _onTapUpPiece,
+        onPanDown: _onPanDownPiece,
+        onPanStart: _onPanStartPiece,
+        onPanUpdate: _onPanUpdatePiece,
+        onPanEnd: _onPanEndPiece,
+        onPanCancel: _onPanCancelPiece,
+        dragStartBehavior: DragStartBehavior.down,
+        child: board,
+      );
+    } else if (widget.settings.drawShape.enable) {
+      return GestureDetector(
+        onTapDown: (TapDownDetails? details) {},
+        onTapUp: _onTapUpShape,
+        onPanDown: _onPanDownShape,
+        onPanStart: _onPanStartShape,
+        onPanUpdate: _onPanUpdateShape,
+        onPanEnd: _onPanEndShape,
+        onPanCancel: _onPanCancelShape,
+        dragStartBehavior: DragStartBehavior.down,
+        child: board,
+      );
+    } else {
+      return board;
+    }
   }
 
   @override
