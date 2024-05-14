@@ -1,3 +1,7 @@
+## 2.6.2
+
+- Fix `borderRadius` settings not being applied to the board highlights.
+
 ## 2.6.1
 
 - Fix BoardSettings `copyWith` method.
