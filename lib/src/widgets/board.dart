@@ -293,41 +293,39 @@ class _BoardState extends State<Board> {
       ),
     );
 
-    // Consider using Listener instead as we don't control the drag start threshold with
-    // GestureDetector (TODO)
-    if (widget.data.interactableSide != InteractableSide.none &&
-        !widget.settings.drawShape.enable) {
-      // Disable moving pieces when drawing is enabled
-      return GestureDetector(
-        // registering onTapDown is needed to prevent the panStart event to win the
-        // competition too early
-        // there is no need to implement the callback since we handle the selection login
-        // in onPanDown; plus this way we avoid the timeout before onTapDown is called
-        onTapDown: (TapDownDetails? details) {},
-        onTapUp: _onTapUpPiece,
-        onPanDown: _onPanDownPiece,
-        onPanStart: _onPanStartPiece,
-        onPanUpdate: _onPanUpdatePiece,
-        onPanEnd: _onPanEndPiece,
-        onPanCancel: _onPanCancelPiece,
-        dragStartBehavior: DragStartBehavior.down,
-        child: board,
-      );
-    } else if (widget.settings.drawShape.enable) {
-      return GestureDetector(
-        onTapDown: (TapDownDetails? details) {},
-        onTapUp: _onTapUpShape,
-        onPanDown: _onPanDownShape,
-        onPanStart: _onPanStartShape,
-        onPanUpdate: _onPanUpdateShape,
-        onPanEnd: _onPanEndShape,
-        onPanCancel: _onPanCancelShape,
-        dragStartBehavior: DragStartBehavior.down,
-        child: board,
-      );
-    } else {
-      return board;
-    }
+    return widget.data.interactableSide != InteractableSide.none &&
+            !widget.settings.drawShape
+                .enable // Disable moving pieces when drawing is enabled
+        ?
+        // Consider using Listener instead as we don't control the drag start threshold with GestureDetector (TODO)
+        GestureDetector(
+            // registering onTapDown is needed to prevent the panStart event to win the
+            // competition too early
+            // there is no need to implement the callback since we handle the selection login
+            // in onPanDown; plus this way we avoid the timeout before onTapDown is called
+            onTapDown: (TapDownDetails? details) {},
+            onTapUp: _onTapUpPiece,
+            onPanDown: _onPanDownPiece,
+            onPanStart: _onPanStartPiece,
+            onPanUpdate: _onPanUpdatePiece,
+            onPanEnd: _onPanEndPiece,
+            onPanCancel: _onPanCancelPiece,
+            dragStartBehavior: DragStartBehavior.down,
+            child: board,
+          )
+        : widget.settings.drawShape.enable
+            ? GestureDetector(
+                onTapDown: (TapDownDetails? details) {},
+                onTapUp: _onTapUpShape,
+                onPanDown: _onPanDownShape,
+                onPanStart: _onPanStartShape,
+                onPanUpdate: _onPanUpdateShape,
+                onPanEnd: _onPanEndShape,
+                onPanCancel: _onPanCancelShape,
+                dragStartBehavior: DragStartBehavior.down,
+                child: board,
+              )
+            : board;
   }
 
   @override
