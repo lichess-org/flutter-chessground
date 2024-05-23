@@ -44,7 +44,7 @@ class SolidColorBackground extends Background {
                     width: double.infinity,
                     height: double.infinity,
                     color: (rank + file).isEven ? lightSquare : darkSquare,
-                    child: coordinates
+                    child: coordinates && (file == 7 || rank == 7)
                         ? _Coordinate(
                             rank: rank,
                             file: file,
@@ -93,13 +93,16 @@ class ImageBackground extends Background {
                       8,
                       (file) => Expanded(
                         child: SizedBox.expand(
-                          child: _Coordinate(
-                            rank: rank,
-                            file: file,
-                            orientation: orientation,
-                            color:
-                                (rank + file).isEven ? darkSquare : lightSquare,
-                          ),
+                          child: rank == 7 || file == 7
+                              ? _Coordinate(
+                                  rank: rank,
+                                  file: file,
+                                  orientation: orientation,
+                                  color: (rank + file).isEven
+                                      ? darkSquare
+                                      : lightSquare,
+                                )
+                              : null,
                         ),
                       ),
                     ),
@@ -129,29 +132,43 @@ class _Coordinate extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final coordStyle = TextStyle(
+      inherit: false,
       fontWeight: FontWeight.bold,
-      fontSize: 11.0,
+      fontSize: 10.0,
       color: color,
       fontFamily: 'Roboto',
+      height: 1.0,
     );
     return Stack(
       children: [
         if (file == 7)
-          Align(
-            alignment: Alignment.topRight,
-            child: Text(
-              orientation == Side.white ? '${8 - rank}' : '${rank + 1}',
-              style: coordStyle,
+          Positioned(
+            top: 2.0,
+            right: 2.0,
+            child: Align(
+              alignment: Alignment.topRight,
+              child: Text(
+                orientation == Side.white ? '${8 - rank}' : '${rank + 1}',
+                style: coordStyle,
+                textScaler: TextScaler.noScaling,
+                textAlign: TextAlign.center,
+              ),
             ),
           ),
         if (rank == 7)
-          Align(
-            alignment: Alignment.bottomLeft,
-            child: Text(
-              orientation == Side.white
-                  ? String.fromCharCode(97 + file)
-                  : String.fromCharCode(97 + 7 - file),
-              style: coordStyle,
+          Positioned(
+            bottom: 2.0,
+            left: 2.0,
+            child: Align(
+              alignment: Alignment.bottomLeft,
+              child: Text(
+                orientation == Side.white
+                    ? String.fromCharCode(97 + file)
+                    : String.fromCharCode(97 + 7 - file),
+                style: coordStyle,
+                textScaler: TextScaler.noScaling,
+                textAlign: TextAlign.center,
+              ),
             ),
           ),
       ],
