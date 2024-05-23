@@ -1,3 +1,7 @@
+## 2.6.3
+
+- Improve coordinates display on the board.
+
 ## 2.6.2
 
 - Fix `borderRadius` settings not being applied to the board highlights.
