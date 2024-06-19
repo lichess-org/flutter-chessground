@@ -1,3 +1,7 @@
+## 2.6.4
+
+- Fix coordinates and board display on devices with RightToLeft Directionality.
+
 ## 2.6.3
 
 - Improve coordinates display on the board.
