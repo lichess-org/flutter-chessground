@@ -31,28 +31,32 @@ class SolidColorBackground extends Background {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox.expand(
-      child: Column(
-        children: List.generate(
-          8,
-          (rank) => Expanded(
-            child: Row(
-              children: List.generate(
-                8,
-                (file) => Expanded(
-                  child: Container(
-                    width: double.infinity,
-                    height: double.infinity,
-                    color: (rank + file).isEven ? lightSquare : darkSquare,
-                    child: coordinates && (file == 7 || rank == 7)
-                        ? _Coordinate(
-                            rank: rank,
-                            file: file,
-                            orientation: orientation,
-                            color:
-                                (rank + file).isEven ? darkSquare : lightSquare,
-                          )
-                        : null,
+    return Directionality(
+      textDirection: TextDirection.ltr,
+      child: SizedBox.expand(
+        child: Column(
+          children: List.generate(
+            8,
+            (rank) => Expanded(
+              child: Row(
+                children: List.generate(
+                  8,
+                  (file) => Expanded(
+                    child: Container(
+                      width: double.infinity,
+                      height: double.infinity,
+                      color: (rank + file).isEven ? lightSquare : darkSquare,
+                      child: coordinates && (file == 7 || rank == 7)
+                          ? _Coordinate(
+                              rank: rank,
+                              file: file,
+                              orientation: orientation,
+                              color: (rank + file).isEven
+                                  ? darkSquare
+                                  : lightSquare,
+                            )
+                          : null,
+                    ),
                   ),
                 ),
               ),
@@ -79,38 +83,41 @@ class ImageBackground extends Background {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox.expand(
-      child: Stack(
-        children: [
-          Image(image: image),
-          if (coordinates)
-            Column(
-              children: List.generate(
-                8,
-                (rank) => Expanded(
-                  child: Row(
-                    children: List.generate(
-                      8,
-                      (file) => Expanded(
-                        child: SizedBox.expand(
-                          child: rank == 7 || file == 7
-                              ? _Coordinate(
-                                  rank: rank,
-                                  file: file,
-                                  orientation: orientation,
-                                  color: (rank + file).isEven
-                                      ? darkSquare
-                                      : lightSquare,
-                                )
-                              : null,
+    return Directionality(
+      textDirection: TextDirection.ltr,
+      child: SizedBox.expand(
+        child: Stack(
+          children: [
+            Image(image: image),
+            if (coordinates)
+              Column(
+                children: List.generate(
+                  8,
+                  (rank) => Expanded(
+                    child: Row(
+                      children: List.generate(
+                        8,
+                        (file) => Expanded(
+                          child: SizedBox.expand(
+                            child: rank == 7 || file == 7
+                                ? _Coordinate(
+                                    rank: rank,
+                                    file: file,
+                                    orientation: orientation,
+                                    color: (rank + file).isEven
+                                        ? darkSquare
+                                        : lightSquare,
+                                  )
+                                : null,
+                          ),
                         ),
                       ),
                     ),
                   ),
                 ),
               ),
-            ),
-        ],
+          ],
+        ),
       ),
     );
   }
