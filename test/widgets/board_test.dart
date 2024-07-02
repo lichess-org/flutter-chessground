@@ -122,14 +122,27 @@ void main() {
       expect(find.byKey(const Key('h1-lastMove')), findsOneWidget);
     });
 
-    testWidgets('dragging off target ', (WidgetTester tester) async {
+    testWidgets('dragging off target', (WidgetTester tester) async {
       await tester.pumpWidget(
         buildBoard(initialInteractableSide: InteractableSide.both),
       );
 
-      await tester.drag(
-        find.byKey(const Key('e2-whitePawn')),
-        const Offset(squareSize * 2, -(squareSize * 2)),
+      final e2 = squareOffset('e2');
+      await tester.dragFrom(e2, const Offset(0, -(squareSize * 4)));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('e2-whitePawn')), findsOneWidget);
+      expect(find.byKey(const Key('e2-selected')), findsNothing);
+      expect(find.byType(MoveDest), findsNothing);
+    });
+
+    testWidgets('dragging off board', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        buildBoard(initialInteractableSide: InteractableSide.both),
+      );
+
+      await tester.dragFrom(
+        squareOffset('e2'),
+        squareOffset('e2') + const Offset(0, -boardSize + squareSize),
       );
       await tester.pumpAndSettle();
       expect(find.byKey(const Key('e2-whitePawn')), findsOneWidget);
@@ -141,8 +154,9 @@ void main() {
       await tester.pumpWidget(
         buildBoard(initialInteractableSide: InteractableSide.both),
       );
-      await tester.drag(
-        find.byKey(const Key('e2-whitePawn')),
+      final e2 = squareOffset('e2');
+      await tester.dragFrom(
+        e2,
         const Offset(0, -(squareSize * 2)),
       );
       await tester.pumpAndSettle();
@@ -328,16 +342,6 @@ void main() {
       await tester.pump();
       expect(find.byKey(const Key('d1-premove')), findsNothing);
       expect(find.byKey(const Key('f3-premove')), findsNothing);
-
-      // unset by tapping own piece
-      await makeMove(tester, 'f1', 'c4');
-      await tester.pump();
-      expect(find.byKey(const Key('f1-premove')), findsOneWidget);
-      expect(find.byKey(const Key('c4-premove')), findsOneWidget);
-      await tester.tapAt(squareOffset('f1'));
-      await tester.pump();
-      expect(find.byKey(const Key('f1-premove')), findsNothing);
-      expect(find.byKey(const Key('c4-premove')), findsNothing);
     });
 
     testWidgets('set and change', (WidgetTester tester) async {
@@ -354,11 +358,13 @@ void main() {
       expect(find.byKey(const Key('f3-premove')), findsOneWidget);
       await tester.tapAt(squareOffset('d2'));
       await tester.pump();
-      expect(find.byKey(const Key('d1-premove')), findsNothing);
-      expect(find.byKey(const Key('f3-premove')), findsNothing);
+      // premove is still set
+      expect(find.byKey(const Key('d1-premove')), findsOneWidget);
+      expect(find.byKey(const Key('f3-premove')), findsOneWidget);
       expect(find.byType(MoveDest), findsNWidgets(4));
       await tester.tapAt(squareOffset('d4'));
       await tester.pump();
+      // premove is changed
       expect(find.byKey(const Key('d1-premove')), findsNothing);
       expect(find.byKey(const Key('f3-premove')), findsNothing);
       expect(find.byKey(const Key('d2-premove')), findsOneWidget);
@@ -374,8 +380,8 @@ void main() {
         ),
       );
 
-      await tester.drag(
-        find.byKey(const Key('e4-whitePawn')),
+      await tester.dragFrom(
+        squareOffset('e4'),
         const Offset(0, -squareSize),
       );
       await tester.pumpAndSettle();

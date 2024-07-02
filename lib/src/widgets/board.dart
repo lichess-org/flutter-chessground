@@ -17,7 +17,7 @@ import '../board_settings.dart';
 import '../board_data.dart';
 
 // Number of logical pixels that have to be dragged before a drag starts.
-const int _kDragDistanceThreshold = 3;
+const double _kDragDistanceThreshold = 2.0;
 
 /// A chessboard widget.
 ///
@@ -82,8 +82,14 @@ class _BoardState extends State<Board> {
   Move? _promotionMove;
   Move? _lastDrop;
   Set<SquareId>? _premoveDests;
+
   _DragAvatar? _dragAvatar;
-  SquareId? _dragOrigin;
+  SquareId? _draggedPieceOnSquare;
+  PointerEvent? _dragOrigin;
+  // current render box during drag
+  // ignore: use_late_for_private_fields_and_variables
+  RenderBox? _renderBox;
+
   Shape? _shapeAvatar;
 
   @override
@@ -201,7 +207,7 @@ class _BoardState extends State<Board> {
         ),
       for (final entry in pieces.entries)
         if (!translatingPieces.containsKey(entry.key) &&
-            entry.key != _dragOrigin)
+            entry.key != _draggedPieceOnSquare)
           PositionedSquare(
             key: ValueKey('${entry.key}-${entry.value.kind.name}'),
             size: widget.squareSize,
@@ -338,7 +344,7 @@ class _BoardState extends State<Board> {
     if (widget.data.interactableSide == InteractableSide.none) {
       _dragAvatar?.cancel();
       _dragAvatar = null;
-      _dragOrigin = null;
+      _draggedPieceOnSquare = null;
       selected = null;
       _premoveDests = null;
     }
@@ -420,12 +426,11 @@ class _BoardState extends State<Board> {
   }
 
   // returns the position of the square target during drag as a global offset
-  Offset? _squareTargetGlobalOffset(Offset localPosition) {
+  Offset? _squareTargetGlobalOffset(Offset localPosition, RenderBox box) {
     final coord = widget.localOffset2Coord(localPosition);
     if (coord == null) return null;
     final localOffset =
         coord.offset(widget.data.orientation, widget.squareSize);
-    final RenderBox box = context.findRenderObject()! as RenderBox;
     final tmpOffset = box.localToGlobal(localOffset);
     return Offset(
       tmpOffset.dx - widget.squareSize / 2,
@@ -437,6 +442,8 @@ class _BoardState extends State<Board> {
     if (details.buttons != 1) return;
     final squareId = widget.localOffset2SquareId(details.localPosition);
     if (squareId == null) return;
+
+    _dragOrigin = details;
 
     if (selected != null && squareId != selected) {
       final canMove = _tryMoveTo(squareId);
@@ -468,38 +475,48 @@ class _BoardState extends State<Board> {
           canCastle: widget.settings.enablePremoveCastling,
         );
       });
+    } else if (widget.data.premove != null) {
+      widget.onPremove?.call(null);
+      setState(() {
+        selected = null;
+        _premoveDests = null;
+      });
     }
   }
 
   void _onPointerMove(PointerMoveEvent details) {
     if (details.buttons != 1) return;
-    if (details.delta.distance > _kDragDistanceThreshold &&
-        _dragAvatar == null) {
-      _onDragStart(details);
+    if (_dragOrigin == null) return;
+
+    final distance = (details.position - _dragOrigin!.position).distance;
+    if (_dragAvatar == null && distance > _kDragDistanceThreshold) {
+      _onDragStart(_dragOrigin!);
     }
 
     if (_dragAvatar == null) return;
-    final squareTargetOffset = _squareTargetGlobalOffset(details.localPosition);
+
     _dragAvatar?.update(details);
-    _dragAvatar?.updateSquareTarget(squareTargetOffset);
+    _dragAvatar?.updateSquareTarget(
+      _squareTargetGlobalOffset(details.localPosition, _renderBox!),
+    );
   }
 
-  void _onDragStart(PointerMoveEvent details) {
-    final squareId = widget.localOffset2SquareId(details.localPosition);
+  void _onDragStart(PointerEvent origin) {
+    final squareId = widget.localOffset2SquareId(origin.localPosition);
     final piece = squareId != null ? pieces[squareId] : null;
     final feedbackSize = widget.squareSize * widget.settings.dragFeedbackSize;
     if (squareId != null &&
         piece != null &&
         (_isMovable(squareId) || _isPremovable(squareId))) {
       setState(() {
-        _dragOrigin = squareId;
+        _draggedPieceOnSquare = squareId;
       });
-      final squareTargetOffset =
-          _squareTargetGlobalOffset(details.localPosition);
+      _renderBox = context.findRenderObject()! as RenderBox;
       _dragAvatar = _DragAvatar(
         overlayState: Overlay.of(context, debugRequiredFor: widget),
-        initialPosition: details.position,
-        initialTargetPosition: squareTargetOffset,
+        initialPosition: origin.position,
+        initialTargetPosition:
+            _squareTargetGlobalOffset(origin.localPosition, _renderBox!),
         squareTargetFeedback: Container(
           width: widget.squareSize * 2,
           height: widget.squareSize * 2,
@@ -526,26 +543,31 @@ class _BoardState extends State<Board> {
   }
 
   void _onPointerUp(PointerUpEvent details) {
-    if (_dragAvatar != null) {
-      final RenderBox box = context.findRenderObject()! as RenderBox;
-      final localPos = box.globalToLocal(_dragAvatar!._position);
+    if (_dragAvatar != null && _renderBox != null) {
+      final localPos = _renderBox!.globalToLocal(_dragAvatar!._position);
       final squareId = widget.localOffset2SquareId(localPos);
       if (squareId != null && squareId != selected) {
         _tryMoveTo(squareId, drop: true);
       }
+      setState(() {
+        selected = null;
+        _premoveDests = null;
+      });
     }
     _dragAvatar?.end();
     _dragAvatar = null;
+    _renderBox = null;
     setState(() {
-      _dragOrigin = null;
+      _draggedPieceOnSquare = null;
     });
   }
 
   void _onPointerCancel(PointerCancelEvent details) {
     _dragAvatar?.cancel();
     _dragAvatar = null;
+    _renderBox = null;
     setState(() {
-      _dragOrigin = null;
+      _draggedPieceOnSquare = null;
     });
   }
 
