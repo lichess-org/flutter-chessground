@@ -166,6 +166,30 @@ void main() {
       expect(find.byKey(const Key('e4-lastMove')), findsOneWidget);
     });
 
+    testWidgets('dragging an already selected piece should not deselect it', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        buildBoard(initialInteractableSide: InteractableSide.both),
+      );
+      final e2 = squareOffset('e2');
+      await tester.tapAt(e2);
+      await tester.pump();
+      final dragFuture = tester.timedDragFrom(
+        e2,
+        const Offset(0, -(squareSize * 2)),
+        const Duration(milliseconds: 200),
+      );
+
+      expectSync(find.byKey(const Key('e2-whitePawn')), findsOneWidget);
+      expectSync(find.byKey(const Key('e2-selected')), findsOneWidget);
+
+      await dragFuture;
+      await tester.pumpAndSettle();
+
+      expectSync(find.byKey(const Key('e2-selected')), findsNothing);
+    });
+
     testWidgets('promotion', (WidgetTester tester) async {
       await tester.pumpWidget(
         buildBoard(

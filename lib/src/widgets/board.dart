@@ -83,6 +83,7 @@ class _BoardState extends State<Board> {
   Move? _lastDrop;
   Set<SquareId>? _premoveDests;
 
+  bool _shouldDeselectOnTapUp = false;
   _DragAvatar? _dragAvatar;
   SquareId? _draggedPieceOnSquare;
   PointerEvent? _dragOrigin;
@@ -458,10 +459,7 @@ class _BoardState extends State<Board> {
         });
       }
     } else if (selected == squareId) {
-      setState(() {
-        selected = null;
-        _premoveDests = null;
-      });
+      _shouldDeselectOnTapUp = true;
     } else if (_isMovable(squareId)) {
       setState(() {
         selected = squareId;
@@ -553,7 +551,17 @@ class _BoardState extends State<Board> {
         selected = null;
         _premoveDests = null;
       });
+    } else if (selected != null) {
+      final squareId = widget.localOffset2SquareId(details.localPosition);
+      if (squareId == selected && _shouldDeselectOnTapUp) {
+        _shouldDeselectOnTapUp = false;
+        setState(() {
+          selected = null;
+          _premoveDests = null;
+        });
+      }
     }
+
     _dragAvatar?.end();
     _dragAvatar = null;
     _renderBox = null;
