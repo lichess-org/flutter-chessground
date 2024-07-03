@@ -1,13 +1,11 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:chessground/chessground.dart' hide BoardTheme;
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:dartchess/dartchess.dart' as dc;
 
 import 'board_theme.dart';
 import 'board_thumbnails.dart';
-import 'draw_shapes.dart';
 
 void main() {
   runApp(const MyApp());
@@ -54,9 +52,10 @@ class _HomePageState extends State<HomePage> {
   Side sideToMove = Side.white;
   PieceSet pieceSet = PieceSet.merida;
   BoardTheme boardTheme = BoardTheme.blue;
-  bool immersiveMode = false;
+  bool drawMode = false;
   Mode playMode = Mode.botPlay;
   dc.Position<dc.Chess>? lastPos;
+  ISet<Shape> shapes = ISet();
 
   @override
   Widget build(BuildContext context) {
@@ -103,17 +102,6 @@ class _HomePageState extends State<HomePage> {
               );
             },
           ),
-          ListTile(
-            title: const Text('Draw Shapes'),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const DrawShapesPage(),
-                ),
-              );
-            },
-          ),
         ],
       )),
       body: Center(
@@ -126,6 +114,15 @@ class _HomePageState extends State<HomePage> {
                 pieceAssets: pieceSet.assets,
                 colorScheme: boardTheme.colors,
                 enableCoordinates: true,
+                drawShape: DrawShapeOptions(
+                  enable: drawMode,
+                  onCompleteShape: _onCompleteShape,
+                  onClearShapes: () {
+                    setState(() {
+                      shapes = ISet();
+                    });
+                  },
+                ),
               ),
               data: BoardData(
                 interactableSide: playMode == Mode.botPlay
@@ -142,6 +139,7 @@ class _HomePageState extends State<HomePage> {
                     position.turn == dc.Side.white ? Side.white : Side.black,
                 isCheck: position.isCheck,
                 premove: premove,
+                shapes: shapes.isNotEmpty ? shapes : null,
               ),
               onMove: playMode == Mode.botPlay
                   ? _onUserMoveAgainstBot
@@ -152,19 +150,11 @@ class _HomePageState extends State<HomePage> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 ElevatedButton(
-                  child:
-                      Text("Immersive mode: ${immersiveMode ? 'ON' : 'OFF'}"),
+                  child: Text("Drawing mode: ${drawMode ? 'ON' : 'OFF'}"),
                   onPressed: () {
                     setState(() {
-                      immersiveMode = !immersiveMode;
+                      drawMode = !drawMode;
                     });
-                    if (immersiveMode) {
-                      SystemChrome.setEnabledSystemUIMode(
-                          SystemUiMode.immersiveSticky);
-                    } else {
-                      SystemChrome.setEnabledSystemUIMode(
-                          SystemUiMode.edgeToEdge);
-                    }
                   },
                 ),
                 ElevatedButton(
@@ -233,6 +223,19 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
     );
+  }
+
+  void _onCompleteShape(Shape shape) {
+    if (shapes.any((element) => element == shape)) {
+      setState(() {
+        shapes = shapes.remove(shape);
+      });
+      return;
+    } else {
+      setState(() {
+        shapes = shapes.add(shape);
+      });
+    }
   }
 
   void _showChoicesPicker<T extends Enum>(
@@ -314,7 +317,7 @@ class _HomePageState extends State<HomePage> {
     });
     if (!position.isGameOver) {
       final random = Random();
-      await Future.delayed(Duration(milliseconds: random.nextInt(5500) + 500));
+      await Future.delayed(Duration(milliseconds: random.nextInt(1000) + 500));
       final allMoves = [
         for (final entry in position.legalMoves.entries)
           for (final dest in entry.value.squares)

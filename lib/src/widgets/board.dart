@@ -16,8 +16,10 @@ import '../premove.dart';
 import '../board_settings.dart';
 import '../board_data.dart';
 
-// Number of logical pixels that have to be dragged before a drag starts.
+/// Number of logical pixels that have to be dragged before a drag starts.
 const double _kDragDistanceThreshold = 3.0;
+
+const _kCancelShapesDoubleTapDelay = Duration(milliseconds: 200);
 
 /// A chessboard widget.
 ///
@@ -84,13 +86,33 @@ class _BoardState extends State<Board> {
   Set<SquareId>? _premoveDests;
 
   bool _shouldDeselectOnTapUp = false;
+
+  /// Avatar for the piece that is currently being dragged
   _DragAvatar? _dragAvatar;
+
+  /// Once a piece is dragged, this variable holds the square id of the piece
   SquareId? _draggedPieceOnSquare;
+
+  /// Reference to the pointer event that started the drag
   PointerEvent? _dragOrigin;
-  // current render box during drag
+
+  /// Current render box during drag
   // ignore: use_late_for_private_fields_and_variables
   RenderBox? _renderBox;
 
+  /// Reference to the pointer event that started the draw mode lock
+  ///
+  /// This is used to switch to draw mode when the user holds the pointer to an
+  /// empty square, while drawing a shape with another finger at the same time.
+  PointerEvent? _drawModeLockOrigin;
+
+  /// Origin square of the shape being drawn.
+  PointerEvent? _drawOrigin;
+
+  /// Double tap detection timer, used to cancel the shapes being drawn.
+  Timer? _cancelShapesDoubleTapTimer;
+
+  /// Avatar of the shape being drawn.
   Shape? _shapeAvatar;
 
   @override
@@ -429,6 +451,41 @@ class _BoardState extends State<Board> {
     final squareId = widget.localOffset2SquareId(details.localPosition);
     if (squareId == null) return;
 
+    if (widget.settings.drawShape.enable) {
+      if (_drawModeLockOrigin == null) {
+        final piece = pieces[squareId];
+        if (piece == null) {
+          // Sets a lock to the draw mode if the user holds the pointer to an
+          // empty square
+          _drawModeLockOrigin = details;
+
+          // double tap on empty square to clear shapes
+          if (_cancelShapesDoubleTapTimer != null) {
+            widget.settings.drawShape.onClearShapes?.call();
+            _cancelShapesDoubleTapTimer?.cancel();
+            _cancelShapesDoubleTapTimer = null;
+          } else {
+            _cancelShapesDoubleTapTimer =
+                Timer(_kCancelShapesDoubleTapDelay, () {
+              _cancelShapesDoubleTapTimer = null;
+            });
+          }
+        }
+      }
+      // If the draw mode is enabled by the lock, the user can draw shapes
+      // It takes priority over the play mode
+      else if (_drawModeLockOrigin!.pointer != details.pointer) {
+        _drawOrigin = details;
+        setState(() {
+          _shapeAvatar = Circle(
+            color: widget.settings.drawShape.newShapeColor,
+            orig: squareId,
+          );
+        });
+        return;
+      }
+    }
+
     _dragOrigin ??= details;
 
     // try to make a move if another square is selected and there is no piece
@@ -471,6 +528,22 @@ class _BoardState extends State<Board> {
 
   void _onPointerMove(PointerMoveEvent details) {
     if (details.buttons != kPrimaryButton) return;
+
+    // draw mode
+    if (_shapeAvatar != null &&
+        _drawOrigin != null &&
+        _drawOrigin!.pointer == details.pointer) {
+      final distance = (details.position - _drawOrigin!.position).distance;
+      if (distance > _kDragDistanceThreshold) {
+        final squareId = widget.localOffset2SquareId(details.localPosition);
+        if (squareId == null) return;
+        setState(() {
+          _shapeAvatar = _shapeAvatar!.newDest(squareId);
+        });
+      }
+    }
+
+    // drag mode
     if (_dragOrigin == null || _dragOrigin!.pointer != details.pointer) return;
 
     final distance = (details.position - _dragOrigin!.position).distance;
@@ -484,6 +557,68 @@ class _BoardState extends State<Board> {
     _dragAvatar?.updateSquareTarget(
       _squareTargetGlobalOffset(details.localPosition, _renderBox!),
     );
+  }
+
+  void _onPointerUp(PointerUpEvent details) {
+    if (_drawModeLockOrigin != null &&
+        _drawModeLockOrigin!.pointer == details.pointer) {
+      _drawModeLockOrigin = null;
+    } else if (_shapeAvatar != null &&
+        _drawOrigin != null &&
+        _drawOrigin!.pointer == details.pointer) {
+      widget.settings.drawShape.onCompleteShape?.call(_shapeAvatar!);
+      setState(() {
+        _shapeAvatar = null;
+      });
+      _drawOrigin = null;
+      return;
+    }
+
+    if (_dragOrigin == null || _dragOrigin!.pointer != details.pointer) return;
+
+    if (_dragAvatar != null && _renderBox != null) {
+      final localPos = _renderBox!.globalToLocal(_dragAvatar!._position);
+      final squareId = widget.localOffset2SquareId(localPos);
+      if (squareId != null && squareId != selected) {
+        _tryMoveTo(squareId, drop: true);
+      }
+      _onDragEnd(details);
+      setState(() {
+        selected = null;
+        _premoveDests = null;
+      });
+    } else if (selected != null) {
+      final squareId = widget.localOffset2SquareId(details.localPosition);
+      if (squareId == selected && _shouldDeselectOnTapUp) {
+        _shouldDeselectOnTapUp = false;
+        setState(() {
+          selected = null;
+          _premoveDests = null;
+        });
+      }
+    }
+
+    _dragOrigin = null;
+  }
+
+  void _onPointerCancel(PointerCancelEvent details) {
+    if (_drawModeLockOrigin != null &&
+        _drawModeLockOrigin!.pointer == details.pointer) {
+      _drawModeLockOrigin = null;
+    } else if (_shapeAvatar != null &&
+        _drawOrigin != null &&
+        _drawOrigin!.pointer == details.pointer) {
+      setState(() {
+        _shapeAvatar = null;
+      });
+      _drawOrigin = null;
+      return;
+    }
+
+    if (_dragOrigin != null && _dragOrigin!.pointer == details.pointer) {
+      _onDragEnd(details);
+      _dragOrigin = null;
+    }
   }
 
   void _onDragStart(PointerEvent origin) {
@@ -527,41 +662,6 @@ class _BoardState extends State<Board> {
     }
   }
 
-  void _onPointerUp(PointerUpEvent details) {
-    if (_dragOrigin == null || _dragOrigin!.pointer != details.pointer) return;
-
-    if (_dragAvatar != null && _renderBox != null) {
-      final localPos = _renderBox!.globalToLocal(_dragAvatar!._position);
-      final squareId = widget.localOffset2SquareId(localPos);
-      if (squareId != null && squareId != selected) {
-        _tryMoveTo(squareId, drop: true);
-      }
-      _onDragEnd(details);
-      setState(() {
-        selected = null;
-        _premoveDests = null;
-      });
-    } else if (selected != null) {
-      final squareId = widget.localOffset2SquareId(details.localPosition);
-      if (squareId == selected && _shouldDeselectOnTapUp) {
-        _shouldDeselectOnTapUp = false;
-        setState(() {
-          selected = null;
-          _premoveDests = null;
-        });
-      }
-    }
-
-    _dragOrigin = null;
-  }
-
-  void _onPointerCancel(PointerCancelEvent details) {
-    if (_dragOrigin != null && _dragOrigin!.pointer == details.pointer) {
-      _onDragEnd(details);
-      _dragOrigin = null;
-    }
-  }
-
   void _onDragEnd(PointerEvent details) {
     _dragAvatar?.end();
     _dragAvatar = null;
@@ -570,77 +670,6 @@ class _BoardState extends State<Board> {
       _draggedPieceOnSquare = null;
     });
   }
-
-  // void _onPanDownShape(DragDownDetails? details) {
-  //   if (details == null || widget.settings.drawShape.enable == false) return;
-  //   final squareId = widget.localOffset2SquareId(details.localPosition);
-  //   if (squareId == null) return;
-  //   setState(() {
-  //     // Initialize shapeAvatar on tap down (Analogous to website)
-  //     _shapeAvatar = Circle(
-  //       color: widget.settings.drawShape.newShapeColor,
-  //       orig: squareId,
-  //     );
-  //   });
-  // }
-
-  // void _onPanStartShape(DragStartDetails? details) {
-  //   if (details == null ||
-  //       _shapeAvatar == null ||
-  //       widget.settings.drawShape.enable == false) return;
-  //   final squareId = widget.localOffset2SquareId(details.localPosition);
-  //   if (squareId == null) return;
-  //   setState(() {
-  //     // Update shapeAvatar on starting pan
-  //     _shapeAvatar = _shapeAvatar!.newDest(squareId);
-  //   });
-  // }
-
-  // void _onPanUpdateShape(DragUpdateDetails? details) {
-  //   if (details == null ||
-  //       _shapeAvatar == null ||
-  //       widget.settings.drawShape.enable == false) return;
-  //   final squareId = widget.localOffset2SquareId(details.localPosition);
-  //   if (squareId == null ||
-  //       (_shapeAvatar! is Arrow && squareId == (_shapeAvatar! as Arrow).dest)) {
-  //     return;
-  //   }
-  //   setState(() {
-  //     // Update shapeAvatar on panning once a new square is reached
-  //     _shapeAvatar = _shapeAvatar!.newDest(squareId);
-  //   });
-  // }
-
-  // void _onPanEndShape(DragEndDetails? details) {
-  //   if (_shapeAvatar == null || widget.settings.drawShape.enable == false) {
-  //     return;
-  //   }
-  //   widget.settings.drawShape.onCompleteShape?.call(_shapeAvatar!);
-  //   setState(() {
-  //     _shapeAvatar = null;
-  //   });
-  // }
-
-  // void _onPanCancelShape() {
-  //   setState(() {
-  //     _shapeAvatar = null;
-  //   });
-  // }
-
-  // void _onTapUpShape(TapUpDetails? details) {
-  //   if (details == null || widget.settings.drawShape.enable == false) return;
-  //   final squareId = widget.localOffset2SquareId(details.localPosition);
-  //   if (squareId == null) return;
-  //   widget.settings.drawShape.onCompleteShape?.call(
-  //     Circle(
-  //       color: widget.settings.drawShape.newShapeColor,
-  //       orig: squareId,
-  //     ),
-  //   );
-  //   setState(() {
-  //     _shapeAvatar = null;
-  //   });
-  // }
 
   void _onPromotionSelect(Move move, Piece promoted) {
     setState(() {
