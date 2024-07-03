@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 
@@ -16,7 +17,7 @@ import '../board_settings.dart';
 import '../board_data.dart';
 
 // Number of logical pixels that have to be dragged before a drag starts.
-const double _kDragDistanceThreshold = 2.0;
+const double _kDragDistanceThreshold = 3.0;
 
 /// A chessboard widget.
 ///
@@ -423,14 +424,16 @@ class _BoardState extends State<Board> {
   }
 
   void _onPointerDown(PointerDownEvent details) {
-    if (details.buttons != 1) return;
+    if (details.buttons != kPrimaryButton) return;
 
     final squareId = widget.localOffset2SquareId(details.localPosition);
     if (squareId == null) return;
 
-    _dragOrigin = details;
+    _dragOrigin ??= details;
 
-    if (selected != null && squareId != selected) {
+    // try to make a move if another square is selected and there is no piece
+    // currently being dragged
+    if (selected != null && squareId != selected && _dragAvatar == null) {
       final canMove = _tryMoveTo(squareId);
       if (!canMove && _isMovable(squareId)) {
         setState(() {
@@ -467,8 +470,8 @@ class _BoardState extends State<Board> {
   }
 
   void _onPointerMove(PointerMoveEvent details) {
-    if (details.buttons != 1) return;
-    if (_dragOrigin == null) return;
+    if (details.buttons != kPrimaryButton) return;
+    if (_dragOrigin == null || _dragOrigin!.pointer != details.pointer) return;
 
     final distance = (details.position - _dragOrigin!.position).distance;
     if (_dragAvatar == null && distance > _kDragDistanceThreshold) {
@@ -525,12 +528,15 @@ class _BoardState extends State<Board> {
   }
 
   void _onPointerUp(PointerUpEvent details) {
+    if (_dragOrigin == null || _dragOrigin!.pointer != details.pointer) return;
+
     if (_dragAvatar != null && _renderBox != null) {
       final localPos = _renderBox!.globalToLocal(_dragAvatar!._position);
       final squareId = widget.localOffset2SquareId(localPos);
       if (squareId != null && squareId != selected) {
         _tryMoveTo(squareId, drop: true);
       }
+      _onDragEnd(details);
       setState(() {
         selected = null;
         _premoveDests = null;
@@ -546,16 +552,18 @@ class _BoardState extends State<Board> {
       }
     }
 
-    _dragAvatar?.end();
-    _dragAvatar = null;
-    _renderBox = null;
-    setState(() {
-      _draggedPieceOnSquare = null;
-    });
+    _dragOrigin = null;
   }
 
   void _onPointerCancel(PointerCancelEvent details) {
-    _dragAvatar?.cancel();
+    if (_dragOrigin != null && _dragOrigin!.pointer == details.pointer) {
+      _onDragEnd(details);
+      _dragOrigin = null;
+    }
+  }
+
+  void _onDragEnd(PointerEvent details) {
+    _dragAvatar?.end();
     _dragAvatar = null;
     _renderBox = null;
     setState(() {
