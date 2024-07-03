@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:flutter/widgets.dart';
-import 'package:flutter/gestures.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 
 import 'piece.dart';
@@ -269,62 +268,46 @@ class _BoardState extends State<Board> {
         ),
     ];
 
-    final board = SizedBox.square(
-      dimension: widget.size,
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          if (widget.settings.boxShadow.isNotEmpty ||
-              widget.settings.borderRadius != BorderRadius.zero)
-            Container(
-              clipBehavior: Clip.hardEdge,
-              decoration: BoxDecoration(
-                borderRadius: widget.settings.borderRadius,
-                boxShadow: widget.settings.boxShadow,
+    final interactable = widget.data.interactableSide != InteractableSide.none;
+
+    return Listener(
+      onPointerDown: interactable ? _onPointerDown : null,
+      onPointerMove: interactable ? _onPointerMove : null,
+      onPointerUp: interactable ? _onPointerUp : null,
+      onPointerCancel: interactable ? _onPointerCancel : null,
+      child: SizedBox.square(
+        dimension: widget.size,
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            if (widget.settings.boxShadow.isNotEmpty ||
+                widget.settings.borderRadius != BorderRadius.zero)
+              Container(
+                clipBehavior: Clip.hardEdge,
+                decoration: BoxDecoration(
+                  borderRadius: widget.settings.borderRadius,
+                  boxShadow: widget.settings.boxShadow,
+                ),
+                child: Stack(children: highlightedBackground),
+              )
+            else
+              ...highlightedBackground,
+            ...objects,
+            if (_promotionMove != null && widget.data.sideToMove != null)
+              PromotionSelector(
+                pieceAssets: widget.settings.pieceAssets,
+                move: _promotionMove!,
+                squareSize: widget.squareSize,
+                color: widget.data.sideToMove!,
+                orientation: widget.data.orientation,
+                piecesUpsideDown: _promotionPiecesUpsideDown(),
+                onSelect: _onPromotionSelect,
+                onCancel: _onPromotionCancel,
               ),
-              child: Stack(children: highlightedBackground),
-            )
-          else
-            ...highlightedBackground,
-          ...objects,
-          if (_promotionMove != null && widget.data.sideToMove != null)
-            PromotionSelector(
-              pieceAssets: widget.settings.pieceAssets,
-              move: _promotionMove!,
-              squareSize: widget.squareSize,
-              color: widget.data.sideToMove!,
-              orientation: widget.data.orientation,
-              piecesUpsideDown: _promotionPiecesUpsideDown(),
-              onSelect: _onPromotionSelect,
-              onCancel: _onPromotionCancel,
-            ),
-        ],
+          ],
+        ),
       ),
     );
-
-    return widget.data.interactableSide != InteractableSide.none &&
-            !widget.settings.drawShape
-                .enable // Disable moving pieces when drawing is enabled
-        ? Listener(
-            onPointerDown: _onPointerDown,
-            onPointerMove: _onPointerMove,
-            onPointerUp: _onPointerUp,
-            onPointerCancel: _onPointerCancel,
-            child: board,
-          )
-        : widget.settings.drawShape.enable
-            ? GestureDetector(
-                onTapDown: (TapDownDetails? details) {},
-                onTapUp: _onTapUpShape,
-                onPanDown: _onPanDownShape,
-                onPanStart: _onPanStartShape,
-                onPanUpdate: _onPanUpdateShape,
-                onPanEnd: _onPanEndShape,
-                onPanCancel: _onPanCancelShape,
-                dragStartBehavior: DragStartBehavior.down,
-                child: board,
-              )
-            : board;
   }
 
   @override
@@ -441,6 +424,7 @@ class _BoardState extends State<Board> {
 
   void _onPointerDown(PointerDownEvent details) {
     if (details.buttons != 1) return;
+
     final squareId = widget.localOffset2SquareId(details.localPosition);
     if (squareId == null) return;
 
@@ -579,76 +563,76 @@ class _BoardState extends State<Board> {
     });
   }
 
-  void _onPanDownShape(DragDownDetails? details) {
-    if (details == null || widget.settings.drawShape.enable == false) return;
-    final squareId = widget.localOffset2SquareId(details.localPosition);
-    if (squareId == null) return;
-    setState(() {
-      // Initialize shapeAvatar on tap down (Analogous to website)
-      _shapeAvatar = Circle(
-        color: widget.settings.drawShape.newShapeColor,
-        orig: squareId,
-      );
-    });
-  }
+  // void _onPanDownShape(DragDownDetails? details) {
+  //   if (details == null || widget.settings.drawShape.enable == false) return;
+  //   final squareId = widget.localOffset2SquareId(details.localPosition);
+  //   if (squareId == null) return;
+  //   setState(() {
+  //     // Initialize shapeAvatar on tap down (Analogous to website)
+  //     _shapeAvatar = Circle(
+  //       color: widget.settings.drawShape.newShapeColor,
+  //       orig: squareId,
+  //     );
+  //   });
+  // }
 
-  void _onPanStartShape(DragStartDetails? details) {
-    if (details == null ||
-        _shapeAvatar == null ||
-        widget.settings.drawShape.enable == false) return;
-    final squareId = widget.localOffset2SquareId(details.localPosition);
-    if (squareId == null) return;
-    setState(() {
-      // Update shapeAvatar on starting pan
-      _shapeAvatar = _shapeAvatar!.newDest(squareId);
-    });
-  }
+  // void _onPanStartShape(DragStartDetails? details) {
+  //   if (details == null ||
+  //       _shapeAvatar == null ||
+  //       widget.settings.drawShape.enable == false) return;
+  //   final squareId = widget.localOffset2SquareId(details.localPosition);
+  //   if (squareId == null) return;
+  //   setState(() {
+  //     // Update shapeAvatar on starting pan
+  //     _shapeAvatar = _shapeAvatar!.newDest(squareId);
+  //   });
+  // }
 
-  void _onPanUpdateShape(DragUpdateDetails? details) {
-    if (details == null ||
-        _shapeAvatar == null ||
-        widget.settings.drawShape.enable == false) return;
-    final squareId = widget.localOffset2SquareId(details.localPosition);
-    if (squareId == null ||
-        (_shapeAvatar! is Arrow && squareId == (_shapeAvatar! as Arrow).dest)) {
-      return;
-    }
-    setState(() {
-      // Update shapeAvatar on panning once a new square is reached
-      _shapeAvatar = _shapeAvatar!.newDest(squareId);
-    });
-  }
+  // void _onPanUpdateShape(DragUpdateDetails? details) {
+  //   if (details == null ||
+  //       _shapeAvatar == null ||
+  //       widget.settings.drawShape.enable == false) return;
+  //   final squareId = widget.localOffset2SquareId(details.localPosition);
+  //   if (squareId == null ||
+  //       (_shapeAvatar! is Arrow && squareId == (_shapeAvatar! as Arrow).dest)) {
+  //     return;
+  //   }
+  //   setState(() {
+  //     // Update shapeAvatar on panning once a new square is reached
+  //     _shapeAvatar = _shapeAvatar!.newDest(squareId);
+  //   });
+  // }
 
-  void _onPanEndShape(DragEndDetails? details) {
-    if (_shapeAvatar == null || widget.settings.drawShape.enable == false) {
-      return;
-    }
-    widget.settings.drawShape.onCompleteShape?.call(_shapeAvatar!);
-    setState(() {
-      _shapeAvatar = null;
-    });
-  }
+  // void _onPanEndShape(DragEndDetails? details) {
+  //   if (_shapeAvatar == null || widget.settings.drawShape.enable == false) {
+  //     return;
+  //   }
+  //   widget.settings.drawShape.onCompleteShape?.call(_shapeAvatar!);
+  //   setState(() {
+  //     _shapeAvatar = null;
+  //   });
+  // }
 
-  void _onPanCancelShape() {
-    setState(() {
-      _shapeAvatar = null;
-    });
-  }
+  // void _onPanCancelShape() {
+  //   setState(() {
+  //     _shapeAvatar = null;
+  //   });
+  // }
 
-  void _onTapUpShape(TapUpDetails? details) {
-    if (details == null || widget.settings.drawShape.enable == false) return;
-    final squareId = widget.localOffset2SquareId(details.localPosition);
-    if (squareId == null) return;
-    widget.settings.drawShape.onCompleteShape?.call(
-      Circle(
-        color: widget.settings.drawShape.newShapeColor,
-        orig: squareId,
-      ),
-    );
-    setState(() {
-      _shapeAvatar = null;
-    });
-  }
+  // void _onTapUpShape(TapUpDetails? details) {
+  //   if (details == null || widget.settings.drawShape.enable == false) return;
+  //   final squareId = widget.localOffset2SquareId(details.localPosition);
+  //   if (squareId == null) return;
+  //   widget.settings.drawShape.onCompleteShape?.call(
+  //     Circle(
+  //       color: widget.settings.drawShape.newShapeColor,
+  //       orig: squareId,
+  //     ),
+  //   );
+  //   setState(() {
+  //     _shapeAvatar = null;
+  //   });
+  // }
 
   void _onPromotionSelect(Move move, Piece promoted) {
     setState(() {
