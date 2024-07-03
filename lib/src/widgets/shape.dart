@@ -25,6 +25,7 @@ class ShapeWidget extends StatelessWidget {
         color: final color,
         orig: final orig,
         dest: final dest,
+        scale: final scale,
       ) =>
         SizedBox.square(
           dimension: boardSize,
@@ -34,6 +35,7 @@ class ShapeWidget extends StatelessWidget {
               orientation,
               Coord.fromSquareId(orig),
               Coord.fromSquareId(dest),
+              scale,
             ),
           ),
         ),
@@ -62,17 +64,19 @@ class ShapeWidget extends StatelessWidget {
 }
 
 class _ArrowPainter extends CustomPainter {
-  _ArrowPainter(this.color, this.orientation, this.fromCoord, this.toCoord);
+  _ArrowPainter(
+      this.color, this.orientation, this.fromCoord, this.toCoord, this.scale);
 
   final Color color;
   final Side orientation;
   final Coord fromCoord;
   final Coord toCoord;
+  final double scale;
 
   @override
   void paint(Canvas canvas, Size size) {
     final squareSize = size.width / 8;
-    final lineWidth = squareSize / 4;
+    final lineWidth = scale * squareSize / 4;
     final paint = Paint()
       ..strokeWidth = lineWidth
       ..color = color
@@ -87,7 +91,7 @@ class _ArrowPainter extends CustomPainter {
         math.atan2(toOffset.dy - fromOffset.dy, toOffset.dx - fromOffset.dx);
     final fromMarginOffset =
         Offset(margin * math.cos(angle), margin * math.sin(angle));
-    final arrowSize = squareSize * 0.48;
+    final arrowSize = scale * squareSize * 0.48;
     const arrowAngle = math.pi / 5;
 
     final from = fromOffset + shift + fromMarginOffset;

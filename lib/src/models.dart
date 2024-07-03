@@ -405,11 +405,16 @@ class Arrow implements Shape {
   final Color color;
   final SquareId orig;
   final SquareId dest;
+  /// Width of the arrow and size of its tip will be scaled by this factor.
+  ///
+  /// If 1.0, the width will be 1/4th of the square size.
+  final double scale;
 
   const Arrow({
     required this.color,
     required this.orig,
     required this.dest,
+    this.scale = 1.0,
   });
 
   @override

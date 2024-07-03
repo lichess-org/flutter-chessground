@@ -1,3 +1,7 @@
+## 3.1.0
+
+- Add an optional `scale` parameter to arrows (default is `scale: 1.0`, matching the previous behavior).
+
 ## 3.0.0
 
 Improve board interaction and add support for drawing shapes while playing.
