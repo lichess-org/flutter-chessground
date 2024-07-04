@@ -52,7 +52,9 @@ class _HomePageState extends State<HomePage> {
   Side sideToMove = Side.white;
   PieceSet pieceSet = PieceSet.merida;
   BoardTheme boardTheme = BoardTheme.blue;
-  bool drawMode = false;
+  bool drawMode = true;
+  bool pieceAnimation = true;
+  bool dragMagnify = true;
   Mode playMode = Mode.botPlay;
   dc.Position<dc.Chess>? lastPos;
   ISet<Shape> shapes = ISet();
@@ -114,6 +116,10 @@ class _HomePageState extends State<HomePage> {
                 pieceAssets: pieceSet.assets,
                 colorScheme: boardTheme.colors,
                 enableCoordinates: true,
+                animationDuration: pieceAnimation
+                    ? const Duration(milliseconds: 200)
+                    : Duration.zero,
+                dragFeedbackSize: dragMagnify ? 2.0 : 1.0,
                 drawShape: DrawShapeOptions(
                   enable: drawMode,
                   onCompleteShape: _onCompleteShape,
@@ -149,21 +155,53 @@ class _HomePageState extends State<HomePage> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                ElevatedButton(
-                  child: Text("Drawing mode: ${drawMode ? 'ON' : 'OFF'}"),
-                  onPressed: () {
-                    setState(() {
-                      drawMode = !drawMode;
-                    });
-                  },
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    ElevatedButton(
+                      child: Text('Orientation: ${orientation.name}'),
+                      onPressed: () {
+                        setState(() {
+                          orientation = orientation.opposite;
+                        });
+                      },
+                    ),
+                    const SizedBox(width: 8),
+                    ElevatedButton(
+                      child:
+                          Text("Magnify drag: ${dragMagnify ? 'ON' : 'OFF'}"),
+                      onPressed: () {
+                        setState(() {
+                          dragMagnify = !dragMagnify;
+                        });
+                      },
+                    ),
+                  ],
                 ),
-                ElevatedButton(
-                  child: Text('Orientation: ${orientation.name}'),
-                  onPressed: () {
-                    setState(() {
-                      orientation = orientation.opposite;
-                    });
-                  },
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    ElevatedButton(
+                      child: Text("Drawing mode: ${drawMode ? 'ON' : 'OFF'}"),
+                      onPressed: () {
+                        setState(() {
+                          drawMode = !drawMode;
+                        });
+                      },
+                    ),
+                    const SizedBox(width: 8),
+                    ElevatedButton(
+                      child: Text(
+                          "Piece animation: ${pieceAnimation ? 'ON' : 'OFF'}"),
+                      onPressed: () {
+                        setState(() {
+                          pieceAnimation = !pieceAnimation;
+                        });
+                      },
+                    ),
+                  ],
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
