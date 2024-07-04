@@ -3,8 +3,9 @@
 Improve board interaction and add support for drawing shapes while playing.
 
 ### Playing:
-- pieces can now be moved with 2 tap down events, instead of a tap down followed by another completed tap (tap down and up events) this allows for a faster interaction
-- 2 finger tap is now supported: a piece can be moved by a finger tap while the finger which selected the piece is still down
+- pieces are now moved with pointer down events, instead of a tap events
+  (pointer down followed by a pointer up event): this allows to move a piece
+  faster
 - premoves are not anymore cleared when selecting another piece: this matches lichess website behaviour and allow to prepare another move along with the premove that is currently set
 
 ### Drawing shapes (experimental)

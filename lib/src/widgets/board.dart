@@ -494,14 +494,13 @@ class _BoardState extends State<Board> {
       }
     }
 
-    // Disable 2 fingers interactions while a piece is being dragged
-    if (_dragAvatar != null) return;
+    // From here on, we only allow 1 pointer to interact with the board: others are ignored
+    if (_currentPointerDownEvent != null) return;
 
-    _currentPointerDownEvent ??= details;
+    _currentPointerDownEvent = details;
 
-    // try to make a move if another square is selected
     if (selected != null && squareId != selected) {
-      final canMove = _tryMoveTo(squareId);
+      final canMove = _tryMoveOrPremoveTo(squareId);
       if (!canMove && _isMovable(squareId)) {
         setState(() {
           selected = squareId;
@@ -590,7 +589,7 @@ class _BoardState extends State<Board> {
       final localPos = _renderBox!.globalToLocal(_dragAvatar!._position);
       final squareId = widget.localOffset2SquareId(localPos);
       if (squareId != null && squareId != selected) {
-        _tryMoveTo(squareId, drop: true);
+        _tryMoveOrPremoveTo(squareId, drop: true);
       }
       _onDragEnd(details);
       setState(() {
@@ -608,6 +607,7 @@ class _BoardState extends State<Board> {
       }
     }
 
+    _shouldDeselectOnTapUp = false;
     _currentPointerDownEvent = null;
   }
 
@@ -625,11 +625,12 @@ class _BoardState extends State<Board> {
       return;
     }
 
-    if (_currentPointerDownEvent != null &&
-        _currentPointerDownEvent!.pointer == details.pointer) {
-      _onDragEnd(details);
-      _currentPointerDownEvent = null;
-    }
+    if (_currentPointerDownEvent == null ||
+        _currentPointerDownEvent!.pointer != details.pointer) return;
+
+    _onDragEnd(details);
+    _currentPointerDownEvent = null;
+    _shouldDeselectOnTapUp = false;
   }
 
   void _onDragStart(PointerEvent origin) {
@@ -753,7 +754,7 @@ class _BoardState extends State<Board> {
     return piece.role == Role.pawn && (rank == '1' || rank == '8');
   }
 
-  bool _tryMoveTo(SquareId squareId, {bool drop = false}) {
+  bool _tryMoveOrPremoveTo(SquareId squareId, {bool drop = false}) {
     final selectedPiece = selected != null ? pieces[selected] : null;
     if (selectedPiece != null && _canMove(selected!, squareId)) {
       final move = Move(from: selected!, to: squareId);

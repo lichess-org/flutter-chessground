@@ -167,7 +167,9 @@ void main() {
       expect(find.byKey(const Key('e4-lastMove')), findsOneWidget);
     });
 
-    testWidgets('can move a piece with 2 consecutives presses', (
+    testWidgets(
+        'cannot move a piece with 2 consecutives pointer down events, but the piece remains selected',
+        (
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(
@@ -179,10 +181,10 @@ void main() {
 
         await tester.pump();
 
-        expect(find.byKey(const Key('e4-whitePawn')), findsOneWidget);
-        expect(find.byKey(const Key('e2-whitePawn')), findsNothing);
-        expect(find.byKey(const Key('e2-lastMove')), findsOneWidget);
-        expect(find.byKey(const Key('e4-lastMove')), findsOneWidget);
+        expect(find.byKey(const Key('e4-whitePawn')), findsNothing);
+        expect(find.byKey(const Key('e2-whitePawn')), findsOneWidget);
+        // the piece remains selected
+        expect(find.byKey(const Key('e2-selected')), findsOneWidget);
       });
     });
 
