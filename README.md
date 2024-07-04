@@ -16,7 +16,7 @@ chess logic so you can use it with different chess variants.
 - board themes
 - piece sets from lichess
 - promotion selector
-- draw shapes on board
+- draw shapes on board while playing using 2 fingers
 - move annotations
 - opponent's pieces can be displayed upside down
 
@@ -70,5 +70,6 @@ class _MyHomePageState extends State<MyHomePage> {
 See the example app for:
 - Random Bot: an interactable board for one player playing against a random bot,
 - Free Play: an interactable board for two players sitting opposite to each other,
+- Draw Shapes: activate the draw shapes feature and draw on the board using 2
 - Board Thumbnails: a demo screen showing over hundred different boards in a grid,
-- Draw Shapes: a demo screen where the user can highlight squares and draw arrows on a board.
+  fingers.

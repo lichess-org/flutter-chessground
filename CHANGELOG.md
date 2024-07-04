@@ -1,3 +1,18 @@
+## 3.0.0
+
+Improve board interaction and add support for drawing shapes while playing.
+
+### Playing:
+- pieces can now be moved with 2 tap down events, instead of a tap down followed by another completed tap (tap down and up events) this allows for a faster interaction
+- 2 finger tap is now supported: a piece can be moved by a finger tap while the finger which selected the piece is still down
+- premoves are not anymore cleared when selecting another piece: this matches lichess website behaviour and allow to prepare another move along with the premove that is currently set
+
+### Drawing shapes (experimental)
+- drawing shapes is now possible while keeping the normal board play interaction (before it was either one or another mode)
+- one can draw a shape by holding a finger to an empty square while using a second finger to draw a shape anywhere in the board
+- a double tap on an empty square will clear all shapes at once
+- to clear a single shape is still supported: draw the same shape again
+
 ## 2.6.4
 
 - Fix coordinates and board display on devices with RightToLeft Directionality.
