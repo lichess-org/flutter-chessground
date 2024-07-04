@@ -35,13 +35,13 @@ class Board extends StatefulWidget {
     this.onPremove,
   });
 
-  /// Visal size of the board
+  /// Visal size of the board.
   final double size;
 
   /// Settings that control the theme, behavior and purpose of the board.
   final BoardSettings settings;
 
-  /// Data that represents the current state of the board
+  /// Data that represents the current state of the board.
   final BoardData data;
 
   /// Callback called after a move has been made.
@@ -87,13 +87,13 @@ class _BoardState extends State<Board> {
 
   bool _shouldDeselectOnTapUp = false;
 
-  /// Avatar for the piece that is currently being dragged
+  /// Avatar for the piece that is currently being dragged.
   _DragAvatar? _dragAvatar;
 
   /// Once a piece is dragged, holds the square id of the piece.
   SquareId? _draggedPieceSquareId;
 
-  /// Current pointer down event
+  /// Current pointer down event.
   ///
   /// This field is reset to null when the pointer is released (up or cancel).
   ///
@@ -480,8 +480,8 @@ class _BoardState extends State<Board> {
           }
         }
       }
-      // If the draw mode is enabled by the lock, the user can draw shapes
-      // It takes priority over the play mode
+
+      // draw mode takes priority over play mode when the draw mode lock is set
       else if (_drawModeLockOrigin!.pointer != details.pointer) {
         _drawOrigin = details;
         setState(() {
@@ -494,7 +494,7 @@ class _BoardState extends State<Board> {
       }
     }
 
-    // Disable 2 finger interactions while a piece is being dragged
+    // Disable 2 fingers interactions while a piece is being dragged
     if (_dragAvatar != null) return;
 
     _currentPointerDownEvent ??= details;
@@ -539,7 +539,7 @@ class _BoardState extends State<Board> {
   void _onPointerMove(PointerMoveEvent details) {
     if (details.buttons != kPrimaryButton) return;
 
-    // draw mode
+    // draw mode takes priority over play mode when the draw mode lock is set
     if (_shapeAvatar != null &&
         _drawOrigin != null &&
         _drawOrigin!.pointer == details.pointer) {
@@ -553,7 +553,6 @@ class _BoardState extends State<Board> {
       }
     }
 
-    // drag mode
     if (_currentPointerDownEvent == null ||
         _currentPointerDownEvent!.pointer != details.pointer) return;
 
