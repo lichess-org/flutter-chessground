@@ -90,23 +90,31 @@ class _BoardState extends State<Board> {
   /// Avatar for the piece that is currently being dragged
   _DragAvatar? _dragAvatar;
 
-  /// Once a piece is dragged, this variable holds the square id of the piece
-  SquareId? _draggedPieceOnSquare;
+  /// Once a piece is dragged, holds the square id of the piece.
+  SquareId? _draggedPieceSquareId;
 
-  /// Reference to the pointer event that started the drag
-  PointerEvent? _dragOrigin;
+  /// Current pointer down event
+  ///
+  /// This field is reset to null when the pointer is released (up or cancel).
+  ///
+  /// This is used to track board gestures, the pointer that started the drag,
+  /// and to prevent other pointers from starting a drag while a piece is being
+  /// dragged.
+  ///
+  /// Other simultaneous pointer events are ignored.
+  PointerDownEvent? _currentPointerDownEvent;
 
-  /// Current render box during drag
+  /// Current render box during drag.
   // ignore: use_late_for_private_fields_and_variables
   RenderBox? _renderBox;
 
-  /// Reference to the pointer event that started the draw mode lock
+  /// Pointer event that started the draw mode lock.
   ///
   /// This is used to switch to draw mode when the user holds the pointer to an
   /// empty square, while drawing a shape with another finger at the same time.
   PointerEvent? _drawModeLockOrigin;
 
-  /// Origin square of the shape being drawn.
+  /// Pointer event that started the shape drawing.
   PointerEvent? _drawOrigin;
 
   /// Double tap detection timer, used to cancel the shapes being drawn.
@@ -230,7 +238,7 @@ class _BoardState extends State<Board> {
         ),
       for (final entry in pieces.entries)
         if (!translatingPieces.containsKey(entry.key) &&
-            entry.key != _draggedPieceOnSquare)
+            entry.key != _draggedPieceSquareId)
           PositionedSquare(
             key: ValueKey('${entry.key}-${entry.value.kind.name}'),
             size: widget.squareSize,
@@ -351,7 +359,7 @@ class _BoardState extends State<Board> {
     if (widget.data.interactableSide == InteractableSide.none) {
       _dragAvatar?.cancel();
       _dragAvatar = null;
-      _draggedPieceOnSquare = null;
+      _draggedPieceSquareId = null;
       selected = null;
       _premoveDests = null;
     }
@@ -486,11 +494,13 @@ class _BoardState extends State<Board> {
       }
     }
 
-    _dragOrigin ??= details;
+    // Disable 2 finger interactions while a piece is being dragged
+    if (_dragAvatar != null) return;
 
-    // try to make a move if another square is selected and there is no piece
-    // currently being dragged
-    if (selected != null && squareId != selected && _dragAvatar == null) {
+    _currentPointerDownEvent ??= details;
+
+    // try to make a move if another square is selected
+    if (selected != null && squareId != selected) {
       final canMove = _tryMoveTo(squareId);
       if (!canMove && _isMovable(squareId)) {
         setState(() {
@@ -544,14 +554,14 @@ class _BoardState extends State<Board> {
     }
 
     // drag mode
-    if (_dragOrigin == null || _dragOrigin!.pointer != details.pointer) return;
+    if (_currentPointerDownEvent == null ||
+        _currentPointerDownEvent!.pointer != details.pointer) return;
 
-    final distance = (details.position - _dragOrigin!.position).distance;
+    final distance =
+        (details.position - _currentPointerDownEvent!.position).distance;
     if (_dragAvatar == null && distance > _kDragDistanceThreshold) {
-      _onDragStart(_dragOrigin!);
+      _onDragStart(_currentPointerDownEvent!);
     }
-
-    if (_dragAvatar == null) return;
 
     _dragAvatar?.update(details);
     _dragAvatar?.updateSquareTarget(
@@ -574,7 +584,8 @@ class _BoardState extends State<Board> {
       return;
     }
 
-    if (_dragOrigin == null || _dragOrigin!.pointer != details.pointer) return;
+    if (_currentPointerDownEvent == null ||
+        _currentPointerDownEvent!.pointer != details.pointer) return;
 
     if (_dragAvatar != null && _renderBox != null) {
       final localPos = _renderBox!.globalToLocal(_dragAvatar!._position);
@@ -598,7 +609,7 @@ class _BoardState extends State<Board> {
       }
     }
 
-    _dragOrigin = null;
+    _currentPointerDownEvent = null;
   }
 
   void _onPointerCancel(PointerCancelEvent details) {
@@ -615,9 +626,10 @@ class _BoardState extends State<Board> {
       return;
     }
 
-    if (_dragOrigin != null && _dragOrigin!.pointer == details.pointer) {
+    if (_currentPointerDownEvent != null &&
+        _currentPointerDownEvent!.pointer == details.pointer) {
       _onDragEnd(details);
-      _dragOrigin = null;
+      _currentPointerDownEvent = null;
     }
   }
 
@@ -629,7 +641,7 @@ class _BoardState extends State<Board> {
         piece != null &&
         (_isMovable(squareId) || _isPremovable(squareId))) {
       setState(() {
-        _draggedPieceOnSquare = squareId;
+        _draggedPieceSquareId = squareId;
       });
       _renderBox = context.findRenderObject()! as RenderBox;
       _dragAvatar = _DragAvatar(
@@ -666,9 +678,11 @@ class _BoardState extends State<Board> {
     _dragAvatar?.end();
     _dragAvatar = null;
     _renderBox = null;
-    setState(() {
-      _draggedPieceOnSquare = null;
-    });
+    if (_draggedPieceSquareId != null) {
+      setState(() {
+        _draggedPieceSquareId = null;
+      });
+    }
   }
 
   void _onPromotionSelect(Move move, Piece promoted) {

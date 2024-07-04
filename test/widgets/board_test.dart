@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:chessground/src/widgets/shape.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:dartchess/dartchess.dart' as dc;
@@ -162,6 +161,60 @@ void main() {
         const Offset(0, -(squareSize * 2)),
       );
       await tester.pumpAndSettle();
+      expect(find.byKey(const Key('e4-whitePawn')), findsOneWidget);
+      expect(find.byKey(const Key('e2-whitePawn')), findsNothing);
+      expect(find.byKey(const Key('e2-lastMove')), findsOneWidget);
+      expect(find.byKey(const Key('e4-lastMove')), findsOneWidget);
+    });
+
+    testWidgets('can move a piece with 2 consecutives presses', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        buildBoard(initialInteractableSide: InteractableSide.both),
+      );
+      await TestAsyncUtils.guard<void>(() async {
+        await tester.startGesture(squareOffset('e2'));
+        await tester.startGesture(squareOffset('e4'));
+
+        await tester.pump();
+
+        expect(find.byKey(const Key('e4-whitePawn')), findsOneWidget);
+        expect(find.byKey(const Key('e2-whitePawn')), findsNothing);
+        expect(find.byKey(const Key('e2-lastMove')), findsOneWidget);
+        expect(find.byKey(const Key('e4-lastMove')), findsOneWidget);
+      });
+    });
+
+    testWidgets('while dragging a piece, other pointer events have no effect', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        buildBoard(initialInteractableSide: InteractableSide.both),
+      );
+
+      await TestAsyncUtils.guard<void>(() async {
+        final dragGesture = await tester.startGesture(squareOffset('e2'));
+        await tester.pump();
+
+        // trigger a piece drag by moving the pointer by 4 pixels
+        await dragGesture.moveTo(const Offset(0, -1));
+        await dragGesture.moveTo(const Offset(0, -1));
+        await dragGesture.moveTo(const Offset(0, -1));
+        await dragGesture.moveTo(const Offset(0, -1));
+
+        expect(find.byKey(const Key('e2-selected')), findsOneWidget);
+
+        // tap on another square while dragging: it should have no effect
+        await tester.tap(find.byKey(const Key('d2-whitePawn')));
+
+        // finish the move and release the piece
+        await dragGesture.moveTo(squareOffset('e4'));
+        await dragGesture.up();
+      });
+
+      await tester.pump();
+
       expect(find.byKey(const Key('e4-whitePawn')), findsOneWidget);
       expect(find.byKey(const Key('e2-whitePawn')), findsNothing);
       expect(find.byKey(const Key('e2-lastMove')), findsOneWidget);
