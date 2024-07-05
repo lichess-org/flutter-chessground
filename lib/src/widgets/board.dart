@@ -1,6 +1,6 @@
 import 'dart:async';
-import 'package:flutter/widgets.dart';
 import 'package:flutter/gestures.dart';
+import 'package:flutter/widgets.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 
 import 'piece.dart';
@@ -16,6 +16,11 @@ import '../premove.dart';
 import '../board_settings.dart';
 import '../board_data.dart';
 
+/// Number of logical pixels that have to be dragged before a drag starts.
+const double _kDragDistanceThreshold = 3.0;
+
+const _kCancelShapesDoubleTapDelay = Duration(milliseconds: 200);
+
 /// A chessboard widget.
 ///
 /// This widget can be used to display a static board, a dynamic board that
@@ -30,13 +35,13 @@ class Board extends StatefulWidget {
     this.onPremove,
   });
 
-  /// Visal size of the board
+  /// Visal size of the board.
   final double size;
 
   /// Settings that control the theme, behavior and purpose of the board.
   final BoardSettings settings;
 
-  /// Data that represents the current state of the board
+  /// Data that represents the current state of the board.
   final BoardData data;
 
   /// Callback called after a move has been made.
@@ -76,12 +81,46 @@ class _BoardState extends State<Board> {
   Map<String, (PositionedPiece, PositionedPiece)> translatingPieces = {};
   Map<String, Piece> fadingPieces = {};
   SquareId? selected;
-  bool _shouldDeselectOnTapUp = false;
   Move? _promotionMove;
   Move? _lastDrop;
   Set<SquareId>? _premoveDests;
+
+  bool _shouldDeselectOnTapUp = false;
+
+  /// Avatar for the piece that is currently being dragged.
   _DragAvatar? _dragAvatar;
-  SquareId? _dragOrigin;
+
+  /// Once a piece is dragged, holds the square id of the piece.
+  SquareId? _draggedPieceSquareId;
+
+  /// Current pointer down event.
+  ///
+  /// This field is reset to null when the pointer is released (up or cancel).
+  ///
+  /// This is used to track board gestures, the pointer that started the drag,
+  /// and to prevent other pointers from starting a drag while a piece is being
+  /// dragged.
+  ///
+  /// Other simultaneous pointer events are ignored.
+  PointerDownEvent? _currentPointerDownEvent;
+
+  /// Current render box during drag.
+  // ignore: use_late_for_private_fields_and_variables
+  RenderBox? _renderBox;
+
+  /// Pointer event that started the draw mode lock.
+  ///
+  /// This is used to switch to draw mode when the user holds the pointer to an
+  /// empty square, while drawing a shape with another finger at the same time.
+  PointerEvent? _drawModeLockOrigin;
+
+  /// Pointer event that started the shape drawing.
+  PointerEvent? _drawOrigin;
+
+  /// Double tap detection timer, used to cancel the shapes being drawn.
+  Timer? _cancelShapesDoubleTapTimer;
+
+  /// Avatar of the shape being drawn.
   Shape? _shapeAvatar;
 
   @override
@@ -199,7 +238,7 @@ class _BoardState extends State<Board> {
         ),
       for (final entry in pieces.entries)
         if (!translatingPieces.containsKey(entry.key) &&
-            entry.key != _dragOrigin)
+            entry.key != _draggedPieceSquareId)
           PositionedSquare(
             key: ValueKey('${entry.key}-${entry.value.kind.name}'),
             size: widget.squareSize,
@@ -260,72 +299,46 @@ class _BoardState extends State<Board> {
         ),
     ];
 
-    final board = SizedBox.square(
-      dimension: widget.size,
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          if (widget.settings.boxShadow.isNotEmpty ||
-              widget.settings.borderRadius != BorderRadius.zero)
-            Container(
-              clipBehavior: Clip.hardEdge,
-              decoration: BoxDecoration(
-                borderRadius: widget.settings.borderRadius,
-                boxShadow: widget.settings.boxShadow,
+    final interactable = widget.data.interactableSide != InteractableSide.none;
+
+    return Listener(
+      onPointerDown: interactable ? _onPointerDown : null,
+      onPointerMove: interactable ? _onPointerMove : null,
+      onPointerUp: interactable ? _onPointerUp : null,
+      onPointerCancel: interactable ? _onPointerCancel : null,
+      child: SizedBox.square(
+        dimension: widget.size,
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            if (widget.settings.boxShadow.isNotEmpty ||
+                widget.settings.borderRadius != BorderRadius.zero)
+              Container(
+                clipBehavior: Clip.hardEdge,
+                decoration: BoxDecoration(
+                  borderRadius: widget.settings.borderRadius,
+                  boxShadow: widget.settings.boxShadow,
+                ),
+                child: Stack(children: highlightedBackground),
+              )
+            else
+              ...highlightedBackground,
+            ...objects,
+            if (_promotionMove != null && widget.data.sideToMove != null)
+              PromotionSelector(
+                pieceAssets: widget.settings.pieceAssets,
+                move: _promotionMove!,
+                squareSize: widget.squareSize,
+                color: widget.data.sideToMove!,
+                orientation: widget.data.orientation,
+                piecesUpsideDown: _promotionPiecesUpsideDown(),
+                onSelect: _onPromotionSelect,
+                onCancel: _onPromotionCancel,
               ),
-              child: Stack(children: highlightedBackground),
-            )
-          else
-            ...highlightedBackground,
-          ...objects,
-          if (_promotionMove != null && widget.data.sideToMove != null)
-            PromotionSelector(
-              pieceAssets: widget.settings.pieceAssets,
-              move: _promotionMove!,
-              squareSize: widget.squareSize,
-              color: widget.data.sideToMove!,
-              orientation: widget.data.orientation,
-              piecesUpsideDown: _promotionPiecesUpsideDown(),
-              onSelect: _onPromotionSelect,
-              onCancel: _onPromotionCancel,
-            ),
-        ],
+          ],
+        ),
       ),
     );
-
-    return widget.data.interactableSide != InteractableSide.none &&
-            !widget.settings.drawShape
-                .enable // Disable moving pieces when drawing is enabled
-        ?
-        // Consider using Listener instead as we don't control the drag start threshold with GestureDetector (TODO)
-        GestureDetector(
-            // registering onTapDown is needed to prevent the panStart event to win the
-            // competition too early
-            // there is no need to implement the callback since we handle the selection login
-            // in onPanDown; plus this way we avoid the timeout before onTapDown is called
-            onTapDown: (TapDownDetails? details) {},
-            onTapUp: _onTapUpPiece,
-            onPanDown: _onPanDownPiece,
-            onPanStart: _onPanStartPiece,
-            onPanUpdate: _onPanUpdatePiece,
-            onPanEnd: _onPanEndPiece,
-            onPanCancel: _onPanCancelPiece,
-            dragStartBehavior: DragStartBehavior.down,
-            child: board,
-          )
-        : widget.settings.drawShape.enable
-            ? GestureDetector(
-                onTapDown: (TapDownDetails? details) {},
-                onTapUp: _onTapUpShape,
-                onPanDown: _onPanDownShape,
-                onPanStart: _onPanStartShape,
-                onPanUpdate: _onPanUpdateShape,
-                onPanEnd: _onPanEndShape,
-                onPanCancel: _onPanCancelShape,
-                dragStartBehavior: DragStartBehavior.down,
-                child: board,
-              )
-            : board;
   }
 
   @override
@@ -346,7 +359,7 @@ class _BoardState extends State<Board> {
     if (widget.data.interactableSide == InteractableSide.none) {
       _dragAvatar?.cancel();
       _dragAvatar = null;
-      _dragOrigin = null;
+      _draggedPieceSquareId = null;
       selected = null;
       _premoveDests = null;
     }
@@ -428,12 +441,11 @@ class _BoardState extends State<Board> {
   }
 
   // returns the position of the square target during drag as a global offset
-  Offset? _squareTargetGlobalOffset(Offset localPosition) {
+  Offset? _squareTargetGlobalOffset(Offset localPosition, RenderBox box) {
     final coord = widget.localOffset2Coord(localPosition);
     if (coord == null) return null;
     final localOffset =
         coord.offset(widget.data.orientation, widget.squareSize);
-    final RenderBox box = context.findRenderObject()! as RenderBox;
     final tmpOffset = box.localToGlobal(localOffset);
     return Offset(
       tmpOffset.dx - widget.squareSize / 2,
@@ -441,27 +453,71 @@ class _BoardState extends State<Board> {
     );
   }
 
-  void _onPanDownPiece(DragDownDetails? details) {
-    if (details == null) return;
+  void _onPointerDown(PointerDownEvent details) {
+    if (details.buttons != kPrimaryButton) return;
 
     final squareId = widget.localOffset2SquareId(details.localPosition);
     if (squareId == null) return;
 
-    // if a movable piece is already selected, we want to allow castling by
-    // selecting the king and then the rook, so `canMove` check must be false
-    // to ensure we can select another piece
-    if (_isMovable(squareId) &&
-        (selected == null || !_canMove(selected!, squareId))) {
-      _shouldDeselectOnTapUp = selected == squareId;
+    if (widget.settings.drawShape.enable) {
+      if (_drawModeLockOrigin == null) {
+        final piece = pieces[squareId];
+        if (piece == null) {
+          // Sets a lock to the draw mode if the user holds the pointer to an
+          // empty square
+          _drawModeLockOrigin = details;
+
+          // double tap on empty square to clear shapes
+          if (_cancelShapesDoubleTapTimer != null) {
+            widget.settings.drawShape.onClearShapes?.call();
+            _cancelShapesDoubleTapTimer?.cancel();
+            _cancelShapesDoubleTapTimer = null;
+          } else {
+            _cancelShapesDoubleTapTimer =
+                Timer(_kCancelShapesDoubleTapDelay, () {
+              _cancelShapesDoubleTapTimer = null;
+            });
+          }
+        }
+      }
+
+      // draw mode takes priority over play mode when the draw mode lock is set
+      else if (_drawModeLockOrigin!.pointer != details.pointer) {
+        _drawOrigin = details;
+        setState(() {
+          _shapeAvatar = Circle(
+            color: widget.settings.drawShape.newShapeColor,
+            orig: squareId,
+          );
+        });
+        return;
+      }
+    }
+
+    // From here on, we only allow 1 pointer to interact with the board: others are ignored
+    if (_currentPointerDownEvent != null) return;
+
+    _currentPointerDownEvent = details;
+
+    if (selected != null && squareId != selected) {
+      final canMove = _tryMoveOrPremoveTo(squareId);
+      if (!canMove && _isMovable(squareId)) {
+        setState(() {
+          selected = squareId;
+        });
+      } else {
+        setState(() {
+          selected = null;
+          _premoveDests = null;
+        });
+      }
+    } else if (selected == squareId) {
+      _shouldDeselectOnTapUp = true;
+    } else if (_isMovable(squareId)) {
       setState(() {
         selected = squareId;
       });
-    }
-    // same as above comment, but for premoves
-    else if (_isPremovable(squareId) &&
-        (selected == null || !_canPremove(selected!, squareId))) {
-      _shouldDeselectOnTapUp = selected == squareId;
-      widget.onPremove?.call(null);
+    } else if (_isPremovable(squareId)) {
       setState(() {
         selected = squareId;
         _premoveDests = premovesOf(
@@ -470,32 +526,129 @@ class _BoardState extends State<Board> {
           canCastle: widget.settings.enablePremoveCastling,
         );
       });
-    } else {
+    } else if (widget.data.premove != null) {
       widget.onPremove?.call(null);
       setState(() {
+        selected = null;
         _premoveDests = null;
       });
     }
   }
 
-  void _onPanStartPiece(DragStartDetails? details) {
-    if (details == null) return;
+  void _onPointerMove(PointerMoveEvent details) {
+    if (details.buttons != kPrimaryButton) return;
 
-    final squareId = widget.localOffset2SquareId(details.localPosition);
+    // draw mode takes priority over play mode when the draw mode lock is set
+    if (_shapeAvatar != null &&
+        _drawOrigin != null &&
+        _drawOrigin!.pointer == details.pointer) {
+      final distance = (details.position - _drawOrigin!.position).distance;
+      if (distance > _kDragDistanceThreshold) {
+        final squareId = widget.localOffset2SquareId(details.localPosition);
+        if (squareId == null) return;
+        setState(() {
+          _shapeAvatar = _shapeAvatar!.newDest(squareId);
+        });
+      }
+    }
+
+    if (_currentPointerDownEvent == null ||
+        _currentPointerDownEvent!.pointer != details.pointer) return;
+
+    final distance =
+        (details.position - _currentPointerDownEvent!.position).distance;
+    if (_dragAvatar == null && distance > _kDragDistanceThreshold) {
+      _onDragStart(_currentPointerDownEvent!);
+    }
+
+    _dragAvatar?.update(details);
+    _dragAvatar?.updateSquareTarget(
+      _squareTargetGlobalOffset(details.localPosition, _renderBox!),
+    );
+  }
+
+  void _onPointerUp(PointerUpEvent details) {
+    if (_drawModeLockOrigin != null &&
+        _drawModeLockOrigin!.pointer == details.pointer) {
+      _drawModeLockOrigin = null;
+    } else if (_shapeAvatar != null &&
+        _drawOrigin != null &&
+        _drawOrigin!.pointer == details.pointer) {
+      widget.settings.drawShape.onCompleteShape?.call(_shapeAvatar!);
+      setState(() {
+        _shapeAvatar = null;
+      });
+      _drawOrigin = null;
+      return;
+    }
+
+    if (_currentPointerDownEvent == null ||
+        _currentPointerDownEvent!.pointer != details.pointer) return;
+
+    if (_dragAvatar != null && _renderBox != null) {
+      final localPos = _renderBox!.globalToLocal(_dragAvatar!._position);
+      final squareId = widget.localOffset2SquareId(localPos);
+      if (squareId != null && squareId != selected) {
+        _tryMoveOrPremoveTo(squareId, drop: true);
+      }
+      _onDragEnd(details);
+      setState(() {
+        selected = null;
+        _premoveDests = null;
+      });
+    } else if (selected != null) {
+      final squareId = widget.localOffset2SquareId(details.localPosition);
+      if (squareId == selected && _shouldDeselectOnTapUp) {
+        _shouldDeselectOnTapUp = false;
+        setState(() {
+          selected = null;
+          _premoveDests = null;
+        });
+      }
+    }
+
+    _shouldDeselectOnTapUp = false;
+    _currentPointerDownEvent = null;
+  }
+
+  void _onPointerCancel(PointerCancelEvent details) {
+    if (_drawModeLockOrigin != null &&
+        _drawModeLockOrigin!.pointer == details.pointer) {
+      _drawModeLockOrigin = null;
+    } else if (_shapeAvatar != null &&
+        _drawOrigin != null &&
+        _drawOrigin!.pointer == details.pointer) {
+      setState(() {
+        _shapeAvatar = null;
+      });
+      _drawOrigin = null;
+      return;
+    }
+
+    if (_currentPointerDownEvent == null ||
+        _currentPointerDownEvent!.pointer != details.pointer) return;
+
+    _onDragEnd(details);
+    _currentPointerDownEvent = null;
+    _shouldDeselectOnTapUp = false;
+  }
+
+  void _onDragStart(PointerEvent origin) {
+    final squareId = widget.localOffset2SquareId(origin.localPosition);
     final piece = squareId != null ? pieces[squareId] : null;
     final feedbackSize = widget.squareSize * widget.settings.dragFeedbackSize;
     if (squareId != null &&
         piece != null &&
         (_isMovable(squareId) || _isPremovable(squareId))) {
       setState(() {
-        _dragOrigin = squareId;
+        _draggedPieceSquareId = squareId;
       });
-      final squareTargetOffset =
-          _squareTargetGlobalOffset(details.localPosition);
+      _renderBox = context.findRenderObject()! as RenderBox;
       _dragAvatar = _DragAvatar(
         overlayState: Overlay.of(context, debugRequiredFor: widget),
-        initialPosition: details.globalPosition,
-        initialTargetPosition: squareTargetOffset,
+        initialPosition: origin.position,
+        initialTargetPosition:
+            _squareTargetGlobalOffset(origin.localPosition, _renderBox!),
         squareTargetFeedback: Container(
           width: widget.squareSize * 2,
           height: widget.squareSize * 2,
@@ -521,122 +674,15 @@ class _BoardState extends State<Board> {
     }
   }
 
-  void _onPanUpdatePiece(DragUpdateDetails? details) {
-    if (details == null || _dragAvatar == null) return;
-    final squareTargetOffset = _squareTargetGlobalOffset(details.localPosition);
-    _dragAvatar?.update(details);
-    _dragAvatar?.updateSquareTarget(squareTargetOffset);
-  }
-
-  void _onPanEndPiece(DragEndDetails? details) {
-    if (_dragAvatar != null) {
-      final RenderBox box = context.findRenderObject()! as RenderBox;
-      final localPos = box.globalToLocal(_dragAvatar!._position);
-      final squareId = widget.localOffset2SquareId(localPos);
-      if (squareId != null && squareId != selected) {
-        _tryMoveTo(squareId, drop: true);
-      }
-    }
+  void _onDragEnd(PointerEvent details) {
     _dragAvatar?.end();
     _dragAvatar = null;
-    setState(() {
-      _dragOrigin = null;
-    });
-  }
-
-  void _onPanCancelPiece() {
-    _dragAvatar?.cancel();
-    _dragAvatar = null;
-    setState(() {
-      _dragOrigin = null;
-    });
-  }
-
-  void _onTapUpPiece(TapUpDetails? details) {
-    if (details == null) return;
-    final squareId = widget.localOffset2SquareId(details.localPosition);
-    if (squareId != null && squareId != selected) {
-      _tryMoveTo(squareId);
-    } else if (squareId != null &&
-        selected == squareId &&
-        _shouldDeselectOnTapUp) {
-      _shouldDeselectOnTapUp = false;
+    _renderBox = null;
+    if (_draggedPieceSquareId != null) {
       setState(() {
-        selected = null;
-        _premoveDests = null;
+        _draggedPieceSquareId = null;
       });
     }
-  }
-
-  void _onPanDownShape(DragDownDetails? details) {
-    if (details == null || widget.settings.drawShape.enable == false) return;
-    final squareId = widget.localOffset2SquareId(details.localPosition);
-    if (squareId == null) return;
-    setState(() {
-      // Initialize shapeAvatar on tap down (Analogous to website)
-      _shapeAvatar = Circle(
-        color: widget.settings.drawShape.newShapeColor,
-        orig: squareId,
-      );
-    });
-  }
-
-  void _onPanStartShape(DragStartDetails? details) {
-    if (details == null ||
-        _shapeAvatar == null ||
-        widget.settings.drawShape.enable == false) return;
-    final squareId = widget.localOffset2SquareId(details.localPosition);
-    if (squareId == null) return;
-    setState(() {
-      // Update shapeAvatar on starting pan
-      _shapeAvatar = _shapeAvatar!.newDest(squareId);
-    });
-  }
-
-  void _onPanUpdateShape(DragUpdateDetails? details) {
-    if (details == null ||
-        _shapeAvatar == null ||
-        widget.settings.drawShape.enable == false) return;
-    final squareId = widget.localOffset2SquareId(details.localPosition);
-    if (squareId == null ||
-        (_shapeAvatar! is Arrow && squareId == (_shapeAvatar! as Arrow).dest)) {
-      return;
-    }
-    setState(() {
-      // Update shapeAvatar on panning once a new square is reached
-      _shapeAvatar = _shapeAvatar!.newDest(squareId);
-    });
-  }
-
-  void _onPanEndShape(DragEndDetails? details) {
-    if (_shapeAvatar == null || widget.settings.drawShape.enable == false) {
-      return;
-    }
-    widget.settings.drawShape.onCompleteShape?.call(_shapeAvatar!);
-    setState(() {
-      _shapeAvatar = null;
-    });
-  }
-
-  void _onPanCancelShape() {
-    setState(() {
-      _shapeAvatar = null;
-    });
-  }
-
-  void _onTapUpShape(TapUpDetails? details) {
-    if (details == null || widget.settings.drawShape.enable == false) return;
-    final squareId = widget.localOffset2SquareId(details.localPosition);
-    if (squareId == null) return;
-    widget.settings.drawShape.onCompleteShape?.call(
-      Circle(
-        color: widget.settings.drawShape.newShapeColor,
-        orig: squareId,
-      ),
-    );
-    setState(() {
-      _shapeAvatar = null;
-    });
   }
 
   void _onPromotionSelect(Move move, Piece promoted) {
@@ -708,7 +754,7 @@ class _BoardState extends State<Board> {
     return piece.role == Role.pawn && (rank == '1' || rank == '8');
   }
 
-  void _tryMoveTo(SquareId squareId, {bool drop = false}) {
+  bool _tryMoveOrPremoveTo(SquareId squareId, {bool drop = false}) {
     final selectedPiece = selected != null ? pieces[selected] : null;
     if (selectedPiece != null && _canMove(selected!, squareId)) {
       final move = Move(from: selected!, to: squareId);
@@ -724,13 +770,12 @@ class _BoardState extends State<Board> {
       } else {
         widget.onMove?.call(move, isDrop: drop);
       }
+      return true;
     } else if (selectedPiece != null && _canPremove(selected!, squareId)) {
       widget.onPremove?.call(Move(from: selected!, to: squareId));
+      return true;
     }
-    setState(() {
-      selected = null;
-      _premoveDests = null;
-    });
+    return false;
   }
 
   void _tryPlayPremove() {
@@ -786,7 +831,7 @@ class _DragAvatar {
     _updateDrag();
   }
 
-  void update(DragUpdateDetails details) {
+  void update(PointerEvent details) {
     _position += details.delta;
     _updateDrag();
   }

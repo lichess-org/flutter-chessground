@@ -1,13 +1,11 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:chessground/chessground.dart' hide BoardTheme;
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:dartchess/dartchess.dart' as dc;
 
 import 'board_theme.dart';
 import 'board_thumbnails.dart';
-import 'draw_shapes.dart';
 
 void main() {
   runApp(const MyApp());
@@ -54,9 +52,12 @@ class _HomePageState extends State<HomePage> {
   Side sideToMove = Side.white;
   PieceSet pieceSet = PieceSet.merida;
   BoardTheme boardTheme = BoardTheme.blue;
-  bool immersiveMode = false;
+  bool drawMode = true;
+  bool pieceAnimation = true;
+  bool dragMagnify = true;
   Mode playMode = Mode.botPlay;
   dc.Position<dc.Chess>? lastPos;
+  ISet<Shape> shapes = ISet();
 
   @override
   Widget build(BuildContext context) {
@@ -103,17 +104,6 @@ class _HomePageState extends State<HomePage> {
               );
             },
           ),
-          ListTile(
-            title: const Text('Draw Shapes'),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const DrawShapesPage(),
-                ),
-              );
-            },
-          ),
         ],
       )),
       body: Center(
@@ -126,6 +116,19 @@ class _HomePageState extends State<HomePage> {
                 pieceAssets: pieceSet.assets,
                 colorScheme: boardTheme.colors,
                 enableCoordinates: true,
+                animationDuration: pieceAnimation
+                    ? const Duration(milliseconds: 200)
+                    : Duration.zero,
+                dragFeedbackSize: dragMagnify ? 2.0 : 1.0,
+                drawShape: DrawShapeOptions(
+                  enable: drawMode,
+                  onCompleteShape: _onCompleteShape,
+                  onClearShapes: () {
+                    setState(() {
+                      shapes = ISet();
+                    });
+                  },
+                ),
               ),
               data: BoardData(
                 interactableSide: playMode == Mode.botPlay
@@ -142,6 +145,7 @@ class _HomePageState extends State<HomePage> {
                     position.turn == dc.Side.white ? Side.white : Side.black,
                 isCheck: position.isCheck,
                 premove: premove,
+                shapes: shapes.isNotEmpty ? shapes : null,
               ),
               onMove: playMode == Mode.botPlay
                   ? _onUserMoveAgainstBot
@@ -151,29 +155,53 @@ class _HomePageState extends State<HomePage> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                ElevatedButton(
-                  child:
-                      Text("Immersive mode: ${immersiveMode ? 'ON' : 'OFF'}"),
-                  onPressed: () {
-                    setState(() {
-                      immersiveMode = !immersiveMode;
-                    });
-                    if (immersiveMode) {
-                      SystemChrome.setEnabledSystemUIMode(
-                          SystemUiMode.immersiveSticky);
-                    } else {
-                      SystemChrome.setEnabledSystemUIMode(
-                          SystemUiMode.edgeToEdge);
-                    }
-                  },
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    ElevatedButton(
+                      child: Text('Orientation: ${orientation.name}'),
+                      onPressed: () {
+                        setState(() {
+                          orientation = orientation.opposite;
+                        });
+                      },
+                    ),
+                    const SizedBox(width: 8),
+                    ElevatedButton(
+                      child:
+                          Text("Magnify drag: ${dragMagnify ? 'ON' : 'OFF'}"),
+                      onPressed: () {
+                        setState(() {
+                          dragMagnify = !dragMagnify;
+                        });
+                      },
+                    ),
+                  ],
                 ),
-                ElevatedButton(
-                  child: Text('Orientation: ${orientation.name}'),
-                  onPressed: () {
-                    setState(() {
-                      orientation = orientation.opposite;
-                    });
-                  },
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    ElevatedButton(
+                      child: Text("Drawing mode: ${drawMode ? 'ON' : 'OFF'}"),
+                      onPressed: () {
+                        setState(() {
+                          drawMode = !drawMode;
+                        });
+                      },
+                    ),
+                    const SizedBox(width: 8),
+                    ElevatedButton(
+                      child: Text(
+                          "Piece animation: ${pieceAnimation ? 'ON' : 'OFF'}"),
+                      onPressed: () {
+                        setState(() {
+                          pieceAnimation = !pieceAnimation;
+                        });
+                      },
+                    ),
+                  ],
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -233,6 +261,19 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
     );
+  }
+
+  void _onCompleteShape(Shape shape) {
+    if (shapes.any((element) => element == shape)) {
+      setState(() {
+        shapes = shapes.remove(shape);
+      });
+      return;
+    } else {
+      setState(() {
+        shapes = shapes.add(shape);
+      });
+    }
   }
 
   void _showChoicesPicker<T extends Enum>(
@@ -314,7 +355,7 @@ class _HomePageState extends State<HomePage> {
     });
     if (!position.isGameOver) {
       final random = Random();
-      await Future.delayed(Duration(milliseconds: random.nextInt(5500) + 500));
+      await Future.delayed(Duration(milliseconds: random.nextInt(1000) + 500));
       final allMoves = [
         for (final entry in position.legalMoves.entries)
           for (final dest in entry.value.squares)
