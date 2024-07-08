@@ -8,6 +8,7 @@ const _boardsPath = 'assets/boards';
 ///
 /// Use the static const members to ensure flutter doesn't rebuild the board more
 /// than once.
+@immutable
 class BoardColorScheme {
   const BoardColorScheme({
     required this.lightSquare,
@@ -49,6 +50,36 @@ class BoardColorScheme {
 
   /// Color of squares occupied with valid premoves dots
   final Color validPremoves;
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other.runtimeType != runtimeType) return false;
+
+    return other is BoardColorScheme &&
+        other.lightSquare == lightSquare &&
+        other.darkSquare == darkSquare &&
+        other.background == background &&
+        other.whiteCoordBackground == whiteCoordBackground &&
+        other.blackCoordBackground == blackCoordBackground &&
+        other.lastMove == lastMove &&
+        other.selected == selected &&
+        other.validMoves == validMoves &&
+        other.validPremoves == validPremoves;
+  }
+
+  @override
+  int get hashCode => Object.hash(
+        lightSquare,
+        darkSquare,
+        background,
+        whiteCoordBackground,
+        blackCoordBackground,
+        lastMove,
+        selected,
+        validMoves,
+        validPremoves,
+      );
 
   static const brown = BoardColorScheme(
     lightSquare: Color(0xfff0d9b6),
@@ -236,18 +267,21 @@ class BoardColorScheme {
     background: ImageBackground(
       lightSquare: Color(0xfff2f9bb),
       darkSquare: Color(0xff59935d),
-      image: AssetImage('$_boardsPath/green-plastic.png', package: 'chessground'),
+      image:
+          AssetImage('$_boardsPath/green-plastic.png', package: 'chessground'),
     ),
     whiteCoordBackground: ImageBackground(
       lightSquare: Color(0xfff2f9bb),
       darkSquare: Color(0xff59935d),
-      image: AssetImage('$_boardsPath/green-plastic.png', package: 'chessground'),
+      image:
+          AssetImage('$_boardsPath/green-plastic.png', package: 'chessground'),
       coordinates: true,
     ),
     blackCoordBackground: ImageBackground(
       lightSquare: Color(0xfff2f9bb),
       darkSquare: Color(0xff59935d),
-      image: AssetImage('$_boardsPath/green-plastic.png', package: 'chessground'),
+      image:
+          AssetImage('$_boardsPath/green-plastic.png', package: 'chessground'),
       coordinates: true,
       orientation: Side.black,
     ),
@@ -516,18 +550,21 @@ class BoardColorScheme {
     background: ImageBackground(
       lightSquare: Color(0xffe8e9b7),
       darkSquare: Color(0xffed7272),
-      image: AssetImage('$_boardsPath/pink-pyramid.png', package: 'chessground'),
+      image:
+          AssetImage('$_boardsPath/pink-pyramid.png', package: 'chessground'),
     ),
     whiteCoordBackground: ImageBackground(
       lightSquare: Color(0xffe8e9b7),
       darkSquare: Color(0xffed7272),
-      image: AssetImage('$_boardsPath/pink-pyramid.png', package: 'chessground'),
+      image:
+          AssetImage('$_boardsPath/pink-pyramid.png', package: 'chessground'),
       coordinates: true,
     ),
     blackCoordBackground: ImageBackground(
       lightSquare: Color(0xffe8e9b7),
       darkSquare: Color(0xffed7272),
-      image: AssetImage('$_boardsPath/pink-pyramid.png', package: 'chessground'),
+      image:
+          AssetImage('$_boardsPath/pink-pyramid.png', package: 'chessground'),
       coordinates: true,
       orientation: Side.black,
     ),

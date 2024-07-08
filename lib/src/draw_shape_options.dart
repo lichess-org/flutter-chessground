@@ -22,4 +22,20 @@ class DrawShapeOptions {
 
   /// The color of the shape being drawn.
   final Color newShapeColor;
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other.runtimeType != runtimeType) return false;
+
+    return other is DrawShapeOptions &&
+        other.enable == enable &&
+        other.newShapeColor == newShapeColor &&
+        other.onCompleteShape == onCompleteShape &&
+        other.onClearShapes == onClearShapes;
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(enable, newShapeColor, onCompleteShape, onClearShapes);
 }

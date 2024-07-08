@@ -82,6 +82,51 @@ class BoardSettings {
   /// Shape drawing options object containing data about how new shapes can be drawn.
   final DrawShapeOptions drawShape;
 
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
+    return other is BoardSettings &&
+        other.colorScheme == colorScheme &&
+        other.pieceAssets == pieceAssets &&
+        other.borderRadius == borderRadius &&
+        other.boxShadow == boxShadow &&
+        other.enableCoordinates == enableCoordinates &&
+        other.animationDuration == animationDuration &&
+        other.showLastMove == showLastMove &&
+        other.showValidMoves == showValidMoves &&
+        other.blindfoldMode == blindfoldMode &&
+        other.dragFeedbackSize == dragFeedbackSize &&
+        other.dragFeedbackOffset == dragFeedbackOffset &&
+        other.enablePremoveCastling == enablePremoveCastling &&
+        other.autoQueenPromotion == autoQueenPromotion &&
+        other.autoQueenPromotionOnPremove == autoQueenPromotionOnPremove &&
+        other.drawShape == drawShape;
+  }
+
+  @override
+  int get hashCode => Object.hash(
+        colorScheme,
+        pieceAssets,
+        borderRadius,
+        boxShadow,
+        enableCoordinates,
+        animationDuration,
+        showLastMove,
+        showValidMoves,
+        blindfoldMode,
+        dragFeedbackSize,
+        dragFeedbackOffset,
+        enablePremoveCastling,
+        autoQueenPromotion,
+        autoQueenPromotionOnPremove,
+        drawShape,
+      );
+
   BoardSettings copyWith({
     BoardColorScheme? colorScheme,
     PieceAssets? pieceAssets,
