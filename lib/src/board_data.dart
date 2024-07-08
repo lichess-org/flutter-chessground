@@ -7,11 +7,26 @@ import 'models.dart';
 ///
 /// Used to configure the board with state that will/may change during a game.
 @immutable
-class BoardData {
-  const BoardData({
+abstract class BoardData {
+  const factory BoardData({
+    required InteractableSide interactableSide,
+    required Side orientation,
+    required String fen,
+    bool opponentsPiecesUpsideDown,
+    Side? sideToMove,
+    Move? premove,
+    Move? lastMove,
+    ValidMoves? validMoves,
+    bool? isCheck,
+    ISet<Shape>? shapes,
+    IMap<SquareId, Annotation>? annotations,
+  }) = _BoardData;
+
+  const BoardData._({
     required this.interactableSide,
     required this.orientation,
     required this.fen,
+    required this.opponentsPiecesUpsideDown,
     this.sideToMove,
     this.premove,
     this.lastMove,
@@ -19,7 +34,6 @@ class BoardData {
     this.isCheck,
     this.shapes,
     this.annotations,
-    this.opponentsPiecesUpsideDown = false,
   }) : assert(
           (isCheck == null && interactableSide == InteractableSide.none) ||
               sideToMove != null,
@@ -60,4 +74,102 @@ class BoardData {
 
   /// Move annotations to be displayed on the board.
   final IMap<SquareId, Annotation>? annotations;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is BoardData &&
+          runtimeType == other.runtimeType &&
+          interactableSide == other.interactableSide &&
+          orientation == other.orientation &&
+          opponentsPiecesUpsideDown == other.opponentsPiecesUpsideDown &&
+          sideToMove == other.sideToMove &&
+          fen == other.fen &&
+          premove == other.premove &&
+          lastMove == other.lastMove &&
+          validMoves == other.validMoves &&
+          isCheck == other.isCheck &&
+          shapes == other.shapes &&
+          annotations == other.annotations;
+
+  @override
+  int get hashCode =>
+      interactableSide.hashCode ^
+      orientation.hashCode ^
+      opponentsPiecesUpsideDown.hashCode ^
+      sideToMove.hashCode ^
+      fen.hashCode ^
+      premove.hashCode ^
+      lastMove.hashCode ^
+      validMoves.hashCode ^
+      isCheck.hashCode ^
+      shapes.hashCode ^
+      annotations.hashCode;
+
+  BoardData copyWith({
+    InteractableSide? interactableSide,
+    Side? orientation,
+    String? fen,
+    bool? opponentsPiecesUpsideDown,
+    Side? sideToMove,
+    Move? premove,
+    Move? lastMove,
+    ValidMoves? validMoves,
+    bool? isCheck,
+    ISet<Shape>? shapes,
+    IMap<SquareId, Annotation>? annotations,
+  });
 }
+
+class _BoardData extends BoardData {
+  const _BoardData({
+    required super.interactableSide,
+    required super.orientation,
+    required super.fen,
+    super.opponentsPiecesUpsideDown = false,
+    super.sideToMove,
+    super.premove,
+    super.lastMove,
+    super.validMoves,
+    super.isCheck,
+    super.shapes,
+    super.annotations,
+  }) : super._();
+
+  @override
+  BoardData copyWith({
+    InteractableSide? interactableSide,
+    Side? orientation,
+    String? fen,
+    bool? opponentsPiecesUpsideDown,
+    Object? sideToMove = _Undefined,
+    Object? premove = _Undefined,
+    Object? lastMove = _Undefined,
+    Object? validMoves = _Undefined,
+    Object? isCheck = _Undefined,
+    Object? shapes = _Undefined,
+    Object? annotations = _Undefined,
+  }) {
+    return BoardData(
+      interactableSide: interactableSide ?? this.interactableSide,
+      orientation: orientation ?? this.orientation,
+      opponentsPiecesUpsideDown:
+          opponentsPiecesUpsideDown ?? this.opponentsPiecesUpsideDown,
+      fen: fen ?? this.fen,
+      sideToMove:
+          sideToMove == _Undefined ? this.sideToMove : sideToMove as Side?,
+      premove: premove == _Undefined ? this.premove : premove as Move?,
+      lastMove: lastMove == _Undefined ? this.lastMove : lastMove as Move?,
+      validMoves: validMoves == _Undefined
+          ? this.validMoves
+          : validMoves as ValidMoves?,
+      isCheck: isCheck == _Undefined ? this.isCheck : isCheck as bool?,
+      shapes: shapes == _Undefined ? this.shapes : shapes as ISet<Shape>?,
+      annotations: annotations == _Undefined
+          ? this.annotations
+          : annotations as IMap<SquareId, Annotation>?,
+    );
+  }
+}
+
+class _Undefined {}
