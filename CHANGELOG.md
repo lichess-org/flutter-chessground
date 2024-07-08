@@ -1,12 +1,9 @@
-## 3.1.1
-
-- Implement `BoardData.copyWith` method to allow updating the board data
-- Implement `BoardData` equality and hashcode operators
-- Implement `BoardSettings` equality and hashcode operators
-
 ## 3.1.0
 
 - Add an optional `scale` parameter to arrows (default is `scale: 1.0`, matching the previous behavior).
+- Implement `BoardData.copyWith` method to allow updating the board data
+- Implement `BoardData` equality and hashcode operators
+- Implement `BoardSettings` equality and hashcode operators
 
 ## 3.0.0
 
