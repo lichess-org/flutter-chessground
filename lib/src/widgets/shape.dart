@@ -65,7 +65,12 @@ class ShapeWidget extends StatelessWidget {
 
 class _ArrowPainter extends CustomPainter {
   _ArrowPainter(
-      this.color, this.orientation, this.fromCoord, this.toCoord, this.scale);
+    this.color,
+    this.orientation,
+    this.fromCoord,
+    this.toCoord,
+    this.scale,
+  );
 
   final Color color;
   final Side orientation;
