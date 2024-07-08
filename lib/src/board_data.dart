@@ -93,18 +93,19 @@ abstract class BoardData {
           annotations == other.annotations;
 
   @override
-  int get hashCode =>
-      interactableSide.hashCode ^
-      orientation.hashCode ^
-      opponentsPiecesUpsideDown.hashCode ^
-      sideToMove.hashCode ^
-      fen.hashCode ^
-      premove.hashCode ^
-      lastMove.hashCode ^
-      validMoves.hashCode ^
-      isCheck.hashCode ^
-      shapes.hashCode ^
-      annotations.hashCode;
+  int get hashCode => Object.hash(
+        interactableSide,
+        orientation,
+        opponentsPiecesUpsideDown,
+        sideToMove,
+        fen,
+        premove,
+        lastMove,
+        validMoves,
+        isCheck,
+        shapes,
+        annotations,
+      );
 
   BoardData copyWith({
     InteractableSide? interactableSide,
