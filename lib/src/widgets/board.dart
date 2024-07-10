@@ -502,6 +502,7 @@ class _BoardState extends State<Board> {
           _shapeAvatar = Circle(
             color: widget.settings.drawShape.newShapeColor,
             orig: squareId,
+            scale: 0.80,
           );
         });
         return;
@@ -590,7 +591,8 @@ class _BoardState extends State<Board> {
     } else if (_shapeAvatar != null &&
         _drawOrigin != null &&
         _drawOrigin!.pointer == details.pointer) {
-      widget.settings.drawShape.onCompleteShape?.call(_shapeAvatar!);
+      widget.settings.drawShape.onCompleteShape
+          ?.call(_shapeAvatar!.withScale(1.0));
       setState(() {
         _shapeAvatar = null;
       });

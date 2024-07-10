@@ -367,23 +367,47 @@ Role _toRole(String uciLetter) {
 
 /// Base class for shapes that can be drawn on the board.
 sealed class Shape {
+  /// Scale factor for the shape. Must be between 0.0 and 1.0.
+  double get scale => 1.0;
+
   /// Decide what shape to draw based on the current shape and the new destination.
   Shape newDest(SquareId newDest);
+
+  /// Returns a new shape with the same properties but a different scale.
+  Shape withScale(double scale);
 }
 
 /// An circle shape that can be drawn on the board.
 @immutable
 class Circle implements Shape {
-  const Circle({required this.color, required this.orig});
+  /// Create a new [Circle] with the provided values.
+  ///
+  /// The [scale] must be between 0.0 and 1.0.
+  const Circle({
+    required this.color,
+    required this.orig,
+    this.scale = 1.0,
+  }) : assert(scale > 0.0 && scale <= 1.0);
 
   final Color color;
   final SquareId orig;
+
+  /// Stroke width of the circle will be scaled by this factor.
+  ///
+  /// If 1.0, the width will be 1/16th of the square size.
+  @override
+  final double scale;
 
   @override
   Shape newDest(SquareId newDest) {
     return newDest == orig
         ? this
-        : Arrow(color: color, orig: orig, dest: newDest);
+        : Arrow(color: color, orig: orig, dest: newDest, scale: scale);
+  }
+
+  @override
+  Shape withScale(double newScale) {
+    return Circle(color: color, orig: orig, scale: newScale);
   }
 
   @override
@@ -392,11 +416,25 @@ class Circle implements Shape {
         other is Circle &&
             other.runtimeType == runtimeType &&
             other.orig == orig &&
-            other.color == color;
+            other.color == color &&
+            other.scale == scale;
   }
 
   @override
-  int get hashCode => Object.hash(color, orig);
+  int get hashCode => Object.hash(color, orig, scale);
+
+  /// Create a new [Circle] with the provided values.
+  Circle copyWith({
+    Color? color,
+    SquareId? orig,
+    double? scale,
+  }) {
+    return Circle(
+      color: color ?? this.color,
+      orig: orig ?? this.orig,
+      scale: scale ?? this.scale,
+    );
+  }
 }
 
 /// An arrow shape that can be drawn on the board.
@@ -405,21 +443,32 @@ class Arrow implements Shape {
   final Color color;
   final SquareId orig;
   final SquareId dest;
+
   /// Width of the arrow and size of its tip will be scaled by this factor.
   ///
   /// If 1.0, the width will be 1/4th of the square size.
+  @override
   final double scale;
 
+  /// Create a new [Arrow] with the provided values.
+  ///
+  /// The [orig] and [dest] must be different squares.
+  /// The [scale] must be between 0.0 and 1.0.
   const Arrow({
     required this.color,
     required this.orig,
     required this.dest,
     this.scale = 1.0,
-  });
+  }) : assert(orig != dest && scale > 0.0 && scale <= 1.0);
 
   @override
   Shape newDest(SquareId newDest) {
-    return Arrow(color: color, orig: orig, dest: newDest);
+    return Arrow(color: color, orig: orig, dest: newDest, scale: scale);
+  }
+
+  @override
+  Shape withScale(double newScale) {
+    return Arrow(color: color, orig: orig, dest: dest, scale: newScale);
   }
 
   @override
@@ -429,28 +478,56 @@ class Arrow implements Shape {
             other.runtimeType == runtimeType &&
             other.orig == orig &&
             other.dest == dest &&
-            other.color == color;
+            other.color == color &&
+            other.scale == scale;
   }
 
   @override
-  int get hashCode => Object.hash(color, orig, dest);
+  int get hashCode => Object.hash(color, orig, dest, scale);
+
+  /// Create a new [Arrow] with the provided values.
+  Arrow copyWith({
+    Color? color,
+    SquareId? orig,
+    SquareId? dest,
+    double? scale,
+  }) {
+    return Arrow(
+      color: color ?? this.color,
+      orig: orig ?? this.orig,
+      dest: dest ?? this.dest,
+      scale: scale ?? this.scale,
+    );
+  }
 }
 
+/// A piece shape that can be drawn on the board.
 @immutable
 class PieceShape implements Shape {
   final Color color;
   final Role role;
   final SquareId orig;
+  @override
+  final double scale;
 
+  /// Create a new [PieceShape] with the provided values.
+  ///
+  /// The [scale] must be between 0.0 and 1.0.
   const PieceShape({
     required this.color,
     required this.role,
     required this.orig,
-  });
+    this.scale = 1.0,
+  }) : assert(scale > 0.0 && scale <= 1.0);
 
   @override
   Shape newDest(SquareId newDest) {
     return this;
+  }
+
+  @override
+  Shape withScale(double newScale) {
+    return PieceShape(color: color, role: role, orig: orig, scale: newScale);
   }
 
   @override
@@ -460,9 +537,25 @@ class PieceShape implements Shape {
             other.runtimeType == runtimeType &&
             other.color == color &&
             other.role == role &&
-            other.orig == orig;
+            other.orig == orig &&
+            other.scale == scale;
   }
 
   @override
-  int get hashCode => Object.hash(color, role, orig);
+  int get hashCode => Object.hash(color, role, orig, scale);
+
+  /// Create a new [PieceShape] with the provided values.
+  PieceShape copyWith({
+    Color? color,
+    Role? role,
+    SquareId? orig,
+    double? scale,
+  }) {
+    return PieceShape(
+      color: color ?? this.color,
+      role: role ?? this.role,
+      orig: orig ?? this.orig,
+      scale: scale ?? this.scale,
+    );
+  }
 }

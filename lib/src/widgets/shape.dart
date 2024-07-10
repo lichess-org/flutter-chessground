@@ -39,14 +39,24 @@ class ShapeWidget extends StatelessWidget {
             ),
           ),
         ),
-      Circle(color: final color, orig: final orig) => SizedBox.square(
+      Circle(color: final color, orig: final orig, scale: final scale) =>
+        SizedBox.square(
           dimension: boardSize,
           child: CustomPaint(
-            painter:
-                _CirclePainter(color, orientation, Coord.fromSquareId(orig)),
+            painter: _CirclePainter(
+              color,
+              orientation,
+              Coord.fromSquareId(orig),
+              scale,
+            ),
           ),
         ),
-      PieceShape(orig: final orig, role: final role, color: final color) =>
+      PieceShape(
+        orig: final orig,
+        role: final role,
+        color: final color,
+        scale: final scale
+      ) =>
         PositionedSquare(
           size: squareSize,
           orientation: orientation,
@@ -55,8 +65,8 @@ class ShapeWidget extends StatelessWidget {
             'assets/piece_sets/mono/${role.letter}.png',
             package: 'chessground',
             color: color,
-            width: squareSize,
-            height: squareSize,
+            width: scale * squareSize,
+            height: scale * squareSize,
           ),
         ),
     };
@@ -131,20 +141,22 @@ class _ArrowPainter extends CustomPainter {
     return color != oldDelegate.color ||
         orientation != oldDelegate.orientation ||
         fromCoord != oldDelegate.fromCoord ||
-        toCoord != oldDelegate.toCoord;
+        toCoord != oldDelegate.toCoord ||
+        scale != oldDelegate.scale;
   }
 }
 
 class _CirclePainter extends CustomPainter {
-  _CirclePainter(this.color, this.orientation, this.circleCoord);
+  _CirclePainter(this.color, this.orientation, this.circleCoord, this.scale);
   final Color color;
   final Side orientation;
   final Coord circleCoord;
+  final double scale;
 
   @override
   void paint(Canvas canvas, Size size) {
     final squareSize = size.width / 8;
-    final lineWidth = squareSize / 16;
+    final lineWidth = scale * squareSize / 16;
     final paint = Paint()
       ..strokeWidth = lineWidth
       ..color = color
@@ -163,6 +175,9 @@ class _CirclePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_CirclePainter oldDelegate) {
-    return color != oldDelegate.color || orientation != oldDelegate.orientation;
+    return color != oldDelegate.color ||
+        circleCoord != oldDelegate.circleCoord ||
+        orientation != oldDelegate.orientation ||
+        scale != oldDelegate.scale;
   }
 }

@@ -606,6 +606,24 @@ void main() {
       );
     });
 
+    testWidgets('preconfigure board to draw a piece shape',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(
+        buildBoard(
+          initialInteractableSide: InteractableSide.both,
+          initialShapes: ISet({
+            const PieceShape(
+              orig: 'e4',
+              role: Role.pawn,
+              color: Color(0xFF0000FF),
+            ),
+          }),
+        ),
+      );
+
+      expect(find.byType(ShapeWidget), findsOneWidget);
+    });
+
     testWidgets('cannot draw if not enabled', (WidgetTester tester) async {
       await tester.pumpWidget(
         buildBoard(
