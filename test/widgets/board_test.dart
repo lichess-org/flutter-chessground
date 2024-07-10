@@ -642,9 +642,6 @@ void main() {
         await pressGesture.up();
       });
 
-      // wait for the double tap delay to expire
-      await tester.pump(const Duration(milliseconds: 210));
-
       expect(find.byType(ShapeWidget), findsNothing);
     });
 
