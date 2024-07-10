@@ -760,6 +760,37 @@ void main() {
 
       expect(find.byType(ShapeWidget), findsNothing);
     });
+
+    testWidgets('selecting one piece should clear shapes',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(
+        buildBoard(
+          initialInteractableSide: InteractableSide.both,
+          enableDrawingShapes: true,
+        ),
+      );
+
+      await TestAsyncUtils.guard<void>(() async {
+        // keep pressing an empty square to enable drawing shapes
+        final pressGesture = await tester.startGesture(squareOffset('a3'));
+
+        // drawing a circle with another tap
+        final tapGesture = await tester.startGesture(squareOffset('e4'));
+        await tapGesture.up();
+
+        await pressGesture.up();
+      });
+
+      // wait for the double tap delay to expire
+      await tester.pump(const Duration(milliseconds: 210));
+
+      expect(find.byType(ShapeWidget), findsOneWidget);
+
+      await tester.tapAt(squareOffset('e2'));
+      await tester.pump();
+
+      expect(find.byType(ShapeWidget), findsNothing);
+    });
   });
 }
 

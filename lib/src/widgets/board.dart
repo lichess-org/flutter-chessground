@@ -488,6 +488,11 @@ class _BoardState extends State<Board> {
             });
           }
         }
+        // selecting a piece to move should clear shapes
+        else if (_isMovable(squareId) || _isPremovable(squareId)) {
+          _cancelShapesDoubleTapTimer?.cancel();
+          widget.settings.drawShape.onClearShapes?.call();
+        }
       }
 
       // draw mode takes priority over play mode when the draw mode lock is set
