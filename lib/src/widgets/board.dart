@@ -365,6 +365,7 @@ class _BoardState extends State<Board> {
       _shapeAvatar = null;
     }
     if (widget.data.interactableSide == InteractableSide.none) {
+      _currentPointerDownEvent = null;
       _dragAvatar?.cancel();
       _dragAvatar = null;
       _draggedPieceSquareId = null;

@@ -332,6 +332,52 @@ void main() {
 
       expect(find.byKey(const Key('e2-selected')), findsNothing);
     });
+
+    testWidgets(
+        'cancel piece current pointer event if board is made non interactable again',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(
+        buildBoard(
+          initialFen: dc.kInitialBoardFEN,
+          initialInteractableSide: InteractableSide.white,
+        ),
+      );
+
+      await TestAsyncUtils.guard<void>(() async {
+        await tester.startGesture(squareOffset('e2'));
+        await tester.pump();
+        expect(find.byKey(const Key('e2-selected')), findsOneWidget);
+      });
+
+      // make board non interactable in the middle of the gesture
+      await tester.pumpWidget(
+        buildBoard(
+          initialFen: dc.kInitialBoardFEN,
+          initialInteractableSide: InteractableSide.none,
+        ),
+      );
+
+      expect(find.byKey(const Key('e2-selected')), findsNothing);
+
+      // board is not interactable, so the piece should not be selected
+      await tester.tapAt(squareOffset('e2'));
+      await tester.pump();
+      expect(find.byKey(const Key('e2-selected')), findsNothing);
+
+      // make board interactable again
+      await tester.pumpWidget(
+        buildBoard(
+          initialFen: dc.kInitialBoardFEN,
+          initialInteractableSide: InteractableSide.white,
+        ),
+      );
+
+      // the piece selection should work (which would not be the case if the
+      // pointer event was not cancelled)
+      await tester.tapAt(squareOffset('e2'));
+      await tester.pump();
+      expect(find.byKey(const Key('e2-selected')), findsOneWidget);
+    });
   });
 
   group('premoves', () {
@@ -558,6 +604,30 @@ void main() {
           ..line(color: const Color(0xFF0000FF))
           ..path(color: const Color(0xFF0000FF)),
       );
+    });
+
+    testWidgets('cannot draw if not enabled', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        buildBoard(
+          initialInteractableSide: InteractableSide.both,
+        ),
+      );
+
+      await TestAsyncUtils.guard<void>(() async {
+        // keep pressing an empty square to enable drawing shapes
+        final pressGesture = await tester.startGesture(squareOffset('a3'));
+
+        // drawing a circle with another tap
+        final tapGesture = await tester.startGesture(squareOffset('e4'));
+        await tapGesture.up();
+
+        await pressGesture.up();
+      });
+
+      // wait for the double tap delay to expire
+      await tester.pump(const Duration(milliseconds: 210));
+
+      expect(find.byType(ShapeWidget), findsNothing);
     });
 
     testWidgets('draw a circle by hand', (WidgetTester tester) async {
