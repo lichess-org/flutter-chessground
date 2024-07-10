@@ -20,6 +20,9 @@ void main() {
           orientation: Side.white,
           fen: dc.kInitialFEN,
         ),
+        settings: BoardSettings(
+          drawShape: DrawShapeOptions(enable: true),
+        ),
       ),
     );
 
@@ -589,6 +592,36 @@ void main() {
       await tester.pumpWidget(
         buildBoard(
           initialInteractableSide: InteractableSide.both,
+          enableDrawingShapes: true,
+        ),
+      );
+
+      // keep pressing an empty square to enable drawing shapes
+      final pressGesture = await tester.startGesture(squareOffset('a3'));
+
+      await tester.dragFrom(
+        squareOffset('e2'),
+        const Offset(0, -(squareSize * 2)),
+      );
+
+      await pressGesture.up();
+
+      // wait for the double tap delay to expire
+      await tester.pump(const Duration(milliseconds: 210));
+
+      expect(
+        find.byType(ShapeWidget),
+        paints
+          ..line(color: const Color(0xFF0000FF))
+          ..path(color: const Color(0xFF0000FF)),
+      );
+    });
+
+    testWidgets('can draw shapes on an non-interactable board',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(
+        buildBoard(
+          initialInteractableSide: InteractableSide.none,
           enableDrawingShapes: true,
         ),
       );

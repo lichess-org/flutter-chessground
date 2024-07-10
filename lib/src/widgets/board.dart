@@ -299,7 +299,9 @@ class _BoardState extends State<Board> {
         ),
     ];
 
-    final interactable = widget.data.interactableSide != InteractableSide.none;
+    final interactable =
+        widget.data.interactableSide != InteractableSide.none ||
+            widget.settings.drawShape.enable;
 
     return Listener(
       onPointerDown: interactable ? _onPointerDown : null,
@@ -356,6 +358,12 @@ class _BoardState extends State<Board> {
   @override
   void didUpdateWidget(Board oldBoard) {
     super.didUpdateWidget(oldBoard);
+    if (oldBoard.settings.drawShape.enable &&
+        !widget.settings.drawShape.enable) {
+      _drawModeLockOrigin = null;
+      _drawOrigin = null;
+      _shapeAvatar = null;
+    }
     if (widget.data.interactableSide == InteractableSide.none) {
       _dragAvatar?.cancel();
       _dragAvatar = null;
@@ -493,6 +501,8 @@ class _BoardState extends State<Board> {
         return;
       }
     }
+
+    if (widget.data.interactableSide == InteractableSide.none) return;
 
     // From here on, we only allow 1 pointer to interact with the board: others are ignored
     if (_currentPointerDownEvent != null) return;
