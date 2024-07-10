@@ -1,3 +1,13 @@
+## 3.1.1
+
+- Allow shapes to be drawn on a non-interactable board.
+- Fix a bug where the board would be stuck after transitioning from a
+  non-interactable board to an interactable one.
+- Selecting a piece will now clear all shapes on the board.
+- Add the `scale` property to all `Shape` classes. Use a 0.8 scale for the
+  shapes being drawn on the board to distinguish them from the already drawn
+  ones.
+
 ## 3.1.0
 
 - Add an optional `scale` parameter to arrows (default is `scale: 1.0`, matching the previous behavior).
