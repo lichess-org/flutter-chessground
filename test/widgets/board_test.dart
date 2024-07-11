@@ -171,7 +171,7 @@ void main() {
     });
 
     testWidgets(
-        'cannot move a piece with 2 consecutives pointer down events, but the piece remains selected',
+        '2 simultaneous pointer down events will cancel current drag/selection',
         (
       WidgetTester tester,
     ) async {
@@ -180,24 +180,31 @@ void main() {
       );
       await TestAsyncUtils.guard<void>(() async {
         await tester.startGesture(squareOffset('e2'));
+
+        await tester.pump();
+
+        expect(find.byKey(const Key('e2-selected')), findsOneWidget);
+
         await tester.startGesture(squareOffset('e4'));
 
         await tester.pump();
 
+        // move is cancelled
         expect(find.byKey(const Key('e4-whitePawn')), findsNothing);
         expect(find.byKey(const Key('e2-whitePawn')), findsOneWidget);
-        // the piece remains selected
-        expect(find.byKey(const Key('e2-selected')), findsOneWidget);
+        // selection is cancelled
+        expect(find.byKey(const Key('e2-selected')), findsNothing);
       });
     });
 
-    testWidgets('while dragging a piece, other pointer events have no effect', (
+    testWidgets('while dragging a piece, other pointer events will cancel', (
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(
         buildBoard(initialInteractableSide: InteractableSide.both),
       );
 
+      // drag a piece and tap on another own square while dragging
       await TestAsyncUtils.guard<void>(() async {
         final dragGesture = await tester.startGesture(squareOffset('e2'));
         await tester.pump();
@@ -210,20 +217,49 @@ void main() {
 
         expect(find.byKey(const Key('e2-selected')), findsOneWidget);
 
-        // tap on another square while dragging: it should have no effect
         await tester.tap(find.byKey(const Key('d2-whitePawn')));
 
-        // finish the move and release the piece
+        // finish the move as to release the piece
         await dragGesture.moveTo(squareOffset('e4'));
         await dragGesture.up();
       });
 
       await tester.pump();
 
-      expect(find.byKey(const Key('e4-whitePawn')), findsOneWidget);
-      expect(find.byKey(const Key('e2-whitePawn')), findsNothing);
-      expect(find.byKey(const Key('e2-lastMove')), findsOneWidget);
-      expect(find.byKey(const Key('e4-lastMove')), findsOneWidget);
+      // the piece should not have moved
+      expect(find.byKey(const Key('e4-whitePawn')), findsNothing);
+      expect(find.byKey(const Key('e2-whitePawn')), findsOneWidget);
+      // the piece should not be selected
+      expect(find.byKey(const Key('e2-selected')), findsNothing);
+
+      // drag a piece and tap on an empty square while dragging
+      await TestAsyncUtils.guard<void>(() async {
+        final dragGesture = await tester.startGesture(squareOffset('d2'));
+        await tester.pump();
+
+        // trigger a piece drag by moving the pointer by 4 pixels
+        await dragGesture.moveTo(const Offset(0, -1));
+        await dragGesture.moveTo(const Offset(0, -1));
+        await dragGesture.moveTo(const Offset(0, -1));
+        await dragGesture.moveTo(const Offset(0, -1));
+
+        expect(find.byKey(const Key('d2-selected')), findsOneWidget);
+
+        // tap on an empty square
+        await tester.tapAt(squareOffset('f5'));
+
+        // finish the move as to release the piece
+        await dragGesture.moveTo(squareOffset('d4'));
+        await dragGesture.up();
+      });
+
+      await tester.pump();
+
+      // the piece should not have moved
+      expect(find.byKey(const Key('d4-whitePawn')), findsNothing);
+      expect(find.byKey(const Key('d2-whitePawn')), findsOneWidget);
+      // the piece should not be selected
+      expect(find.byKey(const Key('d2-selected')), findsNothing);
     });
 
     testWidgets('dragging an already selected piece should not deselect it', (

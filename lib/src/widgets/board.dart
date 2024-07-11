@@ -101,7 +101,8 @@ class _BoardState extends State<Board> {
   /// and to prevent other pointers from starting a drag while a piece is being
   /// dragged.
   ///
-  /// Other simultaneous pointer events are ignored.
+  /// Other simultaneous pointer events are ignored and will cancel the current
+  /// gesture.
   PointerDownEvent? _currentPointerDownEvent;
 
   /// Current render box during drag.
@@ -230,7 +231,7 @@ class _BoardState extends State<Board> {
             size: widget.squareSize,
             pieceAssets: widget.settings.pieceAssets,
             blindfoldMode: widget.settings.blindfoldMode,
-            upsideDown: _upsideDown(entry.value),
+            upsideDown: _isUpsideDown(entry.value),
             onComplete: () {
               fadingPieces.remove(entry.key);
             },
@@ -249,7 +250,7 @@ class _BoardState extends State<Board> {
               size: widget.squareSize,
               pieceAssets: widget.settings.pieceAssets,
               blindfoldMode: widget.settings.blindfoldMode,
-              upsideDown: _upsideDown(entry.value),
+              upsideDown: _isUpsideDown(entry.value),
             ),
           ),
       for (final entry in translatingPieces.entries)
@@ -271,7 +272,7 @@ class _BoardState extends State<Board> {
               size: widget.squareSize,
               pieceAssets: widget.settings.pieceAssets,
               blindfoldMode: widget.settings.blindfoldMode,
-              upsideDown: _upsideDown(entry.value.$1.piece),
+              upsideDown: _isUpsideDown(entry.value.$1.piece),
             ),
           ),
         ),
@@ -333,7 +334,8 @@ class _BoardState extends State<Board> {
                 squareSize: widget.squareSize,
                 color: widget.data.sideToMove!,
                 orientation: widget.data.orientation,
-                piecesUpsideDown: _promotionPiecesUpsideDown(),
+                piecesUpsideDown: widget.data.opponentsPiecesUpsideDown &&
+                    widget.data.sideToMove! != widget.data.orientation,
                 onSelect: _onPromotionSelect,
                 onCancel: _onPromotionCancel,
               ),
@@ -449,7 +451,7 @@ class _BoardState extends State<Board> {
     return null;
   }
 
-  // returns the position of the square target during drag as a global offset
+  /// Returns the position of the square target during drag as a global offset.
   Offset? _squareTargetGlobalOffset(Offset localPosition, RenderBox box) {
     final coord = widget.localOffset2Coord(localPosition);
     if (coord == null) return null;
@@ -468,9 +470,10 @@ class _BoardState extends State<Board> {
     final squareId = widget.localOffset2SquareId(details.localPosition);
     if (squareId == null) return;
 
+    final Piece? piece = pieces[squareId];
+
     if (widget.settings.drawShape.enable) {
       if (_drawModeLockOrigin == null) {
-        final piece = pieces[squareId];
         if (piece == null) {
           // Sets a lock to the draw mode if the user holds the pointer to an
           // empty square
@@ -489,7 +492,7 @@ class _BoardState extends State<Board> {
           }
         }
         // selecting a piece to move should clear shapes
-        else if (_isMovable(squareId) || _isPremovable(squareId)) {
+        else if (_isMovable(piece) || _isPremovable(piece)) {
           _cancelShapesDoubleTapTimer?.cancel();
           widget.settings.drawShape.onClearShapes?.call();
         }
@@ -511,14 +514,18 @@ class _BoardState extends State<Board> {
 
     if (widget.data.interactableSide == InteractableSide.none) return;
 
-    // From here on, we only allow 1 pointer to interact with the board: others are ignored
-    if (_currentPointerDownEvent != null) return;
+    // From here on, we only allow 1 pointer to interact with the board. Other
+    // pointers will cancel any current gesture.
+    if (_currentPointerDownEvent != null) {
+      _cancelGesture();
+      return;
+    }
 
     _currentPointerDownEvent = details;
 
     if (selected != null && squareId != selected) {
       final canMove = _tryMoveOrPremoveTo(squareId);
-      if (!canMove && _isMovable(squareId)) {
+      if (!canMove && _isMovable(piece)) {
         setState(() {
           selected = squareId;
         });
@@ -530,11 +537,11 @@ class _BoardState extends State<Board> {
       }
     } else if (selected == squareId) {
       _shouldDeselectOnTapUp = true;
-    } else if (_isMovable(squareId)) {
+    } else if (_isMovable(piece)) {
       setState(() {
         selected = squareId;
       });
-    } else if (_isPremovable(squareId)) {
+    } else if (_isPremovable(piece)) {
       setState(() {
         selected = squareId;
         _premoveDests = premovesOf(
@@ -609,8 +616,9 @@ class _BoardState extends State<Board> {
       if (squareId != null && squareId != selected) {
         _tryMoveOrPremoveTo(squareId, drop: true);
       }
-      _onDragEnd(details);
+      _onDragEnd();
       setState(() {
+        _draggedPieceSquareId = null;
         selected = null;
         _premoveDests = null;
       });
@@ -646,7 +654,10 @@ class _BoardState extends State<Board> {
     if (_currentPointerDownEvent == null ||
         _currentPointerDownEvent!.pointer != details.pointer) return;
 
-    _onDragEnd(details);
+    _onDragEnd();
+    setState(() {
+      _draggedPieceSquareId = null;
+    });
     _currentPointerDownEvent = null;
     _shouldDeselectOnTapUp = false;
   }
@@ -657,11 +668,11 @@ class _BoardState extends State<Board> {
     final feedbackSize = widget.squareSize * widget.settings.dragFeedbackSize;
     if (squareId != null &&
         piece != null &&
-        (_isMovable(squareId) || _isPremovable(squareId))) {
+        (_isMovable(piece) || _isPremovable(piece))) {
       setState(() {
         _draggedPieceSquareId = squareId;
       });
-      _renderBox = context.findRenderObject()! as RenderBox;
+      _renderBox ??= context.findRenderObject()! as RenderBox;
       _dragAvatar = _DragAvatar(
         overlayState: Overlay.of(context, debugRequiredFor: widget),
         initialPosition: origin.position,
@@ -685,22 +696,30 @@ class _BoardState extends State<Board> {
             size: feedbackSize,
             pieceAssets: widget.settings.pieceAssets,
             blindfoldMode: widget.settings.blindfoldMode,
-            upsideDown: _upsideDown(piece),
+            upsideDown: _isUpsideDown(piece),
           ),
         ),
       );
     }
   }
 
-  void _onDragEnd(PointerEvent details) {
+  void _onDragEnd() {
     _dragAvatar?.end();
     _dragAvatar = null;
     _renderBox = null;
-    if (_draggedPieceSquareId != null) {
-      setState(() {
-        _draggedPieceSquareId = null;
-      });
-    }
+  }
+
+  /// Cancels the current gesture and stops current selection/drag.
+  void _cancelGesture() {
+    _dragAvatar?.end();
+    _dragAvatar = null;
+    _renderBox = null;
+    setState(() {
+      _draggedPieceSquareId = null;
+      selected = null;
+    });
+    _currentPointerDownEvent = null;
+    _shouldDeselectOnTapUp = false;
   }
 
   void _onPromotionSelect(Move move, Piece promoted) {
@@ -726,40 +745,38 @@ class _BoardState extends State<Board> {
     });
   }
 
-  bool _upsideDown(Piece piece) {
+  /// Whether the piece should be displayed upside down, according to the
+  /// widget settings.
+  bool _isUpsideDown(Piece piece) {
     return widget.data.opponentsPiecesUpsideDown &&
         piece.color != widget.data.orientation;
   }
 
-  bool _promotionPiecesUpsideDown() {
-    return widget.data.opponentsPiecesUpsideDown &&
-        widget.data.sideToMove! != widget.data.orientation;
-  }
-
-  bool _isMovable(SquareId squareId) {
-    final piece = pieces[squareId];
+  /// Whether the piece is movable by the current side to move.
+  bool _isMovable(Piece? piece) {
     return piece != null &&
         (widget.data.interactableSide == InteractableSide.both ||
             widget.data.interactableSide.name == piece.color.name) &&
         widget.data.sideToMove == piece.color;
   }
 
-  bool _canMove(SquareId orig, SquareId dest) {
-    final validDests = widget.data.validMoves?[orig];
-    return orig != dest && validDests != null && validDests.contains(dest);
-  }
-
-  bool _isPremovable(SquareId squareId) {
-    final piece = pieces[squareId];
+  /// Whether the piece is premovable by the current side to move.
+  bool _isPremovable(Piece? piece) {
     return piece != null &&
         (widget.onPremove != null &&
             widget.data.interactableSide.name == piece.color.name &&
             widget.data.sideToMove != piece.color);
   }
 
-  bool _canPremove(SquareId orig, SquareId dest) {
+  /// Whether the piece is allowed to be moved to the target square.
+  bool _canMoveTo(SquareId orig, SquareId dest) {
+    final validDests = widget.data.validMoves?[orig];
+    return orig != dest && validDests != null && validDests.contains(dest);
+  }
+
+  /// Whether the piece is allowed to be premoved to the target square.
+  bool _canPremoveTo(SquareId orig, SquareId dest) {
     return orig != dest &&
-        _isPremovable(orig) &&
         premovesOf(
           orig,
           pieces,
@@ -772,9 +789,12 @@ class _BoardState extends State<Board> {
     return piece.role == Role.pawn && (rank == '1' || rank == '8');
   }
 
+  /// Tries to move or set a premove the selected piece to the target square.
+  ///
+  /// Returns true if the move/premove was successful.
   bool _tryMoveOrPremoveTo(SquareId squareId, {bool drop = false}) {
     final selectedPiece = selected != null ? pieces[selected] : null;
-    if (selectedPiece != null && _canMove(selected!, squareId)) {
+    if (selectedPiece != null && _canMoveTo(selected!, squareId)) {
       final move = Move(from: selected!, to: squareId);
       if (drop) {
         _lastDrop = move;
@@ -789,20 +809,22 @@ class _BoardState extends State<Board> {
         widget.onMove?.call(move, isDrop: drop);
       }
       return true;
-    } else if (selectedPiece != null && _canPremove(selected!, squareId)) {
+    } else if (_isPremovable(selectedPiece) &&
+        _canPremoveTo(selected!, squareId)) {
       widget.onPremove?.call(Move(from: selected!, to: squareId));
       return true;
     }
     return false;
   }
 
+  /// Tries to play the premove if it is set and still valid.
   void _tryPlayPremove() {
     final premove = widget.data.premove;
     if (premove == null) {
       return;
     }
     final fromPiece = pieces[premove.from];
-    if (fromPiece != null && _canMove(premove.from, premove.to)) {
+    if (fromPiece != null && _canMoveTo(premove.from, premove.to)) {
       if (_isPromoMove(fromPiece, premove.to)) {
         if (widget.settings.autoQueenPromotion ||
             widget.settings.autoQueenPromotionOnPremove) {
