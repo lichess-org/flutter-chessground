@@ -1,3 +1,8 @@
+## 3.1.2
+
+- Any simultaneous touch on the board will now cancel the current piece
+  selection or drag.
+
 ## 3.1.1
 
 - Allow shapes to be drawn on a non-interactable board.
