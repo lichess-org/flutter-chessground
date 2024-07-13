@@ -557,6 +557,10 @@ class _BoardState extends State<Board> {
         _premoveDests = null;
       });
     }
+
+    if (widget.settings.pieceShiftMethod == PieceShiftMethod.drag) {
+      _shouldDeselectOnTapUp = true;
+    }
   }
 
   void _onPointerMove(PointerMoveEvent details) {
@@ -577,7 +581,9 @@ class _BoardState extends State<Board> {
     }
 
     if (_currentPointerDownEvent == null ||
-        _currentPointerDownEvent!.pointer != details.pointer) return;
+        _currentPointerDownEvent!.pointer != details.pointer ||
+        widget.settings.pieceShiftMethod == PieceShiftMethod.tapTwoSquares)
+      return;
 
     final distance =
         (details.position - _currentPointerDownEvent!.position).distance;

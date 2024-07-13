@@ -28,6 +28,17 @@ class MyApp extends StatelessWidget {
   }
 }
 
+String pieceShiftMethodLabel(PieceShiftMethod method) {
+  switch (method) {
+    case PieceShiftMethod.drag:
+      return 'Drag';
+    case PieceShiftMethod.tapTwoSquares:
+      return 'Tap two squares';
+    case PieceShiftMethod.either:
+      return 'Either';
+  }
+}
+
 enum Mode {
   botPlay,
   freePlay,
@@ -51,6 +62,7 @@ class _HomePageState extends State<HomePage> {
   ValidMoves validMoves = IMap(const {});
   Side sideToMove = Side.white;
   PieceSet pieceSet = PieceSet.merida;
+  PieceShiftMethod pieceShiftMethod = PieceShiftMethod.either;
   BoardTheme boardTheme = BoardTheme.blue;
   bool drawMode = true;
   bool pieceAnimation = true;
@@ -129,6 +141,7 @@ class _HomePageState extends State<HomePage> {
                     });
                   },
                 ),
+                pieceShiftMethod: pieceShiftMethod,
               ),
               data: BoardData(
                 interactableSide: playMode == Mode.botPlay
@@ -240,6 +253,30 @@ class _HomePageState extends State<HomePage> {
                         },
                       ),
                     ),
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    ElevatedButton(
+                      child: Text(
+                          'Piece shift method: ${pieceShiftMethodLabel(pieceShiftMethod)}'),
+                      onPressed: () => _showChoicesPicker<PieceShiftMethod>(
+                        context,
+                        choices: PieceShiftMethod.values,
+                        selectedItem: pieceShiftMethod,
+                        labelBuilder: (t) => Text(pieceShiftMethodLabel(t)),
+                        onSelectedItemChanged: (PieceShiftMethod? value) {
+                          setState(() {
+                            if (value != null) {
+                              pieceShiftMethod = value;
+                            }
+                          });
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 8),
                   ],
                 ),
                 if (playMode == Mode.freePlay)
