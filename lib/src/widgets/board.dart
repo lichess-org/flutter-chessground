@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:chessground/src/widgets/drag.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
@@ -672,7 +673,6 @@ class _BoardState extends State<Board> {
   void _onDragStart(PointerEvent origin) {
     final squareId = widget.localOffset2SquareId(origin.localPosition);
     final piece = squareId != null ? pieces[squareId] : null;
-    final feedbackSize = widget.squareSize * widget.settings.dragFeedbackSize;
     if (squareId != null &&
         piece != null &&
         (_isMovable(piece) || _isPremovable(piece))) {
@@ -693,18 +693,12 @@ class _BoardState extends State<Board> {
             shape: BoxShape.circle,
           ),
         ),
-        pieceFeedback: Transform.translate(
-          offset: Offset(
-            ((widget.settings.dragFeedbackOffset.dx - 1) * feedbackSize) / 2,
-            ((widget.settings.dragFeedbackOffset.dy - 1) * feedbackSize) / 2,
-          ),
-          child: PieceWidget(
-            piece: piece,
-            size: feedbackSize,
-            pieceAssets: widget.settings.pieceAssets,
-            blindfoldMode: widget.settings.blindfoldMode,
-            upsideDown: _isUpsideDown(piece),
-          ),
+        pieceFeedback: PieceDragFeedback(
+          piece: piece,
+          squareSize: widget.squareSize,
+          pieceAssets: widget.settings.pieceAssets,
+          size: widget.settings.dragFeedbackSize,
+          offset: widget.settings.dragFeedbackOffset - const Offset(0.5, 0.5),
         ),
       );
     }

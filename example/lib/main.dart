@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:board_example/board_editor_page.dart';
 import 'package:flutter/material.dart';
 import 'package:chessground/chessground.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
@@ -77,10 +78,10 @@ class _HomePageState extends State<HomePage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: playMode == Mode.botPlay
-            ? const Text('Random Bot')
-            : const Text('Free Play'),
-      ),
+          title: switch (playMode) {
+        Mode.botPlay => const Text('Random Bot'),
+        Mode.freePlay => const Text('Free Play'),
+      }),
       drawer: Drawer(
           child: ListView(
         children: [
@@ -103,6 +104,17 @@ class _HomePageState extends State<HomePage> {
                 playMode = Mode.freePlay;
               });
               Navigator.pop(context);
+            },
+          ),
+          ListTile(
+            title: const Text('Board Editor'),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const BoardEditorPage(),
+                ),
+              );
             },
           ),
           ListTile(
