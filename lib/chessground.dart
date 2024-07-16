@@ -7,7 +7,6 @@ export 'src/board_color_scheme.dart';
 export 'src/draw_shape_options.dart';
 export 'src/board_data.dart';
 export 'src/board_settings.dart';
-export 'src/board_theme.dart';
 export 'src/fen.dart';
 export 'src/models.dart';
 export 'src/piece_set.dart';
