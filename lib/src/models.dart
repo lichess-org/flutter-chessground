@@ -128,12 +128,14 @@ class HighlightDetails {
 /// For instance a1 is (0, 0), a2 is (0, 1), etc.
 @immutable
 class Coord {
+  /// Create a new [Coord] with the provided values.
   const Coord({
     required this.x,
     required this.y,
   })  : assert(x >= 0 && x <= 7),
         assert(y >= 0 && y <= 7);
 
+  /// Construct a [Coord] from a square identifier such as 'e2', 'c3', etc.
   Coord.fromSquareId(SquareId id)
       : x = id.codeUnitAt(0) - 97,
         y = id.codeUnitAt(1) - 49;
@@ -141,8 +143,10 @@ class Coord {
   final int x;
   final int y;
 
+  /// Gets the square identifier of the coordinate.
   SquareId get squareId => allSquares[8 * x + y];
 
+  /// Returns the offset of the coordinate on the board based on the orientation.
   Offset offset(Side orientation, double squareSize) {
     final dx = (orientation == Side.black ? 7 - x : x) * squareSize;
     final dy = (orientation == Side.black ? y : 7 - y) * squareSize;

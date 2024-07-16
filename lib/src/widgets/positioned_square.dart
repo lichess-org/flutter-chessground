@@ -1,9 +1,10 @@
 import 'package:flutter/widgets.dart';
 import '../models.dart';
+import './highlight.dart';
 
 /// Board aware Positioned widget
 ///
-/// Use to position things, such as [Piece], [Highlight] on the board.
+/// Use to position things, such as [Piece] or [Highlight] on the board.
 /// Since it's a wrapper over a [Positioned] widget it must be a descendant of a
 /// [Stack].
 class PositionedSquare extends StatelessWidget {

@@ -225,7 +225,7 @@ class _BoardState extends State<Board> {
           size: widget.squareSize,
           orientation: widget.data.orientation,
           squareId: entry.key,
-          child: PieceFadeOut(
+          child: AnimatedPieceFadeOut(
             duration: widget.settings.animationDuration,
             piece: entry.value,
             size: widget.squareSize,
@@ -259,7 +259,7 @@ class _BoardState extends State<Board> {
           size: widget.squareSize,
           orientation: widget.data.orientation,
           squareId: entry.key,
-          child: PieceTranslation(
+          child: AnimatedPieceTranslation(
             fromCoord: entry.value.$1.coord,
             toCoord: entry.value.$2.coord,
             orientation: widget.data.orientation,

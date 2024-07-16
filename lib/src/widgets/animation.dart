@@ -2,8 +2,17 @@ import 'package:flutter/widgets.dart';
 import '../models.dart';
 import './piece.dart';
 
-class PieceTranslation extends StatefulWidget {
-  const PieceTranslation({
+@Deprecated('Use AnimatedPieceTranslation instead')
+typedef PieceTranslation = AnimatedPieceTranslation;
+
+/// A widget that animates the translation of a piece from one square to another.
+///
+/// The piece will move from [fromCoord] to [toCoord] with the given [orientation].
+/// When the animation completes, [onComplete] will be called.
+/// The animation duration and curve can be customized.
+class AnimatedPieceTranslation extends StatefulWidget {
+  /// Creates an [AnimatedPieceTranslation] widget.
+  const AnimatedPieceTranslation({
     super.key,
     required this.child,
     required this.fromCoord,
@@ -15,12 +24,25 @@ class PieceTranslation extends StatefulWidget {
   })  : duration = duration ?? const Duration(milliseconds: 150),
         curve = curve ?? Curves.easeInOutCubic;
 
+  /// The widget to animate. Typically a [PieceWidget].
   final Widget child;
+
+  /// The coordinate of the square the piece is moving from.
   final Coord fromCoord;
+
+  /// The coordinate of the square the piece is moving to.
   final Coord toCoord;
+
+  /// The orientation of the board.
   final Side orientation;
+
+  /// Called when the animation completes.
   final void Function() onComplete;
+
+  /// The duration of the animation.
   final Duration duration;
+
+  /// The curve of the animation.
   final Curve curve;
 
   int get orientationFactor => orientation == Side.white ? 1 : -1;
@@ -28,10 +50,10 @@ class PieceTranslation extends StatefulWidget {
   double get dy => (toCoord.y - fromCoord.y).toDouble() * orientationFactor;
 
   @override
-  State<PieceTranslation> createState() => _PieceTranslationState();
+  State<AnimatedPieceTranslation> createState() => _PieceTranslationState();
 }
 
-class _PieceTranslationState extends State<PieceTranslation>
+class _PieceTranslationState extends State<AnimatedPieceTranslation>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller = AnimationController(
     duration: widget.duration,
@@ -68,8 +90,13 @@ class _PieceTranslationState extends State<PieceTranslation>
   }
 }
 
-class PieceFadeOut extends StatefulWidget {
-  const PieceFadeOut({
+@Deprecated('Use AnimatedPieceFadeOut instead')
+typedef PieceFadeOut = AnimatedPieceFadeOut;
+
+/// A widget that plays a fade out animation on a piece.
+class AnimatedPieceFadeOut extends StatefulWidget {
+  /// Creates an [AnimatedPieceFadeOut] widget.
+  const AnimatedPieceFadeOut({
     super.key,
     required this.piece,
     required this.size,
@@ -82,20 +109,35 @@ class PieceFadeOut extends StatefulWidget {
   })  : duration = duration ?? const Duration(milliseconds: 150),
         curve = curve ?? Curves.easeInQuad;
 
+  /// The piece to fade out.
   final Piece piece;
+
+  /// The size of the piece.
   final double size;
+
+  /// The assets used to render the piece.
   final PieceAssets pieceAssets;
+
+  /// If `true` the piece will be hidden.
   final bool blindfoldMode;
+
+  /// If `true` the piece will be displayed upside down.
   final bool upsideDown;
+
+  /// The duration of the animation.
   final Duration duration;
+
+  /// The curve of the animation.
   final Curve curve;
+
+  /// Called when the animation completes.
   final void Function() onComplete;
 
   @override
-  State<PieceFadeOut> createState() => _PieceFadeOutState();
+  State<AnimatedPieceFadeOut> createState() => _PieceFadeOutState();
 }
 
-class _PieceFadeOutState extends State<PieceFadeOut>
+class _PieceFadeOutState extends State<AnimatedPieceFadeOut>
     with TickerProviderStateMixin {
   late final AnimationController _controller = AnimationController(
     duration: widget.duration,

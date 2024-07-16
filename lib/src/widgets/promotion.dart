@@ -2,6 +2,12 @@ import 'package:flutter/widgets.dart';
 import '../models.dart';
 import 'piece.dart';
 
+/// A widget that allows the user to select a promotion piece.
+///
+/// This widget should be displayed when a pawn reaches the last rank and must be
+/// promoted. The user can select a piece to promote to by tapping on one of
+/// the four pieces displayed.
+/// Promotion can be canceled by tapping outside the promotion widget.
 class PromotionSelector extends StatelessWidget {
   const PromotionSelector({
     super.key,

@@ -3,6 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import '../models.dart';
 
+/// A widget that displays a board highlight.
+///
+/// Board highlights can be a solid color or an image. They are used to
+/// highlight squares on the board, such as the last move, or the selected
+/// square.
 class Highlight extends StatelessWidget {
   const Highlight({
     super.key,
@@ -36,6 +41,9 @@ class Highlight extends StatelessWidget {
   }
 }
 
+/// A widget that displays a check highlight.
+///
+/// Check highlights are used to indicate that a king is in check.
 class CheckHighlight extends StatelessWidget {
   const CheckHighlight({super.key, required this.size});
 
@@ -69,6 +77,9 @@ class CheckHighlight extends StatelessWidget {
   }
 }
 
+/// A widget that displays a move destination.
+///
+/// Move destinations are used to indicate where a piece can move to.
 class MoveDest extends StatelessWidget {
   const MoveDest({
     super.key,
@@ -100,6 +111,10 @@ class MoveDest extends StatelessWidget {
   }
 }
 
+/// A widget that displays an occupied move destination.
+///
+/// Occupied move destinations are used to indicate where a piece can move to
+/// on a square that is already occupied by a piece.
 class OccupiedMoveDest extends StatelessWidget {
   const OccupiedMoveDest({
     super.key,

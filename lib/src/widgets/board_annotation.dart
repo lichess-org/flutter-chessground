@@ -2,6 +2,9 @@ import 'dart:async';
 import 'package:flutter/widgets.dart';
 import '../models.dart';
 
+/// A widget that displays an annotation of a square on the board.
+///
+/// This is typically used to display move annotations, such as "!!" or "??".
 class BoardAnnotation extends StatefulWidget {
   final Annotation annotation;
 

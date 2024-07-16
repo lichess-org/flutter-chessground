@@ -2,7 +2,7 @@ import 'dart:math' as math;
 import 'package:flutter/widgets.dart';
 import '../models.dart';
 
-/// Widget that displays a chess piece
+/// Widget that displays a chess piece.
 class PieceWidget extends StatelessWidget {
   const PieceWidget({
     super.key,
@@ -14,22 +14,22 @@ class PieceWidget extends StatelessWidget {
     this.upsideDown = false,
   });
 
-  /// Specifies the role and color of the piece
+  /// Specifies the role and color of the piece.
   final Piece piece;
 
-  /// Size of the board square the piece will occupy
+  /// Size of the board square the piece will occupy.
   final double size;
 
-  /// Piece set
+  /// Piece set.
   final PieceAssets pieceAssets;
 
-  /// Pieces are hidden in blindfold mode
+  /// Pieces are hidden in blindfold mode.
   final bool blindfoldMode;
 
-  /// If `true` the piece is displayed rotated by 180 degrees
+  /// If `true` the piece is displayed rotated by 180 degrees.
   final bool upsideDown;
 
-  /// Use this value to animate the opacity of the piece
+  /// This value is used to animate the opacity of the piece.
   final Animation<double>? opacity;
 
   @override

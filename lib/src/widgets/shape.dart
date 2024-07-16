@@ -4,6 +4,9 @@ import 'package:flutter/widgets.dart';
 import '../models.dart';
 import 'positioned_square.dart';
 
+/// A Widget that displays a shape overlay on the board.
+///
+/// Typically used to display arrows, circles, and piece masks on the board.
 class ShapeWidget extends StatelessWidget {
   const ShapeWidget({
     super.key,
@@ -12,8 +15,15 @@ class ShapeWidget extends StatelessWidget {
     required this.orientation,
   });
 
+  /// The shape to display on the board.
+  ///
+  /// Currently supported shapes are [Arrow], [Circle], and [PieceShape].
   final Shape shape;
+
+  /// Size of the board the shape will overlay.
   final double boardSize;
+
+  /// Orientation of the board.
   final Side orientation;
 
   double get squareSize => boardSize / 8;
