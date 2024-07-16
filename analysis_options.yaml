@@ -9,10 +9,6 @@ analyzer:
 
 linter:
   rules:
-    avoid_print: false
     directives_ordering: false
     always_use_package_imports: false
     prefer_single_quotes: true
-
-# Additional information about this file can be found at
-# https://dart.dev/guides/language/analysis-options
