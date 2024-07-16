@@ -2,9 +2,6 @@ import 'package:flutter/widgets.dart';
 import '../models.dart';
 import './piece.dart';
 
-@Deprecated('Use AnimatedPieceTranslation instead')
-typedef PieceTranslation = AnimatedPieceTranslation;
-
 /// A widget that animates the translation of a piece from one square to another.
 ///
 /// The piece will move from [fromCoord] to [toCoord] with the given [orientation].
@@ -89,9 +86,6 @@ class _PieceTranslationState extends State<AnimatedPieceTranslation>
     );
   }
 }
-
-@Deprecated('Use AnimatedPieceFadeOut instead')
-typedef PieceFadeOut = AnimatedPieceFadeOut;
 
 /// A widget that plays a fade out animation on a piece.
 class AnimatedPieceFadeOut extends StatefulWidget {

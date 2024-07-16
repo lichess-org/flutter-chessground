@@ -6,8 +6,6 @@ import '../models.dart';
 ///
 /// This is typically used to display move annotations, such as "!!" or "??".
 class BoardAnnotation extends StatefulWidget {
-  final Annotation annotation;
-
   const BoardAnnotation({
     required this.annotation,
     required this.squareSize,
@@ -16,6 +14,7 @@ class BoardAnnotation extends StatefulWidget {
     super.key,
   });
 
+  final Annotation annotation;
   final double squareSize;
   final Side orientation;
   final SquareId squareId;
