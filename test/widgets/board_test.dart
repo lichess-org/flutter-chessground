@@ -106,6 +106,33 @@ void main() {
       expect(find.byKey(const Key('e4-lastMove')), findsOneWidget);
     });
 
+    testWidgets('Cannot move by tap if piece shift method is drag',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(
+        buildBoard(
+          initialInteractableSide: InteractableSide.both,
+          pieceShiftMethod: PieceShiftMethod.drag,
+        ),
+      );
+      await tester.tap(find.byKey(const Key('e2-whitePawn')));
+      await tester.pump();
+
+      // Tapping a square should have no effect...
+      expect(find.byKey(const Key('e2-selected')), findsNothing);
+      expect(find.byType(MoveDest), findsNothing);
+
+      // ... but move by drag should work
+      await tester.dragFrom(
+        squareOffset('e2'),
+        const Offset(0, -(squareSize * 2)),
+      );
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('e4-whitePawn')), findsOneWidget);
+      expect(find.byKey(const Key('e2-whitePawn')), findsNothing);
+      expect(find.byKey(const Key('e2-lastMove')), findsOneWidget);
+      expect(find.byKey(const Key('e4-lastMove')), findsOneWidget);
+    });
+
     testWidgets('castling by taping king then rook is possible',
         (WidgetTester tester) async {
       await tester.pumpWidget(
@@ -164,6 +191,40 @@ void main() {
         const Offset(0, -(squareSize * 2)),
       );
       await tester.pumpAndSettle();
+      expect(find.byKey(const Key('e4-whitePawn')), findsOneWidget);
+      expect(find.byKey(const Key('e2-whitePawn')), findsNothing);
+      expect(find.byKey(const Key('e2-lastMove')), findsOneWidget);
+      expect(find.byKey(const Key('e4-lastMove')), findsOneWidget);
+    });
+
+    testWidgets('Cannot move by drag if piece shift method is tapTwoSquares', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        buildBoard(
+          initialInteractableSide: InteractableSide.both,
+          pieceShiftMethod: PieceShiftMethod.tapTwoSquares,
+        ),
+      );
+      await tester.dragFrom(
+        squareOffset('e2'),
+        const Offset(0, -(squareSize * 2)),
+      );
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('e4-whitePawn')), findsNothing);
+      expect(find.byKey(const Key('e2-whitePawn')), findsOneWidget);
+      expect(find.byKey(const Key('e2-lastMove')), findsNothing);
+      expect(find.byKey(const Key('e4-lastMove')), findsNothing);
+
+      // Original square is still selected after drag attempt
+      expect(find.byKey(const Key('e2-selected')), findsOneWidget);
+      expect(find.byType(MoveDest), findsNWidgets(2));
+
+      // ...so we can still tap to move
+      await tester.tapAt(squareOffset('e4'));
+      await tester.pump();
+      expect(find.byKey(const Key('e2-selected')), findsNothing);
+      expect(find.byType(MoveDest), findsNothing);
       expect(find.byKey(const Key('e4-whitePawn')), findsOneWidget);
       expect(find.byKey(const Key('e2-whitePawn')), findsNothing);
       expect(find.byKey(const Key('e2-lastMove')), findsOneWidget);
@@ -859,6 +920,7 @@ Widget buildBoard({
   String initialFen = dc.kInitialFEN,
   ISet<Shape>? initialShapes,
   bool enableDrawingShapes = false,
+  PieceShiftMethod pieceShiftMethod = PieceShiftMethod.either,
 
   /// play the first available move for the opponent after a delay of 200ms
   bool shouldPlayOpponentMove = false,
@@ -884,6 +946,7 @@ Widget buildBoard({
             },
             newShapeColor: const Color(0xFF0000FF),
           ),
+          pieceShiftMethod: pieceShiftMethod,
         );
 
         return Board(

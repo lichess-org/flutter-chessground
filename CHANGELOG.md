@@ -1,3 +1,7 @@
+## 3.2.0
+
+- Add `pieceShiftMethod` to `BoardSetttings`, with possible values: `either` (default), `drag`, or `tapTwoSquares`.
+
 ## 3.1.2
 
 - Any simultaneous touch on the board will now cancel the current piece

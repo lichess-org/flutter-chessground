@@ -5,6 +5,18 @@ import 'models.dart';
 import 'piece_set.dart';
 import 'draw_shape_options.dart';
 
+/// Describes how moves are made on an interactive board.
+enum PieceShiftMethod {
+  /// First tap the piece to be moved, then tap the target square.
+  tapTwoSquares,
+
+  /// Drag-and-drop the piece to the target square.
+  drag,
+
+  /// Both tap and drag are enabled.
+  either;
+}
+
 /// Board settings that control the theme, behavior and purpose of the board.
 ///
 /// This is meant for fixed settings that don't change during a game. Sensible
@@ -33,6 +45,7 @@ class BoardSettings {
     this.enablePremoveCastling = true,
     this.autoQueenPromotion = false,
     this.autoQueenPromotionOnPremove = true,
+    this.pieceShiftMethod = PieceShiftMethod.either,
   });
 
   /// Theme of the board
@@ -79,6 +92,9 @@ class BoardSettings {
   /// automatically to queen only if the premove is confirmed
   final bool autoQueenPromotionOnPremove;
 
+  /// Controls how moves are made.
+  final PieceShiftMethod pieceShiftMethod;
+
   /// Shape drawing options object containing data about how new shapes can be drawn.
   final DrawShapeOptions drawShape;
 
@@ -105,6 +121,7 @@ class BoardSettings {
         other.enablePremoveCastling == enablePremoveCastling &&
         other.autoQueenPromotion == autoQueenPromotion &&
         other.autoQueenPromotionOnPremove == autoQueenPromotionOnPremove &&
+        other.pieceShiftMethod == pieceShiftMethod &&
         other.drawShape == drawShape;
   }
 
@@ -124,6 +141,7 @@ class BoardSettings {
         enablePremoveCastling,
         autoQueenPromotion,
         autoQueenPromotionOnPremove,
+        pieceShiftMethod,
         drawShape,
       );
 
@@ -142,6 +160,7 @@ class BoardSettings {
     bool? enablePremoveCastling,
     bool? autoQueenPromotion,
     bool? autoQueenPromotionOnPremove,
+    PieceShiftMethod? pieceShiftMethod,
     DrawShapeOptions? drawShape,
   }) {
     return BoardSettings(
@@ -161,6 +180,7 @@ class BoardSettings {
       autoQueenPromotionOnPremove:
           autoQueenPromotionOnPremove ?? this.autoQueenPromotionOnPremove,
       autoQueenPromotion: autoQueenPromotion ?? this.autoQueenPromotion,
+      pieceShiftMethod: pieceShiftMethod ?? this.pieceShiftMethod,
       drawShape: drawShape ?? this.drawShape,
     );
   }
