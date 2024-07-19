@@ -91,18 +91,26 @@ typedef Pieces = Map<SquareId, Piece>;
 typedef ValidMoves = IMap<SquareId, ISet<SquareId>>;
 
 /// Files of the chessboard.
+///
+/// This is an immutable list of strings from 'a' to 'h'.
 const files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
 
 /// Ranks of the chessboard.
+///
+/// This is an immutable list of strings from '1' to '8'.
 const ranks = ['1', '2', '3', '4', '5', '6', '7', '8'];
 
 /// All the squares of the chessboard.
+///
+/// This is an immutable list of strings from 'a1' to 'h8'.
 final List<SquareId> allSquares = List.unmodifiable([
   for (final f in files)
     for (final r in ranks) '$f$r',
 ]);
 
 /// All the coordinates of the chessboard.
+///
+/// This is an immutable list of [Coord] from (0, 0) to (7, 7).
 final List<Coord> allCoords = List.unmodifiable([
   for (final f in files)
     for (final r in ranks) Coord.fromSquareId('$f$r'),
