@@ -1,3 +1,7 @@
+## 3.3.0
+
+- Add a `BoardEditor` widget, intended to be used as the basis for a board editor like lichess.org/editor
+
 ## 3.2.0
 
 - Add `pieceShiftMethod` to `BoardSetttings`, with possible values: `either` (default), `drag`, or `tapTwoSquares`.
