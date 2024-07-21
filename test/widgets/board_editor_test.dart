@@ -23,18 +23,18 @@ void main() {
       await tester.pumpWidget(
         buildBoard(
           pieces: {
-            'a1': Piece.whiteKing,
-            'b2': Piece.whiteQueen,
-            'c3': Piece.whiteRook,
-            'd4': Piece.whiteBishop,
-            'e5': Piece.whiteKnight,
-            'f6': Piece.whitePawn,
-            'a2': Piece.blackKing,
-            'a3': Piece.blackQueen,
-            'a4': Piece.blackRook,
-            'a5': Piece.blackBishop,
-            'a6': Piece.blackKnight,
-            'a7': Piece.blackPawn,
+            const SquareId('a1'): Piece.whiteKing,
+            const SquareId('b2'): Piece.whiteQueen,
+            const SquareId('c3'): Piece.whiteRook,
+            const SquareId('d4'): Piece.whiteBishop,
+            const SquareId('e5'): Piece.whiteKnight,
+            const SquareId('f6'): Piece.whitePawn,
+            const SquareId('a2'): Piece.blackKing,
+            const SquareId('a3'): Piece.blackQueen,
+            const SquareId('a4'): Piece.blackRook,
+            const SquareId('a5'): Piece.blackBishop,
+            const SquareId('a6'): Piece.blackKnight,
+            const SquareId('a7'): Piece.blackPawn,
           },
         ),
       );
@@ -67,10 +67,14 @@ void main() {
           ),
         );
 
-        await tester.tapAt(squareOffset('a1', orientation: orientation));
+        await tester.tapAt(
+          squareOffset(const SquareId('a1'), orientation: orientation),
+        );
         expect(tappedSquare, 'a1');
 
-        await tester.tapAt(squareOffset('g8', orientation: orientation));
+        await tester.tapAt(
+          squareOffset(const SquareId('g8'), orientation: orientation),
+        );
         expect(tappedSquare, 'g8');
       }
     });
@@ -89,7 +93,7 @@ void main() {
 
       // Drag an empty square => nothing happens
       await tester.dragFrom(
-        squareOffset('e4'),
+        squareOffset(const SquareId('e4')),
         const Offset(0, -(squareSize * 2)),
       );
       await tester.pumpAndSettle();
@@ -97,7 +101,7 @@ void main() {
 
       // Play e2-e4 (legal move)
       await tester.dragFrom(
-        squareOffset('e2'),
+        squareOffset(const SquareId('e2')),
         const Offset(0, -(squareSize * 2)),
       );
       await tester.pumpAndSettle();
@@ -105,7 +109,7 @@ void main() {
 
       // Capture our own piece (illegal move)
       await tester.dragFrom(
-        squareOffset('a1'),
+        squareOffset(const SquareId('a1')),
         const Offset(squareSize, 0),
       );
       expect(callbackParams, ('a1', 'b1', Piece.whiteRook));
@@ -168,7 +172,7 @@ void main() {
       );
 
       await tester.dragFrom(
-        squareOffset('e1'),
+        squareOffset(const SquareId('e1')),
         const Offset(0, squareSize),
       );
       await tester.pumpAndSettle();
@@ -198,6 +202,6 @@ Widget buildBoard({
 }
 
 Offset squareOffset(SquareId id, {Side orientation = Side.white}) {
-  final o = Coord.fromSquareId(id).offset(orientation, squareSize);
+  final o = id.coord.offset(orientation, squareSize);
   return Offset(o.dx + squareSize / 2, o.dy + squareSize / 2);
 }

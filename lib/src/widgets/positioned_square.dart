@@ -23,7 +23,7 @@ class PositionedSquare extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final offset = Coord.fromSquareId(squareId).offset(orientation, size);
+    final offset = squareId.coord.offset(orientation, size);
     return Positioned(
       width: size,
       height: size,

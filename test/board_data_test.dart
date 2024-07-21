@@ -117,7 +117,7 @@ void main() {
         orientation: Side.white,
         fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
         sideToMove: Side.white,
-        lastMove: Move(from: 'e2', to: 'e4'),
+        lastMove: Move(from: SquareId('e2'), to: SquareId('e4')),
       );
 
       // pass null values to non-nullable fields should not change the field

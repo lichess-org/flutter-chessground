@@ -34,12 +34,11 @@ class PromotionSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final file = squareId[0];
-    final rank = squareId[1];
-    final coord = (orientation == Side.white && rank == '8' ||
-            orientation == Side.black && rank == '1')
-        ? Coord.fromSquareId(squareId)
-        : Coord.fromSquareId(file + (orientation == Side.white ? '4' : '5'));
+    final coord = (orientation == Side.white && squareId.rank == '8' ||
+            orientation == Side.black && squareId.rank == '1')
+        ? squareId.coord
+        : SquareId(squareId.file + (orientation == Side.white ? '4' : '5'))
+            .coord;
     final offset = coord.offset(orientation, squareSize);
 
     return GestureDetector(

@@ -298,8 +298,7 @@ class _HomePageState extends State<HomePage> {
                               ? () => setState(() {
                                     position = lastPos!;
                                     fen = position.fen;
-                                    validMoves =
-                                        dc.algebraicLegalMoves(position);
+                                    validMoves = algebraicLegalMoves(position);
                                     lastPos = null;
                                   })
                               : null,
@@ -365,7 +364,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void initState() {
-    validMoves = dc.algebraicLegalMoves(position);
+    validMoves = algebraicLegalMoves(position);
     super.initState();
   }
 
@@ -382,7 +381,7 @@ class _HomePageState extends State<HomePage> {
       position = position.playUnchecked(m);
       lastMove = move;
       fen = position.fen;
-      validMoves = dc.algebraicLegalMoves(position);
+      validMoves = algebraicLegalMoves(position);
     });
   }
 
@@ -414,13 +413,47 @@ class _HomePageState extends State<HomePage> {
         final mv = (allMoves..shuffle()).first;
         setState(() {
           position = position.playUnchecked(mv);
-          lastMove =
-              Move(from: dc.toAlgebraic(mv.from), to: dc.toAlgebraic(mv.to));
+          lastMove = Move(
+              from: SquareId(dc.toAlgebraic(mv.from)),
+              to: SquareId(dc.toAlgebraic(mv.to)));
           fen = position.fen;
-          validMoves = dc.algebraicLegalMoves(position);
+          validMoves = algebraicLegalMoves(position);
         });
         lastPos = position;
       }
     }
   }
+}
+
+/// Gets all the legal moves of this position in the algebraic coordinate notation.
+///
+/// Includes both possible representations of castling moves (unless `chess960` is true).
+IMap<SquareId, ISet<SquareId>> algebraicLegalMoves(
+  dc.Position pos, {
+  bool isChess960 = false,
+}) {
+  final Map<SquareId, ISet<SquareId>> result = {};
+  for (final entry in pos.legalMoves.entries) {
+    final dests = entry.value.squares;
+    if (dests.isNotEmpty) {
+      final from = entry.key;
+      final destSet = dests.map((e) => SquareId(dc.toAlgebraic(e))).toSet();
+      if (!isChess960 &&
+          from == pos.board.kingOf(pos.turn) &&
+          dc.squareFile(entry.key) == 4) {
+        if (dests.contains(0)) {
+          destSet.add(const SquareId('c1'));
+        } else if (dests.contains(56)) {
+          destSet.add(const SquareId('c8'));
+        }
+        if (dests.contains(7)) {
+          destSet.add(const SquareId('g1'));
+        } else if (dests.contains(63)) {
+          destSet.add(const SquareId('g8'));
+        }
+      }
+      result[SquareId(dc.toAlgebraic(from))] = ISet(destSet);
+    }
+  }
+  return IMap(result);
 }

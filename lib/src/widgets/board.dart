@@ -55,7 +55,8 @@ class Board extends StatefulWidget {
 
   double get squareSize => size / 8;
 
-  Coord? localOffset2Coord(Offset offset) {
+  /// Converts a board offset to a coordinate if it is within the board bounds.
+  Coord? _localOffsetCoord(Offset offset) {
     final x = (offset.dx / squareSize).floor();
     final y = (offset.dy / squareSize).floor();
     final orientX = data.orientation == Side.black ? 7 - x : x;
@@ -67,8 +68,9 @@ class Board extends StatefulWidget {
     }
   }
 
-  SquareId? localOffset2SquareId(Offset offset) {
-    final coord = localOffset2Coord(offset);
+  /// Converts a board offset to a square id if it is within the board bounds.
+  SquareId? _localOffsetSquareId(Offset offset) {
+    final coord = _localOffsetCoord(offset);
     return coord?.squareId;
   }
 
@@ -79,8 +81,8 @@ class Board extends StatefulWidget {
 
 class _BoardState extends State<Board> {
   Pieces pieces = {};
-  Map<String, (PositionedPiece, PositionedPiece)> translatingPieces = {};
-  Map<String, Piece> fadingPieces = {};
+  Map<SquareId, (PositionedPiece, PositionedPiece)> translatingPieces = {};
+  Map<SquareId, Piece> fadingPieces = {};
   SquareId? selected;
   Move? _promotionMove;
   Move? _lastDrop;
@@ -396,14 +398,14 @@ class _BoardState extends State<Board> {
     final newPieces = readFen(widget.data.fen);
     final List<PositionedPiece> newOnSquare = [];
     final List<PositionedPiece> missingOnSquare = [];
-    final Set<String> animatedOrigins = {};
+    final Set<SquareId> animatedOrigins = {};
     for (final s in allSquares) {
       if (s == _lastDrop?.from || s == _lastDrop?.to) {
         continue;
       }
       final oldP = pieces[s];
       final newP = newPieces[s];
-      final squareCoord = Coord.fromSquareId(s);
+      final squareCoord = s.coord;
       if (newP != null) {
         if (oldP != null) {
           if (newP != oldP) {
@@ -454,7 +456,7 @@ class _BoardState extends State<Board> {
 
   /// Returns the position of the square target during drag as a global offset.
   Offset? _squareTargetGlobalOffset(Offset localPosition, RenderBox box) {
-    final coord = widget.localOffset2Coord(localPosition);
+    final coord = widget._localOffsetCoord(localPosition);
     if (coord == null) return null;
     final localOffset =
         coord.offset(widget.data.orientation, widget.squareSize);
@@ -468,7 +470,7 @@ class _BoardState extends State<Board> {
   void _onPointerDown(PointerDownEvent details) {
     if (details.buttons != kPrimaryButton) return;
 
-    final squareId = widget.localOffset2SquareId(details.localPosition);
+    final squareId = widget._localOffsetSquareId(details.localPosition);
     if (squareId == null) return;
 
     final Piece? piece = pieces[squareId];
@@ -573,7 +575,7 @@ class _BoardState extends State<Board> {
         _drawOrigin!.pointer == details.pointer) {
       final distance = (details.position - _drawOrigin!.position).distance;
       if (distance > _kDragDistanceThreshold) {
-        final squareId = widget.localOffset2SquareId(details.localPosition);
+        final squareId = widget._localOffsetSquareId(details.localPosition);
         if (squareId == null) return;
         setState(() {
           _shapeAvatar = _shapeAvatar!.newDest(squareId);
@@ -620,7 +622,7 @@ class _BoardState extends State<Board> {
 
     if (_dragAvatar != null && _renderBox != null) {
       final localPos = _renderBox!.globalToLocal(_dragAvatar!._position);
-      final squareId = widget.localOffset2SquareId(localPos);
+      final squareId = widget._localOffsetSquareId(localPos);
       if (squareId != null && squareId != selected) {
         _tryMoveOrPremoveTo(squareId, drop: true);
       }
@@ -631,7 +633,7 @@ class _BoardState extends State<Board> {
         _premoveDests = null;
       });
     } else if (selected != null) {
-      final squareId = widget.localOffset2SquareId(details.localPosition);
+      final squareId = widget._localOffsetSquareId(details.localPosition);
       if (squareId == selected && _shouldDeselectOnTapUp) {
         _shouldDeselectOnTapUp = false;
         setState(() {
@@ -671,7 +673,7 @@ class _BoardState extends State<Board> {
   }
 
   void _onDragStart(PointerEvent origin) {
-    final squareId = widget.localOffset2SquareId(origin.localPosition);
+    final squareId = widget._localOffsetSquareId(origin.localPosition);
     final piece = squareId != null ? pieces[squareId] : null;
     if (squareId != null &&
         piece != null &&
@@ -786,7 +788,7 @@ class _BoardState extends State<Board> {
   }
 
   bool _isPromoMove(Piece piece, SquareId targetSquareId) {
-    final rank = targetSquareId[1];
+    final rank = targetSquareId.rank;
     return piece.role == Role.pawn && (rank == '1' || rank == '8');
   }
 
@@ -926,6 +928,6 @@ class _DragAvatar {
   }
 }
 
-const ISet<String> _emptyValidMoves = ISetConst({});
+const ISet<SquareId> _emptyValidMoves = ISetConst({});
 const ISet<Shape> _emptyShapes = ISetConst({});
 const IMap<SquareId, Annotation> _emptyAnnotations = IMapConst({});

@@ -43,8 +43,8 @@ class ShapeWidget extends StatelessWidget {
             painter: _ArrowPainter(
               color,
               orientation,
-              Coord.fromSquareId(orig),
-              Coord.fromSquareId(dest),
+              orig.coord,
+              dest.coord,
               scale,
             ),
           ),
@@ -56,7 +56,7 @@ class ShapeWidget extends StatelessWidget {
             painter: _CirclePainter(
               color,
               orientation,
-              Coord.fromSquareId(orig),
+              orig.coord,
               scale,
             ),
           ),

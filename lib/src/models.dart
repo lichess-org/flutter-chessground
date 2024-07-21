@@ -82,7 +82,90 @@ enum PieceKind {
 typedef PieceAssets = IMap<PieceKind, AssetImage>;
 
 /// Square identifier using the algebraic coordinate notation such as e2, c3, etc.
-typedef SquareId = String;
+extension type const SquareId._(String value) {
+  const SquareId(this.value)
+      : assert(
+          value == 'a1' ||
+              value == 'a2' ||
+              value == 'a3' ||
+              value == 'a4' ||
+              value == 'a5' ||
+              value == 'a6' ||
+              value == 'a7' ||
+              value == 'a8' ||
+              value == 'b1' ||
+              value == 'b2' ||
+              value == 'b3' ||
+              value == 'b4' ||
+              value == 'b5' ||
+              value == 'b6' ||
+              value == 'b7' ||
+              value == 'b8' ||
+              value == 'c1' ||
+              value == 'c2' ||
+              value == 'c3' ||
+              value == 'c4' ||
+              value == 'c5' ||
+              value == 'c6' ||
+              value == 'c7' ||
+              value == 'c8' ||
+              value == 'd1' ||
+              value == 'd2' ||
+              value == 'd3' ||
+              value == 'd4' ||
+              value == 'd5' ||
+              value == 'd6' ||
+              value == 'd7' ||
+              value == 'd8' ||
+              value == 'e1' ||
+              value == 'e2' ||
+              value == 'e3' ||
+              value == 'e4' ||
+              value == 'e5' ||
+              value == 'e6' ||
+              value == 'e7' ||
+              value == 'e8' ||
+              value == 'f1' ||
+              value == 'f2' ||
+              value == 'f3' ||
+              value == 'f4' ||
+              value == 'f5' ||
+              value == 'f6' ||
+              value == 'f7' ||
+              value == 'f8' ||
+              value == 'g1' ||
+              value == 'g2' ||
+              value == 'g3' ||
+              value == 'g4' ||
+              value == 'g5' ||
+              value == 'g6' ||
+              value == 'g7' ||
+              value == 'g8' ||
+              value == 'h1' ||
+              value == 'h2' ||
+              value == 'h3' ||
+              value == 'h4' ||
+              value == 'h5' ||
+              value == 'h6' ||
+              value == 'h7' ||
+              value == 'h8',
+        );
+
+  /// The file of the square, such as 'a', 'b', 'c', etc.
+  String get file => value[0];
+
+  /// The rank of the square, such as '1', '2', '3', etc.
+  String get rank => value[1];
+
+  /// The x-coordinate of the square on the board.
+  int get x => value.codeUnitAt(0) - 97;
+
+  /// The y-coordinate of the square on the board.
+  int get y => value.codeUnitAt(1) - 49;
+
+  /// The coordinate of the square on the board.
+  Coord get coord => Coord(x: x, y: y);
+}
 
 /// Representation of the piece positions on a board.
 typedef Pieces = Map<SquareId, Piece>;
@@ -102,10 +185,10 @@ const ranks = ['1', '2', '3', '4', '5', '6', '7', '8'];
 
 /// All the squares of the chessboard.
 ///
-/// This is an immutable list of strings from 'a1' to 'h8'.
+/// This is an immutable list of [SquareId] from 'a1' to 'h8'.
 final List<SquareId> allSquares = List.unmodifiable([
   for (final f in files)
-    for (final r in ranks) '$f$r',
+    for (final r in ranks) SquareId('$f$r'),
 ]);
 
 /// All the coordinates of the chessboard.
@@ -113,7 +196,7 @@ final List<SquareId> allSquares = List.unmodifiable([
 /// This is an immutable list of [Coord] from (0, 0) to (7, 7).
 final List<Coord> allCoords = List.unmodifiable([
   for (final f in files)
-    for (final r in ranks) Coord.fromSquareId('$f$r'),
+    for (final r in ranks) SquareId('$f$r').coord,
 ]);
 
 /// Square highlight color or image on the chessboard.
@@ -143,12 +226,10 @@ class Coord {
   })  : assert(x >= 0 && x <= 7),
         assert(y >= 0 && y <= 7);
 
-  /// Construct a [Coord] from a square identifier such as 'e2', 'c3', etc.
-  Coord.fromSquareId(SquareId id)
-      : x = id.codeUnitAt(0) - 97,
-        y = id.codeUnitAt(1) - 49;
-
+  /// The x-coordinate of the coordinate.
   final int x;
+
+  /// The y-coordinate of the coordinate.
   final int y;
 
   /// Gets the square identifier of the coordinate.
@@ -278,8 +359,8 @@ class Move {
   });
 
   Move.fromUci(String uci)
-      : from = uci.substring(0, 2),
-        to = uci.substring(2, 4),
+      : from = SquareId(uci.substring(0, 2)),
+        to = SquareId(uci.substring(2, 4)),
         promotion = uci.length > 4 ? _toRole(uci.substring(4)) : null;
 
   final SquareId from;
