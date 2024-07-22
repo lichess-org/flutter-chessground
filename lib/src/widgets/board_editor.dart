@@ -113,12 +113,16 @@ class _BoardEditorState extends State<ChessBoardEditor> {
                   Draggable(
                     hitTestBehavior: HitTestBehavior.translucent,
                     data: piece,
-                    feedback: PieceDragFeedback(
-                      piece: piece,
+                    feedback: BoardDragFeedback(
                       squareSize: widget.squareSize,
-                      size: widget.settings.dragFeedbackSize,
+                      scale: widget.settings.dragFeedbackScale,
                       offset: widget.settings.dragFeedbackOffset,
-                      pieceAssets: widget.settings.pieceAssets,
+                      child: PieceWidget(
+                        piece: piece,
+                        size: widget.squareSize *
+                            widget.settings.dragFeedbackScale,
+                        pieceAssets: widget.settings.pieceAssets,
+                      ),
                     ),
                     childWhenDragging: const SizedBox.shrink(),
                     onDragStarted: () => draggedPieceOrigin = squareId,

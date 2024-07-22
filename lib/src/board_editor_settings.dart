@@ -19,7 +19,7 @@ class BoardEditorSettings {
     this.borderRadius = BorderRadius.zero,
     this.boxShadow = const <BoxShadow>[],
     this.enableCoordinates = true,
-    this.dragFeedbackSize = 2.0,
+    this.dragFeedbackScale = 2.0,
     this.dragFeedbackOffset = const Offset(0.0, -1.0),
   });
 
@@ -39,7 +39,7 @@ class BoardEditorSettings {
   final bool enableCoordinates;
 
   // Scale up factor for the piece currently under drag.
-  final double dragFeedbackSize;
+  final double dragFeedbackScale;
 
   // Offset for the piece currently under drag.
   final Offset dragFeedbackOffset;
@@ -58,7 +58,7 @@ class BoardEditorSettings {
         other.borderRadius == borderRadius &&
         other.boxShadow == boxShadow &&
         other.enableCoordinates == enableCoordinates &&
-        other.dragFeedbackSize == dragFeedbackSize &&
+        other.dragFeedbackScale == dragFeedbackScale &&
         other.dragFeedbackOffset == dragFeedbackOffset;
   }
 
@@ -69,7 +69,7 @@ class BoardEditorSettings {
         borderRadius,
         boxShadow,
         enableCoordinates,
-        dragFeedbackSize,
+        dragFeedbackScale,
         dragFeedbackOffset,
       );
 
@@ -80,7 +80,7 @@ class BoardEditorSettings {
     BorderRadiusGeometry? borderRadius,
     List<BoxShadow>? boxShadow,
     bool? enableCoordinates,
-    double? dragFeedbackSize,
+    double? dragFeedbackScale,
     Offset? dragFeedbackOffset,
   }) {
     return BoardEditorSettings(
@@ -89,7 +89,7 @@ class BoardEditorSettings {
       borderRadius: borderRadius ?? this.borderRadius,
       boxShadow: boxShadow ?? this.boxShadow,
       enableCoordinates: enableCoordinates ?? this.enableCoordinates,
-      dragFeedbackSize: dragFeedbackSize ?? this.dragFeedbackSize,
+      dragFeedbackScale: dragFeedbackScale ?? this.dragFeedbackScale,
       dragFeedbackOffset: dragFeedbackOffset ?? this.dragFeedbackOffset,
     );
   }

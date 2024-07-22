@@ -143,7 +143,7 @@ class _HomePageState extends State<HomePage> {
                 animationDuration: pieceAnimation
                     ? const Duration(milliseconds: 200)
                     : Duration.zero,
-                dragFeedbackSize: dragMagnify ? 2.0 : 1.0,
+                dragFeedbackScale: dragMagnify ? 2.0 : 1.0,
                 drawShape: DrawShapeOptions(
                   enable: drawMode,
                   onCompleteShape: _onCompleteShape,

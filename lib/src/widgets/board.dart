@@ -713,12 +713,17 @@ class _BoardState extends State<ChessBoard> {
             shape: BoxShape.circle,
           ),
         ),
-        pieceFeedback: PieceDragFeedback(
-          piece: piece,
+        pieceFeedback: BoardDragFeedback(
           squareSize: widget.squareSize,
-          pieceAssets: widget.settings.pieceAssets,
-          size: widget.settings.dragFeedbackSize,
+          scale: widget.settings.dragFeedbackScale,
           offset: widget.settings.dragFeedbackOffset,
+          child: PieceWidget(
+            piece: piece,
+            size: widget.squareSize * widget.settings.dragFeedbackScale,
+            pieceAssets: widget.settings.pieceAssets,
+            blindfoldMode: widget.settings.blindfoldMode,
+            upsideDown: _isUpsideDown(piece),
+          ),
         ),
       );
     }
