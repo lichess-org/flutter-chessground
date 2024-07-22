@@ -14,8 +14,9 @@ class BoardEditorPage extends StatefulWidget {
 class _BoardEditorPageState extends State<BoardEditorPage> {
   Pieces pieces = readFen(dc.kInitialFEN);
 
+  /// The piece to add when a square is touched. If null, will delete the piece.
   dc.Piece? pieceToAddOnTouch;
-  bool deleteOnTouch = false;
+
   PointerToolMode pointerMode = PointerToolMode.drag;
 
   @override
@@ -36,10 +37,10 @@ class _BoardEditorPageState extends State<BoardEditorPage> {
       settings: settings,
       pointerToolMode: pointerMode,
       onTouchedSquare: (squareId) => setState(() {
-        if (deleteOnTouch) {
-          pieces.remove(squareId);
-        } else if (pieceToAddOnTouch != null) {
+        if (pieceToAddOnTouch != null) {
           pieces[squareId] = pieceToAddOnTouch!;
+        } else {
+          pieces.remove(squareId);
         }
       }),
       onDiscardedPiece: (squareId) => setState(() {
@@ -58,23 +59,19 @@ class _BoardEditorPageState extends State<BoardEditorPage> {
           pieceSet: pieceSet,
           squareSize: boardEditor.squareSize,
           settings: settings,
-          selectedPiece:
+          pieceEdition:
               pointerMode == PointerToolMode.edit ? pieceToAddOnTouch : null,
           pieceTapped: (role) => setState(() {
             pieceToAddOnTouch = dc.Piece(role: role, color: side);
-            deleteOnTouch = false;
             pointerMode = PointerToolMode.edit;
           }),
-          deleteOnTouch: deleteOnTouch,
           pointerMode: pointerMode,
           deleteTapped: () => setState(() {
             pieceToAddOnTouch = null;
-            deleteOnTouch = !deleteOnTouch;
             pointerMode = PointerToolMode.edit;
           }),
           pointerModeTapped: () => setState(() {
             pointerMode = PointerToolMode.drag;
-            deleteOnTouch = false;
           }),
         );
 
@@ -107,8 +104,7 @@ class PieceMenu extends StatelessWidget {
     required this.side,
     required this.pieceSet,
     required this.squareSize,
-    required this.selectedPiece,
-    required this.deleteOnTouch,
+    required this.pieceEdition,
     required this.pointerMode,
     required this.settings,
     required this.pieceTapped,
@@ -119,8 +115,12 @@ class PieceMenu extends StatelessWidget {
   final dc.Side side;
   final PieceSet pieceSet;
   final double squareSize;
-  final dc.Piece? selectedPiece;
-  final bool deleteOnTouch;
+
+  /// The piece that is currently being edited.
+  ///
+  /// If null while [pointerMode] is [PointerToolMode.edit], the user is in delete mode.
+  final dc.Piece? pieceEdition;
+
   final PointerToolMode pointerMode;
   final BoardEditorSettings settings;
   final Function(dc.Role role) pieceTapped;
@@ -156,8 +156,7 @@ class PieceMenu extends StatelessWidget {
               );
 
               return Container(
-                color:
-                    selectedPiece == piece ? Colors.blue : Colors.transparent,
+                color: pieceEdition == piece ? Colors.blue : Colors.transparent,
                 child: GestureDetector(
                   onTap: () => pieceTapped(role),
                   child: Draggable(
@@ -173,7 +172,7 @@ class PieceMenu extends StatelessWidget {
             },
           ).toList(),
           Container(
-            color: pointerMode == PointerToolMode.edit && deleteOnTouch
+            color: pointerMode == PointerToolMode.edit && pieceEdition == null
                 ? Colors.red
                 : Colors.transparent,
             child: GestureDetector(
