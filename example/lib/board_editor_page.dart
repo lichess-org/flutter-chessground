@@ -48,7 +48,7 @@ class _BoardEditorPageState extends State<BoardEditorPage> {
       }),
       onDroppedPiece: (origin, destination, piece) => setState(() {
         pieces[destination] = piece;
-        if (origin != null) {
+        if (origin != null && origin != destination) {
           pieces.remove(origin);
         }
       }),
