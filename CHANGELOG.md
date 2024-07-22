@@ -5,6 +5,7 @@
   common types: `Role`, `Side` and `Piece`. It is not used for any chess logic.
 - `SquareId` is now an extension type on String.
 - `Board` was renamed to `ChessBoard`.
+- `Move` was renamed to `BoardMove`.
 - Add the `writeFen` helper function.
 - Add the `legalMovesOf` helper function to convert a dartchess `Position` to a
   set of valid moves compatible with Chessground.
