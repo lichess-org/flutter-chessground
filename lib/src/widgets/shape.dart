@@ -73,7 +73,7 @@ class ShapeWidget extends StatelessWidget {
           orientation: orientation,
           squareId: orig,
           child: Image.asset(
-            'assets/piece_sets/mono/${role.letter}.png',
+            'assets/piece_sets/mono/${role.uppercaseLetter}.png',
             package: 'chessground',
             color: color,
             width: scale * squareSize,
