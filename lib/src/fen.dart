@@ -1,3 +1,4 @@
+import 'package:dartchess/dartchess.dart' show Piece, Role, Side;
 import 'package:flutter/widgets.dart';
 import 'models.dart';
 
@@ -55,8 +56,8 @@ String writeFen(Pieces pieces) {
         }
         buffer.write(
           piece.color == Side.white
-              ? piece.role.letter.toUpperCase()
-              : piece.role.letter.toLowerCase(),
+              ? piece.role.uppercaseLetter
+              : piece.role.letter,
         );
       }
 

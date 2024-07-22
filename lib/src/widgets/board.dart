@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:chessground/src/widgets/drag.dart';
+import 'package:dartchess/dartchess.dart' show Piece, Role, Side;
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
@@ -26,8 +27,8 @@ const _kCancelShapesDoubleTapDelay = Duration(milliseconds: 200);
 ///
 /// This widget can be used to display a static board, a dynamic board that
 /// shows a live game, or a full user interactable board.
-class Board extends StatefulWidget {
-  const Board({
+class ChessBoard extends StatefulWidget {
+  const ChessBoard({
     super.key,
     required this.size,
     required this.data,
@@ -46,12 +47,12 @@ class Board extends StatefulWidget {
   final BoardData data;
 
   /// Callback called after a move has been made.
-  final void Function(Move, {bool? isDrop, bool? isPremove})? onMove;
+  final void Function(BoardMove, {bool? isDrop, bool? isPremove})? onMove;
 
   /// Callback called after a premove has been set/unset.
   ///
   /// If the callback is null, the board will not allow premoves.
-  final void Function(Move?)? onPremove;
+  final void Function(BoardMove?)? onPremove;
 
   double get squareSize => size / 8;
 
@@ -79,13 +80,13 @@ class Board extends StatefulWidget {
   _BoardState createState() => _BoardState();
 }
 
-class _BoardState extends State<Board> {
+class _BoardState extends State<ChessBoard> {
   Pieces pieces = {};
   Map<SquareId, (PositionedPiece, PositionedPiece)> translatingPieces = {};
   Map<SquareId, Piece> fadingPieces = {};
   SquareId? selected;
-  Move? _promotionMove;
-  Move? _lastDrop;
+  BoardMove? _promotionMove;
+  BoardMove? _lastDrop;
   Set<SquareId>? _premoveDests;
 
   bool _shouldDeselectOnTapUp = false;
@@ -224,7 +225,7 @@ class _BoardState extends State<Board> {
     final List<Widget> objects = [
       for (final entry in fadingPieces.entries)
         PositionedSquare(
-          key: ValueKey('${entry.key}-${entry.value.kind.name}-fading'),
+          key: ValueKey('${entry.key}-${entry.value}-fading'),
           size: widget.squareSize,
           orientation: widget.data.orientation,
           squareId: entry.key,
@@ -244,7 +245,7 @@ class _BoardState extends State<Board> {
         if (!translatingPieces.containsKey(entry.key) &&
             entry.key != _draggedPieceSquareId)
           PositionedSquare(
-            key: ValueKey('${entry.key}-${entry.value.kind.name}'),
+            key: ValueKey('${entry.key}-${entry.value}'),
             size: widget.squareSize,
             orientation: widget.data.orientation,
             squareId: entry.key,
@@ -258,7 +259,7 @@ class _BoardState extends State<Board> {
           ),
       for (final entry in translatingPieces.entries)
         PositionedSquare(
-          key: ValueKey('${entry.key}-${entry.value.$1.piece.kind.name}'),
+          key: ValueKey('${entry.key}-${entry.value.$1.piece}'),
           size: widget.squareSize,
           orientation: widget.data.orientation,
           squareId: entry.key,
@@ -361,7 +362,7 @@ class _BoardState extends State<Board> {
   }
 
   @override
-  void didUpdateWidget(Board oldBoard) {
+  void didUpdateWidget(ChessBoard oldBoard) {
     super.didUpdateWidget(oldBoard);
     if (oldBoard.settings.drawShape.enable &&
         !widget.settings.drawShape.enable) {
@@ -725,7 +726,7 @@ class _BoardState extends State<Board> {
     _shouldDeselectOnTapUp = false;
   }
 
-  void _onPromotionSelect(Move move, Piece promoted) {
+  void _onPromotionSelect(BoardMove move, Piece promoted) {
     setState(() {
       pieces[move.to] = promoted;
       _promotionMove = null;
@@ -733,14 +734,14 @@ class _BoardState extends State<Board> {
     widget.onMove?.call(move.withPromotion(promoted.role), isDrop: true);
   }
 
-  void _onPromotionCancel(Move move) {
+  void _onPromotionCancel(BoardMove move) {
     setState(() {
       pieces = readFen(widget.data.fen);
       _promotionMove = null;
     });
   }
 
-  void _openPromotionSelector(Move move) {
+  void _openPromotionSelector(BoardMove move) {
     setState(() {
       final pawn = pieces.remove(move.from);
       pieces[move.to] = pawn!;
@@ -798,7 +799,7 @@ class _BoardState extends State<Board> {
   bool _tryMoveOrPremoveTo(SquareId squareId, {bool drop = false}) {
     final selectedPiece = selected != null ? pieces[selected] : null;
     if (selectedPiece != null && _canMoveTo(selected!, squareId)) {
-      final move = Move(from: selected!, to: squareId);
+      final move = BoardMove(from: selected!, to: squareId);
       if (drop) {
         _lastDrop = move;
       }
@@ -814,7 +815,7 @@ class _BoardState extends State<Board> {
       return true;
     } else if (_isPremovable(selectedPiece) &&
         _canPremoveTo(selected!, squareId)) {
-      widget.onPremove?.call(Move(from: selected!, to: squareId));
+      widget.onPremove?.call(BoardMove(from: selected!, to: squareId));
       return true;
     }
     return false;

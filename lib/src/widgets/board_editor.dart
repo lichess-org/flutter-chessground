@@ -1,4 +1,5 @@
 import 'package:chessground/chessground.dart';
+import 'package:dartchess/dartchess.dart' show Piece, Side;
 import 'package:flutter/widgets.dart';
 
 import 'positioned_square.dart';
@@ -6,8 +7,8 @@ import 'positioned_square.dart';
 /// A chessboard widget where pieces can be dragged around freely (including dragging piece off and onto the board).
 ///
 /// This widget can be used as the basis for a fully fledged board editor, similar to https://lichess.org/editor.
-class BoardEditor extends StatefulWidget {
-  const BoardEditor({
+class ChessBoardEditor extends StatefulWidget {
+  const ChessBoardEditor({
     super.key,
     required this.size,
     required this.orientation,
@@ -51,10 +52,10 @@ class BoardEditor extends StatefulWidget {
   final void Function(SquareId square)? onDiscardedPiece;
 
   @override
-  State<BoardEditor> createState() => _BoardEditorState();
+  State<ChessBoardEditor> createState() => _BoardEditorState();
 }
 
-class _BoardEditorState extends State<BoardEditor> {
+class _BoardEditorState extends State<ChessBoardEditor> {
   SquareId? draggedPieceOrigin;
 
   @override
@@ -63,7 +64,7 @@ class _BoardEditorState extends State<BoardEditor> {
       final piece = widget.pieces[squareId];
 
       return PositionedSquare(
-        key: ValueKey('$squareId-${piece?.kind.name ?? 'empty'}'),
+        key: ValueKey('$squareId-${piece ?? 'empty'}'),
         size: widget.squareSize,
         orientation: widget.orientation,
         squareId: squareId,

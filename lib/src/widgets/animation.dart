@@ -1,3 +1,4 @@
+import 'package:dartchess/dartchess.dart' show Piece, Side;
 import 'package:flutter/widgets.dart';
 import '../models.dart';
 import './piece.dart';

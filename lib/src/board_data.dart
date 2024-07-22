@@ -1,3 +1,4 @@
+import 'package:dartchess/dartchess.dart' show Side;
 import 'package:flutter/widgets.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 
@@ -14,8 +15,8 @@ abstract class BoardData {
     required String fen,
     bool opponentsPiecesUpsideDown,
     Side? sideToMove,
-    Move? premove,
-    Move? lastMove,
+    BoardMove? premove,
+    BoardMove? lastMove,
     ValidMoves? validMoves,
     bool? isCheck,
     ISet<Shape>? shapes,
@@ -58,10 +59,10 @@ abstract class BoardData {
   final String fen;
 
   /// Registered premove. Will be played right after the next opponent move.
-  final Move? premove;
+  final BoardMove? premove;
 
   /// Last move played, used to highlight corresponding squares.
-  final Move? lastMove;
+  final BoardMove? lastMove;
 
   /// Set of [Move] allowed to be played by current side to move.
   final ValidMoves? validMoves;
@@ -113,8 +114,8 @@ abstract class BoardData {
     String? fen,
     bool? opponentsPiecesUpsideDown,
     Side? sideToMove,
-    Move? premove,
-    Move? lastMove,
+    BoardMove? premove,
+    BoardMove? lastMove,
     ValidMoves? validMoves,
     bool? isCheck,
     ISet<Shape>? shapes,
@@ -159,8 +160,8 @@ class _BoardData extends BoardData {
       fen: fen ?? this.fen,
       sideToMove:
           sideToMove == _Undefined ? this.sideToMove : sideToMove as Side?,
-      premove: premove == _Undefined ? this.premove : premove as Move?,
-      lastMove: lastMove == _Undefined ? this.lastMove : lastMove as Move?,
+      premove: premove == _Undefined ? this.premove : premove as BoardMove?,
+      lastMove: lastMove == _Undefined ? this.lastMove : lastMove as BoardMove?,
       validMoves: validMoves == _Undefined
           ? this.validMoves
           : validMoves as ValidMoves?,

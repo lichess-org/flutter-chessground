@@ -1,3 +1,5 @@
+import 'package:dartchess/dartchess.dart' show Role, Side;
+
 import './models.dart';
 
 /// Returns the set of squares that the piece on [square] can potentially premove to.

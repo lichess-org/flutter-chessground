@@ -12,6 +12,7 @@ export 'src/fen.dart';
 export 'src/models.dart';
 export 'src/piece_set.dart';
 export 'src/premove.dart';
+export 'src/utils.dart';
 export 'src/widgets/board.dart';
 export 'src/widgets/board_editor.dart';
 export 'src/widgets/drag.dart';

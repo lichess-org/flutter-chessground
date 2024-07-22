@@ -1,3 +1,4 @@
+import 'package:dartchess/dartchess.dart' show Piece, Role, Side;
 import 'package:flutter/widgets.dart';
 import '../models.dart';
 import 'piece.dart';
@@ -22,13 +23,13 @@ class PromotionSelector extends StatelessWidget {
   });
 
   final PieceAssets pieceAssets;
-  final Move move;
+  final BoardMove move;
   final Side color;
   final double squareSize;
   final Side orientation;
   final bool piecesUpsideDown;
-  final void Function(Move, Piece) onSelect;
-  final void Function(Move) onCancel;
+  final void Function(BoardMove, Piece) onSelect;
+  final void Function(BoardMove) onCancel;
 
   SquareId get squareId => move.to;
 

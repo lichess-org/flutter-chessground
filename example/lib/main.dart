@@ -56,12 +56,12 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   dc.Position<dc.Chess> position = dc.Chess.initial;
-  Side orientation = Side.white;
+  dc.Side orientation = dc.Side.white;
   String fen = dc.kInitialBoardFEN;
-  Move? lastMove;
-  Move? premove;
+  BoardMove? lastMove;
+  BoardMove? premove;
   ValidMoves validMoves = IMap(const {});
-  Side sideToMove = Side.white;
+  dc.Side sideToMove = dc.Side.white;
   PieceSet pieceSet = PieceSet.merida;
   PieceShiftMethod pieceShiftMethod = PieceShiftMethod.either;
   BoardTheme boardTheme = BoardTheme.blue;
@@ -134,7 +134,7 @@ class _HomePageState extends State<HomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            Board(
+            ChessBoard(
               size: screenWidth,
               settings: BoardSettings(
                 pieceAssets: pieceSet.assets,
@@ -166,8 +166,9 @@ class _HomePageState extends State<HomePage> {
                 opponentsPiecesUpsideDown: playMode == Mode.freePlay,
                 fen: fen,
                 lastMove: lastMove,
-                sideToMove:
-                    position.turn == dc.Side.white ? Side.white : Side.black,
+                sideToMove: position.turn == dc.Side.white
+                    ? dc.Side.white
+                    : dc.Side.black,
                 isCheck: position.isCheck,
                 premove: premove,
                 shapes: shapes.isNotEmpty ? shapes : null,
@@ -298,7 +299,7 @@ class _HomePageState extends State<HomePage> {
                               ? () => setState(() {
                                     position = lastPos!;
                                     fen = position.fen;
-                                    validMoves = algebraicLegalMoves(position);
+                                    validMoves = legalMovesOf(position);
                                     lastPos = null;
                                   })
                               : null,
@@ -364,28 +365,29 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void initState() {
-    validMoves = algebraicLegalMoves(position);
+    validMoves = legalMovesOf(position);
     super.initState();
   }
 
-  void _onSetPremove(Move? move) {
+  void _onSetPremove(BoardMove? move) {
     setState(() {
       premove = move;
     });
   }
 
-  void _onUserMoveFreePlay(Move move, {bool? isDrop, bool? isPremove}) {
+  void _onUserMoveFreePlay(BoardMove move, {bool? isDrop, bool? isPremove}) {
     lastPos = position;
     final m = dc.Move.fromUci(move.uci)!;
     setState(() {
       position = position.playUnchecked(m);
       lastMove = move;
       fen = position.fen;
-      validMoves = algebraicLegalMoves(position);
+      validMoves = legalMovesOf(position);
     });
   }
 
-  void _onUserMoveAgainstBot(Move move, {bool? isDrop, bool? isPremove}) async {
+  void _onUserMoveAgainstBot(BoardMove move,
+      {bool? isDrop, bool? isPremove}) async {
     lastPos = position;
     final m = dc.Move.fromUci(move.uci)!;
     setState(() {
@@ -413,47 +415,14 @@ class _HomePageState extends State<HomePage> {
         final mv = (allMoves..shuffle()).first;
         setState(() {
           position = position.playUnchecked(mv);
-          lastMove = Move(
+          lastMove = BoardMove(
               from: SquareId(dc.toAlgebraic(mv.from)),
               to: SquareId(dc.toAlgebraic(mv.to)));
           fen = position.fen;
-          validMoves = algebraicLegalMoves(position);
+          validMoves = legalMovesOf(position);
         });
         lastPos = position;
       }
     }
   }
-}
-
-/// Gets all the legal moves of this position in the algebraic coordinate notation.
-///
-/// Includes both possible representations of castling moves (unless `chess960` is true).
-IMap<SquareId, ISet<SquareId>> algebraicLegalMoves(
-  dc.Position pos, {
-  bool isChess960 = false,
-}) {
-  final Map<SquareId, ISet<SquareId>> result = {};
-  for (final entry in pos.legalMoves.entries) {
-    final dests = entry.value.squares;
-    if (dests.isNotEmpty) {
-      final from = entry.key;
-      final destSet = dests.map((e) => SquareId(dc.toAlgebraic(e))).toSet();
-      if (!isChess960 &&
-          from == pos.board.kingOf(pos.turn) &&
-          dc.squareFile(entry.key) == 4) {
-        if (dests.contains(0)) {
-          destSet.add(const SquareId('c1'));
-        } else if (dests.contains(56)) {
-          destSet.add(const SquareId('c8'));
-        }
-        if (dests.contains(7)) {
-          destSet.add(const SquareId('g1'));
-        } else if (dests.contains(63)) {
-          destSet.add(const SquareId('g8'));
-        }
-      }
-      result[SquareId(dc.toAlgebraic(from))] = ISet(destSet);
-    }
-  }
-  return IMap(result);
 }

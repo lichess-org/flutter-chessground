@@ -3,6 +3,7 @@ import 'package:chessground/src/widgets/shape.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:dartchess/dartchess.dart' show Role, Side;
 import 'package:dartchess/dartchess.dart' as dc;
 import 'package:chessground/chessground.dart';
 
@@ -13,7 +14,7 @@ void main() {
   group('Non-interactable board', () {
     const viewOnlyBoard = Directionality(
       textDirection: TextDirection.ltr,
-      child: Board(
+      child: ChessBoard(
         size: boardSize,
         data: BoardData(
           interactableSide: InteractableSide.none,
@@ -29,13 +30,13 @@ void main() {
     testWidgets('initial position display', (WidgetTester tester) async {
       await tester.pumpWidget(viewOnlyBoard);
 
-      expect(find.byType(Board), findsOneWidget);
+      expect(find.byType(ChessBoard), findsOneWidget);
       expect(find.byType(PieceWidget), findsNWidgets(32));
     });
 
     testWidgets('cannot select piece', (WidgetTester tester) async {
       await tester.pumpWidget(viewOnlyBoard);
-      await tester.tap(find.byKey(const Key('e2-whitePawn')));
+      await tester.tap(find.byKey(const Key('e2-whitepawn')));
       await tester.pump();
 
       expect(find.byKey(const Key('e2-selected')), findsNothing);
@@ -48,32 +49,32 @@ void main() {
       await tester.pumpWidget(
         buildBoard(initialInteractableSide: InteractableSide.both),
       );
-      await tester.tap(find.byKey(const Key('a2-whitePawn')));
+      await tester.tap(find.byKey(const Key('a2-whitepawn')));
       await tester.pump();
 
       expect(find.byKey(const Key('a2-selected')), findsOneWidget);
       expect(find.byType(MoveDest), findsNWidgets(2));
 
       // selecting same deselects
-      await tester.tap(find.byKey(const Key('a2-whitePawn')));
+      await tester.tap(find.byKey(const Key('a2-whitepawn')));
       await tester.pump();
       expect(find.byKey(const Key('a2-selected')), findsNothing);
       expect(find.byType(MoveDest), findsNothing);
 
       // selecting another square
-      await tester.tap(find.byKey(const Key('a1-whiteRook')));
+      await tester.tap(find.byKey(const Key('a1-whiterook')));
       await tester.pump();
       expect(find.byKey(const Key('a1-selected')), findsOneWidget);
       expect(find.byType(MoveDest), findsNothing);
 
       // selecting an opposite piece deselects
-      await tester.tap(find.byKey(const Key('e7-blackPawn')));
+      await tester.tap(find.byKey(const Key('e7-blackpawn')));
       await tester.pump();
       expect(find.byKey(const Key('a1-selected')), findsNothing);
       expect(find.byType(MoveDest), findsNothing);
 
       // selecting an empty square deselects
-      await tester.tap(find.byKey(const Key('a1-whiteRook')));
+      await tester.tap(find.byKey(const Key('a1-whiterook')));
       await tester.pump();
       expect(find.byKey(const Key('a1-selected')), findsOneWidget);
       await tester.tapAt(squareOffset(const SquareId('c4')));
@@ -81,7 +82,7 @@ void main() {
       expect(find.byKey(const Key('a1-selected')), findsNothing);
 
       // cannot select a piece whose side is not the turn to move
-      await tester.tap(find.byKey(const Key('e7-blackPawn')));
+      await tester.tap(find.byKey(const Key('e7-blackpawn')));
       await tester.pump();
       expect(find.byKey(const Key('e7-selected')), findsNothing);
     });
@@ -90,7 +91,7 @@ void main() {
       await tester.pumpWidget(
         buildBoard(initialInteractableSide: InteractableSide.both),
       );
-      await tester.tap(find.byKey(const Key('e2-whitePawn')));
+      await tester.tap(find.byKey(const Key('e2-whitepawn')));
       await tester.pump();
 
       expect(find.byKey(const Key('e2-selected')), findsOneWidget);
@@ -100,8 +101,8 @@ void main() {
       await tester.pump();
       expect(find.byKey(const Key('e2-selected')), findsNothing);
       expect(find.byType(MoveDest), findsNothing);
-      expect(find.byKey(const Key('e4-whitePawn')), findsOneWidget);
-      expect(find.byKey(const Key('e2-whitePawn')), findsNothing);
+      expect(find.byKey(const Key('e4-whitepawn')), findsOneWidget);
+      expect(find.byKey(const Key('e2-whitepawn')), findsNothing);
       expect(find.byKey(const Key('e2-lastMove')), findsOneWidget);
       expect(find.byKey(const Key('e4-lastMove')), findsOneWidget);
     });
@@ -114,7 +115,7 @@ void main() {
           pieceShiftMethod: PieceShiftMethod.drag,
         ),
       );
-      await tester.tap(find.byKey(const Key('e2-whitePawn')));
+      await tester.tap(find.byKey(const Key('e2-whitepawn')));
       await tester.pump();
 
       // Tapping a square should have no effect...
@@ -127,8 +128,8 @@ void main() {
         const Offset(0, -(squareSize * 2)),
       );
       await tester.pumpAndSettle();
-      expect(find.byKey(const Key('e4-whitePawn')), findsOneWidget);
-      expect(find.byKey(const Key('e2-whitePawn')), findsNothing);
+      expect(find.byKey(const Key('e4-whitepawn')), findsOneWidget);
+      expect(find.byKey(const Key('e2-whitepawn')), findsNothing);
       expect(find.byKey(const Key('e2-lastMove')), findsOneWidget);
       expect(find.byKey(const Key('e4-lastMove')), findsOneWidget);
     });
@@ -142,14 +143,14 @@ void main() {
           initialInteractableSide: InteractableSide.both,
         ),
       );
-      await tester.tap(find.byKey(const Key('e1-whiteKing')));
+      await tester.tap(find.byKey(const Key('e1-whiteking')));
       await tester.pump();
-      await tester.tap(find.byKey(const Key('h1-whiteRook')));
+      await tester.tap(find.byKey(const Key('h1-whiterook')));
       await tester.pump();
-      expect(find.byKey(const Key('e1-whiteKing')), findsNothing);
-      expect(find.byKey(const Key('h1-whiteRook')), findsNothing);
-      expect(find.byKey(const Key('g1-whiteKing')), findsOneWidget);
-      expect(find.byKey(const Key('f1-whiteRook')), findsOneWidget);
+      expect(find.byKey(const Key('e1-whiteking')), findsNothing);
+      expect(find.byKey(const Key('h1-whiterook')), findsNothing);
+      expect(find.byKey(const Key('g1-whiteking')), findsOneWidget);
+      expect(find.byKey(const Key('f1-whiterook')), findsOneWidget);
       expect(find.byKey(const Key('e1-lastMove')), findsOneWidget);
       expect(find.byKey(const Key('h1-lastMove')), findsOneWidget);
     });
@@ -162,7 +163,7 @@ void main() {
       final e2 = squareOffset(const SquareId('e2'));
       await tester.dragFrom(e2, const Offset(0, -(squareSize * 4)));
       await tester.pumpAndSettle();
-      expect(find.byKey(const Key('e2-whitePawn')), findsOneWidget);
+      expect(find.byKey(const Key('e2-whitepawn')), findsOneWidget);
       expect(find.byKey(const Key('e2-selected')), findsNothing);
       expect(find.byType(MoveDest), findsNothing);
     });
@@ -178,7 +179,7 @@ void main() {
             const Offset(0, -boardSize + squareSize),
       );
       await tester.pumpAndSettle();
-      expect(find.byKey(const Key('e2-whitePawn')), findsOneWidget);
+      expect(find.byKey(const Key('e2-whitepawn')), findsOneWidget);
       expect(find.byKey(const Key('e2-selected')), findsNothing);
       expect(find.byType(MoveDest), findsNothing);
     });
@@ -192,8 +193,8 @@ void main() {
         const Offset(0, -(squareSize * 2)),
       );
       await tester.pumpAndSettle();
-      expect(find.byKey(const Key('e4-whitePawn')), findsOneWidget);
-      expect(find.byKey(const Key('e2-whitePawn')), findsNothing);
+      expect(find.byKey(const Key('e4-whitepawn')), findsOneWidget);
+      expect(find.byKey(const Key('e2-whitepawn')), findsNothing);
       expect(find.byKey(const Key('e2-lastMove')), findsOneWidget);
       expect(find.byKey(const Key('e4-lastMove')), findsOneWidget);
     });
@@ -212,8 +213,8 @@ void main() {
         const Offset(0, -(squareSize * 2)),
       );
       await tester.pumpAndSettle();
-      expect(find.byKey(const Key('e4-whitePawn')), findsNothing);
-      expect(find.byKey(const Key('e2-whitePawn')), findsOneWidget);
+      expect(find.byKey(const Key('e4-whitepawn')), findsNothing);
+      expect(find.byKey(const Key('e2-whitepawn')), findsOneWidget);
       expect(find.byKey(const Key('e2-lastMove')), findsNothing);
       expect(find.byKey(const Key('e4-lastMove')), findsNothing);
 
@@ -226,8 +227,8 @@ void main() {
       await tester.pump();
       expect(find.byKey(const Key('e2-selected')), findsNothing);
       expect(find.byType(MoveDest), findsNothing);
-      expect(find.byKey(const Key('e4-whitePawn')), findsOneWidget);
-      expect(find.byKey(const Key('e2-whitePawn')), findsNothing);
+      expect(find.byKey(const Key('e4-whitepawn')), findsOneWidget);
+      expect(find.byKey(const Key('e2-whitepawn')), findsNothing);
       expect(find.byKey(const Key('e2-lastMove')), findsOneWidget);
       expect(find.byKey(const Key('e4-lastMove')), findsOneWidget);
     });
@@ -252,8 +253,8 @@ void main() {
         await tester.pump();
 
         // move is cancelled
-        expect(find.byKey(const Key('e4-whitePawn')), findsNothing);
-        expect(find.byKey(const Key('e2-whitePawn')), findsOneWidget);
+        expect(find.byKey(const Key('e4-whitepawn')), findsNothing);
+        expect(find.byKey(const Key('e2-whitepawn')), findsOneWidget);
         // selection is cancelled
         expect(find.byKey(const Key('e2-selected')), findsNothing);
       });
@@ -280,7 +281,7 @@ void main() {
 
         expect(find.byKey(const Key('e2-selected')), findsOneWidget);
 
-        await tester.tap(find.byKey(const Key('d2-whitePawn')));
+        await tester.tap(find.byKey(const Key('d2-whitepawn')));
 
         // finish the move as to release the piece
         await dragGesture.moveTo(squareOffset(const SquareId('e4')));
@@ -290,8 +291,8 @@ void main() {
       await tester.pump();
 
       // the piece should not have moved
-      expect(find.byKey(const Key('e4-whitePawn')), findsNothing);
-      expect(find.byKey(const Key('e2-whitePawn')), findsOneWidget);
+      expect(find.byKey(const Key('e4-whitepawn')), findsNothing);
+      expect(find.byKey(const Key('e2-whitepawn')), findsOneWidget);
       // the piece should not be selected
       expect(find.byKey(const Key('e2-selected')), findsNothing);
 
@@ -320,8 +321,8 @@ void main() {
       await tester.pump();
 
       // the piece should not have moved
-      expect(find.byKey(const Key('d4-whitePawn')), findsNothing);
-      expect(find.byKey(const Key('d2-whitePawn')), findsOneWidget);
+      expect(find.byKey(const Key('d4-whitepawn')), findsNothing);
+      expect(find.byKey(const Key('d2-whitepawn')), findsOneWidget);
       // the piece should not be selected
       expect(find.byKey(const Key('d2-selected')), findsNothing);
     });
@@ -341,7 +342,7 @@ void main() {
         const Duration(milliseconds: 200),
       );
 
-      expectSync(find.byKey(const Key('e2-whitePawn')), findsOneWidget);
+      expectSync(find.byKey(const Key('e2-whitepawn')), findsOneWidget);
       expectSync(find.byKey(const Key('e2-selected')), findsOneWidget);
 
       await dragFuture;
@@ -358,14 +359,14 @@ void main() {
         ),
       );
 
-      await tester.tap(find.byKey(const Key('f7-whitePawn')));
+      await tester.tap(find.byKey(const Key('f7-whitepawn')));
       await tester.pump();
       await tester.tapAt(squareOffset(const SquareId('f8')));
       await tester.pump();
       await tester.tapAt(squareOffset(const SquareId('f7')));
       await tester.pump();
-      expect(find.byKey(const Key('f8-whiteKnight')), findsOneWidget);
-      expect(find.byKey(const Key('f7-whitePawn')), findsNothing);
+      expect(find.byKey(const Key('f8-whiteknight')), findsOneWidget);
+      expect(find.byKey(const Key('f7-whitepawn')), findsNothing);
     });
 
     testWidgets('promotion, auto queen enabled', (WidgetTester tester) async {
@@ -377,12 +378,12 @@ void main() {
         ),
       );
 
-      await tester.tap(find.byKey(const Key('f7-whitePawn')));
+      await tester.tap(find.byKey(const Key('f7-whitepawn')));
       await tester.pump();
       await tester.tapAt(squareOffset(const SquareId('f8')));
       await tester.pump();
-      expect(find.byKey(const Key('f8-whiteQueen')), findsOneWidget);
-      expect(find.byKey(const Key('f7-whitePawn')), findsNothing);
+      expect(find.byKey(const Key('f8-whitequeen')), findsOneWidget);
+      expect(find.byKey(const Key('f7-whitepawn')), findsNothing);
     });
 
     testWidgets('king check square black', (WidgetTester tester) async {
@@ -652,7 +653,7 @@ void main() {
       await tester.pump(const Duration(milliseconds: 200));
 
       // opponent move is played
-      expect(find.byKey(const Key('a5-blackPawn')), findsOneWidget);
+      expect(find.byKey(const Key('a5-blackpawn')), findsOneWidget);
 
       // wait for the premove to be played
       await tester.pumpAndSettle();
@@ -661,8 +662,8 @@ void main() {
       expect(find.byKey(const Key('f3-premove')), findsNothing);
 
       // premove has been played
-      expect(find.byKey(const Key('d1-whiteQueen')), findsNothing);
-      expect(find.byKey(const Key('f3-whiteQueen')), findsOneWidget);
+      expect(find.byKey(const Key('d1-whitequeen')), findsNothing);
+      expect(find.byKey(const Key('f3-whitequeen')), findsOneWidget);
     });
   });
 
@@ -943,8 +944,8 @@ Widget buildBoard({
   InteractableSide interactableSide = initialInteractableSide;
   dc.Position<dc.Chess> position =
       dc.Chess.fromSetup(dc.Setup.parseFen(initialFen));
-  Move? lastMove;
-  Move? premove;
+  BoardMove? lastMove;
+  BoardMove? premove;
   ISet<Shape> shapes = initialShapes ?? ISet();
 
   return MaterialApp(
@@ -964,7 +965,7 @@ Widget buildBoard({
           pieceShiftMethod: pieceShiftMethod,
         );
 
-        return Board(
+        return ChessBoard(
           size: boardSize,
           settings: settings ?? defaultSettings,
           data: BoardData(
@@ -975,11 +976,11 @@ Widget buildBoard({
             isCheck: position.isCheck,
             sideToMove:
                 position.turn == dc.Side.white ? Side.white : Side.black,
-            validMoves: algebraicLegalMoves(position),
+            validMoves: legalMovesOf(position),
             premove: premove,
             shapes: shapes,
           ),
-          onMove: (Move move, {bool? isDrop, bool? isPremove}) {
+          onMove: (BoardMove move, {bool? isDrop, bool? isPremove}) {
             setState(() {
               position = position.playUnchecked(dc.Move.fromUci(move.uci)!);
               if (position.isGameOver) {
@@ -1001,12 +1002,12 @@ Widget buildBoard({
                   if (position.isGameOver) {
                     interactableSide = InteractableSide.none;
                   }
-                  lastMove = Move.fromUci(opponentMove.uci);
+                  lastMove = BoardMove.fromUci(opponentMove.uci);
                 });
               });
             }
           },
-          onPremove: (Move? move) {
+          onPremove: (BoardMove? move) {
             setState(() {
               premove = move;
             });
@@ -1020,37 +1021,4 @@ Widget buildBoard({
 Offset squareOffset(SquareId id, {Side orientation = Side.white}) {
   final o = id.coord.offset(orientation, squareSize);
   return Offset(o.dx + squareSize / 2, o.dy + squareSize / 2);
-}
-
-/// Gets all the legal moves of this position in the algebraic coordinate notation.
-///
-/// Includes both possible representations of castling moves (unless `chess960` is true).
-IMap<SquareId, ISet<SquareId>> algebraicLegalMoves(
-  dc.Position pos, {
-  bool isChess960 = false,
-}) {
-  final Map<SquareId, ISet<SquareId>> result = {};
-  for (final entry in pos.legalMoves.entries) {
-    final dests = entry.value.squares;
-    if (dests.isNotEmpty) {
-      final from = entry.key;
-      final destSet = dests.map((e) => SquareId(dc.toAlgebraic(e))).toSet();
-      if (!isChess960 &&
-          from == pos.board.kingOf(pos.turn) &&
-          dc.squareFile(entry.key) == 4) {
-        if (dests.contains(0)) {
-          destSet.add(const SquareId('c1'));
-        } else if (dests.contains(56)) {
-          destSet.add(const SquareId('c8'));
-        }
-        if (dests.contains(7)) {
-          destSet.add(const SquareId('g1'));
-        } else if (dests.contains(63)) {
-          destSet.add(const SquareId('g8'));
-        }
-      }
-      result[SquareId(dc.toAlgebraic(from))] = ISet(destSet);
-    }
-  }
-  return IMap(result);
 }

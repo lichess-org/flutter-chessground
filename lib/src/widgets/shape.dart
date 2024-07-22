@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'package:dartchess/dartchess.dart' show Side;
 import 'package:flutter/widgets.dart';
 
 import '../models.dart';

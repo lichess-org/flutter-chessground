@@ -1,3 +1,4 @@
+import 'package:dartchess/dartchess.dart' show Piece, Side;
 import 'package:flutter/material.dart';
 import 'package:dartchess/dartchess.dart' as dc;
 import 'package:flutter_test/flutter_test.dart';
@@ -10,7 +11,7 @@ void main() {
   group('BoardEditor', () {
     testWidgets('empty board has no pieces', (WidgetTester tester) async {
       await tester.pumpWidget(buildBoard(pieces: {}));
-      expect(find.byType(BoardEditor), findsOneWidget);
+      expect(find.byType(ChessBoardEditor), findsOneWidget);
       expect(find.byType(PieceWidget), findsNothing);
 
       for (final square in allSquares) {
@@ -38,19 +39,19 @@ void main() {
           },
         ),
       );
-      expect(find.byKey(const Key('a1-whiteKing')), findsOneWidget);
-      expect(find.byKey(const Key('b2-whiteQueen')), findsOneWidget);
-      expect(find.byKey(const Key('c3-whiteRook')), findsOneWidget);
-      expect(find.byKey(const Key('d4-whiteBishop')), findsOneWidget);
-      expect(find.byKey(const Key('e5-whiteKnight')), findsOneWidget);
-      expect(find.byKey(const Key('f6-whitePawn')), findsOneWidget);
+      expect(find.byKey(const Key('a1-whiteking')), findsOneWidget);
+      expect(find.byKey(const Key('b2-whitequeen')), findsOneWidget);
+      expect(find.byKey(const Key('c3-whiterook')), findsOneWidget);
+      expect(find.byKey(const Key('d4-whitebishop')), findsOneWidget);
+      expect(find.byKey(const Key('e5-whiteknight')), findsOneWidget);
+      expect(find.byKey(const Key('f6-whitepawn')), findsOneWidget);
 
-      expect(find.byKey(const Key('a2-blackKing')), findsOneWidget);
-      expect(find.byKey(const Key('a3-blackQueen')), findsOneWidget);
-      expect(find.byKey(const Key('a4-blackRook')), findsOneWidget);
-      expect(find.byKey(const Key('a5-blackBishop')), findsOneWidget);
-      expect(find.byKey(const Key('a6-blackKnight')), findsOneWidget);
-      expect(find.byKey(const Key('a7-blackPawn')), findsOneWidget);
+      expect(find.byKey(const Key('a2-blackking')), findsOneWidget);
+      expect(find.byKey(const Key('a3-blackqueen')), findsOneWidget);
+      expect(find.byKey(const Key('a4-blackrook')), findsOneWidget);
+      expect(find.byKey(const Key('a5-blackbishop')), findsOneWidget);
+      expect(find.byKey(const Key('a6-blackknight')), findsOneWidget);
+      expect(find.byKey(const Key('a7-blackpawn')), findsOneWidget);
 
       expect(find.byType(PieceWidget), findsNWidgets(12));
     });
@@ -124,7 +125,7 @@ void main() {
         MaterialApp(
           home: Column(
             children: [
-              BoardEditor(
+              ChessBoardEditor(
                 size: boardSize,
                 orientation: Side.white,
                 pieces: const {},
@@ -190,7 +191,7 @@ Widget buildBoard({
   void Function(SquareId square)? onDiscardedPiece,
 }) {
   return MaterialApp(
-    home: BoardEditor(
+    home: ChessBoardEditor(
       size: boardSize,
       orientation: orientation,
       pieces: pieces,

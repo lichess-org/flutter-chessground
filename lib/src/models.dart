@@ -1,80 +1,9 @@
+import 'package:dartchess/dartchess.dart' show Piece, PieceKind, Role, Side;
 import 'package:flutter/widgets.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 
-/// The chessboard side, white or black.
-enum Side {
-  white,
-  black;
-
-  Side get opposite => this == Side.white ? Side.black : Side.white;
-}
-
 /// The side that can interact with the board.
 enum InteractableSide { both, none, white, black }
-
-/// Piece role, such as pawn, knight, etc.
-enum Role {
-  king,
-  queen,
-  knight,
-  bishop,
-  rook,
-  pawn;
-
-  String get letter => switch (this) {
-        Role.king => 'K',
-        Role.queen => 'Q',
-        Role.knight => 'N',
-        Role.bishop => 'B',
-        Role.rook => 'R',
-        Role.pawn => 'P',
-      };
-}
-
-/// Piece kind, such as white pawn, black knight, etc.
-enum PieceKind {
-  whitePawn,
-  whiteKnight,
-  whiteBishop,
-  whiteRook,
-  whiteQueen,
-  whiteKing,
-  blackPawn,
-  blackKnight,
-  blackBishop,
-  blackRook,
-  blackQueen,
-  blackKing;
-
-  static PieceKind fromPiece(Piece piece) {
-    switch (piece.role) {
-      case Role.pawn:
-        return piece.color == Side.white
-            ? PieceKind.whitePawn
-            : PieceKind.blackPawn;
-      case Role.knight:
-        return piece.color == Side.white
-            ? PieceKind.whiteKnight
-            : PieceKind.blackKnight;
-      case Role.bishop:
-        return piece.color == Side.white
-            ? PieceKind.whiteBishop
-            : PieceKind.blackBishop;
-      case Role.rook:
-        return piece.color == Side.white
-            ? PieceKind.whiteRook
-            : PieceKind.blackRook;
-      case Role.queen:
-        return piece.color == Side.white
-            ? PieceKind.whiteQueen
-            : PieceKind.blackQueen;
-      case Role.king:
-        return piece.color == Side.white
-            ? PieceKind.whiteKing
-            : PieceKind.blackKing;
-    }
-  }
-}
 
 /// Describes a set of piece assets.
 ///
@@ -260,68 +189,6 @@ class Coord {
   int get hashCode => Object.hash(x, y);
 }
 
-/// Describes a chess piece by its role and color.
-///
-/// Can be promoted.
-@immutable
-class Piece {
-  const Piece({
-    required this.color,
-    required this.role,
-    this.promoted = false,
-  });
-
-  final Side color;
-  final Role role;
-  final bool promoted;
-
-  PieceKind get kind => PieceKind.fromPiece(this);
-
-  Piece copyWith({
-    Side? color,
-    Role? role,
-    bool? promoted,
-  }) {
-    return Piece(
-      color: color ?? this.color,
-      role: role ?? this.role,
-      promoted: promoted ?? this.promoted,
-    );
-  }
-
-  @override
-  String toString() {
-    return 'Piece(${kind.name})';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        other is Piece &&
-            other.runtimeType == runtimeType &&
-            other.color == color &&
-            other.role == role &&
-            other.promoted == promoted;
-  }
-
-  @override
-  int get hashCode => Object.hash(color, role, promoted);
-
-  static const whitePawn = Piece(color: Side.white, role: Role.pawn);
-  static const whiteKnight = Piece(color: Side.white, role: Role.knight);
-  static const whiteBishop = Piece(color: Side.white, role: Role.bishop);
-  static const whiteRook = Piece(color: Side.white, role: Role.rook);
-  static const whiteQueen = Piece(color: Side.white, role: Role.queen);
-  static const whiteKing = Piece(color: Side.white, role: Role.king);
-
-  static const blackPawn = Piece(color: Side.black, role: Role.pawn);
-  static const blackKnight = Piece(color: Side.black, role: Role.knight);
-  static const blackBishop = Piece(color: Side.black, role: Role.bishop);
-  static const blackRook = Piece(color: Side.black, role: Role.rook);
-  static const blackQueen = Piece(color: Side.black, role: Role.queen);
-  static const blackKing = Piece(color: Side.black, role: Role.king);
-}
-
 /// A piece and its position on the board.
 @immutable
 class PositionedPiece {
@@ -349,16 +216,16 @@ class PositionedPiece {
   }
 }
 
-/// A chess move.
+/// A chess move from one [SquareId] to another, with an optional promotion.
 @immutable
-class Move {
-  const Move({
+class BoardMove {
+  const BoardMove({
     required this.from,
     required this.to,
     this.promotion,
   });
 
-  Move.fromUci(String uci)
+  BoardMove.fromUci(String uci)
       : from = SquareId(uci.substring(0, 2)),
         to = SquareId(uci.substring(2, 4)),
         promotion = uci.length > 4 ? _toRole(uci.substring(4)) : null;
@@ -375,8 +242,8 @@ class Move {
     return from == squareId || to == squareId;
   }
 
-  Move withPromotion(Role promotion) {
-    return Move(
+  BoardMove withPromotion(Role promotion) {
+    return BoardMove(
       from: from,
       to: to,
       promotion: promotion,
@@ -386,7 +253,7 @@ class Move {
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
-        other is Move &&
+        other is BoardMove &&
             other.runtimeType == runtimeType &&
             other.from == from &&
             other.to == to &&

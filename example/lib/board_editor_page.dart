@@ -14,7 +14,7 @@ class BoardEditorPage extends StatefulWidget {
 class _BoardEditorPageState extends State<BoardEditorPage> {
   Pieces pieces = readFen(dc.kInitialFEN);
 
-  Piece? pieceToAddOnTap;
+  dc.Piece? pieceToAddOnTap;
   bool deleteOnTap = false;
 
   @override
@@ -28,9 +28,9 @@ class _BoardEditorPageState extends State<BoardEditorPage> {
       colorScheme: BoardTheme.blue.colors,
       enableCoordinates: true,
     );
-    final boardEditor = BoardEditor(
+    final boardEditor = ChessBoardEditor(
       size: screenWidth,
-      orientation: Side.white,
+      orientation: dc.Side.white,
       pieces: pieces,
       settings: settings,
       onTappedSquare: (squareId) => setState(() {
@@ -58,7 +58,7 @@ class _BoardEditorPageState extends State<BoardEditorPage> {
           settings: settings,
           selectedPiece: pieceToAddOnTap,
           pieceTapped: (role) => setState(() {
-            pieceToAddOnTap = Piece(role: role, color: side);
+            pieceToAddOnTap = dc.Piece(role: role, color: side);
             deleteOnTap = false;
           }),
           deleteSelected: deleteOnTap,
@@ -76,9 +76,9 @@ class _BoardEditorPageState extends State<BoardEditorPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            makePieceMenu(Side.white),
+            makePieceMenu(dc.Side.white),
             boardEditor,
-            makePieceMenu(Side.black),
+            makePieceMenu(dc.Side.black),
             Text('FEN: ${writeFen(pieces)}'),
           ],
         ),
@@ -100,13 +100,13 @@ class PieceMenu extends StatelessWidget {
     required this.deleteTapped,
   });
 
-  final Side side;
+  final dc.Side side;
   final PieceSet pieceSet;
   final double squareSize;
-  final Piece? selectedPiece;
+  final dc.Piece? selectedPiece;
   final bool deleteSelected;
   final BoardEditorSettings settings;
-  final Function(Role role) pieceTapped;
+  final Function(dc.Role role) pieceTapped;
   final Function() deleteTapped;
 
   @override
@@ -116,9 +116,9 @@ class PieceMenu extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          ...Role.values.mapIndexed(
+          ...dc.Role.values.mapIndexed(
             (i, role) {
-              final piece = Piece(role: role, color: side);
+              final piece = dc.Piece(role: role, color: side);
               final pieceWidget = PieceWidget(
                 piece: piece,
                 size: squareSize,
