@@ -36,7 +36,10 @@ class PieceDragFeedback extends StatelessWidget {
   Widget build(BuildContext context) {
     final feedbackSize = squareSize * size;
     return Transform.translate(
-      offset: (offset - const Offset(0.5, 0.5)) * feedbackSize / 2,
+      offset: Offset(
+        ((offset.dx - 1) * feedbackSize) / 2,
+        ((offset.dy - 1) * feedbackSize) / 2,
+      ),
       child: PieceWidget(
         piece: piece,
         size: feedbackSize,

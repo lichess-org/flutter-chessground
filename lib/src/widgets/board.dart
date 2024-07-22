@@ -718,7 +718,7 @@ class _BoardState extends State<ChessBoard> {
           squareSize: widget.squareSize,
           pieceAssets: widget.settings.pieceAssets,
           size: widget.settings.dragFeedbackSize,
-          offset: widget.settings.dragFeedbackOffset - const Offset(0.5, 0.5),
+          offset: widget.settings.dragFeedbackOffset,
         ),
       );
     }
