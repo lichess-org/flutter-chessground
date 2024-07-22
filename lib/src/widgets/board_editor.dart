@@ -5,6 +5,7 @@ import '../board_editor_settings.dart';
 import '../models.dart';
 import 'board.dart';
 import 'drag.dart';
+import '../fen.dart';
 import 'piece.dart';
 import 'positioned_square.dart';
 
@@ -21,6 +22,13 @@ enum PointerToolMode {
 /// A chessboard widget where pieces can be dragged around freely (including dragging piece off and onto the board).
 ///
 /// This widget can be used as the basis for a fully fledged board editor, similar to https://lichess.org/editor.
+/// The logic for creating a board editor should be implemented by the consumer of this widget.
+/// This widget only provides the visual representation of the board and the pieces on it, and responds to pointer events through the [onTouchedSquare], [onDroppedPiece], and [onDiscardedPiece] callbacks.
+///
+/// Use the [pointerToolMode] property to switch between dragging pieces and adding/removing pieces from the board using pan gestures.
+///
+/// A [writeFen] method is provided by this package to convert the current state
+/// of the board editor to a FEN string.
 class ChessBoardEditor extends StatefulWidget with BoardGeometry {
   const ChessBoardEditor({
     super.key,
@@ -49,9 +57,10 @@ class ChessBoardEditor extends StatefulWidget with BoardGeometry {
   /// Settings that control the appearance of the board editor.
   final BoardEditorSettings settings;
 
+  /// The current mode of the pointer tool.
   final PointerToolMode pointerToolMode;
 
-  /// Called when the given [square] was tapped.
+  /// Called when the given [square] was touched or hovered over.
   final void Function(SquareId square)? onTouchedSquare;
 
   /// Called when a [piece] has been dragged to a new [destination] square.
