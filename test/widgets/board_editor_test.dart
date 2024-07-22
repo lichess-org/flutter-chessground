@@ -56,14 +56,16 @@ void main() {
       expect(find.byType(PieceWidget), findsNWidgets(12));
     });
 
-    testWidgets('tapping a square triggers the onTappedSquare callback',
+    testWidgets(
+        'touching a square triggers the onTouchedSquare callback when the board pointer tool mode is `edit`',
         (WidgetTester tester) async {
       for (final orientation in Side.values) {
         SquareId? tappedSquare;
         await tester.pumpWidget(
           buildBoard(
             pieces: {},
-            onTappedSquare: (square) => tappedSquare = square,
+            pointerToolMode: PointerToolMode.edit,
+            onTouchedSquare: (square) => tappedSquare = square,
             orientation: orientation,
           ),
         );
@@ -185,7 +187,8 @@ void main() {
 Widget buildBoard({
   required Pieces pieces,
   Side orientation = Side.white,
-  void Function(SquareId square)? onTappedSquare,
+  PointerToolMode pointerToolMode = PointerToolMode.drag,
+  void Function(SquareId square)? onTouchedSquare,
   void Function(SquareId? origin, SquareId destination, Piece piece)?
       onDroppedPiece,
   void Function(SquareId square)? onDiscardedPiece,
@@ -194,8 +197,9 @@ Widget buildBoard({
     home: ChessBoardEditor(
       size: boardSize,
       orientation: orientation,
+      pointerToolMode: pointerToolMode,
       pieces: pieces,
-      onTappedSquare: onTappedSquare,
+      onTouchedSquare: onTouchedSquare,
       onDiscardedPiece: onDiscardedPiece,
       onDroppedPiece: onDroppedPiece,
     ),

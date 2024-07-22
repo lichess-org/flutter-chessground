@@ -1,28 +1,44 @@
-import 'package:chessground/chessground.dart';
 import 'package:dartchess/dartchess.dart' show Piece, Side;
 import 'package:flutter/widgets.dart';
 
+import '../board_editor_settings.dart';
+import '../models.dart';
+import 'board.dart';
+import 'drag.dart';
+import 'piece.dart';
 import 'positioned_square.dart';
+
+/// Controls the behavior of pointer events on the board editor.
+enum PointerToolMode {
+  /// The default mode where pieces can be dragged around the board.
+  drag,
+
+  /// The mode where pieces can be put/removed from the board when the pointer
+  /// is over a square.
+  edit,
+}
 
 /// A chessboard widget where pieces can be dragged around freely (including dragging piece off and onto the board).
 ///
 /// This widget can be used as the basis for a fully fledged board editor, similar to https://lichess.org/editor.
-class ChessBoardEditor extends StatefulWidget {
+class ChessBoardEditor extends StatefulWidget with BoardGeometry {
   const ChessBoardEditor({
     super.key,
     required this.size,
     required this.orientation,
     required this.pieces,
+    this.pointerToolMode = PointerToolMode.drag,
     this.settings = const BoardEditorSettings(),
-    this.onTappedSquare,
+    this.onTouchedSquare,
     this.onDroppedPiece,
     this.onDiscardedPiece,
   });
 
-  /// Visual size of the board.
+  @override
   final double size;
 
-  double get squareSize => size / 8;
+  @override
+  final Side orientation;
 
   /// The pieces to display on the board.
   ///
@@ -33,11 +49,10 @@ class ChessBoardEditor extends StatefulWidget {
   /// Settings that control the appearance of the board editor.
   final BoardEditorSettings settings;
 
-  /// Side by which the board is oriented.
-  final Side orientation;
+  final PointerToolMode pointerToolMode;
 
   /// Called when the given [square] was tapped.
-  final void Function(SquareId square)? onTappedSquare;
+  final void Function(SquareId square)? onTouchedSquare;
 
   /// Called when a [piece] has been dragged to a new [destination] square.
   ///
@@ -60,7 +75,7 @@ class _BoardEditorState extends State<ChessBoardEditor> {
 
   @override
   Widget build(BuildContext context) {
-    final List<Widget> pieceWidgets = allSquares.map((squareId) {
+    final List<Widget> squareWidgets = allSquares.map((squareId) {
       final piece = widget.pieces[squareId];
 
       return PositionedSquare(
@@ -68,59 +83,63 @@ class _BoardEditorState extends State<ChessBoardEditor> {
         size: widget.squareSize,
         orientation: widget.orientation,
         squareId: squareId,
-        child: GestureDetector(
-          onTap: () => widget.onTappedSquare?.call(squareId),
-          child: DragTarget<Piece>(
-            hitTestBehavior: HitTestBehavior.opaque,
-            builder: (context, candidateData, rejectedData) {
-              return Stack(
-                children: [
-                  // Show a drop target if a piece is dragged over the square
-                  if (candidateData.isNotEmpty)
-                    Transform.scale(
-                      scale: 2,
-                      child: Container(
-                        decoration: const BoxDecoration(
-                          color: Color(0x33000000),
-                          shape: BoxShape.circle,
-                        ),
+        child: DragTarget<Piece>(
+          hitTestBehavior: HitTestBehavior.opaque,
+          builder: (context, candidateData, rejectedData) {
+            return Stack(
+              children: [
+                // Show a drop target if a piece is dragged over the square
+                if (candidateData.isNotEmpty)
+                  Transform.scale(
+                    scale: 2,
+                    child: Container(
+                      decoration: const BoxDecoration(
+                        color: Color(0x33000000),
+                        shape: BoxShape.circle,
                       ),
                     ),
-                  if (piece != null)
-                    Draggable(
-                      hitTestBehavior: HitTestBehavior.translucent,
-                      data: piece,
-                      feedback: PieceDragFeedback(
-                        piece: piece,
-                        squareSize: widget.squareSize,
-                        size: widget.settings.dragFeedbackSize,
-                        offset: widget.settings.dragFeedbackOffset,
-                        pieceAssets: widget.settings.pieceAssets,
-                      ),
-                      childWhenDragging: const SizedBox.shrink(),
-                      onDragStarted: () => draggedPieceOrigin = squareId,
-                      onDraggableCanceled: (_, __) {
-                        widget.onDiscardedPiece?.call(squareId);
-                        draggedPieceOrigin = null;
-                      },
-                      child: PieceWidget(
-                        piece: piece,
-                        size: widget.squareSize,
-                        pieceAssets: widget.settings.pieceAssets,
-                      ),
+                  ),
+                if (widget.pointerToolMode == PointerToolMode.drag &&
+                    piece != null)
+                  Draggable(
+                    hitTestBehavior: HitTestBehavior.translucent,
+                    data: piece,
+                    feedback: PieceDragFeedback(
+                      piece: piece,
+                      squareSize: widget.squareSize,
+                      size: widget.settings.dragFeedbackSize,
+                      offset: widget.settings.dragFeedbackOffset,
+                      pieceAssets: widget.settings.pieceAssets,
                     ),
-                ],
-              );
-            },
-            onAcceptWithDetails: (details) {
-              widget.onDroppedPiece?.call(
-                draggedPieceOrigin,
-                squareId,
-                details.data,
-              );
-              draggedPieceOrigin = null;
-            },
-          ),
+                    childWhenDragging: const SizedBox.shrink(),
+                    onDragStarted: () => draggedPieceOrigin = squareId,
+                    onDraggableCanceled: (_, __) {
+                      widget.onDiscardedPiece?.call(squareId);
+                      draggedPieceOrigin = null;
+                    },
+                    child: PieceWidget(
+                      piece: piece,
+                      size: widget.squareSize,
+                      pieceAssets: widget.settings.pieceAssets,
+                    ),
+                  )
+                else if (piece != null)
+                  PieceWidget(
+                    piece: piece,
+                    size: widget.squareSize,
+                    pieceAssets: widget.settings.pieceAssets,
+                  ),
+              ],
+            );
+          },
+          onAcceptWithDetails: (details) {
+            widget.onDroppedPiece?.call(
+              draggedPieceOrigin,
+              squareId,
+              details.data,
+            );
+            draggedPieceOrigin = null;
+          },
         ),
       );
     }).toList();
@@ -133,24 +152,39 @@ class _BoardEditorState extends State<ChessBoardEditor> {
 
     return SizedBox.square(
       dimension: widget.size,
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          if (widget.settings.boxShadow.isNotEmpty ||
-              widget.settings.borderRadius != BorderRadius.zero)
-            Container(
-              clipBehavior: Clip.hardEdge,
-              decoration: BoxDecoration(
-                borderRadius: widget.settings.borderRadius,
-                boxShadow: widget.settings.boxShadow,
-              ),
-              child: background,
-            )
-          else
-            background,
-          ...pieceWidgets,
-        ],
+      child: GestureDetector(
+        onTapDown: (details) => _onTouchedEvent(details.localPosition),
+        onPanStart: (details) => _onTouchedEvent(details.localPosition),
+        onPanUpdate: (details) => _onTouchedEvent(details.localPosition),
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            if (widget.settings.boxShadow.isNotEmpty ||
+                widget.settings.borderRadius != BorderRadius.zero)
+              Container(
+                clipBehavior: Clip.hardEdge,
+                decoration: BoxDecoration(
+                  borderRadius: widget.settings.borderRadius,
+                  boxShadow: widget.settings.boxShadow,
+                ),
+                child: background,
+              )
+            else
+              background,
+            ...squareWidgets,
+          ],
+        ),
       ),
     );
+  }
+
+  void _onTouchedEvent(Offset localPosition) {
+    if (widget.pointerToolMode == PointerToolMode.drag) {
+      return;
+    }
+    final squareId = widget.offsetSquareId(localPosition);
+    if (squareId != null) {
+      widget.onTouchedSquare?.call(squareId);
+    }
   }
 }

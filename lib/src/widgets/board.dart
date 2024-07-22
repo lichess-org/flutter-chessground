@@ -1,10 +1,10 @@
 import 'dart:async';
-import 'package:chessground/src/widgets/drag.dart';
 import 'package:dartchess/dartchess.dart' show Piece, Role, Side;
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 
+import 'drag.dart';
 import 'piece.dart';
 import 'highlight.dart';
 import 'positioned_square.dart';
@@ -23,11 +23,45 @@ const double _kDragDistanceThreshold = 3.0;
 
 const _kCancelShapesDoubleTapDelay = Duration(milliseconds: 200);
 
+mixin BoardGeometry {
+  /// Visual size of the board.
+  double get size;
+
+  /// Side by which the board is oriented.
+  Side get orientation;
+
+  /// Size of a single square on the board.
+  double get squareSize => size / 8;
+
+  /// Converts a board offset to a coordinate.
+  ///
+  /// Returns `null` if the offset is outside the board.
+  Coord? offsetCoord(Offset offset) {
+    final x = (offset.dx / squareSize).floor();
+    final y = (offset.dy / squareSize).floor();
+    final orientX = orientation == Side.black ? 7 - x : x;
+    final orientY = orientation == Side.black ? y : 7 - y;
+    if (orientX >= 0 && orientX <= 7 && orientY >= 0 && orientY <= 7) {
+      return Coord(x: orientX, y: orientY);
+    } else {
+      return null;
+    }
+  }
+
+  /// Converts a board offset to a square id.
+  ///
+  /// Returns `null` if the offset is outside the board.
+  SquareId? offsetSquareId(Offset offset) {
+    final coord = offsetCoord(offset);
+    return coord?.squareId;
+  }
+}
+
 /// A chessboard widget.
 ///
 /// This widget can be used to display a static board, a dynamic board that
 /// shows a live game, or a full user interactable board.
-class ChessBoard extends StatefulWidget {
+class ChessBoard extends StatefulWidget with BoardGeometry {
   const ChessBoard({
     super.key,
     required this.size,
@@ -37,8 +71,11 @@ class ChessBoard extends StatefulWidget {
     this.onPremove,
   });
 
-  /// Visal size of the board.
+  @override
   final double size;
+
+  @override
+  Side get orientation => data.orientation;
 
   /// Settings that control the theme, behavior and purpose of the board.
   final BoardSettings settings;
@@ -53,27 +90,6 @@ class ChessBoard extends StatefulWidget {
   ///
   /// If the callback is null, the board will not allow premoves.
   final void Function(BoardMove?)? onPremove;
-
-  double get squareSize => size / 8;
-
-  /// Converts a board offset to a coordinate if it is within the board bounds.
-  Coord? _localOffsetCoord(Offset offset) {
-    final x = (offset.dx / squareSize).floor();
-    final y = (offset.dy / squareSize).floor();
-    final orientX = data.orientation == Side.black ? 7 - x : x;
-    final orientY = data.orientation == Side.black ? y : 7 - y;
-    if (orientX >= 0 && orientX <= 7 && orientY >= 0 && orientY <= 7) {
-      return Coord(x: orientX, y: orientY);
-    } else {
-      return null;
-    }
-  }
-
-  /// Converts a board offset to a square id if it is within the board bounds.
-  SquareId? _localOffsetSquareId(Offset offset) {
-    final coord = _localOffsetCoord(offset);
-    return coord?.squareId;
-  }
 
   @override
   // ignore: library_private_types_in_public_api
@@ -457,7 +473,7 @@ class _BoardState extends State<ChessBoard> {
 
   /// Returns the position of the square target during drag as a global offset.
   Offset? _squareTargetGlobalOffset(Offset localPosition, RenderBox box) {
-    final coord = widget._localOffsetCoord(localPosition);
+    final coord = widget.offsetCoord(localPosition);
     if (coord == null) return null;
     final localOffset =
         coord.offset(widget.data.orientation, widget.squareSize);
@@ -471,7 +487,7 @@ class _BoardState extends State<ChessBoard> {
   void _onPointerDown(PointerDownEvent details) {
     if (details.buttons != kPrimaryButton) return;
 
-    final squareId = widget._localOffsetSquareId(details.localPosition);
+    final squareId = widget.offsetSquareId(details.localPosition);
     if (squareId == null) return;
 
     final Piece? piece = pieces[squareId];
@@ -576,7 +592,7 @@ class _BoardState extends State<ChessBoard> {
         _drawOrigin!.pointer == details.pointer) {
       final distance = (details.position - _drawOrigin!.position).distance;
       if (distance > _kDragDistanceThreshold) {
-        final squareId = widget._localOffsetSquareId(details.localPosition);
+        final squareId = widget.offsetSquareId(details.localPosition);
         if (squareId == null) return;
         setState(() {
           _shapeAvatar = _shapeAvatar!.newDest(squareId);
@@ -623,7 +639,7 @@ class _BoardState extends State<ChessBoard> {
 
     if (_dragAvatar != null && _renderBox != null) {
       final localPos = _renderBox!.globalToLocal(_dragAvatar!._position);
-      final squareId = widget._localOffsetSquareId(localPos);
+      final squareId = widget.offsetSquareId(localPos);
       if (squareId != null && squareId != selected) {
         _tryMoveOrPremoveTo(squareId, drop: true);
       }
@@ -634,7 +650,7 @@ class _BoardState extends State<ChessBoard> {
         _premoveDests = null;
       });
     } else if (selected != null) {
-      final squareId = widget._localOffsetSquareId(details.localPosition);
+      final squareId = widget.offsetSquareId(details.localPosition);
       if (squareId == selected && _shouldDeselectOnTapUp) {
         _shouldDeselectOnTapUp = false;
         setState(() {
@@ -674,7 +690,7 @@ class _BoardState extends State<ChessBoard> {
   }
 
   void _onDragStart(PointerEvent origin) {
-    final squareId = widget._localOffsetSquareId(origin.localPosition);
+    final squareId = widget.offsetSquareId(origin.localPosition);
     final piece = squareId != null ? pieces[squareId] : null;
     if (squareId != null &&
         piece != null &&

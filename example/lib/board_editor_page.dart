@@ -14,8 +14,9 @@ class BoardEditorPage extends StatefulWidget {
 class _BoardEditorPageState extends State<BoardEditorPage> {
   Pieces pieces = readFen(dc.kInitialFEN);
 
-  dc.Piece? pieceToAddOnTap;
-  bool deleteOnTap = false;
+  dc.Piece? pieceToAddOnTouch;
+  bool deleteOnTouch = false;
+  PointerToolMode pointerMode = PointerToolMode.drag;
 
   @override
   Widget build(BuildContext context) {
@@ -33,11 +34,12 @@ class _BoardEditorPageState extends State<BoardEditorPage> {
       orientation: dc.Side.white,
       pieces: pieces,
       settings: settings,
-      onTappedSquare: (squareId) => setState(() {
-        if (deleteOnTap) {
+      pointerToolMode: pointerMode,
+      onTouchedSquare: (squareId) => setState(() {
+        if (deleteOnTouch) {
           pieces.remove(squareId);
-        } else if (pieceToAddOnTap != null) {
-          pieces[squareId] = pieceToAddOnTap!;
+        } else if (pieceToAddOnTouch != null) {
+          pieces[squareId] = pieceToAddOnTouch!;
         }
       }),
       onDiscardedPiece: (squareId) => setState(() {
@@ -56,15 +58,23 @@ class _BoardEditorPageState extends State<BoardEditorPage> {
           pieceSet: pieceSet,
           squareSize: boardEditor.squareSize,
           settings: settings,
-          selectedPiece: pieceToAddOnTap,
+          selectedPiece:
+              pointerMode == PointerToolMode.edit ? pieceToAddOnTouch : null,
           pieceTapped: (role) => setState(() {
-            pieceToAddOnTap = dc.Piece(role: role, color: side);
-            deleteOnTap = false;
+            pieceToAddOnTouch = dc.Piece(role: role, color: side);
+            deleteOnTouch = false;
+            pointerMode = PointerToolMode.edit;
           }),
-          deleteSelected: deleteOnTap,
+          deleteOnTouch: deleteOnTouch,
+          pointerMode: pointerMode,
           deleteTapped: () => setState(() {
-            pieceToAddOnTap = null;
-            deleteOnTap = !deleteOnTap;
+            pieceToAddOnTouch = null;
+            deleteOnTouch = !deleteOnTouch;
+            pointerMode = PointerToolMode.edit;
+          }),
+          pointerModeTapped: () => setState(() {
+            pointerMode = PointerToolMode.drag;
+            deleteOnTouch = false;
           }),
         );
 
@@ -76,10 +86,14 @@ class _BoardEditorPageState extends State<BoardEditorPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            makePieceMenu(dc.Side.white),
-            boardEditor,
             makePieceMenu(dc.Side.black),
-            Text('FEN: ${writeFen(pieces)}'),
+            boardEditor,
+            makePieceMenu(dc.Side.white),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child:
+                  SizedBox(height: 50, child: Text('FEN: ${writeFen(pieces)}')),
+            ),
           ],
         ),
       ),
@@ -94,20 +108,24 @@ class PieceMenu extends StatelessWidget {
     required this.pieceSet,
     required this.squareSize,
     required this.selectedPiece,
-    required this.deleteSelected,
+    required this.deleteOnTouch,
+    required this.pointerMode,
     required this.settings,
     required this.pieceTapped,
     required this.deleteTapped,
+    required this.pointerModeTapped,
   });
 
   final dc.Side side;
   final PieceSet pieceSet;
   final double squareSize;
   final dc.Piece? selectedPiece;
-  final bool deleteSelected;
+  final bool deleteOnTouch;
+  final PointerToolMode pointerMode;
   final BoardEditorSettings settings;
   final Function(dc.Role role) pieceTapped;
   final Function() deleteTapped;
+  final Function() pointerModeTapped;
 
   @override
   Widget build(BuildContext context) {
@@ -116,6 +134,18 @@ class PieceMenu extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
+          Container(
+            color: pointerMode == PointerToolMode.drag
+                ? Colors.green
+                : Colors.transparent,
+            child: GestureDetector(
+              onTap: () => pointerModeTapped(),
+              child: Icon(
+                Icons.pan_tool_alt_outlined,
+                size: squareSize,
+              ),
+            ),
+          ),
           ...dc.Role.values.mapIndexed(
             (i, role) {
               final piece = dc.Piece(role: role, color: side);
@@ -143,11 +173,13 @@ class PieceMenu extends StatelessWidget {
             },
           ).toList(),
           Container(
-            color: deleteSelected ? Colors.red : Colors.transparent,
+            color: pointerMode == PointerToolMode.edit && deleteOnTouch
+                ? Colors.red
+                : Colors.transparent,
             child: GestureDetector(
               onTap: () => deleteTapped(),
               child: Icon(
-                Icons.delete,
+                Icons.delete_outline,
                 size: squareSize,
               ),
             ),
