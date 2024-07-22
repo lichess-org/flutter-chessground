@@ -82,6 +82,71 @@ void main() {
       }
     });
 
+    testWidgets(
+        'touching a square does not trigger the onTouchedSquare callback when the board pointer tool mode is `drag`',
+        (WidgetTester tester) async {
+      SquareId? tappedSquare;
+      await tester.pumpWidget(
+        buildBoard(
+          pieces: {},
+          onTouchedSquare: (square) => tappedSquare = square,
+        ),
+      );
+
+      await tester.tapAt(squareOffset(const SquareId('a1')));
+      expect(tappedSquare, null);
+
+      await tester.tapAt(squareOffset(const SquareId('g8')));
+      expect(tappedSquare, null);
+    });
+
+    testWidgets('pan movements trigger the onTouchedSquare callback',
+        (WidgetTester tester) async {
+      final Set<SquareId> touchedSquares = {};
+      await tester.pumpWidget(
+        buildBoard(
+          pieces: {},
+          pointerToolMode: PointerToolMode.edit,
+          onTouchedSquare: (square) => touchedSquares.add(square),
+        ),
+      );
+
+      // Pan from a1 to a8
+      await tester.timedDragFrom(
+        squareOffset(const SquareId('a1')),
+        const Offset(0, -(squareSize * 7)),
+        const Duration(seconds: 1),
+      );
+      expect(touchedSquares, {
+        'a1',
+        'a2',
+        'a3',
+        'a4',
+        'a5',
+        'a6',
+        'a7',
+        'a8',
+      });
+
+      touchedSquares.clear();
+      // Pan from a1 to h1
+      await tester.timedDragFrom(
+        squareOffset(const SquareId('a1')),
+        const Offset(squareSize * 7, 0),
+        const Duration(seconds: 1),
+      );
+      expect(touchedSquares, {
+        'a1',
+        'b1',
+        'c1',
+        'd1',
+        'e1',
+        'f1',
+        'g1',
+        'h1',
+      });
+    });
+
     testWidgets('dragging pieces to a new square calls onDroppedPiece',
         (WidgetTester tester) async {
       (SquareId? origin, SquareId? destination, Piece? piece) callbackParams =
