@@ -9,6 +9,7 @@ import 'models.dart';
 /// Used to configure the board with state that will/may change during a game.
 @immutable
 abstract class BoardData {
+  /// Creates a new [BoardData] with the provided values.
   const factory BoardData({
     required InteractableSide interactableSide,
     required Side orientation,
@@ -41,7 +42,7 @@ abstract class BoardData {
           'sideToMove must be set when isCheck is set, or when the board is interactable.',
         );
 
-  /// Which color is allowed to move? It can be both, none, white or black
+  /// Which color is allowed to move? It can be both, none, white or black.
   ///
   /// If `none` is chosen the board will be non interactable.
   final InteractableSide interactableSide;
@@ -108,6 +109,7 @@ abstract class BoardData {
         annotations,
       );
 
+  /// Creates a copy of this [BoardData] but with the given fields replaced with the new values.
   BoardData copyWith({
     InteractableSide? interactableSide,
     Side? orientation,

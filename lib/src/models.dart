@@ -10,7 +10,7 @@ enum InteractableSide { both, none, white, black }
 /// The [PieceAssets] must be complete with all the pieces for both sides.
 typedef PieceAssets = IMap<PieceKind, AssetImage>;
 
-/// Square identifier using the algebraic coordinate notation such as e2, c3, etc.
+/// Square identifier using the algebraic coordinate notation, such as e2, c3, etc.
 extension type const SquareId._(String value) {
   const SquareId(this.value)
       : assert(
@@ -148,7 +148,7 @@ class HighlightDetails {
 /// For instance a1 is (0, 0), a2 is (0, 1), etc.
 @immutable
 class Coord {
-  /// Create a new [Coord] with the provided values.
+  /// Creates a new [Coord] with the provided values.
   const Coord({
     required this.x,
     required this.y,
@@ -291,7 +291,7 @@ class Annotation {
   /// Annotation background color.
   final Color color;
 
-  /// Specify a duration to create a transient annotation.
+  /// Optional duration to create a transient annotation.
   final Duration? duration;
 
   @override
@@ -330,17 +330,17 @@ sealed class Shape {
   /// Scale factor for the shape. Must be between 0.0 and 1.0.
   double get scale => 1.0;
 
-  /// Decide what shape to draw based on the current shape and the new destination.
+  /// Decides what shape to draw based on the current shape and the new destination.
   Shape newDest(SquareId newDest);
 
   /// Returns a new shape with the same properties but a different scale.
   Shape withScale(double scale);
 }
 
-/// An circle shape that can be drawn on the board.
+/// A circle shape that can be drawn on the board.
 @immutable
 class Circle implements Shape {
-  /// Create a new [Circle] with the provided values.
+  /// Creates a new [Circle] with the provided values.
   ///
   /// The [scale] must be between 0.0 and 1.0.
   const Circle({
@@ -383,7 +383,7 @@ class Circle implements Shape {
   @override
   int get hashCode => Object.hash(color, orig, scale);
 
-  /// Create a new [Circle] with the provided values.
+  /// Creates a copy of this [Circle] with the given fields replaced by the new values.
   Circle copyWith({
     Color? color,
     SquareId? orig,
@@ -410,7 +410,7 @@ class Arrow implements Shape {
   @override
   final double scale;
 
-  /// Create a new [Arrow] with the provided values.
+  /// Creates a new [Arrow] with the provided values.
   ///
   /// The [orig] and [dest] must be different squares.
   /// The [scale] must be between 0.0 and 1.0.
@@ -445,7 +445,7 @@ class Arrow implements Shape {
   @override
   int get hashCode => Object.hash(color, orig, dest, scale);
 
-  /// Create a new [Arrow] with the provided values.
+  /// Creates a copy of this [Arrow] with the given fields replaced by the new values.
   Arrow copyWith({
     Color? color,
     SquareId? orig,
@@ -470,7 +470,7 @@ class PieceShape implements Shape {
   @override
   final double scale;
 
-  /// Create a new [PieceShape] with the provided values.
+  /// Creates a new [PieceShape] with the provided values.
   ///
   /// The [scale] must be between 0.0 and 1.0.
   const PieceShape({
@@ -504,7 +504,7 @@ class PieceShape implements Shape {
   @override
   int get hashCode => Object.hash(color, role, orig, scale);
 
-  /// Create a new [PieceShape] with the provided values.
+  /// Creates a copy of this [PieceShape] with the given fields replaced by the new values.
   PieceShape copyWith({
     Color? color,
     Role? role,

@@ -23,6 +23,7 @@ const double _kDragDistanceThreshold = 3.0;
 
 const _kCancelShapesDoubleTapDelay = Duration(milliseconds: 200);
 
+/// A mixin that provides geometry information about the board.
 mixin BoardGeometry {
   /// Visual size of the board.
   double get size;

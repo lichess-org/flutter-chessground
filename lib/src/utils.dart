@@ -3,13 +3,10 @@ import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 
 import 'models.dart';
 
-/// Gets all the legal moves of the [Position] in the algebraic coordinate notation.
+/// Gets all the legal moves of the [Position].
 ///
 /// Includes both possible representations of castling moves (unless `chess960` is true).
-IMap<SquareId, ISet<SquareId>> legalMovesOf(
-  Position pos, {
-  bool isChess960 = false,
-}) {
+ValidMoves legalMovesOf(Position pos, {bool isChess960 = false}) {
   final Map<SquareId, ISet<SquareId>> result = {};
   for (final entry in pos.legalMoves.entries) {
     final dests = entry.value.squares;

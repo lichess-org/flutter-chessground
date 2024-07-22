@@ -2,7 +2,7 @@ import 'package:dartchess/dartchess.dart' show Piece, Role, Side;
 import 'package:flutter/widgets.dart';
 import 'models.dart';
 
-/// Parse the board part of a FEN string.
+/// Parses the board part of a FEN string.
 Pieces readFen(String fen) {
   final Pieces pieces = {};
   int row = 7;
@@ -40,7 +40,7 @@ Pieces readFen(String fen) {
   return pieces;
 }
 
-/// Convert the pieces to the board part of a FEN string
+/// Converts the pieces to the board part of a FEN string.
 String writeFen(Pieces pieces) {
   final buffer = StringBuffer();
   int empty = 0;

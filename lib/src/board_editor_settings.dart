@@ -10,6 +10,7 @@ import 'piece_set.dart';
 /// defaults are provided.
 @immutable
 class BoardEditorSettings {
+  /// Creates a new [BoardEditorSettings] with the provided values.
   const BoardEditorSettings({
     // theme
     this.colorScheme = BoardColorScheme.brown,
@@ -22,25 +23,25 @@ class BoardEditorSettings {
     this.dragFeedbackOffset = const Offset(0.0, -1.0),
   });
 
-  /// Theme of the board
+  /// Theme of the board.
   final BoardColorScheme colorScheme;
 
-  /// Piece set
+  /// Piece set.
   final PieceAssets pieceAssets;
 
-  /// Border radius of the board
+  /// Border radius of the board.
   final BorderRadiusGeometry borderRadius;
 
-  /// Box shadow of the board
+  /// Box shadow of the board.
   final List<BoxShadow> boxShadow;
 
-  /// Whether to show board coordinates
+  /// Whether to show board coordinates.
   final bool enableCoordinates;
 
-  // Scale up factor for the piece currently under drag
+  // Scale up factor for the piece currently under drag.
   final double dragFeedbackSize;
 
-  // Offset for the piece currently under drag
+  // Offset for the piece currently under drag.
   final Offset dragFeedbackOffset;
 
   @override
@@ -72,6 +73,7 @@ class BoardEditorSettings {
         dragFeedbackOffset,
       );
 
+  /// Creates a copy of this [BoardEditorSettings] but with the given fields replaced with the new values.
   BoardEditorSettings copyWith({
     BoardColorScheme? colorScheme,
     PieceAssets? pieceAssets,
