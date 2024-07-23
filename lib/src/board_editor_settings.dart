@@ -13,7 +13,7 @@ class BoardEditorSettings {
   /// Creates a new [BoardEditorSettings] with the provided values.
   const BoardEditorSettings({
     // theme
-    this.colorScheme = BoardColorScheme.brown,
+    this.colorScheme = ChessboardColorScheme.brown,
     this.pieceAssets = PieceSet.cburnettAssets,
     // visual settings
     this.borderRadius = BorderRadius.zero,
@@ -24,7 +24,7 @@ class BoardEditorSettings {
   });
 
   /// Theme of the board.
-  final BoardColorScheme colorScheme;
+  final ChessboardColorScheme colorScheme;
 
   /// Piece set.
   final PieceAssets pieceAssets;
@@ -75,7 +75,7 @@ class BoardEditorSettings {
 
   /// Creates a copy of this [BoardEditorSettings] but with the given fields replaced with the new values.
   BoardEditorSettings copyWith({
-    BoardColorScheme? colorScheme,
+    ChessboardColorScheme? colorScheme,
     PieceAssets? pieceAssets,
     BorderRadiusGeometry? borderRadius,
     List<BoxShadow>? boxShadow,

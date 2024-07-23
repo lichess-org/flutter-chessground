@@ -143,7 +143,7 @@ class HighlightDetails {
   final AssetImage? image;
 }
 
-/// Zero-based numeric board coordinate.
+/// Zero-based numeric chessboard coordinate.
 ///
 /// For instance a1 is (0, 0), a2 is (0, 1), etc.
 @immutable
@@ -218,14 +218,14 @@ class PositionedPiece {
 
 /// A chess move from one [SquareId] to another, with an optional promotion.
 @immutable
-class BoardMove {
-  const BoardMove({
+class Move {
+  const Move({
     required this.from,
     required this.to,
     this.promotion,
   });
 
-  BoardMove.fromUci(String uci)
+  Move.fromUci(String uci)
       : from = SquareId(uci.substring(0, 2)),
         to = SquareId(uci.substring(2, 4)),
         promotion = uci.length > 4 ? _toRole(uci.substring(4)) : null;
@@ -242,8 +242,8 @@ class BoardMove {
     return from == squareId || to == squareId;
   }
 
-  BoardMove withPromotion(Role promotion) {
-    return BoardMove(
+  Move withPromotion(Role promotion) {
+    return Move(
       from: from,
       to: to,
       promotion: promotion,
@@ -253,7 +253,7 @@ class BoardMove {
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
-        other is BoardMove &&
+        other is Move &&
             other.runtimeType == runtimeType &&
             other.from == from &&
             other.to == to &&

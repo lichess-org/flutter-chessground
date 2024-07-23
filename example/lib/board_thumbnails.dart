@@ -19,9 +19,9 @@ class BoardThumbnailsPage extends StatelessWidget {
         children: [
           for (final fen in positions)
             LayoutBuilder(builder: (context, constraints) {
-              return ChessBoard(
+              return Chessboard(
                 size: constraints.biggest.width,
-                settings: BoardSettings(
+                settings: ChessboardSettings(
                   enableCoordinates: false,
                   borderRadius: BorderRadius.circular(5),
                   boxShadow: [
@@ -43,7 +43,7 @@ class BoardThumbnailsPage extends StatelessWidget {
                     ),
                   ],
                 ),
-                data: BoardData(
+                state: ChessboardState(
                   interactableSide: InteractableSide.none,
                   orientation: Side.white,
                   fen: fen,

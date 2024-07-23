@@ -23,7 +23,7 @@ chess logic so you can use it with different chess variants.
 
 ## Getting started
 
-This package exports a `ChessBoard` widget which can be interactable or not. It is
+This package exports a `Chessboard` widget which can be interactable or not. It is
 entirely configurable with a `BoardSettings` object.
 
 ## Usage
@@ -54,9 +54,9 @@ class _MyHomePageState extends State<MyHomePage> {
         title: const Text('Chessground demo'),
       ),
       body: Center(
-        child: ChessBoard(
+        child: Chessboard(
           size: screenWidth,
-          data: BoardData(
+          state: ChessboardState(
             interactableSide: InteractableSide.none,
             orientation: Side.white,
             fen: fen,

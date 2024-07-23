@@ -11,7 +11,7 @@ void main() {
   group('BoardEditor', () {
     testWidgets('empty board has no pieces', (WidgetTester tester) async {
       await tester.pumpWidget(buildBoard(pieces: {}));
-      expect(find.byType(ChessBoardEditor), findsOneWidget);
+      expect(find.byType(ChessboardEditor), findsOneWidget);
       expect(find.byType(PieceWidget), findsNothing);
 
       for (final square in allSquares) {
@@ -192,7 +192,7 @@ void main() {
         MaterialApp(
           home: Column(
             children: [
-              ChessBoardEditor(
+              ChessboardEditor(
                 size: boardSize,
                 orientation: Side.white,
                 pieces: const {},
@@ -259,7 +259,7 @@ Widget buildBoard({
   void Function(SquareId square)? onDiscardedPiece,
 }) {
   return MaterialApp(
-    home: ChessBoardEditor(
+    home: ChessboardEditor(
       size: boardSize,
       orientation: orientation,
       pointerMode: pointerMode,

@@ -3,9 +3,9 @@ import 'package:flutter/widgets.dart';
 
 /// Base widget for the background of the chessboard.
 ///
-/// See [SolidColorBackground] and [ImageBackground] for concrete implementations.
-abstract class Background extends StatelessWidget {
-  const Background({
+/// See [SolidColorChessboardBackground] and [ImageChessboardBackground] for concrete implementations.
+abstract class ChessboardBackground extends StatelessWidget {
+  const ChessboardBackground({
     super.key,
     this.coordinates = false,
     this.orientation = Side.white,
@@ -20,8 +20,8 @@ abstract class Background extends StatelessWidget {
 }
 
 /// A chessboard background with solid color squares.
-class SolidColorBackground extends Background {
-  const SolidColorBackground({
+class SolidColorChessboardBackground extends ChessboardBackground {
+  const SolidColorChessboardBackground({
     super.key,
     super.coordinates,
     super.orientation,
@@ -69,8 +69,8 @@ class SolidColorBackground extends Background {
 }
 
 /// A chessboard background made of an image.
-class ImageBackground extends Background {
-  const ImageBackground({
+class ImageChessboardBackground extends ChessboardBackground {
+  const ImageChessboardBackground({
     super.key,
     super.coordinates,
     super.orientation,

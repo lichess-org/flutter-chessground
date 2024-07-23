@@ -17,15 +17,15 @@ enum PieceShiftMethod {
   either;
 }
 
-/// Board settings that control the theme, behavior and purpose of the board.
+/// Board settings that controls visual aspects and behavior of the board.
 ///
 /// This is meant for fixed settings that don't change during a game. Sensible
 /// defaults are provided.
 @immutable
-class BoardSettings {
-  const BoardSettings({
+class ChessboardSettings {
+  const ChessboardSettings({
     // theme
-    this.colorScheme = BoardColorScheme.brown,
+    this.colorScheme = ChessboardColorScheme.brown,
     this.pieceAssets = PieceSet.cburnettAssets,
     // visual settings
     this.borderRadius = BorderRadius.zero,
@@ -49,7 +49,7 @@ class BoardSettings {
   });
 
   /// Theme of the board
-  final BoardColorScheme colorScheme;
+  final ChessboardColorScheme colorScheme;
 
   /// Piece set
   final PieceAssets pieceAssets;
@@ -106,7 +106,7 @@ class BoardSettings {
     if (other.runtimeType != runtimeType) {
       return false;
     }
-    return other is BoardSettings &&
+    return other is ChessboardSettings &&
         other.colorScheme == colorScheme &&
         other.pieceAssets == pieceAssets &&
         other.borderRadius == borderRadius &&
@@ -145,8 +145,8 @@ class BoardSettings {
         drawShape,
       );
 
-  BoardSettings copyWith({
-    BoardColorScheme? colorScheme,
+  ChessboardSettings copyWith({
+    ChessboardColorScheme? colorScheme,
     PieceAssets? pieceAssets,
     BorderRadiusGeometry? borderRadius,
     List<BoxShadow>? boxShadow,
@@ -163,7 +163,7 @@ class BoardSettings {
     PieceShiftMethod? pieceShiftMethod,
     DrawShapeOptions? drawShape,
   }) {
-    return BoardSettings(
+    return ChessboardSettings(
       colorScheme: colorScheme ?? this.colorScheme,
       pieceAssets: pieceAssets ?? this.pieceAssets,
       borderRadius: borderRadius ?? this.borderRadius,

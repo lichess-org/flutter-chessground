@@ -23,13 +23,13 @@ class PromotionSelector extends StatelessWidget {
   });
 
   final PieceAssets pieceAssets;
-  final BoardMove move;
+  final Move move;
   final Side color;
   final double squareSize;
   final Side orientation;
   final bool piecesUpsideDown;
-  final void Function(BoardMove, Piece) onSelect;
-  final void Function(BoardMove) onCancel;
+  final void Function(Move, Piece) onSelect;
+  final void Function(Move) onCancel;
 
   SquareId get squareId => move.to;
 

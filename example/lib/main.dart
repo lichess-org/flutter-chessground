@@ -58,8 +58,8 @@ class _HomePageState extends State<HomePage> {
   dc.Position<dc.Chess> position = dc.Chess.initial;
   dc.Side orientation = dc.Side.white;
   String fen = dc.kInitialBoardFEN;
-  BoardMove? lastMove;
-  BoardMove? premove;
+  Move? lastMove;
+  Move? premove;
   ValidMoves validMoves = IMap(const {});
   dc.Side sideToMove = dc.Side.white;
   PieceSet pieceSet = PieceSet.merida;
@@ -134,9 +134,9 @@ class _HomePageState extends State<HomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            ChessBoard(
+            Chessboard(
               size: screenWidth,
-              settings: BoardSettings(
+              settings: ChessboardSettings(
                 pieceAssets: pieceSet.assets,
                 colorScheme: boardTheme.colors,
                 enableCoordinates: true,
@@ -155,7 +155,7 @@ class _HomePageState extends State<HomePage> {
                 ),
                 pieceShiftMethod: pieceShiftMethod,
               ),
-              data: BoardData(
+              state: ChessboardState(
                 interactableSide: playMode == Mode.botPlay
                     ? InteractableSide.white
                     : (position.turn == dc.Side.white
@@ -369,13 +369,13 @@ class _HomePageState extends State<HomePage> {
     super.initState();
   }
 
-  void _onSetPremove(BoardMove? move) {
+  void _onSetPremove(Move? move) {
     setState(() {
       premove = move;
     });
   }
 
-  void _onUserMoveFreePlay(BoardMove move, {bool? isDrop, bool? isPremove}) {
+  void _onUserMoveFreePlay(Move move, {bool? isDrop, bool? isPremove}) {
     lastPos = position;
     final m = dc.Move.fromUci(move.uci)!;
     setState(() {
@@ -386,8 +386,7 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  void _onUserMoveAgainstBot(BoardMove move,
-      {bool? isDrop, bool? isPremove}) async {
+  void _onUserMoveAgainstBot(Move move, {bool? isDrop, bool? isPremove}) async {
     lastPos = position;
     final m = dc.Move.fromUci(move.uci)!;
     setState(() {
@@ -415,7 +414,7 @@ class _HomePageState extends State<HomePage> {
         final mv = (allMoves..shuffle()).first;
         setState(() {
           position = position.playUnchecked(mv);
-          lastMove = BoardMove(
+          lastMove = Move(
               from: SquareId(dc.toAlgebraic(mv.from)),
               to: SquareId(dc.toAlgebraic(mv.to)));
           fen = position.fen;

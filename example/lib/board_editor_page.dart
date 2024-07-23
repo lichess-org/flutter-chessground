@@ -30,7 +30,7 @@ class _BoardEditorPageState extends State<BoardEditorPage> {
       colorScheme: BoardTheme.blue.colors,
       enableCoordinates: true,
     );
-    final boardEditor = ChessBoardEditor(
+    final boardEditor = ChessboardEditor(
       size: screenWidth,
       orientation: dc.Side.white,
       pieces: pieces,

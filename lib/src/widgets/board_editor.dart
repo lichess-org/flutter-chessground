@@ -34,8 +34,8 @@ enum EditorPointerMode {
 ///
 /// A [writeFen] method is provided by this package to convert the current state
 /// of the board editor to a FEN string.
-class ChessBoardEditor extends StatefulWidget with BoardGeometry {
-  const ChessBoardEditor({
+class ChessboardEditor extends StatefulWidget with ChessboardGeometry {
+  const ChessboardEditor({
     super.key,
     required this.size,
     required this.orientation,
@@ -93,10 +93,10 @@ class ChessBoardEditor extends StatefulWidget with BoardGeometry {
   final void Function(SquareId square)? onDiscardedPiece;
 
   @override
-  State<ChessBoardEditor> createState() => _BoardEditorState();
+  State<ChessboardEditor> createState() => _BoardEditorState();
 }
 
-class _BoardEditorState extends State<ChessBoardEditor> {
+class _BoardEditorState extends State<ChessboardEditor> {
   SquareId? draggedPieceOrigin;
 
   @override
@@ -217,7 +217,7 @@ class _BoardEditorState extends State<ChessBoardEditor> {
 
 /// The [Piece] to show under the pointer when a drag is under way.
 ///
-/// You can use this to drag pieces onto a [ChessBoardEditor] with the same
+/// You can use this to drag pieces onto a [ChessboardEditor] with the same
 /// appearance as when the pieces on the board are dragged.
 class PieceDragFeedback extends StatelessWidget {
   const PieceDragFeedback({

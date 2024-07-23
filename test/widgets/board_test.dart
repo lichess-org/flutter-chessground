@@ -14,14 +14,14 @@ void main() {
   group('Non-interactable board', () {
     const viewOnlyBoard = Directionality(
       textDirection: TextDirection.ltr,
-      child: ChessBoard(
+      child: Chessboard(
         size: boardSize,
-        data: BoardData(
+        state: ChessboardState(
           interactableSide: InteractableSide.none,
           orientation: Side.white,
           fen: dc.kInitialFEN,
         ),
-        settings: BoardSettings(
+        settings: ChessboardSettings(
           drawShape: DrawShapeOptions(enable: true),
         ),
       ),
@@ -30,7 +30,7 @@ void main() {
     testWidgets('initial position display', (WidgetTester tester) async {
       await tester.pumpWidget(viewOnlyBoard);
 
-      expect(find.byType(ChessBoard), findsOneWidget);
+      expect(find.byType(Chessboard), findsOneWidget);
       expect(find.byType(PieceWidget), findsNWidgets(32));
     });
 
@@ -372,7 +372,7 @@ void main() {
     testWidgets('promotion, auto queen enabled', (WidgetTester tester) async {
       await tester.pumpWidget(
         buildBoard(
-          settings: const BoardSettings(autoQueenPromotion: true),
+          settings: const ChessboardSettings(autoQueenPromotion: true),
           initialInteractableSide: InteractableSide.both,
           initialFen: '8/5P2/2RK2P1/8/4k3/8/8/7r w - - 0 1',
         ),
@@ -931,7 +931,7 @@ Future<void> makeMove(WidgetTester tester, String from, String to) async {
 
 Widget buildBoard({
   required InteractableSide initialInteractableSide,
-  BoardSettings? settings,
+  ChessboardSettings? settings,
   Side orientation = Side.white,
   String initialFen = dc.kInitialFEN,
   ISet<Shape>? initialShapes,
@@ -944,14 +944,14 @@ Widget buildBoard({
   InteractableSide interactableSide = initialInteractableSide;
   dc.Position<dc.Chess> position =
       dc.Chess.fromSetup(dc.Setup.parseFen(initialFen));
-  BoardMove? lastMove;
-  BoardMove? premove;
+  Move? lastMove;
+  Move? premove;
   ISet<Shape> shapes = initialShapes ?? ISet();
 
   return MaterialApp(
     home: StatefulBuilder(
       builder: (BuildContext context, StateSetter setState) {
-        final defaultSettings = BoardSettings(
+        final defaultSettings = ChessboardSettings(
           drawShape: DrawShapeOptions(
             enable: enableDrawingShapes,
             onCompleteShape: (shape) {
@@ -965,10 +965,10 @@ Widget buildBoard({
           pieceShiftMethod: pieceShiftMethod,
         );
 
-        return ChessBoard(
+        return Chessboard(
           size: boardSize,
           settings: settings ?? defaultSettings,
-          data: BoardData(
+          state: ChessboardState(
             interactableSide: interactableSide,
             orientation: orientation,
             fen: position.fen,
@@ -980,7 +980,7 @@ Widget buildBoard({
             premove: premove,
             shapes: shapes,
           ),
-          onMove: (BoardMove move, {bool? isDrop, bool? isPremove}) {
+          onMove: (Move move, {bool? isDrop, bool? isPremove}) {
             setState(() {
               position = position.playUnchecked(dc.Move.fromUci(move.uci)!);
               if (position.isGameOver) {
@@ -1002,12 +1002,12 @@ Widget buildBoard({
                   if (position.isGameOver) {
                     interactableSide = InteractableSide.none;
                   }
-                  lastMove = BoardMove.fromUci(opponentMove.uci);
+                  lastMove = Move.fromUci(opponentMove.uci);
                 });
               });
             }
           },
-          onPremove: (BoardMove? move) {
+          onPremove: (Move? move) {
             setState(() {
               premove = move;
             });

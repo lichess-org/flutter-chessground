@@ -15,15 +15,15 @@ import '../models.dart';
 import '../fen.dart';
 import '../premove.dart';
 import '../board_settings.dart';
-import '../board_data.dart';
+import '../board_state.dart';
 
 /// Number of logical pixels that have to be dragged before a drag starts.
 const double _kDragDistanceThreshold = 3.0;
 
 const _kCancelShapesDoubleTapDelay = Duration(milliseconds: 200);
 
-/// A mixin that provides geometry information about the board.
-mixin BoardGeometry {
+/// A mixin that provides geometry information about the chessboard.
+mixin ChessboardGeometry {
   /// Visual size of the board.
   double get size;
 
@@ -61,12 +61,12 @@ mixin BoardGeometry {
 ///
 /// This widget can be used to display a static board, a dynamic board that
 /// shows a live game, or a full user interactable board.
-class ChessBoard extends StatefulWidget with BoardGeometry {
-  const ChessBoard({
+class Chessboard extends StatefulWidget with ChessboardGeometry {
+  const Chessboard({
     super.key,
     required this.size,
-    required this.data,
-    this.settings = const BoardSettings(),
+    required this.state,
+    this.settings = const ChessboardSettings(),
     this.onMove,
     this.onPremove,
   });
@@ -75,34 +75,34 @@ class ChessBoard extends StatefulWidget with BoardGeometry {
   final double size;
 
   @override
-  Side get orientation => data.orientation;
+  Side get orientation => state.orientation;
 
   /// Settings that control the theme, behavior and purpose of the board.
-  final BoardSettings settings;
+  final ChessboardSettings settings;
 
-  /// Data that represents the current state of the board.
-  final BoardData data;
+  /// Current state of the board.
+  final ChessboardState state;
 
   /// Callback called after a move has been made.
-  final void Function(BoardMove, {bool? isDrop, bool? isPremove})? onMove;
+  final void Function(Move, {bool? isDrop, bool? isPremove})? onMove;
 
   /// Callback called after a premove has been set/unset.
   ///
   /// If the callback is null, the board will not allow premoves.
-  final void Function(BoardMove?)? onPremove;
+  final void Function(Move?)? onPremove;
 
   @override
   // ignore: library_private_types_in_public_api
   _BoardState createState() => _BoardState();
 }
 
-class _BoardState extends State<ChessBoard> {
+class _BoardState extends State<Chessboard> {
   Pieces pieces = {};
   Map<SquareId, (PositionedPiece, PositionedPiece)> translatingPieces = {};
   Map<SquareId, Piece> fadingPieces = {};
   SquareId? selected;
-  BoardMove? _promotionMove;
-  BoardMove? _lastDrop;
+  Move? _promotionMove;
+  Move? _lastDrop;
   Set<SquareId>? _premoveDests;
 
   bool _shouldDeselectOnTapUp = false;
@@ -149,31 +149,31 @@ class _BoardState extends State<ChessBoard> {
     final colorScheme = widget.settings.colorScheme;
     final ISet<SquareId> moveDests = widget.settings.showValidMoves &&
             selected != null &&
-            widget.data.validMoves != null
-        ? widget.data.validMoves![selected!] ?? _emptyValidMoves
+            widget.state.validMoves != null
+        ? widget.state.validMoves![selected!] ?? _emptyValidMoves
         : _emptyValidMoves;
     final Set<SquareId> premoveDests =
         widget.settings.showValidMoves ? _premoveDests ?? {} : {};
-    final shapes = widget.data.shapes ?? _emptyShapes;
-    final annotations = widget.data.annotations ?? _emptyAnnotations;
-    final checkSquare = widget.data.isCheck == true ? _getKingSquare() : null;
-    final premove = widget.data.premove;
+    final shapes = widget.state.shapes ?? _emptyShapes;
+    final annotations = widget.state.annotations ?? _emptyAnnotations;
+    final checkSquare = widget.state.isCheck == true ? _getKingSquare() : null;
+    final premove = widget.state.premove;
 
     final background = widget.settings.enableCoordinates
-        ? widget.data.orientation == Side.white
+        ? widget.state.orientation == Side.white
             ? colorScheme.whiteCoordBackground
             : colorScheme.blackCoordBackground
         : colorScheme.background;
 
     final List<Widget> highlightedBackground = [
       background,
-      if (widget.settings.showLastMove && widget.data.lastMove != null)
-        for (final squareId in widget.data.lastMove!.squares)
+      if (widget.settings.showLastMove && widget.state.lastMove != null)
+        for (final squareId in widget.state.lastMove!.squares)
           if (premove == null || !premove.hasSquare(squareId))
             PositionedSquare(
               key: ValueKey('$squareId-lastMove'),
               size: widget.squareSize,
-              orientation: widget.data.orientation,
+              orientation: widget.state.orientation,
               squareId: squareId,
               child: Highlight(
                 size: widget.squareSize,
@@ -181,12 +181,12 @@ class _BoardState extends State<ChessBoard> {
               ),
             ),
       if (premove != null &&
-          widget.data.interactableSide != InteractableSide.none)
+          widget.state.interactableSide != InteractableSide.none)
         for (final squareId in premove.squares)
           PositionedSquare(
             key: ValueKey('$squareId-premove'),
             size: widget.squareSize,
-            orientation: widget.data.orientation,
+            orientation: widget.state.orientation,
             squareId: squareId,
             child: Highlight(
               size: widget.squareSize,
@@ -197,7 +197,7 @@ class _BoardState extends State<ChessBoard> {
         PositionedSquare(
           key: ValueKey('${selected!}-selected'),
           size: widget.squareSize,
-          orientation: widget.data.orientation,
+          orientation: widget.state.orientation,
           squareId: selected!,
           child: Highlight(
             size: widget.squareSize,
@@ -208,7 +208,7 @@ class _BoardState extends State<ChessBoard> {
         PositionedSquare(
           key: ValueKey('$dest-dest'),
           size: widget.squareSize,
-          orientation: widget.data.orientation,
+          orientation: widget.state.orientation,
           squareId: dest,
           child: MoveDest(
             size: widget.squareSize,
@@ -220,7 +220,7 @@ class _BoardState extends State<ChessBoard> {
         PositionedSquare(
           key: ValueKey('$dest-premove-dest'),
           size: widget.squareSize,
-          orientation: widget.data.orientation,
+          orientation: widget.state.orientation,
           squareId: dest,
           child: MoveDest(
             size: widget.squareSize,
@@ -232,7 +232,7 @@ class _BoardState extends State<ChessBoard> {
         PositionedSquare(
           key: ValueKey('$checkSquare-check'),
           size: widget.squareSize,
-          orientation: widget.data.orientation,
+          orientation: widget.state.orientation,
           squareId: checkSquare,
           child: CheckHighlight(size: widget.squareSize),
         ),
@@ -243,7 +243,7 @@ class _BoardState extends State<ChessBoard> {
         PositionedSquare(
           key: ValueKey('${entry.key}-${entry.value}-fading'),
           size: widget.squareSize,
-          orientation: widget.data.orientation,
+          orientation: widget.state.orientation,
           squareId: entry.key,
           child: AnimatedPieceFadeOut(
             duration: widget.settings.animationDuration,
@@ -263,7 +263,7 @@ class _BoardState extends State<ChessBoard> {
           PositionedSquare(
             key: ValueKey('${entry.key}-${entry.value}'),
             size: widget.squareSize,
-            orientation: widget.data.orientation,
+            orientation: widget.state.orientation,
             squareId: entry.key,
             child: PieceWidget(
               piece: entry.value,
@@ -277,12 +277,12 @@ class _BoardState extends State<ChessBoard> {
         PositionedSquare(
           key: ValueKey('${entry.key}-${entry.value.$1.piece}'),
           size: widget.squareSize,
-          orientation: widget.data.orientation,
+          orientation: widget.state.orientation,
           squareId: entry.key,
           child: AnimatedPieceTranslation(
             fromCoord: entry.value.$1.coord,
             toCoord: entry.value.$2.coord,
-            orientation: widget.data.orientation,
+            orientation: widget.state.orientation,
             duration: widget.settings.animationDuration,
             onComplete: () {
               translatingPieces.remove(entry.key);
@@ -302,7 +302,7 @@ class _BoardState extends State<ChessBoard> {
             '${entry.key}-${entry.value.symbol}-${entry.value.color}',
           ),
           squareSize: widget.squareSize,
-          orientation: widget.data.orientation,
+          orientation: widget.state.orientation,
           squareId: entry.key,
           annotation: entry.value,
         ),
@@ -310,18 +310,18 @@ class _BoardState extends State<ChessBoard> {
         ShapeWidget(
           shape: shape,
           boardSize: widget.size,
-          orientation: widget.data.orientation,
+          orientation: widget.state.orientation,
         ),
       if (_shapeAvatar != null)
         ShapeWidget(
           shape: _shapeAvatar!,
           boardSize: widget.size,
-          orientation: widget.data.orientation,
+          orientation: widget.state.orientation,
         ),
     ];
 
     final interactable =
-        widget.data.interactableSide != InteractableSide.none ||
+        widget.state.interactableSide != InteractableSide.none ||
             widget.settings.drawShape.enable;
 
     return Listener(
@@ -347,15 +347,15 @@ class _BoardState extends State<ChessBoard> {
             else
               ...highlightedBackground,
             ...objects,
-            if (_promotionMove != null && widget.data.sideToMove != null)
+            if (_promotionMove != null && widget.state.sideToMove != null)
               PromotionSelector(
                 pieceAssets: widget.settings.pieceAssets,
                 move: _promotionMove!,
                 squareSize: widget.squareSize,
-                color: widget.data.sideToMove!,
-                orientation: widget.data.orientation,
-                piecesUpsideDown: widget.data.opponentsPiecesUpsideDown &&
-                    widget.data.sideToMove! != widget.data.orientation,
+                color: widget.state.sideToMove!,
+                orientation: widget.state.orientation,
+                piecesUpsideDown: widget.state.opponentsPiecesUpsideDown &&
+                    widget.state.sideToMove! != widget.state.orientation,
                 onSelect: _onPromotionSelect,
                 onCancel: _onPromotionCancel,
               ),
@@ -368,7 +368,7 @@ class _BoardState extends State<ChessBoard> {
   @override
   void initState() {
     super.initState();
-    pieces = readFen(widget.data.fen);
+    pieces = readFen(widget.state.fen);
   }
 
   @override
@@ -378,7 +378,7 @@ class _BoardState extends State<ChessBoard> {
   }
 
   @override
-  void didUpdateWidget(ChessBoard oldBoard) {
+  void didUpdateWidget(Chessboard oldBoard) {
     super.didUpdateWidget(oldBoard);
     if (oldBoard.settings.drawShape.enable &&
         !widget.settings.drawShape.enable) {
@@ -386,7 +386,7 @@ class _BoardState extends State<ChessBoard> {
       _drawOrigin = null;
       _shapeAvatar = null;
     }
-    if (widget.data.interactableSide == InteractableSide.none) {
+    if (widget.state.interactableSide == InteractableSide.none) {
       _currentPointerDownEvent = null;
       _dragAvatar?.cancel();
       _dragAvatar = null;
@@ -394,25 +394,25 @@ class _BoardState extends State<ChessBoard> {
       selected = null;
       _premoveDests = null;
     }
-    if (oldBoard.data.sideToMove != widget.data.sideToMove) {
+    if (oldBoard.state.sideToMove != widget.state.sideToMove) {
       _premoveDests = null;
       _promotionMove = null;
       if (widget.onPremove != null &&
-          widget.data.premove != null &&
-          widget.data.sideToMove?.name == widget.data.interactableSide.name) {
+          widget.state.premove != null &&
+          widget.state.sideToMove?.name == widget.state.interactableSide.name) {
         Timer.run(() {
           if (mounted) _tryPlayPremove();
         });
       }
     }
-    if (oldBoard.data.fen == widget.data.fen) {
+    if (oldBoard.state.fen == widget.state.fen) {
       _lastDrop = null;
       // as long as the fen is the same as before let's keep animations
       return;
     }
     translatingPieces = {};
     fadingPieces = {};
-    final newPieces = readFen(widget.data.fen);
+    final newPieces = readFen(widget.state.fen);
     final List<PositionedPiece> newOnSquare = [];
     final List<PositionedPiece> missingOnSquare = [];
     final Set<SquareId> animatedOrigins = {};
@@ -463,7 +463,7 @@ class _BoardState extends State<ChessBoard> {
 
   SquareId? _getKingSquare() {
     for (final square in pieces.keys) {
-      if (pieces[square]!.color == widget.data.sideToMove &&
+      if (pieces[square]!.color == widget.state.sideToMove &&
           pieces[square]!.role == Role.king) {
         return square;
       }
@@ -476,7 +476,7 @@ class _BoardState extends State<ChessBoard> {
     final coord = widget.offsetCoord(localPosition);
     if (coord == null) return null;
     final localOffset =
-        coord.offset(widget.data.orientation, widget.squareSize);
+        coord.offset(widget.state.orientation, widget.squareSize);
     final tmpOffset = box.localToGlobal(localOffset);
     return Offset(
       tmpOffset.dx - widget.squareSize / 2,
@@ -532,7 +532,7 @@ class _BoardState extends State<ChessBoard> {
       }
     }
 
-    if (widget.data.interactableSide == InteractableSide.none) return;
+    if (widget.state.interactableSide == InteractableSide.none) return;
 
     // From here on, we only allow 1 pointer to interact with the board. Other
     // pointers will cancel any current gesture.
@@ -570,7 +570,7 @@ class _BoardState extends State<ChessBoard> {
           canCastle: widget.settings.enablePremoveCastling,
         );
       });
-    } else if (widget.data.premove != null) {
+    } else if (widget.state.premove != null) {
       widget.onPremove?.call(null);
       setState(() {
         selected = null;
@@ -749,7 +749,7 @@ class _BoardState extends State<ChessBoard> {
     _shouldDeselectOnTapUp = false;
   }
 
-  void _onPromotionSelect(BoardMove move, Piece promoted) {
+  void _onPromotionSelect(Move move, Piece promoted) {
     setState(() {
       pieces[move.to] = promoted;
       _promotionMove = null;
@@ -757,14 +757,14 @@ class _BoardState extends State<ChessBoard> {
     widget.onMove?.call(move.withPromotion(promoted.role), isDrop: true);
   }
 
-  void _onPromotionCancel(BoardMove move) {
+  void _onPromotionCancel(Move move) {
     setState(() {
-      pieces = readFen(widget.data.fen);
+      pieces = readFen(widget.state.fen);
       _promotionMove = null;
     });
   }
 
-  void _openPromotionSelector(BoardMove move) {
+  void _openPromotionSelector(Move move) {
     setState(() {
       final pawn = pieces.remove(move.from);
       pieces[move.to] = pawn!;
@@ -775,29 +775,29 @@ class _BoardState extends State<ChessBoard> {
   /// Whether the piece should be displayed upside down, according to the
   /// widget settings.
   bool _isUpsideDown(Piece piece) {
-    return widget.data.opponentsPiecesUpsideDown &&
-        piece.color != widget.data.orientation;
+    return widget.state.opponentsPiecesUpsideDown &&
+        piece.color != widget.state.orientation;
   }
 
   /// Whether the piece is movable by the current side to move.
   bool _isMovable(Piece? piece) {
     return piece != null &&
-        (widget.data.interactableSide == InteractableSide.both ||
-            widget.data.interactableSide.name == piece.color.name) &&
-        widget.data.sideToMove == piece.color;
+        (widget.state.interactableSide == InteractableSide.both ||
+            widget.state.interactableSide.name == piece.color.name) &&
+        widget.state.sideToMove == piece.color;
   }
 
   /// Whether the piece is premovable by the current side to move.
   bool _isPremovable(Piece? piece) {
     return piece != null &&
         (widget.onPremove != null &&
-            widget.data.interactableSide.name == piece.color.name &&
-            widget.data.sideToMove != piece.color);
+            widget.state.interactableSide.name == piece.color.name &&
+            widget.state.sideToMove != piece.color);
   }
 
   /// Whether the piece is allowed to be moved to the target square.
   bool _canMoveTo(SquareId orig, SquareId dest) {
-    final validDests = widget.data.validMoves?[orig];
+    final validDests = widget.state.validMoves?[orig];
     return orig != dest && validDests != null && validDests.contains(dest);
   }
 
@@ -822,7 +822,7 @@ class _BoardState extends State<ChessBoard> {
   bool _tryMoveOrPremoveTo(SquareId squareId, {bool drop = false}) {
     final selectedPiece = selected != null ? pieces[selected] : null;
     if (selectedPiece != null && _canMoveTo(selected!, squareId)) {
-      final move = BoardMove(from: selected!, to: squareId);
+      final move = Move(from: selected!, to: squareId);
       if (drop) {
         _lastDrop = move;
       }
@@ -838,7 +838,7 @@ class _BoardState extends State<ChessBoard> {
       return true;
     } else if (_isPremovable(selectedPiece) &&
         _canPremoveTo(selected!, squareId)) {
-      widget.onPremove?.call(BoardMove(from: selected!, to: squareId));
+      widget.onPremove?.call(Move(from: selected!, to: squareId));
       return true;
     }
     return false;
@@ -846,7 +846,7 @@ class _BoardState extends State<ChessBoard> {
 
   /// Tries to play the premove if it is set and still valid.
   void _tryPlayPremove() {
-    final premove = widget.data.premove;
+    final premove = widget.state.premove;
     if (premove == null) {
       return;
     }

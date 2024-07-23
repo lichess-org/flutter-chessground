@@ -4,27 +4,29 @@ import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 
 import 'models.dart';
 
-/// Board data.
+/// The chessboard state.
 ///
-/// Used to configure the board with state that will/may change during a game.
+/// This state should be updated after every move during a game.
+///
+/// To make a fixed board, set [interactableSide] to [InteractableSide.none].
 @immutable
-abstract class BoardData {
-  /// Creates a new [BoardData] with the provided values.
-  const factory BoardData({
+abstract class ChessboardState {
+  /// Creates a new [ChessboardState] with the provided values.
+  const factory ChessboardState({
     required InteractableSide interactableSide,
     required Side orientation,
     required String fen,
     bool opponentsPiecesUpsideDown,
     Side? sideToMove,
-    BoardMove? premove,
-    BoardMove? lastMove,
+    Move? premove,
+    Move? lastMove,
     ValidMoves? validMoves,
     bool? isCheck,
     ISet<Shape>? shapes,
     IMap<SquareId, Annotation>? annotations,
-  }) = _BoardData;
+  }) = _ChessboardState;
 
-  const BoardData._({
+  const ChessboardState._({
     required this.interactableSide,
     required this.orientation,
     required this.fen,
@@ -60,10 +62,10 @@ abstract class BoardData {
   final String fen;
 
   /// Registered premove. Will be played right after the next opponent move.
-  final BoardMove? premove;
+  final Move? premove;
 
   /// Last move played, used to highlight corresponding squares.
-  final BoardMove? lastMove;
+  final Move? lastMove;
 
   /// Set of [Move] allowed to be played by current side to move.
   final ValidMoves? validMoves;
@@ -80,7 +82,7 @@ abstract class BoardData {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is BoardData &&
+      other is ChessboardState &&
           runtimeType == other.runtimeType &&
           interactableSide == other.interactableSide &&
           orientation == other.orientation &&
@@ -109,15 +111,15 @@ abstract class BoardData {
         annotations,
       );
 
-  /// Creates a copy of this [BoardData] but with the given fields replaced with the new values.
-  BoardData copyWith({
+  /// Creates a copy of this [ChessboardState] but with the given fields replaced with the new values.
+  ChessboardState copyWith({
     InteractableSide? interactableSide,
     Side? orientation,
     String? fen,
     bool? opponentsPiecesUpsideDown,
     Side? sideToMove,
-    BoardMove? premove,
-    BoardMove? lastMove,
+    Move? premove,
+    Move? lastMove,
     ValidMoves? validMoves,
     bool? isCheck,
     ISet<Shape>? shapes,
@@ -125,8 +127,8 @@ abstract class BoardData {
   });
 }
 
-class _BoardData extends BoardData {
-  const _BoardData({
+class _ChessboardState extends ChessboardState {
+  const _ChessboardState({
     required super.interactableSide,
     required super.orientation,
     required super.fen,
@@ -141,7 +143,7 @@ class _BoardData extends BoardData {
   }) : super._();
 
   @override
-  BoardData copyWith({
+  ChessboardState copyWith({
     InteractableSide? interactableSide,
     Side? orientation,
     String? fen,
@@ -154,7 +156,7 @@ class _BoardData extends BoardData {
     Object? shapes = _Undefined,
     Object? annotations = _Undefined,
   }) {
-    return BoardData(
+    return ChessboardState(
       interactableSide: interactableSide ?? this.interactableSide,
       orientation: orientation ?? this.orientation,
       opponentsPiecesUpsideDown:
@@ -162,8 +164,8 @@ class _BoardData extends BoardData {
       fen: fen ?? this.fen,
       sideToMove:
           sideToMove == _Undefined ? this.sideToMove : sideToMove as Side?,
-      premove: premove == _Undefined ? this.premove : premove as BoardMove?,
-      lastMove: lastMove == _Undefined ? this.lastMove : lastMove as BoardMove?,
+      premove: premove == _Undefined ? this.premove : premove as Move?,
+      lastMove: lastMove == _Undefined ? this.lastMove : lastMove as Move?,
       validMoves: validMoves == _Undefined
           ? this.validMoves
           : validMoves as ValidMoves?,

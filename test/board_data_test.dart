@@ -3,16 +3,16 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:chessground/chessground.dart';
 
 void main() {
-  group('BoardData', () {
+  group('ChessboardState', () {
     test('implements hashCode/==', () {
       expect(
-        const BoardData(
+        const ChessboardState(
           interactableSide: InteractableSide.both,
           orientation: Side.white,
           sideToMove: Side.white,
           fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
         ),
-        const BoardData(
+        const ChessboardState(
           interactableSide: InteractableSide.both,
           orientation: Side.white,
           sideToMove: Side.white,
@@ -20,13 +20,13 @@ void main() {
         ),
       );
       expect(
-        const BoardData(
+        const ChessboardState(
           interactableSide: InteractableSide.both,
           orientation: Side.white,
           sideToMove: Side.white,
           fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
         ).hashCode,
-        const BoardData(
+        const ChessboardState(
           interactableSide: InteractableSide.both,
           orientation: Side.white,
           sideToMove: Side.white,
@@ -35,14 +35,14 @@ void main() {
       );
 
       expect(
-        const BoardData(
+        const ChessboardState(
           interactableSide: InteractableSide.both,
           orientation: Side.white,
           sideToMove: Side.white,
           fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
         ),
         isNot(
-          const BoardData(
+          const ChessboardState(
             interactableSide: InteractableSide.both,
             orientation: Side.white,
             sideToMove: Side.white,
@@ -52,14 +52,14 @@ void main() {
       );
 
       expect(
-        const BoardData(
+        const ChessboardState(
           interactableSide: InteractableSide.both,
           orientation: Side.white,
           sideToMove: Side.white,
           fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
         ).hashCode,
         isNot(
-          const BoardData(
+          const ChessboardState(
             interactableSide: InteractableSide.both,
             orientation: Side.white,
             sideToMove: Side.white,
@@ -70,7 +70,7 @@ void main() {
     });
 
     test('copyWith', () {
-      const boardData = BoardData(
+      const boardData = ChessboardState(
         interactableSide: InteractableSide.both,
         orientation: Side.white,
         sideToMove: Side.white,
@@ -113,12 +113,12 @@ void main() {
     });
 
     test('copyWith, nullable values', () {
-      const boardData = BoardData(
+      const boardData = ChessboardState(
         interactableSide: InteractableSide.both,
         orientation: Side.white,
         fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
         sideToMove: Side.white,
-        lastMove: BoardMove(from: SquareId('e2'), to: SquareId('e4')),
+        lastMove: Move(from: SquareId('e2'), to: SquareId('e4')),
       );
 
       // pass null values to non-nullable fields should not change the field

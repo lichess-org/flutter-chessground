@@ -2,16 +2,19 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:chessground/chessground.dart';
 
 void main() {
-  group('BoardSettings', () {
+  group('ChessboardSettings', () {
     test('implements hashCode/==', () {
-      expect(const BoardSettings(), const BoardSettings());
-      expect(const BoardSettings().hashCode, const BoardSettings().hashCode);
+      expect(const ChessboardSettings(), const ChessboardSettings());
+      expect(
+        const ChessboardSettings().hashCode,
+        const ChessboardSettings().hashCode,
+      );
 
       expect(
-        const BoardSettings(),
+        const ChessboardSettings(),
         isNot(
-          const BoardSettings(
-            colorScheme: BoardColorScheme.blue,
+          const ChessboardSettings(
+            colorScheme: ChessboardColorScheme.blue,
           ),
         ),
       );
@@ -19,17 +22,17 @@ void main() {
 
     test('copyWith', () {
       expect(
-        const BoardSettings().copyWith(),
-        const BoardSettings(),
+        const ChessboardSettings().copyWith(),
+        const ChessboardSettings(),
       );
 
       expect(
-        const BoardSettings()
+        const ChessboardSettings()
             .copyWith(
-              colorScheme: BoardColorScheme.blue,
+              colorScheme: ChessboardColorScheme.blue,
             )
             .colorScheme,
-        BoardColorScheme.blue,
+        ChessboardColorScheme.blue,
       );
     });
   });
