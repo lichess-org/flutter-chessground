@@ -4,7 +4,6 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 
-import 'drag.dart';
 import 'piece.dart';
 import 'highlight.dart';
 import 'positioned_square.dart';
@@ -693,6 +692,7 @@ class _BoardState extends State<ChessBoard> {
   void _onDragStart(PointerEvent origin) {
     final squareId = widget.offsetSquareId(origin.localPosition);
     final piece = squareId != null ? pieces[squareId] : null;
+    final feedbackSize = widget.squareSize * widget.settings.dragFeedbackScale;
     if (squareId != null &&
         piece != null &&
         (_isMovable(piece) || _isPremovable(piece))) {
@@ -713,13 +713,14 @@ class _BoardState extends State<ChessBoard> {
             shape: BoxShape.circle,
           ),
         ),
-        pieceFeedback: BoardDragFeedback(
-          squareSize: widget.squareSize,
-          scale: widget.settings.dragFeedbackScale,
-          offset: widget.settings.dragFeedbackOffset,
+        pieceFeedback: Transform.translate(
+          offset: Offset(
+            ((widget.settings.dragFeedbackOffset.dx - 1) * feedbackSize) / 2,
+            ((widget.settings.dragFeedbackOffset.dy - 1) * feedbackSize) / 2,
+          ),
           child: PieceWidget(
             piece: piece,
-            size: widget.squareSize * widget.settings.dragFeedbackScale,
+            size: feedbackSize,
             pieceAssets: widget.settings.pieceAssets,
             blindfoldMode: widget.settings.blindfoldMode,
             upsideDown: _isUpsideDown(piece),

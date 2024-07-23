@@ -161,14 +161,11 @@ class PieceMenu extends StatelessWidget {
                   onTap: () => pieceTapped(role),
                   child: Draggable(
                       data: piece,
-                      feedback: BoardDragFeedback(
+                      feedback: PieceDragFeedback(
                         scale: settings.dragFeedbackScale,
                         squareSize: squareSize,
-                        child: PieceWidget(
-                          piece: piece,
-                          size: squareSize * settings.dragFeedbackScale,
-                          pieceAssets: pieceSet.assets,
-                        ),
+                        piece: piece,
+                        pieceAssets: pieceSet.assets,
                       ),
                       child: pieceWidget),
                 ),
