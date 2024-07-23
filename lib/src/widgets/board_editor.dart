@@ -18,13 +18,19 @@ enum EditorPointerMode {
   edit,
 }
 
-/// A chessboard widget where pieces can be dragged around freely (including dragging piece off and onto the board).
+/// A chessboard widget where pieces can be dragged around freely
+/// (including dragging piece off and onto the board).
 ///
-/// This widget can be used as the basis for a fully fledged board editor, similar to https://lichess.org/editor.
-/// The logic for creating a board editor should be implemented by the consumer of this widget.
-/// This widget only provides the visual representation of the board and the pieces on it, and responds to pointer events through the [onEditedSquare], [onDroppedPiece], and [onDiscardedPiece] callbacks.
+/// This widget can be used as the basis for a fully fledged board editor,
+/// similar to https://lichess.org/editor.
 ///
-/// Use the [pointerMode] property to switch between dragging pieces and adding/removing pieces from the board using pan gestures.
+/// This widget only provides the visual representation of the board and the
+/// pieces on it, and responds to pointer events through the [onEditedSquare],
+/// [onDroppedPiece], and [onDiscardedPiece] callbacks.
+/// The logic for creating a board editor should be implemented by the consumer.
+///
+/// Use the [pointerMode] property to switch between dragging pieces and
+/// adding/removing pieces from the board using pan gestures.
 ///
 /// A [writeFen] method is provided by this package to convert the current state
 /// of the board editor to a FEN string.
@@ -50,6 +56,7 @@ class ChessBoardEditor extends StatefulWidget with BoardGeometry {
   /// The pieces to display on the board.
   ///
   /// This is read-only, it will never be modified by the board editor.
+  ///
   /// See [readFen] and [writeFen] for converting between [Pieces] and FEN strings.
   final Pieces pieces;
 
@@ -61,21 +68,26 @@ class ChessBoardEditor extends StatefulWidget with BoardGeometry {
 
   /// Called when the given square was edited by the user.
   ///
-  /// This is called when the user touches or hover over a square while in edit mode (i.e. [pointerMode] is [EditorPointerMode.edit]).
+  /// This is called when the user touches or hover over a square while in edit
+  /// mode (i.e. [pointerMode] is [EditorPointerMode.edit]).
   final void Function(SquareId square)? onEditedSquare;
 
   /// Called when a piece has been dragged to a new destination square.
   ///
   /// This is active only when [pointerMode] is [EditorPointerMode.drag].
   ///
-  /// If `origin` is not `null`, the piece was dragged from that square of the board editor.
+  /// If `origin` is not `null`, the piece was dragged from that square of the
+  /// board editor.
   /// Otherwise, it was dragged from outside the board editor.
-  /// Each square of the board is a [DragTarget<Piece>], so to drop your own piece widgets
-  /// onto the board, put them in a [Draggable<Piece>] and set the data to the piece you want to drop.
+  /// Each square of the board is a [DragTarget<Piece>], so to drop your own
+  /// piece widgets
+  /// onto the board, put them in a [Draggable<Piece>] and set the data to the
+  /// piece you want to drop.
   final void Function(SquareId? origin, SquareId destination, Piece piece)?
       onDroppedPiece;
 
-  /// Called when a piece that was originally at the given `square` was dragged off the board.
+  /// Called when a piece that was originally at the given `square` was dragged
+  /// off the board.
   ///
   /// This is active only when [pointerMode] is [EditorPointerMode.drag].
   final void Function(SquareId square)? onDiscardedPiece;
@@ -205,7 +217,8 @@ class _BoardEditorState extends State<ChessBoardEditor> {
 
 /// The [Piece] to show under the pointer when a drag is under way.
 ///
-/// You can use this to drag pieces onto a [ChessBoardEditor] with the same appearance as when the pieces on the board are dragged.
+/// You can use this to drag pieces onto a [ChessBoardEditor] with the same
+/// appearance as when the pieces on the board are dragged.
 class PieceDragFeedback extends StatelessWidget {
   const PieceDragFeedback({
     super.key,
