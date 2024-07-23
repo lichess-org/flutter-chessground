@@ -1,7 +1,7 @@
 import 'package:dartchess/dartchess.dart' show Piece, Side;
 import 'package:flutter/widgets.dart';
 
-import '../board_editor_settings.dart';
+import '../board_settings.dart';
 import '../models.dart';
 import '../fen.dart';
 import 'board.dart';

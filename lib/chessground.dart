@@ -5,7 +5,6 @@ library chessground;
 
 export 'src/board_color_scheme.dart';
 export 'src/draw_shape_options.dart';
-export 'src/board_editor_settings.dart';
 export 'src/board_settings.dart';
 export 'src/board_state.dart';
 export 'src/fen.dart';
