@@ -17,7 +17,7 @@ class _BoardEditorPageState extends State<BoardEditorPage> {
   /// The piece to add when a square is touched. If null, will delete the piece.
   dc.Piece? pieceToAddOnTouch;
 
-  PointerToolMode pointerMode = PointerToolMode.drag;
+  EditorPointerMode pointerMode = EditorPointerMode.drag;
 
   @override
   Widget build(BuildContext context) {
@@ -35,8 +35,8 @@ class _BoardEditorPageState extends State<BoardEditorPage> {
       orientation: dc.Side.white,
       pieces: pieces,
       settings: settings,
-      pointerToolMode: pointerMode,
-      onTouchedSquare: (squareId) => setState(() {
+      pointerMode: pointerMode,
+      onEditedSquare: (squareId) => setState(() {
         if (pieceToAddOnTouch != null) {
           pieces[squareId] = pieceToAddOnTouch!;
         } else {
@@ -60,18 +60,18 @@ class _BoardEditorPageState extends State<BoardEditorPage> {
           squareSize: boardEditor.squareSize,
           settings: settings,
           pieceEdition:
-              pointerMode == PointerToolMode.edit ? pieceToAddOnTouch : null,
+              pointerMode == EditorPointerMode.edit ? pieceToAddOnTouch : null,
           pieceTapped: (role) => setState(() {
             pieceToAddOnTouch = dc.Piece(role: role, color: side);
-            pointerMode = PointerToolMode.edit;
+            pointerMode = EditorPointerMode.edit;
           }),
           pointerMode: pointerMode,
           deleteTapped: () => setState(() {
             pieceToAddOnTouch = null;
-            pointerMode = PointerToolMode.edit;
+            pointerMode = EditorPointerMode.edit;
           }),
           pointerModeTapped: () => setState(() {
-            pointerMode = PointerToolMode.drag;
+            pointerMode = EditorPointerMode.drag;
           }),
         );
 
@@ -118,10 +118,10 @@ class PieceMenu extends StatelessWidget {
 
   /// The piece that is currently being edited.
   ///
-  /// If null while [pointerMode] is [PointerToolMode.edit], the user is in delete mode.
+  /// If null while [pointerMode] is [EditorPointerMode.edit], the user is in delete mode.
   final dc.Piece? pieceEdition;
 
-  final PointerToolMode pointerMode;
+  final EditorPointerMode pointerMode;
   final BoardEditorSettings settings;
   final Function(dc.Role role) pieceTapped;
   final Function() deleteTapped;
@@ -135,7 +135,7 @@ class PieceMenu extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            color: pointerMode == PointerToolMode.drag
+            color: pointerMode == EditorPointerMode.drag
                 ? Colors.green
                 : Colors.transparent,
             child: GestureDetector(
@@ -173,7 +173,7 @@ class PieceMenu extends StatelessWidget {
             },
           ).toList(),
           Container(
-            color: pointerMode == PointerToolMode.edit && pieceEdition == null
+            color: pointerMode == EditorPointerMode.edit && pieceEdition == null
                 ? Colors.red
                 : Colors.transparent,
             child: GestureDetector(

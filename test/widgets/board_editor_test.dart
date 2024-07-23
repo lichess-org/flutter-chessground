@@ -57,15 +57,15 @@ void main() {
     });
 
     testWidgets(
-        'touching a square triggers the onTouchedSquare callback when the board pointer tool mode is `edit`',
+        'touching a square triggers the onEditedSquare callback when the board pointer tool mode is `edit`',
         (WidgetTester tester) async {
       for (final orientation in Side.values) {
         SquareId? tappedSquare;
         await tester.pumpWidget(
           buildBoard(
             pieces: {},
-            pointerToolMode: PointerToolMode.edit,
-            onTouchedSquare: (square) => tappedSquare = square,
+            pointerMode: EditorPointerMode.edit,
+            onEditedSquare: (square) => tappedSquare = square,
             orientation: orientation,
           ),
         );
@@ -83,13 +83,13 @@ void main() {
     });
 
     testWidgets(
-        'touching a square does not trigger the onTouchedSquare callback when the board pointer tool mode is `drag`',
+        'touching a square does not trigger the onEditedSquare callback when the board pointer tool mode is `drag`',
         (WidgetTester tester) async {
       SquareId? tappedSquare;
       await tester.pumpWidget(
         buildBoard(
           pieces: {},
-          onTouchedSquare: (square) => tappedSquare = square,
+          onEditedSquare: (square) => tappedSquare = square,
         ),
       );
 
@@ -100,14 +100,14 @@ void main() {
       expect(tappedSquare, null);
     });
 
-    testWidgets('pan movements trigger the onTouchedSquare callback',
+    testWidgets('pan movements trigger the onEditedSquare callback',
         (WidgetTester tester) async {
       final Set<SquareId> touchedSquares = {};
       await tester.pumpWidget(
         buildBoard(
           pieces: {},
-          pointerToolMode: PointerToolMode.edit,
-          onTouchedSquare: (square) => touchedSquares.add(square),
+          pointerMode: EditorPointerMode.edit,
+          onEditedSquare: (square) => touchedSquares.add(square),
         ),
       );
 
@@ -252,8 +252,8 @@ void main() {
 Widget buildBoard({
   required Pieces pieces,
   Side orientation = Side.white,
-  PointerToolMode pointerToolMode = PointerToolMode.drag,
-  void Function(SquareId square)? onTouchedSquare,
+  EditorPointerMode pointerMode = EditorPointerMode.drag,
+  void Function(SquareId square)? onEditedSquare,
   void Function(SquareId? origin, SquareId destination, Piece piece)?
       onDroppedPiece,
   void Function(SquareId square)? onDiscardedPiece,
@@ -262,9 +262,9 @@ Widget buildBoard({
     home: ChessBoardEditor(
       size: boardSize,
       orientation: orientation,
-      pointerToolMode: pointerToolMode,
+      pointerMode: pointerMode,
       pieces: pieces,
-      onTouchedSquare: onTouchedSquare,
+      onEditedSquare: onEditedSquare,
       onDiscardedPiece: onDiscardedPiece,
       onDroppedPiece: onDroppedPiece,
     ),
