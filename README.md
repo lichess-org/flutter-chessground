@@ -23,8 +23,16 @@ chess logic so you can use it with different chess variants.
 
 ## Getting started
 
-This package exports a `Chessboard` widget which can be interactable or not. It is
-entirely configurable with a `BoardSettings` object.
+This package exports a `Chessboard` widget which can be interactable or not.
+
+It is configurable with a `ChessboardSettings` object which defines the board
+behavior and appearance.
+
+You must provide a `ChessboardState` object to the `Chessboard` widget. This
+object is immutable and contains the board state (the position, which side has
+to move, etc.).
+All chess logic must be handled outside of this package. Any change in the state
+of the game needs to be transferred to the board by creating a new `ChessboardState` object.
 
 ## Usage
 
