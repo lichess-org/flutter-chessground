@@ -59,19 +59,19 @@ class ChessBoardEditor extends StatefulWidget with BoardGeometry {
   /// The current mode of the pointer tool.
   final PointerToolMode pointerToolMode;
 
-  /// Called when the given [square] was touched or hovered over.
+  /// Called when the given square was touched or hovered over.
   final void Function(SquareId square)? onTouchedSquare;
 
-  /// Called when a [piece] has been dragged to a new [destination] square.
+  /// Called when a piece has been dragged to a new destination square.
   ///
-  /// If [origin] is not `null`, the piece was dragged from that square of the board editor.
+  /// If `origin` is not `null`, the piece was dragged from that square of the board editor.
   /// Otherwise, it was dragged from outside the board editor.
   /// Each square of the board is a [DragTarget<Piece>], so to drop your own piece widgets
   /// onto the board, put them in a [Draggable<Piece>] and set the data to the piece you want to drop.
   final void Function(SquareId? origin, SquareId destination, Piece piece)?
       onDroppedPiece;
 
-  /// Called when a piece that was originally at the given [square] was dragged off the board.
+  /// Called when a piece that was originally at the given `square` was dragged off the board.
   final void Function(SquareId square)? onDiscardedPiece;
 
   @override

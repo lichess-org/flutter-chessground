@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'models.dart';
 
+/// Settings for drawing shapes on the board.
 @immutable
 class DrawShapeOptions {
   const DrawShapeOptions({
