@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:dartchess/dartchess.dart' show Side;
 import 'package:flutter/widgets.dart';
 import '../models.dart';
 
@@ -54,12 +55,12 @@ class _BoardAnnotationState extends State<BoardAnnotation> {
 
   @override
   Widget build(BuildContext context) {
-    final squareOffset = Coord.fromSquareId(widget.squareId)
-        .offset(widget.orientation, widget.squareSize);
+    final squareOffset =
+        widget.squareId.coord.offset(widget.orientation, widget.squareSize);
     final size = widget.squareSize * 0.48;
     final onRightEdge = widget.orientation == Side.white
-        ? widget.squareId[0] == 'h'
-        : widget.squareId[0] == 'a';
+        ? widget.squareId.file == 'h'
+        : widget.squareId.file == 'a';
     final offset = squareOffset.translate(
       onRightEdge
           ? widget.squareSize - (size * 0.9)

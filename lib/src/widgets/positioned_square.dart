@@ -1,3 +1,4 @@
+import 'package:dartchess/dartchess.dart' show Side;
 import 'package:flutter/widgets.dart';
 import '../models.dart';
 import './highlight.dart';
@@ -23,7 +24,7 @@ class PositionedSquare extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final offset = Coord.fromSquareId(squareId).offset(orientation, size);
+    final offset = squareId.coord.offset(orientation, size);
     return Positioned(
       width: size,
       height: size,

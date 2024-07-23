@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'package:dartchess/dartchess.dart' show Side;
 import 'package:flutter/widgets.dart';
 
 import '../models.dart';
@@ -43,8 +44,8 @@ class ShapeWidget extends StatelessWidget {
             painter: _ArrowPainter(
               color,
               orientation,
-              Coord.fromSquareId(orig),
-              Coord.fromSquareId(dest),
+              orig.coord,
+              dest.coord,
               scale,
             ),
           ),
@@ -56,7 +57,7 @@ class ShapeWidget extends StatelessWidget {
             painter: _CirclePainter(
               color,
               orientation,
-              Coord.fromSquareId(orig),
+              orig.coord,
               scale,
             ),
           ),
@@ -72,7 +73,7 @@ class ShapeWidget extends StatelessWidget {
           orientation: orientation,
           squareId: orig,
           child: Image.asset(
-            'assets/piece_sets/mono/${role.letter}.png',
+            'assets/piece_sets/mono/${role.uppercaseLetter}.png',
             package: 'chessground',
             color: color,
             width: scale * squareSize,

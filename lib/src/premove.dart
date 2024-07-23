@@ -1,3 +1,5 @@
+import 'package:dartchess/dartchess.dart' show Role, Side;
+
 import './models.dart';
 
 /// Returns the set of squares that the piece on [square] can potentially premove to.
@@ -8,7 +10,7 @@ Set<SquareId> premovesOf(
 }) {
   final piece = pieces[square];
   if (piece == null) return {};
-  final coord = Coord.fromSquareId(square);
+  final coord = square.coord;
   final r = piece.role;
 
   final mobility = (() {
@@ -88,10 +90,10 @@ List<int> _rookFilesOf(Pieces pieces, Side color) {
   final backrank = color == Side.white ? '1' : '8';
   final List<int> files = [];
   for (final entry in pieces.entries) {
-    if (entry.key[1] == backrank &&
+    if (entry.key.rank == backrank &&
         entry.value.color == color &&
         entry.value.role == Role.rook) {
-      files.add(Coord.fromSquareId(entry.key).x);
+      files.add(entry.key.x);
     }
   }
   return files;

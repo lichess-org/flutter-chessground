@@ -35,7 +35,7 @@ class BoardSettings {
     this.showLastMove = true,
     this.showValidMoves = true,
     this.blindfoldMode = false,
-    this.dragFeedbackSize = 2.0,
+    this.dragFeedbackScale = 2.0,
     this.dragFeedbackOffset = const Offset(0.0, -1.0),
 
     // shape drawing
@@ -76,7 +76,7 @@ class BoardSettings {
   final bool blindfoldMode;
 
   // Scale up factor for the piece currently under drag
-  final double dragFeedbackSize;
+  final double dragFeedbackScale;
 
   // Offset for the piece currently under drag
   final Offset dragFeedbackOffset;
@@ -116,7 +116,7 @@ class BoardSettings {
         other.showLastMove == showLastMove &&
         other.showValidMoves == showValidMoves &&
         other.blindfoldMode == blindfoldMode &&
-        other.dragFeedbackSize == dragFeedbackSize &&
+        other.dragFeedbackScale == dragFeedbackScale &&
         other.dragFeedbackOffset == dragFeedbackOffset &&
         other.enablePremoveCastling == enablePremoveCastling &&
         other.autoQueenPromotion == autoQueenPromotion &&
@@ -136,7 +136,7 @@ class BoardSettings {
         showLastMove,
         showValidMoves,
         blindfoldMode,
-        dragFeedbackSize,
+        dragFeedbackScale,
         dragFeedbackOffset,
         enablePremoveCastling,
         autoQueenPromotion,
@@ -155,7 +155,7 @@ class BoardSettings {
     bool? showLastMove,
     bool? showValidMoves,
     bool? blindfoldMode,
-    double? dragFeedbackSize,
+    double? dragFeedbackScale,
     Offset? dragFeedbackOffset,
     bool? enablePremoveCastling,
     bool? autoQueenPromotion,
@@ -173,7 +173,7 @@ class BoardSettings {
       showLastMove: showLastMove ?? this.showLastMove,
       showValidMoves: showValidMoves ?? this.showValidMoves,
       blindfoldMode: blindfoldMode ?? this.blindfoldMode,
-      dragFeedbackSize: dragFeedbackSize ?? this.dragFeedbackSize,
+      dragFeedbackScale: dragFeedbackScale ?? this.dragFeedbackScale,
       dragFeedbackOffset: dragFeedbackOffset ?? this.dragFeedbackOffset,
       enablePremoveCastling:
           enablePremoveCastling ?? this.enablePremoveCastling,

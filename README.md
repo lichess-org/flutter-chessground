@@ -19,10 +19,11 @@ chess logic so you can use it with different chess variants.
 - draw shapes on board while playing using 2 fingers
 - move annotations
 - opponent's pieces can be displayed upside down
+- create positions with a board editor
 
 ## Getting started
 
-This package exports a `Board` widget which can be interactable or not. It is
+This package exports a `ChessBoard` widget which can be interactable or not. It is
 entirely configurable with a `BoardSettings` object.
 
 ## Usage
@@ -53,7 +54,7 @@ class _MyHomePageState extends State<MyHomePage> {
         title: const Text('Chessground demo'),
       ),
       body: Center(
-        child: Board(
+        child: ChessBoard(
           size: screenWidth,
           data: BoardData(
             interactableSide: InteractableSide.none,

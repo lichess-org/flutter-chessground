@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:dartchess/dartchess.dart' show Piece, Role, Side;
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
@@ -21,12 +22,47 @@ const double _kDragDistanceThreshold = 3.0;
 
 const _kCancelShapesDoubleTapDelay = Duration(milliseconds: 200);
 
+/// A mixin that provides geometry information about the board.
+mixin BoardGeometry {
+  /// Visual size of the board.
+  double get size;
+
+  /// Side by which the board is oriented.
+  Side get orientation;
+
+  /// Size of a single square on the board.
+  double get squareSize => size / 8;
+
+  /// Converts a board offset to a coordinate.
+  ///
+  /// Returns `null` if the offset is outside the board.
+  Coord? offsetCoord(Offset offset) {
+    final x = (offset.dx / squareSize).floor();
+    final y = (offset.dy / squareSize).floor();
+    final orientX = orientation == Side.black ? 7 - x : x;
+    final orientY = orientation == Side.black ? y : 7 - y;
+    if (orientX >= 0 && orientX <= 7 && orientY >= 0 && orientY <= 7) {
+      return Coord(x: orientX, y: orientY);
+    } else {
+      return null;
+    }
+  }
+
+  /// Converts a board offset to a square id.
+  ///
+  /// Returns `null` if the offset is outside the board.
+  SquareId? offsetSquareId(Offset offset) {
+    final coord = offsetCoord(offset);
+    return coord?.squareId;
+  }
+}
+
 /// A chessboard widget.
 ///
 /// This widget can be used to display a static board, a dynamic board that
 /// shows a live game, or a full user interactable board.
-class Board extends StatefulWidget {
-  const Board({
+class ChessBoard extends StatefulWidget with BoardGeometry {
+  const ChessBoard({
     super.key,
     required this.size,
     required this.data,
@@ -35,8 +71,11 @@ class Board extends StatefulWidget {
     this.onPremove,
   });
 
-  /// Visal size of the board.
+  @override
   final double size;
+
+  @override
+  Side get orientation => data.orientation;
 
   /// Settings that control the theme, behavior and purpose of the board.
   final BoardSettings settings;
@@ -45,44 +84,25 @@ class Board extends StatefulWidget {
   final BoardData data;
 
   /// Callback called after a move has been made.
-  final void Function(Move, {bool? isDrop, bool? isPremove})? onMove;
+  final void Function(BoardMove, {bool? isDrop, bool? isPremove})? onMove;
 
   /// Callback called after a premove has been set/unset.
   ///
   /// If the callback is null, the board will not allow premoves.
-  final void Function(Move?)? onPremove;
-
-  double get squareSize => size / 8;
-
-  Coord? localOffset2Coord(Offset offset) {
-    final x = (offset.dx / squareSize).floor();
-    final y = (offset.dy / squareSize).floor();
-    final orientX = data.orientation == Side.black ? 7 - x : x;
-    final orientY = data.orientation == Side.black ? y : 7 - y;
-    if (orientX >= 0 && orientX <= 7 && orientY >= 0 && orientY <= 7) {
-      return Coord(x: orientX, y: orientY);
-    } else {
-      return null;
-    }
-  }
-
-  SquareId? localOffset2SquareId(Offset offset) {
-    final coord = localOffset2Coord(offset);
-    return coord?.squareId;
-  }
+  final void Function(BoardMove?)? onPremove;
 
   @override
   // ignore: library_private_types_in_public_api
   _BoardState createState() => _BoardState();
 }
 
-class _BoardState extends State<Board> {
+class _BoardState extends State<ChessBoard> {
   Pieces pieces = {};
-  Map<String, (PositionedPiece, PositionedPiece)> translatingPieces = {};
-  Map<String, Piece> fadingPieces = {};
+  Map<SquareId, (PositionedPiece, PositionedPiece)> translatingPieces = {};
+  Map<SquareId, Piece> fadingPieces = {};
   SquareId? selected;
-  Move? _promotionMove;
-  Move? _lastDrop;
+  BoardMove? _promotionMove;
+  BoardMove? _lastDrop;
   Set<SquareId>? _premoveDests;
 
   bool _shouldDeselectOnTapUp = false;
@@ -221,7 +241,7 @@ class _BoardState extends State<Board> {
     final List<Widget> objects = [
       for (final entry in fadingPieces.entries)
         PositionedSquare(
-          key: ValueKey('${entry.key}-${entry.value.kind.name}-fading'),
+          key: ValueKey('${entry.key}-${entry.value}-fading'),
           size: widget.squareSize,
           orientation: widget.data.orientation,
           squareId: entry.key,
@@ -241,7 +261,7 @@ class _BoardState extends State<Board> {
         if (!translatingPieces.containsKey(entry.key) &&
             entry.key != _draggedPieceSquareId)
           PositionedSquare(
-            key: ValueKey('${entry.key}-${entry.value.kind.name}'),
+            key: ValueKey('${entry.key}-${entry.value}'),
             size: widget.squareSize,
             orientation: widget.data.orientation,
             squareId: entry.key,
@@ -255,7 +275,7 @@ class _BoardState extends State<Board> {
           ),
       for (final entry in translatingPieces.entries)
         PositionedSquare(
-          key: ValueKey('${entry.key}-${entry.value.$1.piece.kind.name}'),
+          key: ValueKey('${entry.key}-${entry.value.$1.piece}'),
           size: widget.squareSize,
           orientation: widget.data.orientation,
           squareId: entry.key,
@@ -358,7 +378,7 @@ class _BoardState extends State<Board> {
   }
 
   @override
-  void didUpdateWidget(Board oldBoard) {
+  void didUpdateWidget(ChessBoard oldBoard) {
     super.didUpdateWidget(oldBoard);
     if (oldBoard.settings.drawShape.enable &&
         !widget.settings.drawShape.enable) {
@@ -395,14 +415,14 @@ class _BoardState extends State<Board> {
     final newPieces = readFen(widget.data.fen);
     final List<PositionedPiece> newOnSquare = [];
     final List<PositionedPiece> missingOnSquare = [];
-    final Set<String> animatedOrigins = {};
+    final Set<SquareId> animatedOrigins = {};
     for (final s in allSquares) {
       if (s == _lastDrop?.from || s == _lastDrop?.to) {
         continue;
       }
       final oldP = pieces[s];
       final newP = newPieces[s];
-      final squareCoord = Coord.fromSquareId(s);
+      final squareCoord = s.coord;
       if (newP != null) {
         if (oldP != null) {
           if (newP != oldP) {
@@ -453,7 +473,7 @@ class _BoardState extends State<Board> {
 
   /// Returns the position of the square target during drag as a global offset.
   Offset? _squareTargetGlobalOffset(Offset localPosition, RenderBox box) {
-    final coord = widget.localOffset2Coord(localPosition);
+    final coord = widget.offsetCoord(localPosition);
     if (coord == null) return null;
     final localOffset =
         coord.offset(widget.data.orientation, widget.squareSize);
@@ -467,7 +487,7 @@ class _BoardState extends State<Board> {
   void _onPointerDown(PointerDownEvent details) {
     if (details.buttons != kPrimaryButton) return;
 
-    final squareId = widget.localOffset2SquareId(details.localPosition);
+    final squareId = widget.offsetSquareId(details.localPosition);
     if (squareId == null) return;
 
     final Piece? piece = pieces[squareId];
@@ -572,7 +592,7 @@ class _BoardState extends State<Board> {
         _drawOrigin!.pointer == details.pointer) {
       final distance = (details.position - _drawOrigin!.position).distance;
       if (distance > _kDragDistanceThreshold) {
-        final squareId = widget.localOffset2SquareId(details.localPosition);
+        final squareId = widget.offsetSquareId(details.localPosition);
         if (squareId == null) return;
         setState(() {
           _shapeAvatar = _shapeAvatar!.newDest(squareId);
@@ -619,7 +639,7 @@ class _BoardState extends State<Board> {
 
     if (_dragAvatar != null && _renderBox != null) {
       final localPos = _renderBox!.globalToLocal(_dragAvatar!._position);
-      final squareId = widget.localOffset2SquareId(localPos);
+      final squareId = widget.offsetSquareId(localPos);
       if (squareId != null && squareId != selected) {
         _tryMoveOrPremoveTo(squareId, drop: true);
       }
@@ -630,7 +650,7 @@ class _BoardState extends State<Board> {
         _premoveDests = null;
       });
     } else if (selected != null) {
-      final squareId = widget.localOffset2SquareId(details.localPosition);
+      final squareId = widget.offsetSquareId(details.localPosition);
       if (squareId == selected && _shouldDeselectOnTapUp) {
         _shouldDeselectOnTapUp = false;
         setState(() {
@@ -670,9 +690,9 @@ class _BoardState extends State<Board> {
   }
 
   void _onDragStart(PointerEvent origin) {
-    final squareId = widget.localOffset2SquareId(origin.localPosition);
+    final squareId = widget.offsetSquareId(origin.localPosition);
     final piece = squareId != null ? pieces[squareId] : null;
-    final feedbackSize = widget.squareSize * widget.settings.dragFeedbackSize;
+    final feedbackSize = widget.squareSize * widget.settings.dragFeedbackScale;
     if (squareId != null &&
         piece != null &&
         (_isMovable(piece) || _isPremovable(piece))) {
@@ -729,7 +749,7 @@ class _BoardState extends State<Board> {
     _shouldDeselectOnTapUp = false;
   }
 
-  void _onPromotionSelect(Move move, Piece promoted) {
+  void _onPromotionSelect(BoardMove move, Piece promoted) {
     setState(() {
       pieces[move.to] = promoted;
       _promotionMove = null;
@@ -737,14 +757,14 @@ class _BoardState extends State<Board> {
     widget.onMove?.call(move.withPromotion(promoted.role), isDrop: true);
   }
 
-  void _onPromotionCancel(Move move) {
+  void _onPromotionCancel(BoardMove move) {
     setState(() {
       pieces = readFen(widget.data.fen);
       _promotionMove = null;
     });
   }
 
-  void _openPromotionSelector(Move move) {
+  void _openPromotionSelector(BoardMove move) {
     setState(() {
       final pawn = pieces.remove(move.from);
       pieces[move.to] = pawn!;
@@ -792,7 +812,7 @@ class _BoardState extends State<Board> {
   }
 
   bool _isPromoMove(Piece piece, SquareId targetSquareId) {
-    final rank = targetSquareId[1];
+    final rank = targetSquareId.rank;
     return piece.role == Role.pawn && (rank == '1' || rank == '8');
   }
 
@@ -802,7 +822,7 @@ class _BoardState extends State<Board> {
   bool _tryMoveOrPremoveTo(SquareId squareId, {bool drop = false}) {
     final selectedPiece = selected != null ? pieces[selected] : null;
     if (selectedPiece != null && _canMoveTo(selected!, squareId)) {
-      final move = Move(from: selected!, to: squareId);
+      final move = BoardMove(from: selected!, to: squareId);
       if (drop) {
         _lastDrop = move;
       }
@@ -818,7 +838,7 @@ class _BoardState extends State<Board> {
       return true;
     } else if (_isPremovable(selectedPiece) &&
         _canPremoveTo(selected!, squareId)) {
-      widget.onPremove?.call(Move(from: selected!, to: squareId));
+      widget.onPremove?.call(BoardMove(from: selected!, to: squareId));
       return true;
     }
     return false;
@@ -932,6 +952,6 @@ class _DragAvatar {
   }
 }
 
-const ISet<String> _emptyValidMoves = ISetConst({});
+const ISet<SquareId> _emptyValidMoves = ISetConst({});
 const ISet<Shape> _emptyShapes = ISetConst({});
 const IMap<SquareId, Annotation> _emptyAnnotations = IMapConst({});

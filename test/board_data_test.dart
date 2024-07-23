@@ -1,3 +1,4 @@
+import 'package:dartchess/dartchess.dart' hide Move, Piece;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:chessground/chessground.dart';
 
@@ -117,7 +118,7 @@ void main() {
         orientation: Side.white,
         fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
         sideToMove: Side.white,
-        lastMove: Move(from: 'e2', to: 'e4'),
+        lastMove: BoardMove(from: SquareId('e2'), to: SquareId('e4')),
       );
 
       // pass null values to non-nullable fields should not change the field

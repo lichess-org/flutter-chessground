@@ -1,3 +1,4 @@
+import 'package:dartchess/dartchess.dart' show Piece, Role, Side;
 import 'package:flutter/widgets.dart';
 import '../models.dart';
 import 'piece.dart';
@@ -22,24 +23,23 @@ class PromotionSelector extends StatelessWidget {
   });
 
   final PieceAssets pieceAssets;
-  final Move move;
+  final BoardMove move;
   final Side color;
   final double squareSize;
   final Side orientation;
   final bool piecesUpsideDown;
-  final void Function(Move, Piece) onSelect;
-  final void Function(Move) onCancel;
+  final void Function(BoardMove, Piece) onSelect;
+  final void Function(BoardMove) onCancel;
 
   SquareId get squareId => move.to;
 
   @override
   Widget build(BuildContext context) {
-    final file = squareId[0];
-    final rank = squareId[1];
-    final coord = (orientation == Side.white && rank == '8' ||
-            orientation == Side.black && rank == '1')
-        ? Coord.fromSquareId(squareId)
-        : Coord.fromSquareId(file + (orientation == Side.white ? '4' : '5'));
+    final coord = (orientation == Side.white && squareId.rank == '8' ||
+            orientation == Side.black && squareId.rank == '1')
+        ? squareId.coord
+        : SquareId(squareId.file + (orientation == Side.white ? '4' : '5'))
+            .coord;
     final offset = coord.offset(orientation, squareSize);
 
     return GestureDetector(

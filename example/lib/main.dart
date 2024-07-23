@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:board_example/board_editor_page.dart';
 import 'package:flutter/material.dart';
 import 'package:chessground/chessground.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
@@ -55,12 +56,12 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   dc.Position<dc.Chess> position = dc.Chess.initial;
-  Side orientation = Side.white;
+  dc.Side orientation = dc.Side.white;
   String fen = dc.kInitialBoardFEN;
-  Move? lastMove;
-  Move? premove;
+  BoardMove? lastMove;
+  BoardMove? premove;
   ValidMoves validMoves = IMap(const {});
-  Side sideToMove = Side.white;
+  dc.Side sideToMove = dc.Side.white;
   PieceSet pieceSet = PieceSet.merida;
   PieceShiftMethod pieceShiftMethod = PieceShiftMethod.either;
   BoardTheme boardTheme = BoardTheme.blue;
@@ -77,10 +78,10 @@ class _HomePageState extends State<HomePage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: playMode == Mode.botPlay
-            ? const Text('Random Bot')
-            : const Text('Free Play'),
-      ),
+          title: switch (playMode) {
+        Mode.botPlay => const Text('Random Bot'),
+        Mode.freePlay => const Text('Free Play'),
+      }),
       drawer: Drawer(
           child: ListView(
         children: [
@@ -106,6 +107,17 @@ class _HomePageState extends State<HomePage> {
             },
           ),
           ListTile(
+            title: const Text('Board Editor'),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const BoardEditorPage(),
+                ),
+              );
+            },
+          ),
+          ListTile(
             title: const Text('Board Thumbnails'),
             onTap: () {
               Navigator.push(
@@ -122,7 +134,7 @@ class _HomePageState extends State<HomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            Board(
+            ChessBoard(
               size: screenWidth,
               settings: BoardSettings(
                 pieceAssets: pieceSet.assets,
@@ -131,7 +143,7 @@ class _HomePageState extends State<HomePage> {
                 animationDuration: pieceAnimation
                     ? const Duration(milliseconds: 200)
                     : Duration.zero,
-                dragFeedbackSize: dragMagnify ? 2.0 : 1.0,
+                dragFeedbackScale: dragMagnify ? 2.0 : 1.0,
                 drawShape: DrawShapeOptions(
                   enable: drawMode,
                   onCompleteShape: _onCompleteShape,
@@ -154,8 +166,9 @@ class _HomePageState extends State<HomePage> {
                 opponentsPiecesUpsideDown: playMode == Mode.freePlay,
                 fen: fen,
                 lastMove: lastMove,
-                sideToMove:
-                    position.turn == dc.Side.white ? Side.white : Side.black,
+                sideToMove: position.turn == dc.Side.white
+                    ? dc.Side.white
+                    : dc.Side.black,
                 isCheck: position.isCheck,
                 premove: premove,
                 shapes: shapes.isNotEmpty ? shapes : null,
@@ -286,8 +299,7 @@ class _HomePageState extends State<HomePage> {
                               ? () => setState(() {
                                     position = lastPos!;
                                     fen = position.fen;
-                                    validMoves =
-                                        dc.algebraicLegalMoves(position);
+                                    validMoves = legalMovesOf(position);
                                     lastPos = null;
                                   })
                               : null,
@@ -353,28 +365,29 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void initState() {
-    validMoves = dc.algebraicLegalMoves(position);
+    validMoves = legalMovesOf(position);
     super.initState();
   }
 
-  void _onSetPremove(Move? move) {
+  void _onSetPremove(BoardMove? move) {
     setState(() {
       premove = move;
     });
   }
 
-  void _onUserMoveFreePlay(Move move, {bool? isDrop, bool? isPremove}) {
+  void _onUserMoveFreePlay(BoardMove move, {bool? isDrop, bool? isPremove}) {
     lastPos = position;
     final m = dc.Move.fromUci(move.uci)!;
     setState(() {
       position = position.playUnchecked(m);
       lastMove = move;
       fen = position.fen;
-      validMoves = dc.algebraicLegalMoves(position);
+      validMoves = legalMovesOf(position);
     });
   }
 
-  void _onUserMoveAgainstBot(Move move, {bool? isDrop, bool? isPremove}) async {
+  void _onUserMoveAgainstBot(BoardMove move,
+      {bool? isDrop, bool? isPremove}) async {
     lastPos = position;
     final m = dc.Move.fromUci(move.uci)!;
     setState(() {
@@ -402,10 +415,11 @@ class _HomePageState extends State<HomePage> {
         final mv = (allMoves..shuffle()).first;
         setState(() {
           position = position.playUnchecked(mv);
-          lastMove =
-              Move(from: dc.toAlgebraic(mv.from), to: dc.toAlgebraic(mv.to));
+          lastMove = BoardMove(
+              from: SquareId(dc.toAlgebraic(mv.from)),
+              to: SquareId(dc.toAlgebraic(mv.to)));
           fen = position.fen;
-          validMoves = dc.algebraicLegalMoves(position);
+          validMoves = legalMovesOf(position);
         });
         lastPos = position;
       }

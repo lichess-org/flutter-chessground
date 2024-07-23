@@ -1,3 +1,4 @@
+import 'package:dartchess/dartchess.dart' show Side;
 import 'package:flutter/material.dart';
 import 'package:chessground/chessground.dart';
 
@@ -18,7 +19,7 @@ class BoardThumbnailsPage extends StatelessWidget {
         children: [
           for (final fen in positions)
             LayoutBuilder(builder: (context, constraints) {
-              return Board(
+              return ChessBoard(
                 size: constraints.biggest.width,
                 settings: BoardSettings(
                   enableCoordinates: false,

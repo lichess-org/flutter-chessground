@@ -31,7 +31,7 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "3.2.0"
+    version: "4.0.0"
   clock:
     dependency: transitive
     description:
@@ -52,19 +52,18 @@ packages:
     dependency: "direct main"
     description:
       name: cupertino_icons
-      sha256: d57953e10f9f8327ce64a508a355f0b1ec902193f66288e8cb5070e7c47eeb2d
+      sha256: ba631d1c7f7bef6b729a622b7b752645a2d076dba9976925b8f25725a30e1ee6
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.6"
+    version: "1.0.8"
   dartchess:
     dependency: "direct main"
     description:
-      path: "."
-      ref: main
-      resolved-ref: "394b21b842d4bd2e0d5a52b98480a9a6bcfb0c26"
-      url: "https://github.com/lichess-org/dartchess.git"
-    source: git
-    version: "0.6.1"
+      name: dartchess
+      sha256: "047ee9973f2546744f3d24eeee8c01d563714d3f10a73b0b0799218dc00c65c1"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.7.1"
   fake_async:
     dependency: transitive
     description:
@@ -77,10 +76,10 @@ packages:
     dependency: transitive
     description:
       name: fast_immutable_collections
-      sha256: "6df5b5bb29f52644c4c653ef0ae7d26c8463f8d6551b0ac94561103ff6c5ca17"
+      sha256: c3c73f4f989d3302066e4ec94e6ec73b5dc872592d02194f49f1352d64126b8c
       url: "https://pub.dev"
     source: hosted
-    version: "10.1.1"
+    version: "10.2.4"
   flutter:
     dependency: "direct main"
     description: flutter

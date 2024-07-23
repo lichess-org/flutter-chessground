@@ -1,3 +1,4 @@
+import 'package:dartchess/dartchess.dart' show Side;
 import 'package:flutter/widgets.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 
@@ -8,14 +9,15 @@ import 'models.dart';
 /// Used to configure the board with state that will/may change during a game.
 @immutable
 abstract class BoardData {
+  /// Creates a new [BoardData] with the provided values.
   const factory BoardData({
     required InteractableSide interactableSide,
     required Side orientation,
     required String fen,
     bool opponentsPiecesUpsideDown,
     Side? sideToMove,
-    Move? premove,
-    Move? lastMove,
+    BoardMove? premove,
+    BoardMove? lastMove,
     ValidMoves? validMoves,
     bool? isCheck,
     ISet<Shape>? shapes,
@@ -40,7 +42,7 @@ abstract class BoardData {
           'sideToMove must be set when isCheck is set, or when the board is interactable.',
         );
 
-  /// Which color is allowed to move? It can be both, none, white or black
+  /// Which color is allowed to move? It can be both, none, white or black.
   ///
   /// If `none` is chosen the board will be non interactable.
   final InteractableSide interactableSide;
@@ -58,10 +60,10 @@ abstract class BoardData {
   final String fen;
 
   /// Registered premove. Will be played right after the next opponent move.
-  final Move? premove;
+  final BoardMove? premove;
 
   /// Last move played, used to highlight corresponding squares.
-  final Move? lastMove;
+  final BoardMove? lastMove;
 
   /// Set of [Move] allowed to be played by current side to move.
   final ValidMoves? validMoves;
@@ -107,14 +109,15 @@ abstract class BoardData {
         annotations,
       );
 
+  /// Creates a copy of this [BoardData] but with the given fields replaced with the new values.
   BoardData copyWith({
     InteractableSide? interactableSide,
     Side? orientation,
     String? fen,
     bool? opponentsPiecesUpsideDown,
     Side? sideToMove,
-    Move? premove,
-    Move? lastMove,
+    BoardMove? premove,
+    BoardMove? lastMove,
     ValidMoves? validMoves,
     bool? isCheck,
     ISet<Shape>? shapes,
@@ -159,8 +162,8 @@ class _BoardData extends BoardData {
       fen: fen ?? this.fen,
       sideToMove:
           sideToMove == _Undefined ? this.sideToMove : sideToMove as Side?,
-      premove: premove == _Undefined ? this.premove : premove as Move?,
-      lastMove: lastMove == _Undefined ? this.lastMove : lastMove as Move?,
+      premove: premove == _Undefined ? this.premove : premove as BoardMove?,
+      lastMove: lastMove == _Undefined ? this.lastMove : lastMove as BoardMove?,
       validMoves: validMoves == _Undefined
           ? this.validMoves
           : validMoves as ValidMoves?,

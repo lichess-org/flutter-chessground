@@ -1,7 +1,8 @@
+import 'package:dartchess/dartchess.dart' show Piece, Role, Side;
 import 'package:flutter/widgets.dart';
 import 'models.dart';
 
-/// Parse the board part of a FEN string.
+/// Parses the board part of a FEN string.
 Pieces readFen(String fen) {
   final Pieces pieces = {};
   int row = 7;
@@ -37,6 +38,39 @@ Pieces readFen(String fen) {
     }
   }
   return pieces;
+}
+
+/// Converts the pieces to the board part of a FEN string.
+String writeFen(Pieces pieces) {
+  final buffer = StringBuffer();
+  int empty = 0;
+  for (int rank = 7; rank >= 0; rank--) {
+    for (int file = 0; file < 8; file++) {
+      final piece = pieces[Coord(x: file, y: rank).squareId];
+      if (piece == null) {
+        empty++;
+      } else {
+        if (empty > 0) {
+          buffer.write(empty.toString());
+          empty = 0;
+        }
+        buffer.write(
+          piece.color == Side.white
+              ? piece.role.uppercaseLetter
+              : piece.role.letter,
+        );
+      }
+
+      if (file == 7) {
+        if (empty > 0) {
+          buffer.write(empty.toString());
+          empty = 0;
+        }
+        if (rank != 0) buffer.write('/');
+      }
+    }
+  }
+  return buffer.toString();
 }
 
 const _roles = {
