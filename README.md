@@ -71,6 +71,7 @@ class _MyHomePageState extends State<MyHomePage> {
 See the example app for:
 - Random Bot: an interactable board for one player playing against a random bot,
 - Free Play: an interactable board for two players sitting opposite to each other,
+- Board editor: a board editor to create positions,
 - Draw Shapes: activate the draw shapes feature and draw on the board using 2
 - Board Thumbnails: a demo screen showing over hundred different boards in a grid,
   fingers.
