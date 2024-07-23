@@ -41,7 +41,7 @@ class ChessboardEditor extends StatefulWidget with ChessboardGeometry {
     required this.orientation,
     required this.pieces,
     this.pointerMode = EditorPointerMode.drag,
-    this.settings = const BoardEditorSettings(),
+    this.settings = const ChessboardEditorSettings(),
     this.onEditedSquare,
     this.onDroppedPiece,
     this.onDiscardedPiece,
@@ -61,7 +61,7 @@ class ChessboardEditor extends StatefulWidget with ChessboardGeometry {
   final Pieces pieces;
 
   /// Settings that control the appearance of the board editor.
-  final BoardEditorSettings settings;
+  final ChessboardEditorSettings settings;
 
   /// The current mode of the pointer tool.
   final EditorPointerMode pointerMode;

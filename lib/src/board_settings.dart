@@ -191,9 +191,9 @@ class ChessboardSettings {
 /// This is meant for fixed settings that don't change while editing the board.
 /// Sensible defaults are provided.
 @immutable
-class BoardEditorSettings {
-  /// Creates a new [BoardEditorSettings] with the provided values.
-  const BoardEditorSettings({
+class ChessboardEditorSettings {
+  /// Creates a new [ChessboardEditorSettings] with the provided values.
+  const ChessboardEditorSettings({
     // theme
     this.colorScheme = ChessboardColorScheme.brown,
     this.pieceAssets = PieceSet.cburnettAssets,
@@ -234,7 +234,7 @@ class BoardEditorSettings {
     if (other.runtimeType != runtimeType) {
       return false;
     }
-    return other is BoardEditorSettings &&
+    return other is ChessboardEditorSettings &&
         other.colorScheme == colorScheme &&
         other.pieceAssets == pieceAssets &&
         other.borderRadius == borderRadius &&
@@ -255,8 +255,8 @@ class BoardEditorSettings {
         dragFeedbackOffset,
       );
 
-  /// Creates a copy of this [BoardEditorSettings] but with the given fields replaced with the new values.
-  BoardEditorSettings copyWith({
+  /// Creates a copy of this [ChessboardEditorSettings] but with the given fields replaced with the new values.
+  ChessboardEditorSettings copyWith({
     ChessboardColorScheme? colorScheme,
     PieceAssets? pieceAssets,
     BorderRadiusGeometry? borderRadius,
@@ -265,7 +265,7 @@ class BoardEditorSettings {
     double? dragFeedbackScale,
     Offset? dragFeedbackOffset,
   }) {
-    return BoardEditorSettings(
+    return ChessboardEditorSettings(
       colorScheme: colorScheme ?? this.colorScheme,
       pieceAssets: pieceAssets ?? this.pieceAssets,
       borderRadius: borderRadius ?? this.borderRadius,
