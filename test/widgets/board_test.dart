@@ -53,25 +53,25 @@ void main() {
       await tester.pump();
 
       expect(find.byKey(const Key('a2-selected')), findsOneWidget);
-      expect(find.byType(MoveDest), findsNWidgets(2));
+      expect(find.byType(ValidMoveHighlight), findsNWidgets(2));
 
       // selecting same deselects
       await tester.tap(find.byKey(const Key('a2-whitepawn')));
       await tester.pump();
       expect(find.byKey(const Key('a2-selected')), findsNothing);
-      expect(find.byType(MoveDest), findsNothing);
+      expect(find.byType(ValidMoveHighlight), findsNothing);
 
       // selecting another square
       await tester.tap(find.byKey(const Key('a1-whiterook')));
       await tester.pump();
       expect(find.byKey(const Key('a1-selected')), findsOneWidget);
-      expect(find.byType(MoveDest), findsNothing);
+      expect(find.byType(ValidMoveHighlight), findsNothing);
 
       // selecting an opposite piece deselects
       await tester.tap(find.byKey(const Key('e7-blackpawn')));
       await tester.pump();
       expect(find.byKey(const Key('a1-selected')), findsNothing);
-      expect(find.byType(MoveDest), findsNothing);
+      expect(find.byType(ValidMoveHighlight), findsNothing);
 
       // selecting an empty square deselects
       await tester.tap(find.byKey(const Key('a1-whiterook')));
@@ -95,12 +95,12 @@ void main() {
       await tester.pump();
 
       expect(find.byKey(const Key('e2-selected')), findsOneWidget);
-      expect(find.byType(MoveDest), findsNWidgets(2));
+      expect(find.byType(ValidMoveHighlight), findsNWidgets(2));
 
       await tester.tapAt(squareOffset(const SquareId('e4')));
       await tester.pump();
       expect(find.byKey(const Key('e2-selected')), findsNothing);
-      expect(find.byType(MoveDest), findsNothing);
+      expect(find.byType(ValidMoveHighlight), findsNothing);
       expect(find.byKey(const Key('e4-whitepawn')), findsOneWidget);
       expect(find.byKey(const Key('e2-whitepawn')), findsNothing);
       expect(find.byKey(const Key('e2-lastMove')), findsOneWidget);
@@ -120,7 +120,7 @@ void main() {
 
       // Tapping a square should have no effect...
       expect(find.byKey(const Key('e2-selected')), findsNothing);
-      expect(find.byType(MoveDest), findsNothing);
+      expect(find.byType(ValidMoveHighlight), findsNothing);
 
       // ... but move by drag should work
       await tester.dragFrom(
@@ -165,7 +165,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.byKey(const Key('e2-whitepawn')), findsOneWidget);
       expect(find.byKey(const Key('e2-selected')), findsNothing);
-      expect(find.byType(MoveDest), findsNothing);
+      expect(find.byType(ValidMoveHighlight), findsNothing);
     });
 
     testWidgets('dragging off board', (WidgetTester tester) async {
@@ -181,7 +181,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.byKey(const Key('e2-whitepawn')), findsOneWidget);
       expect(find.byKey(const Key('e2-selected')), findsNothing);
-      expect(find.byType(MoveDest), findsNothing);
+      expect(find.byType(ValidMoveHighlight), findsNothing);
     });
 
     testWidgets('e2-e4 drag move', (WidgetTester tester) async {
@@ -220,13 +220,13 @@ void main() {
 
       // Original square is still selected after drag attempt
       expect(find.byKey(const Key('e2-selected')), findsOneWidget);
-      expect(find.byType(MoveDest), findsNWidgets(2));
+      expect(find.byType(ValidMoveHighlight), findsNWidgets(2));
 
       // ...so we can still tap to move
       await tester.tapAt(squareOffset(const SquareId('e4')));
       await tester.pump();
       expect(find.byKey(const Key('e2-selected')), findsNothing);
-      expect(find.byType(MoveDest), findsNothing);
+      expect(find.byType(ValidMoveHighlight), findsNothing);
       expect(find.byKey(const Key('e4-whitepawn')), findsOneWidget);
       expect(find.byKey(const Key('e2-whitepawn')), findsNothing);
       expect(find.byKey(const Key('e2-lastMove')), findsOneWidget);
@@ -495,12 +495,12 @@ void main() {
       await tester.tapAt(squareOffset(const SquareId('f1')));
       await tester.pump();
       expect(find.byKey(const Key('f1-selected')), findsOneWidget);
-      expect(find.byType(MoveDest), findsNWidgets(7));
+      expect(find.byType(ValidMoveHighlight), findsNWidgets(7));
 
       await tester.tapAt(squareOffset(const SquareId('b4')));
       await tester.pump();
       expect(find.byKey(const Key('e4-selected')), findsNothing);
-      expect(find.byType(MoveDest), findsNothing);
+      expect(find.byType(ValidMoveHighlight), findsNothing);
     });
 
     testWidgets('select and deselect with opponent piece',
@@ -516,12 +516,12 @@ void main() {
       await tester.tapAt(squareOffset(const SquareId('f1')));
       await tester.pump();
       expect(find.byKey(const Key('f1-selected')), findsOneWidget);
-      expect(find.byType(MoveDest), findsNWidgets(7));
+      expect(find.byType(ValidMoveHighlight), findsNWidgets(7));
 
       await tester.tapAt(squareOffset(const SquareId('f8')));
       await tester.pump();
       expect(find.byKey(const Key('e4-selected')), findsNothing);
-      expect(find.byType(MoveDest), findsNothing);
+      expect(find.byType(ValidMoveHighlight), findsNothing);
     });
 
     testWidgets('select and deselect with same piece',
@@ -537,12 +537,12 @@ void main() {
       await tester.tapAt(squareOffset(const SquareId('f1')));
       await tester.pump();
       expect(find.byKey(const Key('f1-selected')), findsOneWidget);
-      expect(find.byType(MoveDest), findsNWidgets(7));
+      expect(find.byType(ValidMoveHighlight), findsNWidgets(7));
 
       await tester.tapAt(squareOffset(const SquareId('f1')));
       await tester.pump();
       expect(find.byKey(const Key('e4-selected')), findsNothing);
-      expect(find.byType(MoveDest), findsNothing);
+      expect(find.byType(ValidMoveHighlight), findsNothing);
     });
 
     testWidgets('set/unset', (WidgetTester tester) async {
@@ -592,7 +592,7 @@ void main() {
       // premove is still set
       expect(find.byKey(const Key('d1-premove')), findsOneWidget);
       expect(find.byKey(const Key('f3-premove')), findsOneWidget);
-      expect(find.byType(MoveDest), findsNWidgets(4));
+      expect(find.byType(ValidMoveHighlight), findsNWidgets(4));
       await tester.tapAt(squareOffset(const SquareId('d4')));
       await tester.pump();
       // premove is changed

@@ -3,27 +3,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import '../models.dart';
 
-/// A widget that displays a board highlight.
+/// A square highlight on the board.
 ///
-/// Board highlights can be a solid color or an image. They are used to
-/// highlight squares on the board, such as the last move, or the selected
-/// square.
-class Highlight extends StatelessWidget {
-  const Highlight({
+/// This is useful to indicate interesting squares on the board, such as the last
+/// move, a check, or a selected piece.
+class SquareHighlight extends StatelessWidget {
+  const SquareHighlight({
     super.key,
     required this.details,
-    required this.size,
   });
 
   final HighlightDetails details;
-  final double size;
 
   @override
   Widget build(BuildContext context) {
     if (details.image != null) {
       return Container(
-        width: size,
-        height: size,
         decoration: BoxDecoration(
           image: DecorationImage(
             image: details.image!,
@@ -34,8 +29,6 @@ class Highlight extends StatelessWidget {
       );
     }
     return Container(
-      width: size,
-      height: size,
       color: details.solidColor,
     );
   }
@@ -77,11 +70,11 @@ class CheckHighlight extends StatelessWidget {
   }
 }
 
-/// A widget that displays a move destination.
+/// A widget that displays a valid move destination highlight.
 ///
-/// Move destinations are used to indicate where a piece can move to.
-class MoveDest extends StatelessWidget {
-  const MoveDest({
+/// This is used to indicate where a piece can move to on the board.
+class ValidMoveHighlight extends StatelessWidget {
+  const ValidMoveHighlight({
     super.key,
     required this.color,
     required this.size,
@@ -95,7 +88,7 @@ class MoveDest extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return occupied
-        ? OccupiedMoveDest(color: color, size: size)
+        ? OccupiedValidMoveHighlight(color: color, size: size)
         : SizedBox.square(
             dimension: size,
             child: Padding(
@@ -111,12 +104,12 @@ class MoveDest extends StatelessWidget {
   }
 }
 
-/// A widget that displays an occupied move destination.
+/// A widget that displays an occupied move destination highlight.
 ///
 /// Occupied move destinations are used to indicate where a piece can move to
 /// on a square that is already occupied by a piece.
-class OccupiedMoveDest extends StatelessWidget {
-  const OccupiedMoveDest({
+class OccupiedValidMoveHighlight extends StatelessWidget {
+  const OccupiedValidMoveHighlight({
     super.key,
     required this.color,
     required this.size,

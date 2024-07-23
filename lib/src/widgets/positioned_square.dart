@@ -2,12 +2,14 @@ import 'package:dartchess/dartchess.dart' show Side;
 import 'package:flutter/widgets.dart';
 import '../models.dart';
 import './highlight.dart';
+import './piece.dart';
 
-/// Board aware Positioned widget
+/// Board aware [Positioned] widget.
 ///
-/// Use to position things, such as [Piece] or [Highlight] on the board.
-/// Since it's a wrapper over a [Positioned] widget it must be a descendant of a
-/// [Stack].
+/// Use to position things, such as a [PieceWidget] or [SquareHighlight] on the
+/// board.
+///
+/// It must be a descendant of a [Stack] since it's a wrapper over [Positioned].
 class PositionedSquare extends StatelessWidget {
   const PositionedSquare({
     super.key,

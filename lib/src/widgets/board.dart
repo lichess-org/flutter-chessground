@@ -175,10 +175,7 @@ class _BoardState extends State<Chessboard> {
               size: widget.squareSize,
               orientation: widget.state.orientation,
               squareId: squareId,
-              child: Highlight(
-                size: widget.squareSize,
-                details: colorScheme.lastMove,
-              ),
+              child: SquareHighlight(details: colorScheme.lastMove),
             ),
       if (premove != null &&
           widget.state.interactableSide != InteractableSide.none)
@@ -188,8 +185,7 @@ class _BoardState extends State<Chessboard> {
             size: widget.squareSize,
             orientation: widget.state.orientation,
             squareId: squareId,
-            child: Highlight(
-              size: widget.squareSize,
+            child: SquareHighlight(
               details: HighlightDetails(solidColor: colorScheme.validPremoves),
             ),
           ),
@@ -199,10 +195,7 @@ class _BoardState extends State<Chessboard> {
           size: widget.squareSize,
           orientation: widget.state.orientation,
           squareId: selected!,
-          child: Highlight(
-            size: widget.squareSize,
-            details: colorScheme.selected,
-          ),
+          child: SquareHighlight(details: colorScheme.selected),
         ),
       for (final dest in moveDests)
         PositionedSquare(
@@ -210,7 +203,7 @@ class _BoardState extends State<Chessboard> {
           size: widget.squareSize,
           orientation: widget.state.orientation,
           squareId: dest,
-          child: MoveDest(
+          child: ValidMoveHighlight(
             size: widget.squareSize,
             color: colorScheme.validMoves,
             occupied: pieces.containsKey(dest),
@@ -222,7 +215,7 @@ class _BoardState extends State<Chessboard> {
           size: widget.squareSize,
           orientation: widget.state.orientation,
           squareId: dest,
-          child: MoveDest(
+          child: ValidMoveHighlight(
             size: widget.squareSize,
             color: colorScheme.validPremoves,
             occupied: pieces.containsKey(dest),
