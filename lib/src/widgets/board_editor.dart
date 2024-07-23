@@ -79,10 +79,10 @@ class ChessBoardEditor extends StatefulWidget with BoardGeometry {
   /// If `origin` is not `null`, the piece was dragged from that square of the
   /// board editor.
   /// Otherwise, it was dragged from outside the board editor.
+  ///
   /// Each square of the board is a [DragTarget<Piece>], so to drop your own
-  /// piece widgets
-  /// onto the board, put them in a [Draggable<Piece>] and set the data to the
-  /// piece you want to drop.
+  /// piece widgets onto the board, put them in a [Draggable<Piece>] and set the
+  /// data to the piece you want to drop.
   final void Function(SquareId? origin, SquareId destination, Piece piece)?
       onDroppedPiece;
 
