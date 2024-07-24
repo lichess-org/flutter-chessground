@@ -1,12 +1,17 @@
 ## 4.0.0
 
+### New features:
 - Add a `ChessboardEditor` widget, intended to be used as the basis for a board editor like lichess.org/editor
-- Chessground is now dependant on `dartchess`. It is only used to share
-  common types: `Role`, `Side` and `Piece`. It is not used for any chess logic.
 - `SquareId` is now an extension type on String.
 - Add the `writeFen` helper function.
 - Add the `legalMovesOf` helper function to convert a dartchess `Position` to a
   set of valid moves compatible with Chessground.
+
+### Breaking changes:
+- Requires an SDK version of at least 3.3.0.
+- Chessground is now dependant on `dartchess`. It is only used to share
+  common types: `Role`, `Side` and `Piece`. It is not used for any chess logic.
+- `Board` has been renamed to `Chessboard`.
 
 ## 3.2.0
 
