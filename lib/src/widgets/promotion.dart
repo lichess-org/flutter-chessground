@@ -52,15 +52,16 @@ class PromotionSelector extends StatelessWidget with ChessboardGeometry {
 
   @override
   Widget build(BuildContext context) {
-    final coord = (orientation == Side.white && square.rank == Rank.eighth ||
-            orientation == Side.black && square.rank == Rank.first)
-        ? square.coord
-        : Coord(
-            square.file,
-            orientation == Side.white ? Rank.fourth : Rank.fifth,
-          );
+    final anchorSquare =
+        (orientation == Side.white && square.rank == Rank.eighth ||
+                orientation == Side.black && square.rank == Rank.first)
+            ? square
+            : Square.fromCoords(
+                square.file,
+                orientation == Side.white ? Rank.fourth : Rank.fifth,
+              );
 
-    final offset = coordOffset(coord);
+    final offset = squareOffset(anchorSquare);
 
     return GestureDetector(
       onTap: () => onCancel(move),

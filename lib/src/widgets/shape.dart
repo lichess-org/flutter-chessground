@@ -43,8 +43,8 @@ class ShapeWidget extends StatelessWidget with ChessboardGeometry {
             painter: _ArrowPainter(
               color,
               orientation,
-              coordOffset(orig.coord),
-              coordOffset(dest.coord),
+              squareOffset(orig),
+              squareOffset(dest),
               scale,
             ),
           ),
@@ -56,7 +56,7 @@ class ShapeWidget extends StatelessWidget with ChessboardGeometry {
             painter: _CirclePainter(
               color,
               orientation,
-              coordOffset(orig.coord),
+              squareOffset(orig),
               scale,
             ),
           ),

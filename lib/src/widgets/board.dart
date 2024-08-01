@@ -64,7 +64,8 @@ class Chessboard extends StatefulWidget with ChessboardGeometry {
 
 class _BoardState extends State<Chessboard> {
   Pieces pieces = {};
-  Map<Square, (_PieceCoord, _PieceCoord)> translatingPieces = {};
+  Map<Square, ({(Piece, Square) from, (Piece, Square) to})> translatingPieces =
+      {};
   Map<Square, Piece> fadingPieces = {};
   Square? selected;
   NormalMove? _promotionMove;
@@ -237,24 +238,24 @@ class _BoardState extends State<Chessboard> {
           ),
       for (final entry in translatingPieces.entries)
         PositionedSquare(
-          key: ValueKey('${entry.key.name}-${entry.value.$1.piece}'),
+          key: ValueKey('${entry.key.name}-${entry.value.from.$1}'),
           size: widget.size,
           orientation: widget.state.orientation,
           square: entry.key,
           child: AnimatedPieceTranslation(
-            fromCoord: entry.value.$1.coord,
-            toCoord: entry.value.$2.coord,
+            fromSquare: entry.value.from.$2,
+            toSquare: entry.value.to.$2,
             orientation: widget.state.orientation,
             duration: widget.settings.animationDuration,
             onComplete: () {
               translatingPieces.remove(entry.key);
             },
             child: PieceWidget(
-              piece: entry.value.$1.piece,
+              piece: entry.value.from.$1,
               size: widget.squareSize,
               pieceAssets: widget.settings.pieceAssets,
               blindfoldMode: widget.settings.blindfoldMode,
-              upsideDown: _isUpsideDown(entry.value.$1.piece),
+              upsideDown: _isUpsideDown(entry.value.from.$1),
             ),
           ),
         ),
@@ -265,7 +266,7 @@ class _BoardState extends State<Chessboard> {
           ),
           size: widget.size,
           orientation: widget.state.orientation,
-          coord: entry.key.coord,
+          square: entry.key,
           annotation: entry.value,
         ),
       for (final shape in shapes)
@@ -375,8 +376,8 @@ class _BoardState extends State<Chessboard> {
     translatingPieces = {};
     fadingPieces = {};
     final newPieces = readFen(widget.state.fen);
-    final List<_PieceCoord> newOnSquare = [];
-    final List<_PieceCoord> missingOnSquare = [];
+    final List<(Piece, Square)> newOnSquare = [];
+    final List<(Piece, Square)> missingOnSquare = [];
     final Set<Square> animatedOrigins = {};
     for (final s in Square.values) {
       if (s == _lastDrop?.from || s == _lastDrop?.to) {
@@ -384,38 +385,32 @@ class _BoardState extends State<Chessboard> {
       }
       final oldP = pieces[s];
       final newP = newPieces[s];
-      final squareCoord = s.coord;
       if (newP != null) {
         if (oldP != null) {
           if (newP != oldP) {
-            missingOnSquare.add(
-              _PieceCoord(piece: oldP, coord: squareCoord),
-            );
-            newOnSquare.add(
-              _PieceCoord(piece: newP, coord: squareCoord),
-            );
+            missingOnSquare.add((oldP, s));
+            newOnSquare.add((newP, s));
           }
         } else {
-          newOnSquare.add(
-            _PieceCoord(piece: newP, coord: squareCoord),
-          );
+          newOnSquare.add((newP, s));
         }
       } else if (oldP != null) {
-        missingOnSquare.add(_PieceCoord(piece: oldP, coord: squareCoord));
+        missingOnSquare.add((oldP, s));
       }
     }
     for (final newPiece in newOnSquare) {
-      final fromP = newPiece.closest(
-        missingOnSquare.where((m) => m.piece == newPiece.piece).toList(),
+      final fromP = _closestPiece(
+        newPiece.$2,
+        missingOnSquare.where((m) => m.$1 == newPiece.$1).toList(),
       );
       if (fromP != null) {
-        translatingPieces[newPiece.square] = (fromP, newPiece);
-        animatedOrigins.add(fromP.square);
+        translatingPieces[newPiece.$2] = (from: fromP, to: newPiece);
+        animatedOrigins.add(fromP.$2);
       }
     }
     for (final m in missingOnSquare) {
-      if (!animatedOrigins.contains(m.square)) {
-        fadingPieces[m.square] = m.piece;
+      if (!animatedOrigins.contains(m.$2)) {
+        fadingPieces[m.$2] = m.$1;
       }
     }
     _lastDrop = null;
@@ -434,9 +429,9 @@ class _BoardState extends State<Chessboard> {
 
   /// Returns the position of the square target during drag as a global offset.
   Offset? _squareTargetGlobalOffset(Offset localPosition, RenderBox box) {
-    final coord = widget.offsetCoord(localPosition);
-    if (coord == null) return null;
-    final localOffset = widget.coordOffset(coord);
+    final square = widget.offsetSquare(localPosition);
+    if (square == null) return null;
+    final localOffset = widget.squareOffset(square);
     final tmpOffset = box.localToGlobal(localOffset);
     return Offset(
       tmpOffset.dx - widget.squareSize / 2,
@@ -917,29 +912,15 @@ const ISet<Square> _emptyValidMoves = ISetConst({});
 const ISet<Shape> _emptyShapes = ISetConst({});
 const IMap<Square, Annotation> _emptyAnnotations = IMapConst({});
 
-/// A piece and its position on the board.
-@immutable
-class _PieceCoord {
-  const _PieceCoord({
-    required this.piece,
-    required this.coord,
-  });
+(Piece, Square)? _closestPiece(Square square, List<(Piece, Square)> pieces) {
+  pieces.sort(
+    (p1, p2) => _distanceSq(square, p1.$2) - _distanceSq(square, p2.$2),
+  );
+  return pieces.isNotEmpty ? pieces[0] : null;
+}
 
-  final Piece piece;
-  final Coord coord;
-
-  Square get square => coord.square;
-
-  _PieceCoord? closest(List<_PieceCoord> pieces) {
-    pieces.sort(
-      (p1, p2) => _distanceSq(coord, p1.coord) - _distanceSq(coord, p2.coord),
-    );
-    return pieces.isNotEmpty ? pieces[0] : null;
-  }
-
-  int _distanceSq(Coord pos1, Coord pos2) {
-    final dx = pos1.file - pos2.file;
-    final dy = pos1.rank - pos2.rank;
-    return dx * dx + dy * dy;
-  }
+int _distanceSq(Square pos1, Square pos2) {
+  final dx = pos1.file - pos2.file;
+  final dy = pos1.rank - pos2.rank;
+  return dx * dx + dy * dy;
 }

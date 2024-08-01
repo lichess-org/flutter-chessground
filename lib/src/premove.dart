@@ -2,7 +2,7 @@ import 'package:dartchess/dartchess.dart';
 
 import './models.dart';
 
-/// Returns the set of squares that the piece on [square] can potentially premove to.
+/// Returns the read-only set of squares that the piece on [square] can potentially premove to.
 Set<Square> premovesOf(
   Square square,
   Pieces pieces, {
@@ -10,7 +10,6 @@ Set<Square> premovesOf(
 }) {
   final piece = pieces[square];
   if (piece == null) return {};
-  final coord = square.coord;
   final r = piece.role;
 
   final mobility = (() {
@@ -35,10 +34,10 @@ Set<Square> premovesOf(
   })();
 
   return Set.unmodifiable({
-    for (final coord2 in Coord.values)
-      if ((coord.file != coord2.file || coord.rank != coord2.rank) &&
-          mobility(coord.file, coord.rank, coord2.file, coord2.rank))
-        coord2.square,
+    for (final s in Square.values)
+      if ((square.file != s.file || square.rank != s.rank) &&
+          mobility(square.file, square.rank, s.file, s.rank))
+        s,
   });
 }
 

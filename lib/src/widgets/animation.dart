@@ -5,7 +5,7 @@ import './piece.dart';
 
 /// A widget that animates the translation of a piece from one square to another.
 ///
-/// The piece will move from [fromCoord] to [toCoord] with the given [orientation].
+/// The piece will move from [fromSquare] to [toSquare] with the given [orientation].
 /// When the animation completes, [onComplete] will be called.
 /// The animation duration and curve can be customized.
 class AnimatedPieceTranslation extends StatefulWidget {
@@ -13,8 +13,8 @@ class AnimatedPieceTranslation extends StatefulWidget {
   const AnimatedPieceTranslation({
     super.key,
     required this.child,
-    required this.fromCoord,
-    required this.toCoord,
+    required this.fromSquare,
+    required this.toSquare,
     required this.orientation,
     required this.onComplete,
     Duration? duration,
@@ -25,11 +25,11 @@ class AnimatedPieceTranslation extends StatefulWidget {
   /// The widget to animate. Typically a [PieceWidget].
   final Widget child;
 
-  /// The coordinate of the square the piece is moving from.
-  final Coord fromCoord;
+  /// The square the piece is moving from.
+  final Square fromSquare;
 
-  /// The coordinate of the square the piece is moving to.
-  final Coord toCoord;
+  /// The square the piece is moving to.
+  final Square toSquare;
 
   /// The orientation of the board.
   final Side orientation;
@@ -45,9 +45,9 @@ class AnimatedPieceTranslation extends StatefulWidget {
 
   int get orientationFactor => orientation == Side.white ? 1 : -1;
   double get dx =>
-      -(toCoord.file - fromCoord.file).toDouble() * orientationFactor;
+      -(toSquare.file - fromSquare.file).toDouble() * orientationFactor;
   double get dy =>
-      (toCoord.rank - fromCoord.rank).toDouble() * orientationFactor;
+      (toSquare.rank - fromSquare.rank).toDouble() * orientationFactor;
 
   @override
   State<AnimatedPieceTranslation> createState() => _PieceTranslationState();

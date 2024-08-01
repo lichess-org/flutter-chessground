@@ -31,7 +31,7 @@ class PositionedSquare extends StatelessWidget with ChessboardGeometry {
 
   @override
   Widget build(BuildContext context) {
-    final offset = coordOffset(square.coord);
+    final offset = squareOffset(square);
     return Positioned(
       width: squareSize,
       height: squareSize,

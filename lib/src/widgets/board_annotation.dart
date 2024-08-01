@@ -12,7 +12,7 @@ class BoardAnnotation extends StatefulWidget with ChessboardGeometry {
     required this.annotation,
     required this.size,
     required this.orientation,
-    required this.coord,
+    required this.square,
     super.key,
   });
 
@@ -24,8 +24,7 @@ class BoardAnnotation extends StatefulWidget with ChessboardGeometry {
   @override
   final Side orientation;
 
-  /// The coordinates of the square the annotation is displayed on.
-  final Coord coord;
+  final Square square;
 
   @override
   State<BoardAnnotation> createState() => _BoardAnnotationState();
@@ -62,11 +61,11 @@ class _BoardAnnotationState extends State<BoardAnnotation> {
 
   @override
   Widget build(BuildContext context) {
-    final squareOffset = widget.coordOffset(widget.coord);
+    final squareOffset = widget.squareOffset(widget.square);
     final size = widget.squareSize * 0.48;
     final onRightEdge = widget.orientation == Side.white
-        ? widget.coord.file == File.h
-        : widget.coord.file == File.a;
+        ? widget.square.file == File.h
+        : widget.square.file == File.a;
     final offset = squareOffset.translate(
       onRightEdge
           ? widget.squareSize - (size * 0.9)

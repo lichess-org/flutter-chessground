@@ -12,29 +12,14 @@ mixin ChessboardGeometry {
   /// Size of a single square on the board.
   double get squareSize => size / 8;
 
-  /// Converts a coordinate to a board offset.
-  Offset coordOffset(Coord coord) {
-    final x = orientation == Side.black ? 7 - coord.file : coord.file;
-    final y = orientation == Side.black ? coord.rank : 7 - coord.rank;
+  /// Converts a square to a board offset.
+  Offset squareOffset(Square square) {
+    final x = orientation == Side.black ? 7 - square.file : square.file;
+    final y = orientation == Side.black ? square.rank : 7 - square.rank;
     return Offset(x * squareSize, y * squareSize);
   }
 
-  /// Converts a board offset to a coordinate.
-  ///
-  /// Returns `null` if the offset is outside the board.
-  Coord? offsetCoord(Offset offset) {
-    final x = (offset.dx / squareSize).floor();
-    final y = (offset.dy / squareSize).floor();
-    final orientX = orientation == Side.black ? 7 - x : x;
-    final orientY = orientation == Side.black ? y : 7 - y;
-    if (orientX >= 0 && orientX <= 7 && orientY >= 0 && orientY <= 7) {
-      return Coord(orientX, orientY);
-    } else {
-      return null;
-    }
-  }
-
-  /// Converts a board offset to a square id.
+  /// Converts a board offset to a square.
   ///
   /// Returns `null` if the offset is outside the board.
   Square? offsetSquare(Offset offset) {
