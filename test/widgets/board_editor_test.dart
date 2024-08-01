@@ -1,4 +1,4 @@
-import 'package:dartchess/dartchess.dart' show Piece, Side;
+import 'package:dartchess/dartchess.dart';
 import 'package:flutter/material.dart';
 import 'package:dartchess/dartchess.dart' as dc;
 import 'package:flutter_test/flutter_test.dart';
@@ -14,8 +14,8 @@ void main() {
       expect(find.byType(ChessboardEditor), findsOneWidget);
       expect(find.byType(PieceWidget), findsNothing);
 
-      for (final square in allSquares) {
-        expect(find.byKey(Key('$square-empty')), findsOneWidget);
+      for (final square in Square.values) {
+        expect(find.byKey(Key('${square.name}-empty')), findsOneWidget);
       }
     });
 
@@ -24,18 +24,18 @@ void main() {
       await tester.pumpWidget(
         buildBoard(
           pieces: {
-            const SquareId('a1'): Piece.whiteKing,
-            const SquareId('b2'): Piece.whiteQueen,
-            const SquareId('c3'): Piece.whiteRook,
-            const SquareId('d4'): Piece.whiteBishop,
-            const SquareId('e5'): Piece.whiteKnight,
-            const SquareId('f6'): Piece.whitePawn,
-            const SquareId('a2'): Piece.blackKing,
-            const SquareId('a3'): Piece.blackQueen,
-            const SquareId('a4'): Piece.blackRook,
-            const SquareId('a5'): Piece.blackBishop,
-            const SquareId('a6'): Piece.blackKnight,
-            const SquareId('a7'): Piece.blackPawn,
+            Square.a1: Piece.whiteKing,
+            Square.b2: Piece.whiteQueen,
+            Square.c3: Piece.whiteRook,
+            Square.d4: Piece.whiteBishop,
+            Square.e5: Piece.whiteKnight,
+            Square.f6: Piece.whitePawn,
+            Square.a2: Piece.blackKing,
+            Square.a3: Piece.blackQueen,
+            Square.a4: Piece.blackRook,
+            Square.a5: Piece.blackBishop,
+            Square.a6: Piece.blackKnight,
+            Square.a7: Piece.blackPawn,
           },
         ),
       );
@@ -60,7 +60,7 @@ void main() {
         'touching a square triggers the onEditedSquare callback when the board pointer tool mode is `edit`',
         (WidgetTester tester) async {
       for (final orientation in Side.values) {
-        SquareId? tappedSquare;
+        Square? tappedSquare;
         await tester.pumpWidget(
           buildBoard(
             pieces: {},
@@ -71,21 +71,21 @@ void main() {
         );
 
         await tester.tapAt(
-          squareOffset(const SquareId('a1'), orientation: orientation),
+          squareOffset(Square.a1, orientation: orientation),
         );
-        expect(tappedSquare, 'a1');
+        expect(tappedSquare, Square.a1);
 
         await tester.tapAt(
-          squareOffset(const SquareId('g8'), orientation: orientation),
+          squareOffset(Square.g8, orientation: orientation),
         );
-        expect(tappedSquare, 'g8');
+        expect(tappedSquare, Square.g8);
       }
     });
 
     testWidgets(
         'touching a square does not trigger the onEditedSquare callback when the board pointer tool mode is `drag`',
         (WidgetTester tester) async {
-      SquareId? tappedSquare;
+      Square? tappedSquare;
       await tester.pumpWidget(
         buildBoard(
           pieces: {},
@@ -93,16 +93,16 @@ void main() {
         ),
       );
 
-      await tester.tapAt(squareOffset(const SquareId('a1')));
+      await tester.tapAt(squareOffset(Square.a1));
       expect(tappedSquare, null);
 
-      await tester.tapAt(squareOffset(const SquareId('g8')));
+      await tester.tapAt(squareOffset(Square.g8));
       expect(tappedSquare, null);
     });
 
     testWidgets('pan movements trigger the onEditedSquare callback',
         (WidgetTester tester) async {
-      final Set<SquareId> touchedSquares = {};
+      final Set<Square> touchedSquares = {};
       await tester.pumpWidget(
         buildBoard(
           pieces: {},
@@ -113,43 +113,43 @@ void main() {
 
       // Pan from a1 to a8
       await tester.timedDragFrom(
-        squareOffset(const SquareId('a1')),
+        squareOffset(Square.a1),
         const Offset(0, -(squareSize * 7)),
         const Duration(seconds: 1),
       );
       expect(touchedSquares, {
-        'a1',
-        'a2',
-        'a3',
-        'a4',
-        'a5',
-        'a6',
-        'a7',
-        'a8',
+        Square.a1,
+        Square.a2,
+        Square.a3,
+        Square.a4,
+        Square.a5,
+        Square.a6,
+        Square.a7,
+        Square.a8,
       });
 
       touchedSquares.clear();
       // Pan from a1 to h1
       await tester.timedDragFrom(
-        squareOffset(const SquareId('a1')),
+        squareOffset(Square.a1),
         const Offset(squareSize * 7, 0),
         const Duration(seconds: 1),
       );
       expect(touchedSquares, {
-        'a1',
-        'b1',
-        'c1',
-        'd1',
-        'e1',
-        'f1',
-        'g1',
-        'h1',
+        Square.a1,
+        Square.b1,
+        Square.c1,
+        Square.d1,
+        Square.e1,
+        Square.f1,
+        Square.g1,
+        Square.h1,
       });
     });
 
     testWidgets('dragging pieces to a new square calls onDroppedPiece',
         (WidgetTester tester) async {
-      (SquareId? origin, SquareId? destination, Piece? piece) callbackParams =
+      (Square? origin, Square? destination, Piece? piece) callbackParams =
           (null, null, null);
 
       await tester.pumpWidget(
@@ -161,7 +161,7 @@ void main() {
 
       // Drag an empty square => nothing happens
       await tester.dragFrom(
-        squareOffset(const SquareId('e4')),
+        squareOffset(Square.e4),
         const Offset(0, -(squareSize * 2)),
       );
       await tester.pumpAndSettle();
@@ -169,23 +169,23 @@ void main() {
 
       // Play e2-e4 (legal move)
       await tester.dragFrom(
-        squareOffset(const SquareId('e2')),
+        squareOffset(Square.e2),
         const Offset(0, -(squareSize * 2)),
       );
       await tester.pumpAndSettle();
-      expect(callbackParams, ('e2', 'e4', Piece.whitePawn));
+      expect(callbackParams, (Square.e2, Square.e4, Piece.whitePawn));
 
       // Capture our own piece (illegal move)
       await tester.dragFrom(
-        squareOffset(const SquareId('a1')),
+        squareOffset(Square.a1),
         const Offset(squareSize, 0),
       );
-      expect(callbackParams, ('a1', 'b1', Piece.whiteRook));
+      expect(callbackParams, (Square.a1, Square.b1, Piece.whiteRook));
     });
 
     testWidgets('dragging a piece onto the board calls onDroppedPiece',
         (WidgetTester tester) async {
-      (SquareId? origin, SquareId? destination, Piece? piece) callbackParams =
+      (Square? origin, Square? destination, Piece? piece) callbackParams =
           (null, null, null);
 
       await tester.pumpWidget(
@@ -226,12 +226,12 @@ void main() {
         pieceDraggable,
         newSquareCenter - pieceCenter,
       );
-      expect(callbackParams, (null, 'e2', Piece.whitePawn));
+      expect(callbackParams, (null, Square.e2, Piece.whitePawn));
     });
 
     testWidgets('dragging a piece off the board calls onDiscardedPiece',
         (WidgetTester tester) async {
-      SquareId? discardedSquare;
+      Square? discardedSquare;
       await tester.pumpWidget(
         buildBoard(
           pieces: readFen(dc.kInitialFEN),
@@ -240,11 +240,11 @@ void main() {
       );
 
       await tester.dragFrom(
-        squareOffset(const SquareId('e1')),
+        squareOffset(Square.e1),
         const Offset(0, squareSize),
       );
       await tester.pumpAndSettle();
-      expect(discardedSquare, 'e1');
+      expect(discardedSquare, Square.e1);
     });
   });
 }
@@ -253,10 +253,10 @@ Widget buildBoard({
   required Pieces pieces,
   Side orientation = Side.white,
   EditorPointerMode pointerMode = EditorPointerMode.drag,
-  void Function(SquareId square)? onEditedSquare,
-  void Function(SquareId? origin, SquareId destination, Piece piece)?
+  void Function(Square square)? onEditedSquare,
+  void Function(Square? origin, Square destination, Piece piece)?
       onDroppedPiece,
-  void Function(SquareId square)? onDiscardedPiece,
+  void Function(Square square)? onDiscardedPiece,
 }) {
   return MaterialApp(
     home: ChessboardEditor(
@@ -271,7 +271,9 @@ Widget buildBoard({
   );
 }
 
-Offset squareOffset(SquareId id, {Side orientation = Side.white}) {
-  final o = id.coord.offset(orientation, squareSize);
+Offset squareOffset(Square id, {Side orientation = Side.white}) {
+  final x = orientation == Side.black ? 7 - id.file : id.file;
+  final y = orientation == Side.black ? id.rank : 7 - id.rank;
+  final o = Offset(x * squareSize, y * squareSize);
   return Offset(o.dx + squareSize / 2, o.dy + squareSize / 2);
 }

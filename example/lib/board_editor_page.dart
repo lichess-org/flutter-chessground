@@ -1,7 +1,7 @@
 import 'package:board_example/board_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:chessground/chessground.dart';
-import 'package:dartchess/dartchess.dart' as dc;
+import 'package:dartchess/dartchess.dart';
 import 'package:collection/collection.dart';
 
 class BoardEditorPage extends StatefulWidget {
@@ -12,10 +12,10 @@ class BoardEditorPage extends StatefulWidget {
 }
 
 class _BoardEditorPageState extends State<BoardEditorPage> {
-  Pieces pieces = readFen(dc.kInitialFEN);
+  Pieces pieces = readFen(kInitialFEN);
 
   /// The piece to add when a square is touched. If null, will delete the piece.
-  dc.Piece? pieceToAddOnTouch;
+  Piece? pieceToAddOnTouch;
 
   EditorPointerMode pointerMode = EditorPointerMode.drag;
 
@@ -32,7 +32,7 @@ class _BoardEditorPageState extends State<BoardEditorPage> {
     );
     final boardEditor = ChessboardEditor(
       size: screenWidth,
-      orientation: dc.Side.white,
+      orientation: Side.white,
       pieces: pieces,
       settings: settings,
       pointerMode: pointerMode,
@@ -62,7 +62,7 @@ class _BoardEditorPageState extends State<BoardEditorPage> {
           pieceEdition:
               pointerMode == EditorPointerMode.edit ? pieceToAddOnTouch : null,
           pieceTapped: (role) => setState(() {
-            pieceToAddOnTouch = dc.Piece(role: role, color: side);
+            pieceToAddOnTouch = Piece(role: role, color: side);
             pointerMode = EditorPointerMode.edit;
           }),
           pointerMode: pointerMode,
@@ -83,9 +83,9 @@ class _BoardEditorPageState extends State<BoardEditorPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            makePieceMenu(dc.Side.black),
+            makePieceMenu(Side.black),
             boardEditor,
-            makePieceMenu(dc.Side.white),
+            makePieceMenu(Side.white),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
               child:
@@ -112,18 +112,18 @@ class PieceMenu extends StatelessWidget {
     required this.pointerModeTapped,
   });
 
-  final dc.Side side;
+  final Side side;
   final PieceSet pieceSet;
   final double squareSize;
 
   /// The piece that is currently being edited.
   ///
   /// If null while [pointerMode] is [EditorPointerMode.edit], the user is in delete mode.
-  final dc.Piece? pieceEdition;
+  final Piece? pieceEdition;
 
   final EditorPointerMode pointerMode;
   final ChessboardEditorSettings settings;
-  final Function(dc.Role role) pieceTapped;
+  final Function(Role role) pieceTapped;
   final Function() deleteTapped;
   final Function() pointerModeTapped;
 
@@ -146,9 +146,9 @@ class PieceMenu extends StatelessWidget {
               ),
             ),
           ),
-          ...dc.Role.values.mapIndexed(
+          ...Role.values.mapIndexed(
             (i, role) {
-              final piece = dc.Piece(role: role, color: side);
+              final piece = Piece(role: role, color: side);
               final pieceWidget = PieceWidget(
                 piece: piece,
                 size: squareSize,

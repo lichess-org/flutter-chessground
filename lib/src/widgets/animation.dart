@@ -1,4 +1,4 @@
-import 'package:dartchess/dartchess.dart' show Piece, Side;
+import 'package:dartchess/dartchess.dart';
 import 'package:flutter/widgets.dart';
 import '../models.dart';
 import './piece.dart';
@@ -44,8 +44,10 @@ class AnimatedPieceTranslation extends StatefulWidget {
   final Curve curve;
 
   int get orientationFactor => orientation == Side.white ? 1 : -1;
-  double get dx => -(toCoord.x - fromCoord.x).toDouble() * orientationFactor;
-  double get dy => (toCoord.y - fromCoord.y).toDouble() * orientationFactor;
+  double get dx =>
+      -(toCoord.file - fromCoord.file).toDouble() * orientationFactor;
+  double get dy =>
+      (toCoord.rank - fromCoord.rank).toDouble() * orientationFactor;
 
   @override
   State<AnimatedPieceTranslation> createState() => _PieceTranslationState();

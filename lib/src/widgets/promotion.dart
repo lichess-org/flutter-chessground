@@ -1,4 +1,5 @@
-import 'package:dartchess/dartchess.dart' show Piece, Role, Side;
+import 'package:chessground/src/widgets/geometry.dart';
+import 'package:dartchess/dartchess.dart';
 import 'package:flutter/widgets.dart';
 import '../models.dart';
 import 'piece.dart';
@@ -9,12 +10,12 @@ import 'piece.dart';
 /// promoted. The user can select a piece to promote to by tapping on one of
 /// the four pieces displayed.
 /// Promotion can be canceled by tapping outside the promotion widget.
-class PromotionSelector extends StatelessWidget {
+class PromotionSelector extends StatelessWidget with ChessboardGeometry {
   const PromotionSelector({
     super.key,
     required this.move,
     required this.color,
-    required this.squareSize,
+    required this.size,
     required this.orientation,
     required this.piecesUpsideDown,
     required this.onSelect,
@@ -22,25 +23,44 @@ class PromotionSelector extends StatelessWidget {
     required this.pieceAssets,
   });
 
-  final PieceAssets pieceAssets;
-  final Move move;
-  final Side color;
-  final double squareSize;
-  final Side orientation;
-  final bool piecesUpsideDown;
-  final void Function(Move, Piece) onSelect;
-  final void Function(Move) onCancel;
+  /// The move that is being promoted.
+  final NormalMove move;
 
-  SquareId get squareId => move.to;
+  /// The color of the pieces to display.
+  final Side color;
+
+  /// The piece assets to use.
+  final PieceAssets pieceAssets;
+
+  @override
+  final double size;
+
+  @override
+  final Side orientation;
+
+  /// If `true` the pieces are displayed rotated by 180 degrees.
+  final bool piecesUpsideDown;
+
+  /// Callback when a piece is selected.
+  final void Function(NormalMove, Piece) onSelect;
+
+  /// Callback when the promotion is canceled.
+  final void Function(NormalMove) onCancel;
+
+  /// The square the pawn is moving to.
+  Square get square => move.to;
 
   @override
   Widget build(BuildContext context) {
-    final coord = (orientation == Side.white && squareId.rank == '8' ||
-            orientation == Side.black && squareId.rank == '1')
-        ? squareId.coord
-        : SquareId(squareId.file + (orientation == Side.white ? '4' : '5'))
-            .coord;
-    final offset = coord.offset(orientation, squareSize);
+    final coord = (orientation == Side.white && square.rank == Rank.eighth ||
+            orientation == Side.black && square.rank == Rank.first)
+        ? square.coord
+        : Coord(
+            square.file,
+            orientation == Side.white ? Rank.fourth : Rank.fifth,
+          );
+
+    final offset = coordOffset(coord);
 
     return GestureDetector(
       onTap: () => onCancel(move),

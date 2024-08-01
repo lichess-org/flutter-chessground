@@ -1,4 +1,4 @@
-import 'package:dartchess/dartchess.dart' show Side;
+import 'package:dartchess/dartchess.dart';
 import 'package:flutter/widgets.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 
@@ -18,12 +18,12 @@ abstract class ChessboardState {
     required String fen,
     bool opponentsPiecesUpsideDown,
     Side? sideToMove,
-    Move? premove,
-    Move? lastMove,
+    NormalMove? premove,
+    NormalMove? lastMove,
     ValidMoves? validMoves,
     bool? isCheck,
     ISet<Shape>? shapes,
-    IMap<SquareId, Annotation>? annotations,
+    IMap<Square, Annotation>? annotations,
   }) = _ChessboardState;
 
   const ChessboardState._({
@@ -62,12 +62,12 @@ abstract class ChessboardState {
   final String fen;
 
   /// Registered premove. Will be played right after the next opponent move.
-  final Move? premove;
+  final NormalMove? premove;
 
   /// Last move played, used to highlight corresponding squares.
-  final Move? lastMove;
+  final NormalMove? lastMove;
 
-  /// Set of [Move] allowed to be played by current side to move.
+  /// Set of moves allowed to be played by current side to move.
   final ValidMoves? validMoves;
 
   /// Highlight the king of current side to move
@@ -77,7 +77,7 @@ abstract class ChessboardState {
   final ISet<Shape>? shapes;
 
   /// Move annotations to be displayed on the board.
-  final IMap<SquareId, Annotation>? annotations;
+  final IMap<Square, Annotation>? annotations;
 
   @override
   bool operator ==(Object other) =>
@@ -123,7 +123,7 @@ abstract class ChessboardState {
     ValidMoves? validMoves,
     bool? isCheck,
     ISet<Shape>? shapes,
-    IMap<SquareId, Annotation>? annotations,
+    IMap<Square, Annotation>? annotations,
   });
 }
 
@@ -164,8 +164,9 @@ class _ChessboardState extends ChessboardState {
       fen: fen ?? this.fen,
       sideToMove:
           sideToMove == _Undefined ? this.sideToMove : sideToMove as Side?,
-      premove: premove == _Undefined ? this.premove : premove as Move?,
-      lastMove: lastMove == _Undefined ? this.lastMove : lastMove as Move?,
+      premove: premove == _Undefined ? this.premove : premove as NormalMove?,
+      lastMove:
+          lastMove == _Undefined ? this.lastMove : lastMove as NormalMove?,
       validMoves: validMoves == _Undefined
           ? this.validMoves
           : validMoves as ValidMoves?,
@@ -173,7 +174,7 @@ class _ChessboardState extends ChessboardState {
       shapes: shapes == _Undefined ? this.shapes : shapes as ISet<Shape>?,
       annotations: annotations == _Undefined
           ? this.annotations
-          : annotations as IMap<SquareId, Annotation>?,
+          : annotations as IMap<Square, Annotation>?,
     );
   }
 }
