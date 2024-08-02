@@ -541,7 +541,8 @@ void main() {
       expect(find.byType(ValidMoveHighlight), findsNothing);
     });
 
-    testWidgets('set/unset', (WidgetTester tester) async {
+    testWidgets('set/unset by tapping empty square or opponent piece',
+        (WidgetTester tester) async {
       await tester.pumpWidget(
         buildBoard(
           initialFen:
@@ -571,7 +572,78 @@ void main() {
       expect(find.byKey(const Key('f3-premove')), findsNothing);
     });
 
-    testWidgets('set and change', (WidgetTester tester) async {
+    testWidgets('unset by dragging off board', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        buildBoard(
+          initialFen:
+              'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
+          initialInteractableSide: InteractableSide.white,
+        ),
+      );
+
+      // set premove
+      await makeMove(tester, Square.e4, Square.f5);
+      expect(find.byKey(const Key('e4-premove')), findsOneWidget);
+      expect(find.byKey(const Key('f5-premove')), findsOneWidget);
+
+      // unset by dragging off board
+      await tester.dragFrom(
+        squareOffset(Square.e4),
+        squareOffset(Square.e4) + const Offset(0, -boardSize + squareSize),
+      );
+      await tester.pump();
+      expect(find.byKey(const Key('e4-premove')), findsNothing);
+      expect(find.byKey(const Key('f5-premove')), findsNothing);
+    });
+
+    testWidgets('unset by dragging to an empty square',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(
+        buildBoard(
+          initialFen:
+              'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
+          initialInteractableSide: InteractableSide.white,
+        ),
+      );
+
+      // set premove
+      await makeMove(tester, Square.e4, Square.f5);
+      expect(find.byKey(const Key('e4-premove')), findsOneWidget);
+      expect(find.byKey(const Key('f5-premove')), findsOneWidget);
+
+      // unset by dragging to an empty square
+      await tester.dragFrom(
+        squareOffset(Square.e4),
+        squareOffset(Square.e4) + const Offset(0, -squareSize),
+      );
+      await tester.pump();
+      expect(find.byKey(const Key('e4-premove')), findsNothing);
+      expect(find.byKey(const Key('f5-premove')), findsNothing);
+    });
+
+    testWidgets('unset by tapping same origin square again',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(
+        buildBoard(
+          initialFen:
+              'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
+          initialInteractableSide: InteractableSide.white,
+        ),
+      );
+
+      // set premove
+      await makeMove(tester, Square.e4, Square.f5);
+      expect(find.byKey(const Key('e4-premove')), findsOneWidget);
+      expect(find.byKey(const Key('f5-premove')), findsOneWidget);
+
+      // unset by tapping same origin square again
+      await tester.tapAt(squareOffset(Square.e4));
+      await tester.pump();
+      expect(find.byKey(const Key('e4-premove')), findsNothing);
+      expect(find.byKey(const Key('f5-premove')), findsNothing);
+    });
+
+    testWidgets('set and change by tap', (WidgetTester tester) async {
       await tester.pumpWidget(
         buildBoard(
           initialFen:
@@ -590,6 +662,30 @@ void main() {
       expect(find.byKey(const Key('f3-premove')), findsOneWidget);
       expect(find.byType(ValidMoveHighlight), findsNWidgets(4));
       await tester.tapAt(squareOffset(Square.d4));
+      await tester.pump();
+      // premove is changed
+      expect(find.byKey(const Key('d1-premove')), findsNothing);
+      expect(find.byKey(const Key('f3-premove')), findsNothing);
+      expect(find.byKey(const Key('d2-premove')), findsOneWidget);
+      expect(find.byKey(const Key('d4-premove')), findsOneWidget);
+    });
+
+    testWidgets('set and change by drag', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        buildBoard(
+          initialFen:
+              'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
+          initialInteractableSide: InteractableSide.white,
+        ),
+      );
+
+      await makeMove(tester, Square.d1, Square.f3);
+      expect(find.byKey(const Key('d1-premove')), findsOneWidget);
+      expect(find.byKey(const Key('f3-premove')), findsOneWidget);
+      await tester.dragFrom(
+        squareOffset(Square.d2),
+        const Offset(0, -squareSize * 2),
+      );
       await tester.pump();
       // premove is changed
       expect(find.byKey(const Key('d1-premove')), findsNothing);

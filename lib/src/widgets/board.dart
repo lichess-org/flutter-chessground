@@ -28,6 +28,7 @@ const _kCancelShapesDoubleTapDelay = Duration(milliseconds: 200);
 /// This widget can be used to display a static board, a dynamic board that
 /// shows a live game, or a full user interactable board.
 class Chessboard extends StatefulWidget with ChessboardGeometry {
+  /// Creates a new chessboard widget.
   const Chessboard({
     super.key,
     required this.size,
@@ -63,19 +64,39 @@ class Chessboard extends StatefulWidget with ChessboardGeometry {
 }
 
 class _BoardState extends State<Chessboard> {
+  /// Pieces on the board.
   Pieces pieces = {};
+
+  /// Pieces that are currently being translated from one square to another.
   Map<Square, ({(Piece, Square) from, (Piece, Square) to})> translatingPieces =
       {};
+
+  /// Pieces that are currently fading out.
   Map<Square, Piece> fadingPieces = {};
+
+  /// Currently selected square.
   Square? selected;
+
+  /// Move currently being promoted
   NormalMove? _promotionMove;
 
   /// Last move that was played using drag and drop.
   NormalMove? _lastDrop;
 
+  /// Squares that the selected piece can premove to.
   Set<Square>? _premoveDests;
 
+  /// Whether the selected piece should be deselected on the next tap up event.
+  ///
+  /// This is used to prevent the deselection of a piece when the user drags it,
+  /// but to allow the deselection when the user taps on the selected piece.
   bool _shouldDeselectOnTapUp = false;
+
+  /// Whether the premove should be canceled on the next tap up event.
+  ///
+  /// This is used to prevent the premove from being canceled when the user drags
+  /// a piece, but to allow the cancelation when the user taps on the origin square of the premove.
+  bool _shouldCancelPremoveOnTapUp = false;
 
   /// Avatar for the piece that is currently being dragged.
   _DragAvatar? _dragAvatar;
@@ -496,11 +517,17 @@ class _BoardState extends State<Chessboard> {
       return;
     }
 
+    // keep a reference to the current pointer down event to handle simultaneous
+    // pointer events
     _currentPointerDownEvent = details;
 
+    // a piece was selected and the user taps on a different square:
+    // - try to move the piece to the target square
+    // - if the move was not possible but there is a movable piece under the
+    // target square, select it
     if (selected != null && square != selected) {
-      final canMove = _tryMoveOrPremoveTo(square);
-      if (!canMove && _isMovable(piece)) {
+      final couldMove = _tryMoveOrPremoveTo(square);
+      if (!couldMove && _isMovable(piece)) {
         setState(() {
           selected = square;
         });
@@ -510,13 +537,24 @@ class _BoardState extends State<Chessboard> {
           _premoveDests = null;
         });
       }
-    } else if (selected == square) {
+    }
+    // the selected piece is touched again:
+    // - deselect the piece on the next tap up event (as we don't want to deselect
+    // the piece when the user drags it)
+    else if (selected == square) {
       _shouldDeselectOnTapUp = true;
-    } else if (_isMovable(piece)) {
+    }
+    // no piece was selected yet and a movable piece is touched:
+    // - select the piece
+    else if (_isMovable(piece)) {
       setState(() {
         selected = square;
       });
-    } else if (_isPremovable(piece)) {
+    }
+    // no piece was selected yet and a premovable piece is touched:
+    // - select the piece
+    // - make the premove destinations
+    else if (_isPremovable(piece)) {
       setState(() {
         selected = square;
         _premoveDests = premovesOf(
@@ -525,7 +563,11 @@ class _BoardState extends State<Chessboard> {
           canCastle: widget.settings.enablePremoveCastling,
         );
       });
-    } else if (widget.state.premove != null) {
+    }
+    // pointer down on empty square:
+    // - cancel premove
+    // - unselect piece
+    else if (widget.state.premove != null) {
       widget.onPremove?.call(null);
       setState(() {
         selected = null;
@@ -533,6 +575,13 @@ class _BoardState extends State<Chessboard> {
       });
     }
 
+    // there is a premove set from the touched square:
+    // - cancel the premove on the next tap up event
+    if (widget.state.premove != null && widget.state.premove!.from == square) {
+      _shouldCancelPremoveOnTapUp = true;
+    }
+
+    // prevent moving the piece by 2 taps when the piece shift method is drag only
     if (widget.settings.pieceShiftMethod == PieceShiftMethod.drag) {
       _shouldDeselectOnTapUp = true;
     }
@@ -592,11 +641,21 @@ class _BoardState extends State<Chessboard> {
     if (_currentPointerDownEvent == null ||
         _currentPointerDownEvent!.pointer != details.pointer) return;
 
-    if (_dragAvatar != null && _renderBox != null) {
-      final localPos = _renderBox!.globalToLocal(_dragAvatar!._position);
-      final square = widget.offsetSquare(localPos);
+    final square = widget.offsetSquare(details.localPosition);
+
+    if (_dragAvatar != null) {
+      // if the user drags a piece to a square, try to move the piece to the
+      // target square
       if (square != null && square != selected) {
-        _tryMoveOrPremoveTo(square, drop: true);
+        final couldMove = _tryMoveOrPremoveTo(square, drop: true);
+        // if the prevemove was not possible, cancel the current premove
+        if (!couldMove && widget.state.premove != null) {
+          widget.onPremove?.call(null);
+        }
+      }
+      // if the user drags a piece to an empty square, cancel the premove
+      else if (widget.state.premove != null) {
+        widget.onPremove?.call(null);
       }
       _onDragEnd();
       setState(() {
@@ -605,7 +664,6 @@ class _BoardState extends State<Chessboard> {
         _premoveDests = null;
       });
     } else if (selected != null) {
-      final square = widget.offsetSquare(details.localPosition);
       if (square == selected && _shouldDeselectOnTapUp) {
         _shouldDeselectOnTapUp = false;
         setState(() {
@@ -615,7 +673,16 @@ class _BoardState extends State<Chessboard> {
       }
     }
 
+    // cancel premove if the user taps on the origin square of the premove
+    if (_shouldCancelPremoveOnTapUp &&
+        widget.state.premove != null &&
+        widget.state.premove!.from == square) {
+      _shouldCancelPremoveOnTapUp = false;
+      widget.onPremove?.call(null);
+    }
+
     _shouldDeselectOnTapUp = false;
+    _shouldCancelPremoveOnTapUp = false;
     _currentPointerDownEvent = null;
   }
 
@@ -641,6 +708,7 @@ class _BoardState extends State<Chessboard> {
       _draggedPieceSquare = null;
     });
     _currentPointerDownEvent = null;
+    _shouldCancelPremoveOnTapUp = false;
     _shouldDeselectOnTapUp = false;
   }
 
