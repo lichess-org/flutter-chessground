@@ -770,6 +770,7 @@ class _BoardState extends State<Chessboard> {
     });
     _currentPointerDownEvent = null;
     _shouldDeselectOnTapUp = false;
+    _shouldCancelPremoveOnTapUp = false;
   }
 
   void _onPromotionSelect(NormalMove move, Piece promoted) {
