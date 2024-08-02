@@ -298,7 +298,7 @@ class _HomePageState extends State<HomePage> {
                               ? () => setState(() {
                                     position = lastPos!;
                                     fen = position.fen;
-                                    validMoves = legalMovesOf(position);
+                                    validMoves = makeLegalMoves(position);
                                     lastPos = null;
                                   })
                               : null,
@@ -364,7 +364,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void initState() {
-    validMoves = legalMovesOf(position);
+    validMoves = makeLegalMoves(position);
     super.initState();
   }
 
@@ -381,7 +381,7 @@ class _HomePageState extends State<HomePage> {
       position = position.playUnchecked(m);
       lastMove = move;
       fen = position.fen;
-      validMoves = legalMovesOf(position);
+      validMoves = makeLegalMoves(position);
     });
   }
 
@@ -416,7 +416,7 @@ class _HomePageState extends State<HomePage> {
           position = position.playUnchecked(mv);
           lastMove = NormalMove(from: mv.from, to: mv.to);
           fen = position.fen;
-          validMoves = legalMovesOf(position);
+          validMoves = makeLegalMoves(position);
         });
         lastPos = position;
       }

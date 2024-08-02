@@ -36,8 +36,7 @@ dependencies:
   cupertino_icons: ^1.0.2
   chessground:
     path: ../
-  dartchess:
-    path: ../../dartchess
+  dartchess: ^0.8.0
 
 dev_dependencies:
   flutter_test:

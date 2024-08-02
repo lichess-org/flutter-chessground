@@ -959,7 +959,7 @@ Widget buildBoard({
             lastMove: lastMove,
             isCheck: position.isCheck,
             sideToMove: position.turn == Side.white ? Side.white : Side.black,
-            validMoves: legalMovesOf(position),
+            validMoves: makeLegalMoves(position),
             premove: premove,
             shapes: shapes,
           ),
