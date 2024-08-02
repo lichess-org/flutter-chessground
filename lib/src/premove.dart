@@ -1,16 +1,15 @@
-import 'package:dartchess/dartchess.dart' show Role, Side;
+import 'package:dartchess/dartchess.dart';
 
 import './models.dart';
 
-/// Returns the set of squares that the piece on [square] can potentially premove to.
-Set<SquareId> premovesOf(
-  SquareId square,
+/// Returns the read-only set of squares that the piece on [square] can potentially premove to.
+Set<Square> premovesOf(
+  Square square,
   Pieces pieces, {
   bool canCastle = false,
 }) {
   final piece = pieces[square];
   if (piece == null) return {};
-  final coord = square.coord;
   final r = piece.role;
 
   final mobility = (() {
@@ -35,10 +34,10 @@ Set<SquareId> premovesOf(
   })();
 
   return Set.unmodifiable({
-    for (final coord2 in allCoords)
-      if ((coord.x != coord2.x || coord.y != coord2.y) &&
-          mobility(coord.x, coord.y, coord2.x, coord2.y))
-        coord2.squareId,
+    for (final s in Square.values)
+      if ((square.file != s.file || square.rank != s.rank) &&
+          mobility(square.file, square.rank, s.file, s.rank))
+        s,
   });
 }
 
@@ -74,7 +73,7 @@ bool _queen(int x1, int y1, int x2, int y2) {
   return _bishop(x1, y1, x2, y2) || _rook(x1, y1, x2, y2);
 }
 
-_Mobility _king(Side color, List<int> rookFiles, bool canCastle) {
+_Mobility _king(Side color, List<File> rookFiles, bool canCastle) {
   return (int x1, int y1, int x2, int y2) =>
       (_diff(x1, x2) < 2 && _diff(y1, y2) < 2) ||
       (canCastle &&
@@ -86,14 +85,14 @@ _Mobility _king(Side color, List<int> rookFiles, bool canCastle) {
               rookFiles.contains(x2)));
 }
 
-List<int> _rookFilesOf(Pieces pieces, Side color) {
-  final backrank = color == Side.white ? '1' : '8';
-  final List<int> files = [];
+List<File> _rookFilesOf(Pieces pieces, Side color) {
+  final backrank = color == Side.white ? Rank.first : Rank.eighth;
+  final List<File> files = [];
   for (final entry in pieces.entries) {
     if (entry.key.rank == backrank &&
         entry.value.color == color &&
         entry.value.role == Role.rook) {
-      files.add(entry.key.x);
+      files.add(entry.key.file);
     }
   }
   return files;

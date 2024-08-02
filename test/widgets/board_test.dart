@@ -3,8 +3,7 @@ import 'package:chessground/src/widgets/shape.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:dartchess/dartchess.dart' show Role, Side;
-import 'package:dartchess/dartchess.dart' as dc;
+import 'package:dartchess/dartchess.dart';
 import 'package:chessground/chessground.dart';
 
 const boardSize = 200.0;
@@ -19,7 +18,7 @@ void main() {
         state: ChessboardState(
           interactableSide: InteractableSide.none,
           orientation: Side.white,
-          fen: dc.kInitialFEN,
+          fen: kInitialFEN,
         ),
         settings: ChessboardSettings(
           drawShape: DrawShapeOptions(enable: true),
@@ -77,7 +76,7 @@ void main() {
       await tester.tap(find.byKey(const Key('a1-whiterook')));
       await tester.pump();
       expect(find.byKey(const Key('a1-selected')), findsOneWidget);
-      await tester.tapAt(squareOffset(const SquareId('c4')));
+      await tester.tapAt(squareOffset(Square.c4));
       await tester.pump();
       expect(find.byKey(const Key('a1-selected')), findsNothing);
 
@@ -97,7 +96,7 @@ void main() {
       expect(find.byKey(const Key('e2-selected')), findsOneWidget);
       expect(find.byType(ValidMoveHighlight), findsNWidgets(2));
 
-      await tester.tapAt(squareOffset(const SquareId('e4')));
+      await tester.tapAt(squareOffset(Square.e4));
       await tester.pump();
       expect(find.byKey(const Key('e2-selected')), findsNothing);
       expect(find.byType(ValidMoveHighlight), findsNothing);
@@ -124,7 +123,7 @@ void main() {
 
       // ... but move by drag should work
       await tester.dragFrom(
-        squareOffset(const SquareId('e2')),
+        squareOffset(Square.e2),
         const Offset(0, -(squareSize * 2)),
       );
       await tester.pumpAndSettle();
@@ -160,7 +159,7 @@ void main() {
         buildBoard(initialInteractableSide: InteractableSide.both),
       );
 
-      final e2 = squareOffset(const SquareId('e2'));
+      final e2 = squareOffset(Square.e2);
       await tester.dragFrom(e2, const Offset(0, -(squareSize * 4)));
       await tester.pumpAndSettle();
       expect(find.byKey(const Key('e2-whitepawn')), findsOneWidget);
@@ -174,9 +173,8 @@ void main() {
       );
 
       await tester.dragFrom(
-        squareOffset(const SquareId('e2')),
-        squareOffset(const SquareId('e2')) +
-            const Offset(0, -boardSize + squareSize),
+        squareOffset(Square.e2),
+        squareOffset(Square.e2) + const Offset(0, -boardSize + squareSize),
       );
       await tester.pumpAndSettle();
       expect(find.byKey(const Key('e2-whitepawn')), findsOneWidget);
@@ -189,7 +187,7 @@ void main() {
         buildBoard(initialInteractableSide: InteractableSide.both),
       );
       await tester.dragFrom(
-        squareOffset(const SquareId('e2')),
+        squareOffset(Square.e2),
         const Offset(0, -(squareSize * 2)),
       );
       await tester.pumpAndSettle();
@@ -209,7 +207,7 @@ void main() {
         ),
       );
       await tester.dragFrom(
-        squareOffset(const SquareId('e2')),
+        squareOffset(Square.e2),
         const Offset(0, -(squareSize * 2)),
       );
       await tester.pumpAndSettle();
@@ -223,7 +221,7 @@ void main() {
       expect(find.byType(ValidMoveHighlight), findsNWidgets(2));
 
       // ...so we can still tap to move
-      await tester.tapAt(squareOffset(const SquareId('e4')));
+      await tester.tapAt(squareOffset(Square.e4));
       await tester.pump();
       expect(find.byKey(const Key('e2-selected')), findsNothing);
       expect(find.byType(ValidMoveHighlight), findsNothing);
@@ -242,13 +240,13 @@ void main() {
         buildBoard(initialInteractableSide: InteractableSide.both),
       );
       await TestAsyncUtils.guard<void>(() async {
-        await tester.startGesture(squareOffset(const SquareId('e2')));
+        await tester.startGesture(squareOffset(Square.e2));
 
         await tester.pump();
 
         expect(find.byKey(const Key('e2-selected')), findsOneWidget);
 
-        await tester.startGesture(squareOffset(const SquareId('e4')));
+        await tester.startGesture(squareOffset(Square.e4));
 
         await tester.pump();
 
@@ -269,8 +267,7 @@ void main() {
 
       // drag a piece and tap on another own square while dragging
       await TestAsyncUtils.guard<void>(() async {
-        final dragGesture =
-            await tester.startGesture(squareOffset(const SquareId('e2')));
+        final dragGesture = await tester.startGesture(squareOffset(Square.e2));
         await tester.pump();
 
         // trigger a piece drag by moving the pointer by 4 pixels
@@ -284,7 +281,7 @@ void main() {
         await tester.tap(find.byKey(const Key('d2-whitepawn')));
 
         // finish the move as to release the piece
-        await dragGesture.moveTo(squareOffset(const SquareId('e4')));
+        await dragGesture.moveTo(squareOffset(Square.e4));
         await dragGesture.up();
       });
 
@@ -298,8 +295,7 @@ void main() {
 
       // drag a piece and tap on an empty square while dragging
       await TestAsyncUtils.guard<void>(() async {
-        final dragGesture =
-            await tester.startGesture(squareOffset(const SquareId('d2')));
+        final dragGesture = await tester.startGesture(squareOffset(Square.d2));
         await tester.pump();
 
         // trigger a piece drag by moving the pointer by 4 pixels
@@ -311,10 +307,10 @@ void main() {
         expect(find.byKey(const Key('d2-selected')), findsOneWidget);
 
         // tap on an empty square
-        await tester.tapAt(squareOffset(const SquareId('f5')));
+        await tester.tapAt(squareOffset(Square.f5));
 
         // finish the move as to release the piece
-        await dragGesture.moveTo(squareOffset(const SquareId('d4')));
+        await dragGesture.moveTo(squareOffset(Square.d4));
         await dragGesture.up();
       });
 
@@ -333,7 +329,7 @@ void main() {
       await tester.pumpWidget(
         buildBoard(initialInteractableSide: InteractableSide.both),
       );
-      final e2 = squareOffset(const SquareId('e2'));
+      final e2 = squareOffset(Square.e2);
       await tester.tapAt(e2);
       await tester.pump();
       final dragFuture = tester.timedDragFrom(
@@ -361,9 +357,9 @@ void main() {
 
       await tester.tap(find.byKey(const Key('f7-whitepawn')));
       await tester.pump();
-      await tester.tapAt(squareOffset(const SquareId('f8')));
+      await tester.tapAt(squareOffset(Square.f8));
       await tester.pump();
-      await tester.tapAt(squareOffset(const SquareId('f7')));
+      await tester.tapAt(squareOffset(Square.f7));
       await tester.pump();
       expect(find.byKey(const Key('f8-whiteknight')), findsOneWidget);
       expect(find.byKey(const Key('f7-whitepawn')), findsNothing);
@@ -380,7 +376,7 @@ void main() {
 
       await tester.tap(find.byKey(const Key('f7-whitepawn')));
       await tester.pump();
-      await tester.tapAt(squareOffset(const SquareId('f8')));
+      await tester.tapAt(squareOffset(Square.f8));
       await tester.pump();
       expect(find.byKey(const Key('f8-whitequeen')), findsOneWidget);
       expect(find.byKey(const Key('f7-whitepawn')), findsNothing);
@@ -394,7 +390,7 @@ void main() {
           initialInteractableSide: InteractableSide.white,
         ),
       );
-      await makeMove(tester, 'f1', 'b5');
+      await makeMove(tester, Square.f1, Square.b5);
       expect(find.byKey(const Key('e8-check')), findsOneWidget);
     });
 
@@ -406,7 +402,7 @@ void main() {
           initialInteractableSide: InteractableSide.black,
         ),
       );
-      await makeMove(tester, 'f8', 'b4');
+      await makeMove(tester, Square.f8, Square.b4);
       expect(find.byKey(const Key('e1-check')), findsOneWidget);
     });
 
@@ -415,18 +411,18 @@ void main() {
         (WidgetTester tester) async {
       await tester.pumpWidget(
         buildBoard(
-          initialFen: dc.kInitialBoardFEN,
+          initialFen: kInitialBoardFEN,
           initialInteractableSide: InteractableSide.white,
         ),
       );
 
-      await tester.tapAt(squareOffset(const SquareId('e2')));
+      await tester.tapAt(squareOffset(Square.e2));
       await tester.pump();
       expect(find.byKey(const Key('e2-selected')), findsOneWidget);
 
       await tester.pumpWidget(
         buildBoard(
-          initialFen: dc.kInitialBoardFEN,
+          initialFen: kInitialBoardFEN,
           initialInteractableSide: InteractableSide.none,
         ),
       );
@@ -439,13 +435,13 @@ void main() {
         (WidgetTester tester) async {
       await tester.pumpWidget(
         buildBoard(
-          initialFen: dc.kInitialBoardFEN,
+          initialFen: kInitialBoardFEN,
           initialInteractableSide: InteractableSide.white,
         ),
       );
 
       await TestAsyncUtils.guard<void>(() async {
-        await tester.startGesture(squareOffset(const SquareId('e2')));
+        await tester.startGesture(squareOffset(Square.e2));
         await tester.pump();
         expect(find.byKey(const Key('e2-selected')), findsOneWidget);
       });
@@ -453,7 +449,7 @@ void main() {
       // make board non interactable in the middle of the gesture
       await tester.pumpWidget(
         buildBoard(
-          initialFen: dc.kInitialBoardFEN,
+          initialFen: kInitialBoardFEN,
           initialInteractableSide: InteractableSide.none,
         ),
       );
@@ -461,21 +457,21 @@ void main() {
       expect(find.byKey(const Key('e2-selected')), findsNothing);
 
       // board is not interactable, so the piece should not be selected
-      await tester.tapAt(squareOffset(const SquareId('e2')));
+      await tester.tapAt(squareOffset(Square.e2));
       await tester.pump();
       expect(find.byKey(const Key('e2-selected')), findsNothing);
 
       // make board interactable again
       await tester.pumpWidget(
         buildBoard(
-          initialFen: dc.kInitialBoardFEN,
+          initialFen: kInitialBoardFEN,
           initialInteractableSide: InteractableSide.white,
         ),
       );
 
       // the piece selection should work (which would not be the case if the
       // pointer event was not cancelled)
-      await tester.tapAt(squareOffset(const SquareId('e2')));
+      await tester.tapAt(squareOffset(Square.e2));
       await tester.pump();
       expect(find.byKey(const Key('e2-selected')), findsOneWidget);
     });
@@ -492,12 +488,12 @@ void main() {
         ),
       );
 
-      await tester.tapAt(squareOffset(const SquareId('f1')));
+      await tester.tapAt(squareOffset(Square.f1));
       await tester.pump();
       expect(find.byKey(const Key('f1-selected')), findsOneWidget);
       expect(find.byType(ValidMoveHighlight), findsNWidgets(7));
 
-      await tester.tapAt(squareOffset(const SquareId('b4')));
+      await tester.tapAt(squareOffset(Square.b4));
       await tester.pump();
       expect(find.byKey(const Key('e4-selected')), findsNothing);
       expect(find.byType(ValidMoveHighlight), findsNothing);
@@ -513,12 +509,12 @@ void main() {
         ),
       );
 
-      await tester.tapAt(squareOffset(const SquareId('f1')));
+      await tester.tapAt(squareOffset(Square.f1));
       await tester.pump();
       expect(find.byKey(const Key('f1-selected')), findsOneWidget);
       expect(find.byType(ValidMoveHighlight), findsNWidgets(7));
 
-      await tester.tapAt(squareOffset(const SquareId('f8')));
+      await tester.tapAt(squareOffset(Square.f8));
       await tester.pump();
       expect(find.byKey(const Key('e4-selected')), findsNothing);
       expect(find.byType(ValidMoveHighlight), findsNothing);
@@ -534,12 +530,12 @@ void main() {
         ),
       );
 
-      await tester.tapAt(squareOffset(const SquareId('f1')));
+      await tester.tapAt(squareOffset(Square.f1));
       await tester.pump();
       expect(find.byKey(const Key('f1-selected')), findsOneWidget);
       expect(find.byType(ValidMoveHighlight), findsNWidgets(7));
 
-      await tester.tapAt(squareOffset(const SquareId('f1')));
+      await tester.tapAt(squareOffset(Square.f1));
       await tester.pump();
       expect(find.byKey(const Key('e4-selected')), findsNothing);
       expect(find.byType(ValidMoveHighlight), findsNothing);
@@ -555,21 +551,21 @@ void main() {
       );
 
       // set premove
-      await makeMove(tester, 'e4', 'f5');
+      await makeMove(tester, Square.e4, Square.f5);
       expect(find.byKey(const Key('e4-premove')), findsOneWidget);
       expect(find.byKey(const Key('f5-premove')), findsOneWidget);
 
       // unset by tapping empty square
-      await tester.tapAt(squareOffset(const SquareId('c5')));
+      await tester.tapAt(squareOffset(Square.c5));
       await tester.pump();
       expect(find.byKey(const Key('e4-premove')), findsNothing);
       expect(find.byKey(const Key('f5-premove')), findsNothing);
 
       // unset by tapping opponent's piece
-      await makeMove(tester, 'd1', 'f3');
+      await makeMove(tester, Square.d1, Square.f3);
       expect(find.byKey(const Key('d1-premove')), findsOneWidget);
       expect(find.byKey(const Key('f3-premove')), findsOneWidget);
-      await tester.tapAt(squareOffset(const SquareId('g8')));
+      await tester.tapAt(squareOffset(Square.g8));
       await tester.pump();
       expect(find.byKey(const Key('d1-premove')), findsNothing);
       expect(find.byKey(const Key('f3-premove')), findsNothing);
@@ -584,16 +580,16 @@ void main() {
         ),
       );
 
-      await makeMove(tester, 'd1', 'f3');
+      await makeMove(tester, Square.d1, Square.f3);
       expect(find.byKey(const Key('d1-premove')), findsOneWidget);
       expect(find.byKey(const Key('f3-premove')), findsOneWidget);
-      await tester.tapAt(squareOffset(const SquareId('d2')));
+      await tester.tapAt(squareOffset(Square.d2));
       await tester.pump();
       // premove is still set
       expect(find.byKey(const Key('d1-premove')), findsOneWidget);
       expect(find.byKey(const Key('f3-premove')), findsOneWidget);
       expect(find.byType(ValidMoveHighlight), findsNWidgets(4));
-      await tester.tapAt(squareOffset(const SquareId('d4')));
+      await tester.tapAt(squareOffset(Square.d4));
       await tester.pump();
       // premove is changed
       expect(find.byKey(const Key('d1-premove')), findsNothing);
@@ -612,7 +608,7 @@ void main() {
       );
 
       await tester.dragFrom(
-        squareOffset(const SquareId('e4')),
+        squareOffset(Square.e4),
         const Offset(0, -squareSize),
       );
       await tester.pumpAndSettle();
@@ -630,7 +626,7 @@ void main() {
         ),
       );
 
-      await makeMove(tester, 'd1', 'c2');
+      await makeMove(tester, Square.d1, Square.c2);
       expect(find.byKey(const Key('d1-premove')), findsOneWidget);
       expect(find.byKey(const Key('c2-premove')), findsOneWidget);
     });
@@ -643,9 +639,9 @@ void main() {
         ),
       );
 
-      await makeMove(tester, 'e2', 'e4');
+      await makeMove(tester, Square.e2, Square.e4);
 
-      await makeMove(tester, 'd1', 'f3');
+      await makeMove(tester, Square.d1, Square.f3);
       expect(find.byKey(const Key('d1-premove')), findsOneWidget);
       expect(find.byKey(const Key('f3-premove')), findsOneWidget);
 
@@ -674,7 +670,7 @@ void main() {
         buildBoard(
           initialInteractableSide: InteractableSide.both,
           initialShapes: ISet(
-            {const Circle(orig: SquareId('e4'), color: Color(0xFF0000FF))},
+            {const Circle(orig: Square.e4, color: Color(0xFF0000FF))},
           ),
         ),
       );
@@ -692,8 +688,8 @@ void main() {
           initialInteractableSide: InteractableSide.both,
           initialShapes: ISet({
             const Arrow(
-              orig: SquareId('e2'),
-              dest: SquareId('e4'),
+              orig: Square.e2,
+              dest: Square.e4,
               color: Color(0xFF0000FF),
             ),
           }),
@@ -715,7 +711,7 @@ void main() {
           initialInteractableSide: InteractableSide.both,
           initialShapes: ISet({
             const PieceShape(
-              orig: SquareId('e4'),
+              orig: Square.e4,
               role: Role.pawn,
               color: Color(0xFF0000FF),
             ),
@@ -735,12 +731,10 @@ void main() {
 
       await TestAsyncUtils.guard<void>(() async {
         // keep pressing an empty square to enable drawing shapes
-        final pressGesture =
-            await tester.startGesture(squareOffset(const SquareId('a3')));
+        final pressGesture = await tester.startGesture(squareOffset(Square.a3));
 
         // drawing a circle with another tap
-        final tapGesture =
-            await tester.startGesture(squareOffset(const SquareId('e4')));
+        final tapGesture = await tester.startGesture(squareOffset(Square.e4));
         await tapGesture.up();
 
         await pressGesture.up();
@@ -759,12 +753,10 @@ void main() {
 
       await TestAsyncUtils.guard<void>(() async {
         // keep pressing an empty square to enable drawing shapes
-        final pressGesture =
-            await tester.startGesture(squareOffset(const SquareId('a3')));
+        final pressGesture = await tester.startGesture(squareOffset(Square.a3));
 
         // drawing a circle with another tap
-        final tapGesture =
-            await tester.startGesture(squareOffset(const SquareId('e4')));
+        final tapGesture = await tester.startGesture(squareOffset(Square.e4));
         await tapGesture.up();
 
         await pressGesture.up();
@@ -788,11 +780,10 @@ void main() {
       );
 
       // keep pressing an empty square to enable drawing shapes
-      final pressGesture =
-          await tester.startGesture(squareOffset(const SquareId('a3')));
+      final pressGesture = await tester.startGesture(squareOffset(Square.a3));
 
       await tester.dragFrom(
-        squareOffset(const SquareId('e2')),
+        squareOffset(Square.e2),
         const Offset(0, -(squareSize * 2)),
       );
 
@@ -819,11 +810,10 @@ void main() {
       );
 
       // keep pressing an empty square to enable drawing shapes
-      final pressGesture =
-          await tester.startGesture(squareOffset(const SquareId('a3')));
+      final pressGesture = await tester.startGesture(squareOffset(Square.a3));
 
       await tester.dragFrom(
-        squareOffset(const SquareId('e2')),
+        squareOffset(Square.e2),
         const Offset(0, -(squareSize * 2)),
       );
 
@@ -850,12 +840,10 @@ void main() {
 
       await TestAsyncUtils.guard<void>(() async {
         // keep pressing an empty square to enable drawing shapes
-        final pressGesture =
-            await tester.startGesture(squareOffset(const SquareId('a3')));
+        final pressGesture = await tester.startGesture(squareOffset(Square.a3));
 
         // drawing a circle with another tap
-        final tapGesture =
-            await tester.startGesture(squareOffset(const SquareId('e4')));
+        final tapGesture = await tester.startGesture(squareOffset(Square.e4));
         await tapGesture.up();
 
         await pressGesture.up();
@@ -865,11 +853,10 @@ void main() {
       await tester.pump(const Duration(milliseconds: 210));
 
       // keep pressing an empty square to enable drawing shapes
-      final pressGesture =
-          await tester.startGesture(squareOffset(const SquareId('a3')));
+      final pressGesture = await tester.startGesture(squareOffset(Square.a3));
 
       await tester.dragFrom(
-        squareOffset(const SquareId('e2')),
+        squareOffset(Square.e2),
         const Offset(0, -(squareSize * 2)),
       );
 
@@ -880,8 +867,8 @@ void main() {
 
       expect(find.byType(ShapeWidget), findsNWidgets(2));
 
-      await tester.tapAt(squareOffset(const SquareId('a3')));
-      await tester.tapAt(squareOffset(const SquareId('a3')));
+      await tester.tapAt(squareOffset(Square.a3));
+      await tester.tapAt(squareOffset(Square.a3));
       await tester.pump();
 
       expect(find.byType(ShapeWidget), findsNothing);
@@ -898,12 +885,10 @@ void main() {
 
       await TestAsyncUtils.guard<void>(() async {
         // keep pressing an empty square to enable drawing shapes
-        final pressGesture =
-            await tester.startGesture(squareOffset(const SquareId('a3')));
+        final pressGesture = await tester.startGesture(squareOffset(Square.a3));
 
         // drawing a circle with another tap
-        final tapGesture =
-            await tester.startGesture(squareOffset(const SquareId('e4')));
+        final tapGesture = await tester.startGesture(squareOffset(Square.e4));
         await tapGesture.up();
 
         await pressGesture.up();
@@ -914,7 +899,7 @@ void main() {
 
       expect(find.byType(ShapeWidget), findsOneWidget);
 
-      await tester.tapAt(squareOffset(const SquareId('e2')));
+      await tester.tapAt(squareOffset(Square.e2));
       await tester.pump();
 
       expect(find.byType(ShapeWidget), findsNothing);
@@ -922,10 +907,10 @@ void main() {
   });
 }
 
-Future<void> makeMove(WidgetTester tester, String from, String to) async {
-  await tester.tapAt(squareOffset(SquareId(from)));
+Future<void> makeMove(WidgetTester tester, Square from, Square to) async {
+  await tester.tapAt(squareOffset(from));
   await tester.pump();
-  await tester.tapAt(squareOffset(SquareId(to)));
+  await tester.tapAt(squareOffset(to));
   await tester.pump();
 }
 
@@ -933,7 +918,7 @@ Widget buildBoard({
   required InteractableSide initialInteractableSide,
   ChessboardSettings? settings,
   Side orientation = Side.white,
-  String initialFen = dc.kInitialFEN,
+  String initialFen = kInitialFEN,
   ISet<Shape>? initialShapes,
   bool enableDrawingShapes = false,
   PieceShiftMethod pieceShiftMethod = PieceShiftMethod.either,
@@ -942,10 +927,9 @@ Widget buildBoard({
   bool shouldPlayOpponentMove = false,
 }) {
   InteractableSide interactableSide = initialInteractableSide;
-  dc.Position<dc.Chess> position =
-      dc.Chess.fromSetup(dc.Setup.parseFen(initialFen));
-  Move? lastMove;
-  Move? premove;
+  Position<Chess> position = Chess.fromSetup(Setup.parseFen(initialFen));
+  NormalMove? lastMove;
+  NormalMove? premove;
   ISet<Shape> shapes = initialShapes ?? ISet();
 
   return MaterialApp(
@@ -974,15 +958,14 @@ Widget buildBoard({
             fen: position.fen,
             lastMove: lastMove,
             isCheck: position.isCheck,
-            sideToMove:
-                position.turn == dc.Side.white ? Side.white : Side.black,
-            validMoves: legalMovesOf(position),
+            sideToMove: position.turn == Side.white ? Side.white : Side.black,
+            validMoves: makeLegalMoves(position),
             premove: premove,
             shapes: shapes,
           ),
-          onMove: (Move move, {bool? isDrop, bool? isPremove}) {
+          onMove: (NormalMove move, {bool? isDrop, bool? isPremove}) {
             setState(() {
-              position = position.playUnchecked(dc.Move.fromUci(move.uci)!);
+              position = position.playUnchecked(NormalMove.fromUci(move.uci));
               if (position.isGameOver) {
                 interactableSide = InteractableSide.none;
               }
@@ -995,19 +978,19 @@ Widget buildBoard({
                   final allMoves = [
                     for (final entry in position.legalMoves.entries)
                       for (final dest in entry.value.squares)
-                        dc.NormalMove(from: entry.key, to: dest),
+                        NormalMove(from: entry.key, to: dest),
                   ];
                   final opponentMove = allMoves.first;
                   position = position.playUnchecked(opponentMove);
                   if (position.isGameOver) {
                     interactableSide = InteractableSide.none;
                   }
-                  lastMove = Move.fromUci(opponentMove.uci);
+                  lastMove = NormalMove.fromUci(opponentMove.uci);
                 });
               });
             }
           },
-          onPremove: (Move? move) {
+          onPremove: (NormalMove? move) {
             setState(() {
               premove = move;
             });
@@ -1018,7 +1001,9 @@ Widget buildBoard({
   );
 }
 
-Offset squareOffset(SquareId id, {Side orientation = Side.white}) {
-  final o = id.coord.offset(orientation, squareSize);
+Offset squareOffset(Square id, {Side orientation = Side.white}) {
+  final x = orientation == Side.black ? 7 - id.file : id.file;
+  final y = orientation == Side.black ? id.rank : 7 - id.rank;
+  final o = Offset(x * squareSize, y * squareSize);
   return Offset(o.dx + squareSize / 2, o.dy + squareSize / 2);
 }

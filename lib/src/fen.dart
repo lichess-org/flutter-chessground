@@ -1,39 +1,39 @@
-import 'package:dartchess/dartchess.dart' show Piece, Role, Side;
+import 'package:dartchess/dartchess.dart';
 import 'package:flutter/widgets.dart';
 import 'models.dart';
 
 /// Parses the board part of a FEN string.
 Pieces readFen(String fen) {
   final Pieces pieces = {};
-  int row = 7;
-  int col = 0;
+  int rank = 7;
+  int file = 0;
   for (final c in fen.characters) {
     switch (c) {
       case ' ':
       case '[':
         return pieces;
       case '/':
-        --row;
-        if (row < 0) return pieces;
-        col = 0;
+        --rank;
+        if (rank < 0) return pieces;
+        file = 0;
       case '~':
-        final sid = Coord(x: col - 1, y: row).squareId;
-        final piece = pieces[sid];
+        final square = Square.fromCoords(File(file - 1), Rank(rank));
+        final piece = pieces[square];
         if (piece != null) {
-          pieces[sid] = piece.copyWith(promoted: true);
+          pieces[square] = piece.copyWith(promoted: true);
         }
       default:
         final code = c.codeUnitAt(0);
         if (code < 57) {
-          col += code - 48;
+          file += code - 48;
         } else {
           final roleLetter = c.toLowerCase();
-          final sid = Coord(x: col, y: row).squareId;
-          pieces[sid] = Piece(
+          final square = Square.fromCoords(File(file), Rank(rank));
+          pieces[square] = Piece(
             role: _roles[roleLetter]!,
             color: c == roleLetter ? Side.black : Side.white,
           );
-          ++col;
+          ++file;
         }
     }
   }
@@ -46,7 +46,7 @@ String writeFen(Pieces pieces) {
   int empty = 0;
   for (int rank = 7; rank >= 0; rank--) {
     for (int file = 0; file < 8; file++) {
-      final piece = pieces[Coord(x: file, y: rank).squareId];
+      final piece = pieces[Square.fromCoords(File(file), Rank(rank))];
       if (piece == null) {
         empty++;
       } else {

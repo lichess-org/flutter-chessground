@@ -1,24 +1,30 @@
 import 'dart:async';
-import 'package:dartchess/dartchess.dart' show Side;
+import 'package:chessground/src/widgets/geometry.dart';
+import 'package:dartchess/dartchess.dart';
 import 'package:flutter/widgets.dart';
 import '../models.dart';
 
 /// A widget that displays an annotation of a square on the board.
 ///
 /// This is typically used to display move annotations, such as "!!" or "??".
-class BoardAnnotation extends StatefulWidget {
+class BoardAnnotation extends StatefulWidget with ChessboardGeometry {
   const BoardAnnotation({
     required this.annotation,
-    required this.squareSize,
+    required this.size,
     required this.orientation,
-    required this.squareId,
+    required this.square,
     super.key,
   });
 
   final Annotation annotation;
-  final double squareSize;
+
+  @override
+  final double size;
+
+  @override
   final Side orientation;
-  final SquareId squareId;
+
+  final Square square;
 
   @override
   State<BoardAnnotation> createState() => _BoardAnnotationState();
@@ -55,12 +61,11 @@ class _BoardAnnotationState extends State<BoardAnnotation> {
 
   @override
   Widget build(BuildContext context) {
-    final squareOffset =
-        widget.squareId.coord.offset(widget.orientation, widget.squareSize);
+    final squareOffset = widget.squareOffset(widget.square);
     final size = widget.squareSize * 0.48;
     final onRightEdge = widget.orientation == Side.white
-        ? widget.squareId.file == 'h'
-        : widget.squareId.file == 'a';
+        ? widget.square.file == File.h
+        : widget.square.file == File.a;
     final offset = squareOffset.translate(
       onRightEdge
           ? widget.squareSize - (size * 0.9)

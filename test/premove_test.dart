@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:dartchess/dartchess.dart';
 import 'package:chessground/chessground.dart';
 
 const initialFen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR';
@@ -6,85 +7,118 @@ const initialFen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR';
 void main() {
   test('pawn premoves', () {
     expect(
-      premovesOf(const SquareId('e2'), readFen(initialFen)),
-      equals({'d3', 'e3', 'e4', 'f3'}),
+      premovesOf(Square.e2, readFen(initialFen)),
+      equals({
+        Square.d3,
+        Square.e3,
+        Square.e4,
+        Square.f3,
+      }),
     );
   });
 
   test('knight premoves', () {
     expect(
-      premovesOf(const SquareId('b1'), readFen(initialFen)),
-      equals({'a3', 'c3', 'd2'}),
+      premovesOf(Square.b1, readFen(initialFen)),
+      equals({
+        Square.a3,
+        Square.c3,
+        Square.d2,
+      }),
     );
   });
 
   test('bishop premoves', () {
     expect(
-      premovesOf(const SquareId('c1'), readFen(initialFen)),
-      equals({'a3', 'b2', 'd2', 'e3', 'f4', 'g5', 'h6'}),
+      premovesOf(Square.c1, readFen(initialFen)),
+      equals({
+        Square.a3,
+        Square.b2,
+        Square.d2,
+        Square.e3,
+        Square.f4,
+        Square.g5,
+        Square.h6,
+      }),
     );
   });
 
   test('rook premoves', () {
     expect(
-      premovesOf(const SquareId('a1'), readFen(initialFen)),
+      premovesOf(Square.a1, readFen(initialFen)),
       equals({
-        'a2',
-        'a3',
-        'a4',
-        'a5',
-        'a6',
-        'a7',
-        'a8',
-        'b1',
-        'c1',
-        'd1',
-        'e1',
-        'f1',
-        'g1',
-        'h1',
+        Square.a2,
+        Square.a3,
+        Square.a4,
+        Square.a5,
+        Square.a6,
+        Square.a7,
+        Square.a8,
+        Square.b1,
+        Square.c1,
+        Square.d1,
+        Square.e1,
+        Square.f1,
+        Square.g1,
+        Square.h1,
       }),
     );
   });
 
   test('queen premoves', () {
     expect(
-      premovesOf(const SquareId('d1'), readFen(initialFen)),
+      premovesOf(Square.d1, readFen(initialFen)),
       equals({
-        'a1',
-        'b1',
-        'c1',
-        'e1',
-        'f1',
-        'g1',
-        'h1',
-        'd2',
-        'd3',
-        'd4',
-        'd5',
-        'd6',
-        'd7',
-        'd8',
-        'c2',
-        'b3',
-        'a4',
-        'e2',
-        'f3',
-        'g4',
-        'h5',
+        Square.a1,
+        Square.b1,
+        Square.c1,
+        Square.e1,
+        Square.f1,
+        Square.g1,
+        Square.h1,
+        Square.d2,
+        Square.d3,
+        Square.d4,
+        Square.d5,
+        Square.d6,
+        Square.d7,
+        Square.d8,
+        Square.c2,
+        Square.b3,
+        Square.a4,
+        Square.e2,
+        Square.f3,
+        Square.g4,
+        Square.h5,
       }),
     );
   });
 
   test('king premoves', () {
     expect(
-      premovesOf(const SquareId('e1'), readFen(initialFen), canCastle: true),
-      equals({'a1', 'c1', 'd1', 'd2', 'e2', 'f2', 'f1', 'g1', 'h1'}),
+      premovesOf(Square.e1, readFen(initialFen), canCastle: true),
+      equals({
+        Square.a1,
+        Square.c1,
+        Square.d1,
+        Square.d2,
+        Square.e2,
+        Square.f2,
+        Square.f1,
+        Square.g1,
+        Square.h1,
+      }),
     );
 
     expect(
-      premovesOf(const SquareId('e1'), readFen(initialFen)),
-      equals({'d1', 'd2', 'e2', 'f2', 'f1'}),
+      premovesOf(Square.e1, readFen(initialFen)),
+      equals({
+        Square.d1,
+        Square.d2,
+        Square.e2,
+        Square.f2,
+        Square.f1,
+      }),
     );
   });
 }

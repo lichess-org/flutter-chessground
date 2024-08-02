@@ -1,10 +1,10 @@
-import 'package:dartchess/dartchess.dart' show Piece, Side;
+import 'package:chessground/src/widgets/geometry.dart';
+import 'package:dartchess/dartchess.dart';
 import 'package:flutter/widgets.dart';
 
 import '../board_settings.dart';
 import '../models.dart';
 import '../fen.dart';
-import 'board.dart';
 import 'piece.dart';
 import 'positioned_square.dart';
 
@@ -70,7 +70,7 @@ class ChessboardEditor extends StatefulWidget with ChessboardGeometry {
   ///
   /// This is called when the user touches or hover over a square while in edit
   /// mode (i.e. [pointerMode] is [EditorPointerMode.edit]).
-  final void Function(SquareId square)? onEditedSquare;
+  final void Function(Square square)? onEditedSquare;
 
   /// Called when a piece has been dragged to a new destination square.
   ///
@@ -83,32 +83,32 @@ class ChessboardEditor extends StatefulWidget with ChessboardGeometry {
   /// Each square of the board is a [DragTarget<Piece>], so to drop your own
   /// piece widgets onto the board, put them in a [Draggable<Piece>] and set the
   /// data to the piece you want to drop.
-  final void Function(SquareId? origin, SquareId destination, Piece piece)?
+  final void Function(Square? origin, Square destination, Piece piece)?
       onDroppedPiece;
 
   /// Called when a piece that was originally at the given `square` was dragged
   /// off the board.
   ///
   /// This is active only when [pointerMode] is [EditorPointerMode.drag].
-  final void Function(SquareId square)? onDiscardedPiece;
+  final void Function(Square square)? onDiscardedPiece;
 
   @override
   State<ChessboardEditor> createState() => _BoardEditorState();
 }
 
 class _BoardEditorState extends State<ChessboardEditor> {
-  SquareId? draggedPieceOrigin;
+  Square? draggedPieceOrigin;
 
   @override
   Widget build(BuildContext context) {
-    final List<Widget> squareWidgets = allSquares.map((squareId) {
-      final piece = widget.pieces[squareId];
+    final List<Widget> squareWidgets = Square.values.map((square) {
+      final piece = widget.pieces[square];
 
       return PositionedSquare(
-        key: ValueKey('$squareId-${piece ?? 'empty'}'),
-        size: widget.squareSize,
+        key: ValueKey('${square.name}-${piece ?? 'empty'}'),
+        size: widget.size,
         orientation: widget.orientation,
-        squareId: squareId,
+        square: square,
         child: DragTarget<Piece>(
           hitTestBehavior: HitTestBehavior.opaque,
           builder: (context, candidateData, rejectedData) {
@@ -138,9 +138,9 @@ class _BoardEditorState extends State<ChessboardEditor> {
                       pieceAssets: widget.settings.pieceAssets,
                     ),
                     childWhenDragging: const SizedBox.shrink(),
-                    onDragStarted: () => draggedPieceOrigin = squareId,
+                    onDragStarted: () => draggedPieceOrigin = square,
                     onDraggableCanceled: (_, __) {
-                      widget.onDiscardedPiece?.call(squareId);
+                      widget.onDiscardedPiece?.call(square);
                       draggedPieceOrigin = null;
                     },
                     child: PieceWidget(
@@ -161,7 +161,7 @@ class _BoardEditorState extends State<ChessboardEditor> {
           onAcceptWithDetails: (details) {
             widget.onDroppedPiece?.call(
               draggedPieceOrigin,
-              squareId,
+              square,
               details.data,
             );
             draggedPieceOrigin = null;
@@ -208,9 +208,9 @@ class _BoardEditorState extends State<ChessboardEditor> {
     if (widget.pointerMode == EditorPointerMode.drag) {
       return;
     }
-    final squareId = widget.offsetSquareId(localPosition);
-    if (squareId != null) {
-      widget.onEditedSquare?.call(squareId);
+    final square = widget.offsetSquare(localPosition);
+    if (square != null) {
+      widget.onEditedSquare?.call(square);
     }
   }
 }
