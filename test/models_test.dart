@@ -125,6 +125,55 @@ void main() {
       );
     });
 
+    test('Circle.newDest', () {
+      const circle = Circle(
+        color: Color(0xFF000000),
+        orig: Square.a1,
+      );
+
+      expect(
+        circle.newDest(Square.a2),
+        const Arrow(
+          color: Color(0xFF000000),
+          orig: Square.a1,
+          dest: Square.a2,
+        ),
+      );
+
+      expect(
+        circle.newDest(Square.a1),
+        const Circle(
+          color: Color(0xFF000000),
+          orig: Square.a1,
+        ),
+      );
+    });
+
+    test('Arrow.newDest', () {
+      const arrow = Arrow(
+        color: Color(0xFF000000),
+        orig: Square.a1,
+        dest: Square.a2,
+      );
+
+      expect(
+        arrow.newDest(Square.a3),
+        const Arrow(
+          color: Color(0xFF000000),
+          orig: Square.a1,
+          dest: Square.a3,
+        ),
+      );
+
+      expect(
+        arrow.newDest(Square.a1),
+        const Circle(
+          color: Color(0xFF000000),
+          orig: Square.a1,
+        ),
+      );
+    });
+
     test('copyWith', () {
       const arrow = Arrow(
         color: Color(0xFF000000),
@@ -177,6 +226,48 @@ void main() {
           orig: Square.a2,
           role: Role.bishop,
           color: Color(0xFF000001),
+        ),
+      );
+    });
+  });
+
+  group('Annotation', () {
+    test('implements hashCode/==', () {
+      expect(
+        const Annotation(symbol: '!', color: Color(0xFF000000)),
+        const Annotation(symbol: '!', color: Color(0xFF000000)),
+      );
+
+      expect(
+        const Annotation(symbol: '!', color: Color(0xFF000000)).hashCode,
+        const Annotation(symbol: '!', color: Color(0xFF000000)).hashCode,
+      );
+
+      expect(
+        const Annotation(symbol: '!', color: Color(0xFF000000)),
+        isNot(
+          const Annotation(symbol: '?', color: Color(0xFF000000)),
+        ),
+      );
+
+      expect(
+        const Annotation(symbol: '!', color: Color(0xFF000000)).hashCode,
+        isNot(
+          const Annotation(symbol: '?', color: Color(0xFF000000)).hashCode,
+        ),
+      );
+
+      expect(
+        const Annotation(symbol: '!', color: Color(0xFF000000)),
+        isNot(
+          const Annotation(symbol: '!', color: Color(0xFF000001)),
+        ),
+      );
+
+      expect(
+        const Annotation(symbol: '!', color: Color(0xFF000000)).hashCode,
+        isNot(
+          const Annotation(symbol: '!', color: Color(0xFF000001)).hashCode,
         ),
       );
     });

@@ -161,7 +161,9 @@ class Arrow implements Shape {
 
   @override
   Shape newDest(Square newDest) {
-    return Arrow(color: color, orig: orig, dest: newDest, scale: scale);
+    return newDest == orig
+        ? Circle(color: color, orig: orig, scale: scale)
+        : Arrow(color: color, orig: orig, dest: newDest, scale: scale);
   }
 
   @override
