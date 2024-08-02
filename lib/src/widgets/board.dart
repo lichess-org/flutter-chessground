@@ -648,7 +648,7 @@ class _BoardState extends State<Chessboard> {
       // target square
       if (square != null && square != selected) {
         final couldMove = _tryMoveOrPremoveTo(square, drop: true);
-        // if the prevemove was not possible, cancel the current premove
+        // if the premove was not possible, cancel the current premove
         if (!couldMove && widget.state.premove != null) {
           widget.onPremove?.call(null);
         }
