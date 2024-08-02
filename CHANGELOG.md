@@ -14,6 +14,11 @@
 ### Bug fixes:
 - Fix arrow bad shape when new destination is the same as the origin: it now
   returns a circle.
+- Fix unsetting premoves:
+    - When a premove is set, tapping on the same origin square will now unset
+        it.
+    - dragging a piece to an invalid square will now unset the premove.
+    - dragging a piece off the board will now unset the premove.
 
 ## 3.2.0
 
