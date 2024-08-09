@@ -1,3 +1,7 @@
+## 4.1.0
+
+- `ChessboardEditor` now supports highlighting squares
+
 ## 4.0.0
 
 ### New features:
