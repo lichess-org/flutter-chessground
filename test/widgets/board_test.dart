@@ -808,8 +808,8 @@ void main() {
           initialShapes: ISet({
             const PieceShape(
               orig: Square.e4,
-              role: Role.pawn,
-              color: Color(0xFF0000FF),
+              piece: Piece.whitePawn,
+              pieceAssets: PieceSet.horseyAssets,
             ),
           }),
         ),

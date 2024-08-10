@@ -2,6 +2,10 @@
 
 - `ChessboardEditor` now supports highlighting squares.
 
+### Breaking changes:
+- Added required parameters `piece` and `pieceAssets` to `PieceShape`, removed `role`. Added optional
+  `opacity` parameter.
+
 ## 4.0.0
 
 ### New features:

@@ -30,14 +30,14 @@ class ShapeWidget extends StatelessWidget with ChessboardGeometry {
 
   @override
   Widget build(BuildContext context) {
-    return switch (shape) {
-      Arrow(
-        color: final color,
-        orig: final orig,
-        dest: final dest,
-        scale: final scale,
-      ) =>
-        SizedBox.square(
+    switch (shape) {
+      case Arrow(
+          color: final color,
+          orig: final orig,
+          dest: final dest,
+          scale: final scale,
+        ):
+        return SizedBox.square(
           dimension: size,
           child: CustomPaint(
             painter: _ArrowPainter(
@@ -48,9 +48,9 @@ class ShapeWidget extends StatelessWidget with ChessboardGeometry {
               scale,
             ),
           ),
-        ),
-      Circle(color: final color, orig: final orig, scale: final scale) =>
-        SizedBox.square(
+        );
+      case Circle(color: final color, orig: final orig, scale: final scale):
+        return SizedBox.square(
           dimension: size,
           child: CustomPaint(
             painter: _CirclePainter(
@@ -60,26 +60,33 @@ class ShapeWidget extends StatelessWidget with ChessboardGeometry {
               scale,
             ),
           ),
-        ),
-      PieceShape(
-        orig: final orig,
-        role: final role,
-        color: final color,
-        scale: final scale
-      ) =>
-        PositionedSquare(
-          size: size,
-          orientation: orientation,
-          square: orig,
-          child: Image.asset(
-            'assets/piece_sets/mono/${role.uppercaseLetter}.png',
-            package: 'chessground',
-            color: color,
-            width: scale * squareSize,
-            height: scale * squareSize,
-          ),
-        ),
-    };
+        );
+      case PieceShape(
+          color: final color,
+          orig: final orig,
+          piece: final piece,
+          pieceAssets: final pieceAssets,
+          opacity: final opacity,
+          scale: final scale,
+        ):
+        {
+          final asset = pieceAssets[piece.kind]!;
+          return PositionedSquare(
+            size: size,
+            orientation: orientation,
+            square: orig,
+            child: Image.asset(
+              asset.assetName,
+              bundle: asset.bundle,
+              package: asset.package,
+              color: color,
+              opacity: AlwaysStoppedAnimation(opacity),
+              width: scale * squareSize,
+              height: scale * squareSize,
+            ),
+          );
+        }
+    }
   }
 }
 
