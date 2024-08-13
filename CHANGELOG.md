@@ -1,11 +1,11 @@
 ## 4.1.0
 
-- `ChessboardEditor` now supports highlighting squares
+- `ChessboardEditor` now supports highlighting squares.
 
 ## 4.0.0
 
 ### New features:
-- Add a `ChessboardEditor` widget, intended to be used as the basis for a board editor like lichess.org/editor
+- Add a `ChessboardEditor` widget, intended to be used as the basis for a board editor like lichess.org/editor.
 - Add the `writeFen` helper function.
 
 ### Breaking changes:
