@@ -68,7 +68,7 @@ class ShapeWidget extends StatelessWidget with ChessboardGeometry {
         scale: final scale
       ) =>
         PositionedSquare(
-          size: squareSize,
+          size: size,
           orientation: orientation,
           square: orig,
           child: Image.asset(

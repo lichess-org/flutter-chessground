@@ -816,6 +816,10 @@ void main() {
       );
 
       expect(find.byType(ShapeWidget), findsOneWidget);
+
+      final shapeSize = tester.getSize(find.byType(ShapeWidget));
+      expect(shapeSize.width, squareSize);
+      expect(shapeSize.height, squareSize);
     });
 
     testWidgets('cannot draw if not enabled', (WidgetTester tester) async {
