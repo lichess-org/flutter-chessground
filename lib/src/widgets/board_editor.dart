@@ -1,5 +1,7 @@
+import 'package:chessground/chessground.dart';
 import 'package:chessground/src/widgets/geometry.dart';
 import 'package:dartchess/dartchess.dart';
+import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/widgets.dart';
 
 import '../board_settings.dart';
@@ -42,6 +44,7 @@ class ChessboardEditor extends StatefulWidget with ChessboardGeometry {
     required this.pieces,
     this.pointerMode = EditorPointerMode.drag,
     this.settings = const ChessboardEditorSettings(),
+    this.squareHighlights = const IMap.empty(),
     this.onEditedSquare,
     this.onDroppedPiece,
     this.onDiscardedPiece,
@@ -65,6 +68,8 @@ class ChessboardEditor extends StatefulWidget with ChessboardGeometry {
 
   /// The current mode of the pointer tool.
   final EditorPointerMode pointerMode;
+
+  final IMap<Square, SquareHighlight> squareHighlights;
 
   /// Called when the given square was edited by the user.
   ///
@@ -176,6 +181,19 @@ class _BoardEditorState extends State<ChessboardEditor> {
             : widget.settings.colorScheme.blackCoordBackground
         : widget.settings.colorScheme.background;
 
+    final List<Widget> highlightedBackground = [
+      background,
+      for (final MapEntry(key: square, value: highlight)
+          in widget.squareHighlights.entries)
+        PositionedSquare(
+          key: ValueKey('${square.name}-highlight'),
+          size: widget.size,
+          orientation: widget.orientation,
+          square: square,
+          child: highlight,
+        ),
+    ];
+
     return SizedBox.square(
       dimension: widget.size,
       child: GestureDetector(
@@ -193,10 +211,10 @@ class _BoardEditorState extends State<ChessboardEditor> {
                   borderRadius: widget.settings.borderRadius,
                   boxShadow: widget.settings.boxShadow,
                 ),
-                child: background,
+                child: Stack(children: highlightedBackground),
               )
             else
-              background,
+              ...highlightedBackground,
             ...squareWidgets,
           ],
         ),
