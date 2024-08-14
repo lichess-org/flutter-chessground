@@ -204,20 +204,25 @@ class Arrow implements Shape {
 /// A piece shape that can be drawn on the board.
 @immutable
 class PieceShape implements Shape {
-  final Color color;
-  final Role role;
+  final Color? color;
+  final Piece piece;
   final Square orig;
+  final PieceAssets pieceAssets;
+  final double opacity;
   @override
   final double scale;
 
   /// Creates a new [PieceShape] with the provided values.
   ///
   /// The [scale] must be between 0.0 and 1.0.
+  /// The default [opacity] is 0.5 and the default [scale] is 0.9.
   const PieceShape({
-    required this.color,
-    required this.role,
+    this.color,
+    required this.piece,
     required this.orig,
-    this.scale = 1.0,
+    required this.pieceAssets,
+    this.opacity = 0.5,
+    this.scale = 0.9,
   }) : assert(scale > 0.0 && scale <= 1.0);
 
   @override
@@ -227,7 +232,14 @@ class PieceShape implements Shape {
 
   @override
   Shape withScale(double newScale) {
-    return PieceShape(color: color, role: role, orig: orig, scale: newScale);
+    return PieceShape(
+      color: color,
+      piece: piece,
+      orig: orig,
+      pieceAssets: pieceAssets,
+      opacity: opacity,
+      scale: newScale,
+    );
   }
 
   @override
@@ -236,25 +248,32 @@ class PieceShape implements Shape {
         other is PieceShape &&
             other.runtimeType == runtimeType &&
             other.color == color &&
-            other.role == role &&
+            other.piece == piece &&
             other.orig == orig &&
+            other.pieceAssets == pieceAssets &&
+            other.opacity == opacity &&
             other.scale == scale;
   }
 
   @override
-  int get hashCode => Object.hash(color, role, orig, scale);
+  int get hashCode =>
+      Object.hash(color, opacity, piece, pieceAssets, orig, scale);
 
   /// Creates a copy of this [PieceShape] with the given fields replaced by the new values.
   PieceShape copyWith({
     Color? color,
-    Role? role,
+    Piece? piece,
     Square? orig,
+    PieceAssets? pieceAssets,
+    double? opacity,
     double? scale,
   }) {
     return PieceShape(
       color: color ?? this.color,
-      role: role ?? this.role,
+      piece: piece ?? this.piece,
       orig: orig ?? this.orig,
+      pieceAssets: pieceAssets ?? this.pieceAssets,
+      opacity: opacity ?? this.opacity,
       scale: scale ?? this.scale,
     );
   }

@@ -85,12 +85,16 @@ void main() {
       expect(
         const PieceShape(
           orig: Square.a1,
-          role: Role.knight,
+          piece: Piece.whiteKnight,
+          pieceAssets: PieceSet.horseyAssets,
+          opacity: 0.1,
           color: Color(0xFF000000),
         ),
         const PieceShape(
           orig: Square.a1,
-          role: Role.knight,
+          piece: Piece.whiteKnight,
+          pieceAssets: PieceSet.horseyAssets,
+          opacity: 0.1,
           color: Color(0xFF000000),
         ),
       );
@@ -98,12 +102,16 @@ void main() {
       expect(
         const PieceShape(
           orig: Square.a1,
-          role: Role.knight,
+          piece: Piece.whiteKnight,
+          pieceAssets: PieceSet.horseyAssets,
+          opacity: 0.1,
           color: Color(0xFF000000),
         ).hashCode,
         const PieceShape(
           orig: Square.a1,
-          role: Role.knight,
+          piece: Piece.whiteKnight,
+          pieceAssets: PieceSet.horseyAssets,
+          opacity: 0.1,
           color: Color(0xFF000000),
         ).hashCode,
       );
@@ -111,15 +119,17 @@ void main() {
       expect(
         const PieceShape(
           orig: Square.a1,
-          role: Role.knight,
+          piece: Piece.whiteKnight,
+          pieceAssets: PieceSet.horseyAssets,
           color: Color(0xFF000000),
         ),
         isNot(
           const PieceShape(
             orig: Square.a1,
-            role: Role.knight,
+            piece: Piece.whiteKnight,
+            pieceAssets: PieceSet.horseyAssets,
             color: Color(0xFF000000),
-            scale: 0.9,
+            scale: 0.123,
           ),
         ),
       );
@@ -212,19 +222,22 @@ void main() {
 
       const pieceShape = PieceShape(
         orig: Square.a1,
-        role: Role.knight,
+        piece: Piece.whiteKnight,
+        pieceAssets: PieceSet.horseyAssets,
         color: Color(0xFF000000),
       );
 
       expect(
         pieceShape.copyWith(
           orig: Square.a2,
-          role: Role.bishop,
+          opacity: 0.123,
           color: const Color(0xFF000001),
         ),
         const PieceShape(
           orig: Square.a2,
-          role: Role.bishop,
+          piece: Piece.whiteKnight,
+          pieceAssets: PieceSet.horseyAssets,
+          opacity: 0.123,
           color: Color(0xFF000001),
         ),
       );
