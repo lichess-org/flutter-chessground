@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:chessground/src/widgets/promotion.dart';
 import 'package:chessground/src/widgets/shape.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
@@ -98,8 +99,13 @@ void main() {
 
       await tester.tapAt(squareOffset(Square.e4));
       await tester.pump();
+
+      expect(find.byKey(const Key('e4-whitepawn-translating')), findsOneWidget);
       expect(find.byKey(const Key('e2-selected')), findsNothing);
       expect(find.byType(ValidMoveHighlight), findsNothing);
+
+      await tester.pumpAndSettle();
+
       expect(find.byKey(const Key('e4-whitepawn')), findsOneWidget);
       expect(find.byKey(const Key('e2-whitepawn')), findsNothing);
       expect(find.byKey(const Key('e2-lastMove')), findsOneWidget);
@@ -133,7 +139,7 @@ void main() {
       expect(find.byKey(const Key('e4-lastMove')), findsOneWidget);
     });
 
-    testWidgets('castling by taping king then rook is possible',
+    testWidgets('castling by selecting king then rook is possible',
         (WidgetTester tester) async {
       await tester.pumpWidget(
         buildBoard(
@@ -146,6 +152,10 @@ void main() {
       await tester.pump();
       await tester.tap(find.byKey(const Key('h1-whiterook')));
       await tester.pump();
+
+      // wait for the animations to finish
+      await tester.pumpAndSettle();
+
       expect(find.byKey(const Key('e1-whiteking')), findsNothing);
       expect(find.byKey(const Key('h1-whiterook')), findsNothing);
       expect(find.byKey(const Key('g1-whiteking')), findsOneWidget);
@@ -202,8 +212,11 @@ void main() {
     ) async {
       await tester.pumpWidget(
         buildBoard(
-          initialInteractableSide: InteractableSide.both,
-          pieceShiftMethod: PieceShiftMethod.tapTwoSquares,
+          settings: const ChessboardSettings(
+            animationDuration: Duration.zero,
+            pieceShiftMethod: PieceShiftMethod.tapTwoSquares,
+          ),
+          initialInteractableSide: InteractableSide.white,
         ),
       );
       await tester.dragFrom(
@@ -359,6 +372,15 @@ void main() {
       await tester.pump();
       await tester.tapAt(squareOffset(Square.f8));
       await tester.pump();
+
+      // promotion dialog is shown
+      expect(find.byType(PromotionSelector), findsOneWidget);
+
+      // pawn is on the eighth rank
+      expect(find.byKey(const Key('f8-whitepawn')), findsOneWidget);
+      expect(find.byKey(const Key('f7-whitepawn')), findsNothing);
+
+      // tap on the knight
       await tester.tapAt(squareOffset(Square.f7));
       await tester.pump();
       expect(find.byKey(const Key('f8-whiteknight')), findsOneWidget);
@@ -713,7 +735,8 @@ void main() {
       expect(find.byKey(const Key('e4-selected')), findsNothing);
     });
 
-    testWidgets('select pieces from same side', (WidgetTester tester) async {
+    testWidgets('select another piece from same side does not unset',
+        (WidgetTester tester) async {
       await tester.pumpWidget(
         buildBoard(
           initialFen:
@@ -725,11 +748,17 @@ void main() {
       await makeMove(tester, Square.d1, Square.c2);
       expect(find.byKey(const Key('d1-premove')), findsOneWidget);
       expect(find.byKey(const Key('c2-premove')), findsOneWidget);
+
+      await tester.tapAt(squareOffset(Square.e1));
+      await tester.pump();
+      expect(find.byKey(const Key('d1-premove')), findsOneWidget);
+      expect(find.byKey(const Key('c2-premove')), findsOneWidget);
     });
 
     testWidgets('play premove', (WidgetTester tester) async {
       await tester.pumpWidget(
         buildBoard(
+          settings: const ChessboardSettings(animationDuration: Duration.zero),
           initialInteractableSide: InteractableSide.white,
           shouldPlayOpponentMove: true,
         ),
@@ -748,7 +777,7 @@ void main() {
       expect(find.byKey(const Key('a5-blackpawn')), findsOneWidget);
 
       // wait for the premove to be played
-      await tester.pumpAndSettle();
+      await tester.pump();
 
       expect(find.byKey(const Key('d1-premove')), findsNothing);
       expect(find.byKey(const Key('f3-premove')), findsNothing);
@@ -756,6 +785,78 @@ void main() {
       // premove has been played
       expect(find.byKey(const Key('d1-whitequeen')), findsNothing);
       expect(find.byKey(const Key('f3-whitequeen')), findsOneWidget);
+    });
+
+    testWidgets('play a premove with promotion', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        buildBoard(
+          settings: const ChessboardSettings(animationDuration: Duration.zero),
+          initialInteractableSide: InteractableSide.white,
+          initialFen: '8/5P2/2RK2P1/8/4k3/8/8/8 w - - 0 1',
+          shouldPlayOpponentMove: true,
+        ),
+      );
+
+      await makeMove(tester, Square.g6, Square.g7);
+      await makeMove(tester, Square.g7, Square.g8);
+      expect(find.byKey(const Key('g7-premove')), findsOneWidget);
+      expect(find.byKey(const Key('g8-premove')), findsOneWidget);
+
+      // wait for opponent move to be played
+      await tester.pump(const Duration(milliseconds: 200));
+
+      // opponent move is played
+      expect(find.byKey(const Key('d3-blackking')), findsOneWidget);
+
+      // pawn was promoted to queen
+      expect(find.byKey(const Key('g7-premove')), findsNothing);
+      expect(find.byKey(const Key('g8-premove')), findsNothing);
+      expect(find.byKey(const Key('g7-whitepawn')), findsNothing);
+      expect(find.byKey(const Key('g8-whitequeen')), findsOneWidget);
+    });
+
+    testWidgets('play a premove with promotion, autoqueen disabled',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(
+        buildBoard(
+          settings: const ChessboardSettings(
+            autoQueenPromotionOnPremove: false,
+            animationDuration: Duration.zero,
+          ),
+          initialInteractableSide: InteractableSide.white,
+          initialFen: '8/5P2/2RK2P1/8/4k3/8/8/8 w - - 0 1',
+          shouldPlayOpponentMove: true,
+        ),
+      );
+
+      await makeMove(tester, Square.g6, Square.g7);
+      await makeMove(tester, Square.g7, Square.g8);
+      expect(find.byKey(const Key('g7-premove')), findsOneWidget);
+      expect(find.byKey(const Key('g8-premove')), findsOneWidget);
+
+      // wait for opponent move to be played
+      await tester.pump(const Duration(milliseconds: 200));
+
+      // promotion dialog is shown
+      expect(find.byType(PromotionSelector), findsOneWidget);
+
+      // premove highlight are not shown anymore
+      expect(find.byKey(const Key('g7-premove')), findsNothing);
+      expect(find.byKey(const Key('g8-premove')), findsNothing);
+
+      // pawn is on the last rank
+      expect(find.byKey(const Key('g8-whitepawn')), findsOneWidget);
+      expect(find.byKey(const Key('g7-whitepawn')), findsNothing);
+
+      // select knight
+      await tester.tapAt(squareOffset(Square.g7));
+      await tester.pump();
+
+      expect(find.byKey(const Key('g8-whiteknight')), findsOneWidget);
+      expect(find.byKey(const Key('g7-whitepawn')), findsNothing);
+
+      // wait for other opponent move to be played
+      await tester.pump(const Duration(milliseconds: 200));
     });
   });
 
@@ -1074,23 +1175,40 @@ Widget buildBoard({
 
             if (shouldPlayOpponentMove) {
               Timer(const Duration(milliseconds: 200), () {
+                final allMoves = [
+                  for (final entry in position.legalMoves.entries)
+                    for (final dest in entry.value.squares)
+                      NormalMove(from: entry.key, to: dest),
+                ];
+                final opponentMove = allMoves.first;
                 setState(() {
-                  final allMoves = [
-                    for (final entry in position.legalMoves.entries)
-                      for (final dest in entry.value.squares)
-                        NormalMove(from: entry.key, to: dest),
-                  ];
-                  final opponentMove = allMoves.first;
                   position = position.playUnchecked(opponentMove);
                   if (position.isGameOver) {
                     interactableSide = InteractableSide.none;
                   }
                   lastMove = NormalMove.fromUci(opponentMove.uci);
                 });
+
+                if (premove != null && position.isLegal(premove!)) {
+                  // if premove autoqueen if off, detect pawn promotion
+                  final isPawnPromotion = premove!.promotion == null &&
+                      position.board.roleAt(premove!.from) == Role.pawn &&
+                      (premove!.to.rank == Rank.first ||
+                          premove!.to.rank == Rank.eighth);
+
+                  if (!isPawnPromotion) {
+                    Timer.run(() {
+                      setState(() {
+                        position = position.playUnchecked(premove!);
+                        premove = null;
+                      });
+                    });
+                  }
+                }
               });
             }
           },
-          onPremove: (NormalMove? move) {
+          onSetPremove: (NormalMove? move) {
             setState(() {
               premove = move;
             });

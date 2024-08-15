@@ -61,7 +61,11 @@ abstract class ChessboardState {
   /// FEN string describing the position of the board.
   final String fen;
 
-  /// Registered premove. Will be played right after the next opponent move.
+  /// Registered premove.
+  ///
+  /// Will be shown on the board as a preview move.
+  ///
+  /// Chessground will not play the premove automatically, it is up to the library user to play it.
   final NormalMove? premove;
 
   /// Last move played, used to highlight corresponding squares.
