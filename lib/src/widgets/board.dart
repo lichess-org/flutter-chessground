@@ -723,6 +723,10 @@ class _BoardState extends State<Chessboard> {
         _draggedPieceSquare = square;
       });
       _renderBox ??= context.findRenderObject()! as RenderBox;
+
+      final dragFeedbackOffsetY = (_isUpsideDown(piece) ? -1 : 1) *
+          widget.settings.dragFeedbackOffset.dy;
+
       _dragAvatar = _DragAvatar(
         overlayState: Overlay.of(context, debugRequiredFor: widget),
         initialPosition: origin.position,
@@ -739,7 +743,7 @@ class _BoardState extends State<Chessboard> {
         pieceFeedback: Transform.translate(
           offset: Offset(
             ((widget.settings.dragFeedbackOffset.dx - 1) * feedbackSize) / 2,
-            ((widget.settings.dragFeedbackOffset.dy - 1) * feedbackSize) / 2,
+            ((dragFeedbackOffsetY - 1) * feedbackSize) / 2,
           ),
           child: PieceWidget(
             piece: piece,

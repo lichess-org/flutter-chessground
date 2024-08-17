@@ -1,6 +1,7 @@
 ## 4.1.0
 
 - `ChessboardEditor` now supports highlighting squares.
+- Flip `BoardSettings.dragFeedbackOffset.dy` for flipped pieces.
 
 ### Breaking changes:
 - Added required parameters `piece` and `pieceAssets` to `PieceShape`, removed `role`. Added optional
