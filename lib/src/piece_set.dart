@@ -40,7 +40,8 @@ enum PieceSet {
   horsey('Horsey', PieceSet.horseyAssets),
   anarcandy('Anarcandy', PieceSet.anarcandyAssets),
   letter('Letter', PieceSet.letterAssets),
-  disguised('Disguised', PieceSet.disguisedAssets);
+  disguised('Disguised', PieceSet.disguisedAssets),
+  symmetric('Symmetric', PieceSet.symmetricAssets);
 
   const PieceSet(this.label, this.assets);
 
@@ -1024,5 +1025,33 @@ enum PieceSet {
         AssetImage('$_pieceSetsPath/tatiana/wQ.png', package: 'chessground'),
     kWhiteKingKind:
         AssetImage('$_pieceSetsPath/tatiana/wK.png', package: 'chessground'),
+  });
+
+  /// The [PieceAssets] for the 'Symmetric' piece set.
+  static const PieceAssets symmetricAssets = IMapConst({
+    kBlackRookKind:
+        AssetImage('$_pieceSetsPath/symmetric/bR.png', package: 'chessground'),
+    kBlackPawnKind:
+        AssetImage('$_pieceSetsPath/symmetric/bP.png', package: 'chessground'),
+    kBlackKnightKind:
+        AssetImage('$_pieceSetsPath/symmetric/bN.png', package: 'chessground'),
+    kBlackBishopKind:
+        AssetImage('$_pieceSetsPath/symmetric/bB.png', package: 'chessground'),
+    kBlackQueenKind:
+        AssetImage('$_pieceSetsPath/symmetric/bQ.png', package: 'chessground'),
+    kBlackKingKind:
+        AssetImage('$_pieceSetsPath/symmetric/bK.png', package: 'chessground'),
+    kWhiteRookKind:
+        AssetImage('$_pieceSetsPath/symmetric/wR.png', package: 'chessground'),
+    kWhitePawnKind:
+        AssetImage('$_pieceSetsPath/symmetric/wP.png', package: 'chessground'),
+    kWhiteKnightKind:
+        AssetImage('$_pieceSetsPath/symmetric/wN.png', package: 'chessground'),
+    kWhiteBishopKind:
+        AssetImage('$_pieceSetsPath/symmetric/wB.png', package: 'chessground'),
+    kWhiteQueenKind:
+        AssetImage('$_pieceSetsPath/symmetric/wQ.png', package: 'chessground'),
+    kWhiteKingKind:
+        AssetImage('$_pieceSetsPath/symmetric/wK.png', package: 'chessground'),
   });
 }

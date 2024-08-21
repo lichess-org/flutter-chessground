@@ -1,5 +1,6 @@
 ## 4.1.0
 
+- Add symmetric piece set (`PieceAssets.symmetric`).
 - `ChessboardEditor` now supports highlighting squares.
 
 ### Breaking changes:
