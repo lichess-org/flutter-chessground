@@ -16,7 +16,6 @@ abstract class ChessboardState {
     required InteractableSide interactableSide,
     required Side orientation,
     required String fen,
-    bool opponentsPiecesUpsideDown,
     Side? sideToMove,
     NormalMove? premove,
     NormalMove? lastMove,
@@ -30,7 +29,6 @@ abstract class ChessboardState {
     required this.interactableSide,
     required this.orientation,
     required this.fen,
-    required this.opponentsPiecesUpsideDown,
     this.sideToMove,
     this.premove,
     this.lastMove,
@@ -51,9 +49,6 @@ abstract class ChessboardState {
 
   /// Side by which the board is oriented.
   final Side orientation;
-
-  /// If `true` the opponent`s pieces are displayed rotated by 180 degrees.
-  final bool opponentsPiecesUpsideDown;
 
   /// Side which is to move.
   final Side? sideToMove;
@@ -86,7 +81,6 @@ abstract class ChessboardState {
           runtimeType == other.runtimeType &&
           interactableSide == other.interactableSide &&
           orientation == other.orientation &&
-          opponentsPiecesUpsideDown == other.opponentsPiecesUpsideDown &&
           sideToMove == other.sideToMove &&
           fen == other.fen &&
           premove == other.premove &&
@@ -100,7 +94,6 @@ abstract class ChessboardState {
   int get hashCode => Object.hash(
         interactableSide,
         orientation,
-        opponentsPiecesUpsideDown,
         sideToMove,
         fen,
         premove,
@@ -116,7 +109,6 @@ abstract class ChessboardState {
     InteractableSide? interactableSide,
     Side? orientation,
     String? fen,
-    bool? opponentsPiecesUpsideDown,
     Side? sideToMove,
     Move? premove,
     Move? lastMove,
@@ -132,7 +124,6 @@ class _ChessboardState extends ChessboardState {
     required super.interactableSide,
     required super.orientation,
     required super.fen,
-    super.opponentsPiecesUpsideDown = false,
     super.sideToMove,
     super.premove,
     super.lastMove,
@@ -147,7 +138,6 @@ class _ChessboardState extends ChessboardState {
     InteractableSide? interactableSide,
     Side? orientation,
     String? fen,
-    bool? opponentsPiecesUpsideDown,
     Object? sideToMove = _Undefined,
     Object? premove = _Undefined,
     Object? lastMove = _Undefined,
@@ -159,8 +149,6 @@ class _ChessboardState extends ChessboardState {
     return ChessboardState(
       interactableSide: interactableSide ?? this.interactableSide,
       orientation: orientation ?? this.orientation,
-      opponentsPiecesUpsideDown:
-          opponentsPiecesUpsideDown ?? this.opponentsPiecesUpsideDown,
       fen: fen ?? this.fen,
       sideToMove:
           sideToMove == _Undefined ? this.sideToMove : sideToMove as Side?,

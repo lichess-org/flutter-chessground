@@ -2,6 +2,8 @@
 
 - `ChessboardEditor` now supports highlighting squares.
 - Flip `BoardSettings.dragFeedbackOffset.dy` for flipped pieces.
+- Remove 'ChessboardState.opponentsPiecesUpsideDown' in favor of `ChessboardSettings.pieceOrientationBehavior`.
+  Support displaying all pieces upside down based on side to move.
 
 ### Breaking changes:
 - Added required parameters `piece` and `pieceAssets` to `PieceShape`, removed `role`. Added optional
