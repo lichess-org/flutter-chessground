@@ -46,6 +46,9 @@ class ChessboardSettings {
     this.autoQueenPromotion = false,
     this.autoQueenPromotionOnPremove = true,
     this.pieceShiftMethod = PieceShiftMethod.either,
+
+    // evaluation bar
+    this.evaluationBarWhiteFraction,
   });
 
   /// Theme of the board
@@ -98,6 +101,10 @@ class ChessboardSettings {
   /// Shape drawing options object containing data about how new shapes can be drawn.
   final DrawShapeOptions drawShape;
 
+  /// The fraction of the evaluation bar that should be white.
+  /// If null, the evaluation bar is not shown.
+  final double? evaluationBarWhiteFraction;
+
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) {
@@ -122,7 +129,8 @@ class ChessboardSettings {
         other.autoQueenPromotion == autoQueenPromotion &&
         other.autoQueenPromotionOnPremove == autoQueenPromotionOnPremove &&
         other.pieceShiftMethod == pieceShiftMethod &&
-        other.drawShape == drawShape;
+        other.drawShape == drawShape &&
+        other.evaluationBarWhiteFraction == evaluationBarWhiteFraction;
   }
 
   @override
@@ -143,6 +151,7 @@ class ChessboardSettings {
         autoQueenPromotionOnPremove,
         pieceShiftMethod,
         drawShape,
+        evaluationBarWhiteFraction,
       );
 
   ChessboardSettings copyWith({
@@ -162,6 +171,7 @@ class ChessboardSettings {
     bool? autoQueenPromotionOnPremove,
     PieceShiftMethod? pieceShiftMethod,
     DrawShapeOptions? drawShape,
+    double? evaluationBar,
   }) {
     return ChessboardSettings(
       colorScheme: colorScheme ?? this.colorScheme,
@@ -182,6 +192,8 @@ class ChessboardSettings {
       autoQueenPromotion: autoQueenPromotion ?? this.autoQueenPromotion,
       pieceShiftMethod: pieceShiftMethod ?? this.pieceShiftMethod,
       drawShape: drawShape ?? this.drawShape,
+      evaluationBarWhiteFraction:
+          evaluationBar ?? this.evaluationBarWhiteFraction,
     );
   }
 }
