@@ -36,6 +36,8 @@ class Chessboard extends StatefulWidget with ChessboardGeometry {
     this.settings = const ChessboardSettings(),
     this.onMove,
     this.onSetPremove,
+    this.onPromotionSelect,
+    this.onPromotionCancel,
   });
 
   @override
@@ -51,12 +53,27 @@ class Chessboard extends StatefulWidget with ChessboardGeometry {
   final ChessboardState state;
 
   /// Callback called after a move has been made.
-  final void Function(NormalMove, {bool? isDrop})? onMove;
+  ///
+  /// If the move is a pawn move that should trigger a promotion, `shouldPromote` will be true.
+  ///
+  /// If the move has been made with drag-n-drop, `isDrop` will be true.
+  final void Function(NormalMove, {bool? isDrop, bool? shouldPromote})? onMove;
+
+  /// Callback called after a piece has been selected for promotion.
+  ///
+  /// The move is guaranteed to be a promotion move.
+  final void Function(Role)? onPromotionSelect;
+
+  /// Callback called after a promotion has been canceled.
+  final void Function()? onPromotionCancel;
 
   /// Callback called after a premove has been set/unset.
   ///
   /// If the callback is null, the board will not allow premoves.
-  final void Function(NormalMove?)? onSetPremove;
+  ///
+  /// If the premove is a pawn move that should trigger a promotion, `shouldPromote`
+  /// will be true. This is useful to show a promotion selector to the user.
+  final void Function(NormalMove?, {bool? shouldPromote})? onSetPremove;
 
   @override
   // ignore: library_private_types_in_public_api
@@ -77,9 +94,6 @@ class _BoardState extends State<Chessboard> {
 
   /// Currently selected square.
   Square? selected;
-
-  /// Move currently being promoted
-  NormalMove? _promotionMove;
 
   /// Last move that was played using drag and drop.
   NormalMove? _lastDrop;
@@ -342,17 +356,20 @@ class _BoardState extends State<Chessboard> {
             else
               ...highlightedBackground,
             ...objects,
-            if (_promotionMove != null && widget.state.sideToMove != null)
+            if (widget.state.promotionMove != null &&
+                widget.onPromotionSelect != null &&
+                widget.onPromotionCancel != null &&
+                widget.state.sideToMove != null)
               PromotionSelector(
                 pieceAssets: widget.settings.pieceAssets,
-                move: _promotionMove!,
+                move: widget.state.promotionMove!,
                 size: widget.size,
                 color: widget.state.sideToMove!,
                 orientation: widget.state.orientation,
                 piecesUpsideDown: widget.state.opponentsPiecesUpsideDown &&
                     widget.state.sideToMove! != widget.state.orientation,
-                onSelect: _onPromotionSelect,
-                onCancel: _onPromotionCancel,
+                onSelect: widget.onPromotionSelect!,
+                onCancel: widget.onPromotionCancel!,
               ),
           ],
         ),
@@ -391,7 +408,6 @@ class _BoardState extends State<Chessboard> {
     }
     if (oldBoard.state.sideToMove != widget.state.sideToMove) {
       _premoveDests = null;
-      _promotionMove = null;
     }
     if (oldBoard.state.fen == widget.state.fen) {
       _lastDrop = null;
@@ -400,24 +416,6 @@ class _BoardState extends State<Chessboard> {
     }
 
     final newPieces = readFen(widget.state.fen);
-
-    // Handles premove promotion, where we don't want auto queen promotion.
-    // If the premove is a pawn move to the last rank, open the promotion selector
-    // to allow the user to select the promotion piece.
-    // In order to work, the library user must NOT play the move AND keep the
-    // `premove` field set.
-    final premove = widget.state.premove;
-    if (premove != null &&
-        widget.state.interactableSide.name == widget.state.sideToMove?.name) {
-      final piece = newPieces[premove.from];
-      if (piece != null &&
-          piece.role == Role.pawn &&
-          (premove.to.rank == Rank.eighth || premove.to.rank == Rank.first)) {
-        final pawn = newPieces.remove(premove.from);
-        newPieces[premove.to] = pawn!;
-        _promotionMove = premove;
-      }
-    }
 
     if (widget.settings.animationDuration > Duration.zero) {
       _preparePieceAnimations(newPieces);
@@ -804,29 +802,6 @@ class _BoardState extends State<Chessboard> {
     _shouldCancelPremoveOnTapUp = false;
   }
 
-  void _onPromotionSelect(NormalMove move, Piece promoted) {
-    setState(() {
-      pieces[move.to] = promoted;
-      _promotionMove = null;
-    });
-    widget.onMove?.call(move.withPromotion(promoted.role), isDrop: true);
-  }
-
-  void _onPromotionCancel(Move move) {
-    setState(() {
-      pieces = readFen(widget.state.fen);
-      _promotionMove = null;
-    });
-  }
-
-  void _openPromotionSelector(NormalMove move) {
-    setState(() {
-      final pawn = pieces.remove(move.from);
-      pieces[move.to] = pawn!;
-      _promotionMove = move;
-    });
-  }
-
   /// Whether the piece should be displayed upside down, according to the
   /// widget settings.
   bool _isUpsideDown(Piece piece) {
@@ -887,7 +862,7 @@ class _BoardState extends State<Chessboard> {
         if (widget.settings.autoQueenPromotion) {
           widget.onMove?.call(move.withPromotion(Role.queen), isDrop: drop);
         } else {
-          _openPromotionSelector(move);
+          widget.onMove?.call(move, isDrop: drop, shouldPromote: true);
         }
       } else {
         widget.onMove?.call(move, isDrop: drop);
@@ -895,11 +870,16 @@ class _BoardState extends State<Chessboard> {
       return true;
     } else if (_isPremovable(selectedPiece) &&
         _canPremoveTo(selected!, square)) {
-      final premove = widget.settings.autoQueenPromotionOnPremove &&
-              _isPromoMove(selectedPiece!, square)
-          ? NormalMove(from: selected!, to: square, promotion: Role.queen)
-          : NormalMove(from: selected!, to: square);
-      widget.onSetPremove?.call(premove);
+      final isPromoPremove = _isPromoMove(selectedPiece!, square);
+      final premove =
+          widget.settings.autoQueenPromotionOnPremove && isPromoPremove
+              ? NormalMove(from: selected!, to: square, promotion: Role.queen)
+              : NormalMove(from: selected!, to: square);
+      widget.onSetPremove?.call(
+        premove,
+        shouldPromote:
+            !widget.settings.autoQueenPromotionOnPremove && isPromoPremove,
+      );
       return true;
     }
     return false;

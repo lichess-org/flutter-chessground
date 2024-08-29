@@ -18,6 +18,7 @@ abstract class ChessboardState {
     required String fen,
     bool opponentsPiecesUpsideDown,
     Side? sideToMove,
+    NormalMove? promotionMove,
     NormalMove? premove,
     NormalMove? lastMove,
     ValidMoves? validMoves,
@@ -32,6 +33,7 @@ abstract class ChessboardState {
     required this.fen,
     required this.opponentsPiecesUpsideDown,
     this.sideToMove,
+    this.promotionMove,
     this.premove,
     this.lastMove,
     this.validMoves,
@@ -60,6 +62,11 @@ abstract class ChessboardState {
 
   /// FEN string describing the position of the board.
   final String fen;
+
+  /// A pawn move that should be promoted.
+  ///
+  /// Setting this will show a promotion dialog.
+  final NormalMove? promotionMove;
 
   /// Registered premove.
   ///
@@ -122,8 +129,9 @@ abstract class ChessboardState {
     String? fen,
     bool? opponentsPiecesUpsideDown,
     Side? sideToMove,
-    Move? premove,
-    Move? lastMove,
+    NormalMove? promotionMove,
+    NormalMove? premove,
+    NormalMove? lastMove,
     ValidMoves? validMoves,
     bool? isCheck,
     ISet<Shape>? shapes,
@@ -139,6 +147,7 @@ class _ChessboardState extends ChessboardState {
     super.opponentsPiecesUpsideDown = false,
     super.sideToMove,
     super.premove,
+    super.promotionMove,
     super.lastMove,
     super.validMoves,
     super.isCheck,
@@ -153,6 +162,7 @@ class _ChessboardState extends ChessboardState {
     String? fen,
     bool? opponentsPiecesUpsideDown,
     Object? sideToMove = _Undefined,
+    Object? promotionMove = _Undefined,
     Object? premove = _Undefined,
     Object? lastMove = _Undefined,
     Object? validMoves = _Undefined,
@@ -168,6 +178,9 @@ class _ChessboardState extends ChessboardState {
       fen: fen ?? this.fen,
       sideToMove:
           sideToMove == _Undefined ? this.sideToMove : sideToMove as Side?,
+      promotionMove: promotionMove == _Undefined
+          ? this.promotionMove
+          : promotionMove as NormalMove?,
       premove: premove == _Undefined ? this.premove : premove as NormalMove?,
       lastMove:
           lastMove == _Undefined ? this.lastMove : lastMove as NormalMove?,

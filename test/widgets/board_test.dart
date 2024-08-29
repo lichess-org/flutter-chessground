@@ -468,6 +468,20 @@ void main() {
   });
 
   group('Promotion', () {
+    testWidgets('can display the selector', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        buildBoard(
+          initialInteractableSide: InteractableSide.both,
+          initialFen: '8/5P2/2RK2P1/8/4k3/8/8/7r w - - 0 1',
+          initialPromotionMove:
+              const NormalMove(from: Square.f7, to: Square.f8),
+        ),
+      );
+
+      // promotion dialog is shown
+      expect(find.byType(PromotionSelector), findsOneWidget);
+    });
+
     testWidgets('promote a knight', (WidgetTester tester) async {
       await tester.pumpWidget(
         buildBoard(
@@ -481,12 +495,12 @@ void main() {
       await tester.tapAt(squareOffset(Square.f8));
       await tester.pump();
 
-      // promotion dialog is shown
+      // wait for promotion selector to show
+      await tester.pump();
       expect(find.byType(PromotionSelector), findsOneWidget);
 
-      // pawn is on the eighth rank
-      expect(find.byKey(const Key('f8-whitepawn')), findsOneWidget);
-      expect(find.byKey(const Key('f7-whitepawn')), findsNothing);
+      // pawn is still on the seventh rank
+      expect(find.byKey(const Key('f7-whitepawn')), findsOneWidget);
 
       // tap on the knight
       await tester.tapAt(squareOffset(Square.f7));
@@ -508,12 +522,9 @@ void main() {
       await tester.tapAt(squareOffset(Square.f8));
       await tester.pump();
 
-      // promotion dialog is shown
+      // wait for promotion selector to show
+      await tester.pump();
       expect(find.byType(PromotionSelector), findsOneWidget);
-
-      // pawn is on the eighth rank
-      expect(find.byKey(const Key('f8-whitepawn')), findsOneWidget);
-      expect(find.byKey(const Key('f7-whitepawn')), findsNothing);
 
       // tap outside the promotion dialog
       await tester.tapAt(squareOffset(Square.c4));
@@ -522,7 +533,6 @@ void main() {
 
       // promotion dialog is closed, move is cancelled
       expect(find.byType(PromotionSelector), findsNothing);
-      expect(find.byKey(const Key('f8-whitepawn')), findsNothing);
       expect(find.byKey(const Key('f7-whitepawn')), findsOneWidget);
     });
 
@@ -1165,6 +1175,7 @@ Widget buildBoard({
   ChessboardSettings? settings,
   Side orientation = Side.white,
   String initialFen = kInitialFEN,
+  NormalMove? initialPromotionMove,
   ISet<Shape>? initialShapes,
   bool enableDrawingShapes = false,
   PieceShiftMethod pieceShiftMethod = PieceShiftMethod.either,
@@ -1176,7 +1187,16 @@ Widget buildBoard({
   Position<Chess> position = Chess.fromSetup(Setup.parseFen(initialFen));
   NormalMove? lastMove;
   NormalMove? premove;
+  NormalMove? promotionMove = initialPromotionMove;
   ISet<Shape> shapes = initialShapes ?? ISet();
+
+  void playMove(NormalMove move) {
+    position = position.playUnchecked(move);
+    if (position.isGameOver) {
+      interactableSide = InteractableSide.none;
+    }
+    lastMove = move;
+  }
 
   return MaterialApp(
     home: StatefulBuilder(
@@ -1206,16 +1226,17 @@ Widget buildBoard({
             isCheck: position.isCheck,
             sideToMove: position.turn == Side.white ? Side.white : Side.black,
             validMoves: makeLegalMoves(position),
+            promotionMove: promotionMove,
             premove: premove,
             shapes: shapes,
           ),
-          onMove: (NormalMove move, {bool? isDrop, bool? isPremove}) {
+          onMove: (NormalMove move, {bool? isDrop, bool? shouldPromote}) {
             setState(() {
-              position = position.playUnchecked(NormalMove.fromUci(move.uci));
-              if (position.isGameOver) {
-                interactableSide = InteractableSide.none;
+              if (shouldPromote == true) {
+                promotionMove = move;
+              } else {
+                playMove(move);
               }
-              lastMove = move;
             });
 
             if (shouldPlayOpponentMove) {
@@ -1253,7 +1274,18 @@ Widget buildBoard({
               });
             }
           },
-          onSetPremove: (NormalMove? move) {
+          onPromotionSelect: (Role role) {
+            setState(() {
+              playMove(promotionMove!.withPromotion(role));
+              promotionMove = null;
+            });
+          },
+          onPromotionCancel: () {
+            setState(() {
+              promotionMove = null;
+            });
+          },
+          onSetPremove: (NormalMove? move, {bool? shouldPromote}) {
             setState(() {
               premove = move;
             });

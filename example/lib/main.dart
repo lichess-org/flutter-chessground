@@ -61,6 +61,7 @@ class _HomePageState extends State<HomePage> {
   Side orientation = Side.white;
   String fen = kInitialBoardFEN;
   NormalMove? lastMove;
+  NormalMove? promotionMove;
   NormalMove? premove;
   ValidMoves validMoves = IMap(const {});
   Side sideToMove = Side.white;
@@ -321,11 +322,14 @@ class _HomePageState extends State<HomePage> {
               lastMove: lastMove,
               sideToMove: position.turn == Side.white ? Side.white : Side.black,
               isCheck: position.isCheck,
+              promotionMove: promotionMove,
               premove: premove,
               shapes: shapes.isNotEmpty ? shapes : null,
             ),
             onMove:
                 playMode == Mode.botPlay ? _onUserMoveAgainstBot : _playMove,
+            onPromotionSelect: _onPromotionSelect,
+            onPromotionCancel: _onPromotionCancel,
             onSetPremove: _onSetPremove,
           ),
           Column(
@@ -409,15 +413,36 @@ class _HomePageState extends State<HomePage> {
     super.initState();
   }
 
-  void _onSetPremove(NormalMove? move) {
+  void _onSetPremove(NormalMove? move, {bool? shouldPromote}) {
     setState(() {
       premove = move;
     });
   }
 
-  void _playMove(NormalMove move, {bool? isDrop, bool? isPremove}) {
+  void _onPromotionSelect(Role role) {
+    if (promotionMove != null) {
+      if (playMode == Mode.botPlay) {
+        _onUserMoveAgainstBot(promotionMove!.withPromotion(role));
+      } else {
+        _playMove(promotionMove!.withPromotion(role));
+      }
+    }
+  }
+
+  void _onPromotionCancel() {
+    setState(() {
+      promotionMove = null;
+    });
+  }
+
+  void _playMove(NormalMove move,
+      {bool? isDrop, bool? isPremove, bool? shouldPromote}) {
     lastPos = position;
-    if (position.isLegal(move)) {
+    if (shouldPromote == true) {
+      setState(() {
+        promotionMove = move;
+      });
+    } else if (position.isLegal(move)) {
       setState(() {
         position = position.playUnchecked(move);
         lastMove = move;
@@ -426,21 +451,29 @@ class _HomePageState extends State<HomePage> {
         if (isPremove == true) {
           premove = null;
         }
+        promotionMove = null;
       });
     }
   }
 
   void _onUserMoveAgainstBot(NormalMove move,
-      {bool? isDrop, bool? isPremove}) async {
+      {bool? isDrop, bool? shouldPromote}) async {
     lastPos = position;
-    setState(() {
-      position = position.playUnchecked(move);
-      lastMove = move;
-      fen = position.fen;
-      validMoves = IMap(const {});
-    });
-    await _playBlackMove();
-    _tryPlayPremove();
+    if (shouldPromote == true) {
+      setState(() {
+        promotionMove = move;
+      });
+    } else {
+      setState(() {
+        position = position.playUnchecked(move);
+        lastMove = move;
+        fen = position.fen;
+        validMoves = IMap(const {});
+        promotionMove = null;
+      });
+      await _playBlackMove();
+      _tryPlayPremove();
+    }
   }
 
   Future<void> _playBlackMove() async {
