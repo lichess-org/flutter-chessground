@@ -41,6 +41,18 @@ void main() {
 
       expect(find.byKey(const Key('e2-selected')), findsNothing);
     });
+
+    testWidgets('background is constrained to the size of the board', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(viewOnlyBoard);
+
+      final background = tester.widget<SizedBox>(
+        find.byKey(const Key('board-background')),
+      );
+      expect(background.width, boardSize);
+      expect(background.height, boardSize);
+    });
   });
 
   group('Interactable board', () {

@@ -158,7 +158,11 @@ class _BoardState extends State<Chessboard> {
         : colorScheme.background;
 
     final List<Widget> highlightedBackground = [
-      background,
+      SizedBox.square(
+        key: const ValueKey('board-background'),
+        dimension: widget.size,
+        child: background,
+      ),
       if (widget.settings.showLastMove && widget.state.lastMove != null)
         for (final square in widget.state.lastMove!.squares)
           if (premove == null || !premove.hasSquare(square))
