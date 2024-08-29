@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:chessground/src/widgets/evaluation_bar.dart';
 import 'package:chessground/src/widgets/geometry.dart';
 import 'package:dartchess/dartchess.dart';
 import 'package:flutter/gestures.dart';
@@ -22,6 +23,9 @@ import '../board_state.dart';
 const double _kDragDistanceThreshold = 3.0;
 
 const _kCancelShapesDoubleTapDelay = Duration(milliseconds: 200);
+
+/// Aspect ratio of the evaluation bar.
+const evaluationBarAspectRatio = 1 / 20;
 
 /// A chessboard widget.
 ///
@@ -313,23 +317,42 @@ class _BoardState extends State<Chessboard> {
       onPointerMove: interactable ? _onPointerMove : null,
       onPointerUp: interactable ? _onPointerUp : null,
       onPointerCancel: interactable ? _onPointerCancel : null,
-      child: SizedBox.square(
-        dimension: widget.size,
+      child: SizedBox(
+        height: widget.size,
+        width: widget.size +
+            (widget.settings.evaluationBarWhiteFraction != null
+                ? widget.size * evaluationBarAspectRatio
+                : 0),
         child: Stack(
           clipBehavior: Clip.none,
           children: [
-            if (widget.settings.boxShadow.isNotEmpty ||
-                widget.settings.borderRadius != BorderRadius.zero)
-              Container(
-                clipBehavior: Clip.hardEdge,
-                decoration: BoxDecoration(
-                  borderRadius: widget.settings.borderRadius,
-                  boxShadow: widget.settings.boxShadow,
-                ),
-                child: Stack(children: highlightedBackground),
-              )
-            else
-              ...highlightedBackground,
+            Container(
+              clipBehavior: (widget.settings.borderRadius != BorderRadius.zero)
+                  ? Clip.hardEdge
+                  : Clip.none,
+              decoration: BoxDecoration(
+                borderRadius: widget.settings.borderRadius,
+                boxShadow: widget.settings.boxShadow,
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        ...highlightedBackground,
+                      ],
+                    ),
+                  ),
+                  if (widget.settings.evaluationBarWhiteFraction != null)
+                    EvaluationBar(
+                      heigth: widget.size,
+                      whiteBarHeight: widget.size *
+                          widget.settings.evaluationBarWhiteFraction!,
+                    ),
+                ],
+              ),
+            ),
             ...objects,
             if (_promotionMove != null && widget.state.sideToMove != null)
               PromotionSelector(
