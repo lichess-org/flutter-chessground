@@ -360,50 +360,6 @@ void main() {
       expectSync(find.byKey(const Key('e2-selected')), findsNothing);
     });
 
-    testWidgets('promotion', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        buildBoard(
-          initialInteractableSide: InteractableSide.both,
-          initialFen: '8/5P2/2RK2P1/8/4k3/8/8/7r w - - 0 1',
-        ),
-      );
-
-      await tester.tap(find.byKey(const Key('f7-whitepawn')));
-      await tester.pump();
-      await tester.tapAt(squareOffset(Square.f8));
-      await tester.pump();
-
-      // promotion dialog is shown
-      expect(find.byType(PromotionSelector), findsOneWidget);
-
-      // pawn is on the eighth rank
-      expect(find.byKey(const Key('f8-whitepawn')), findsOneWidget);
-      expect(find.byKey(const Key('f7-whitepawn')), findsNothing);
-
-      // tap on the knight
-      await tester.tapAt(squareOffset(Square.f7));
-      await tester.pump();
-      expect(find.byKey(const Key('f8-whiteknight')), findsOneWidget);
-      expect(find.byKey(const Key('f7-whitepawn')), findsNothing);
-    });
-
-    testWidgets('promotion, auto queen enabled', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        buildBoard(
-          settings: const ChessboardSettings(autoQueenPromotion: true),
-          initialInteractableSide: InteractableSide.both,
-          initialFen: '8/5P2/2RK2P1/8/4k3/8/8/7r w - - 0 1',
-        ),
-      );
-
-      await tester.tap(find.byKey(const Key('f7-whitepawn')));
-      await tester.pump();
-      await tester.tapAt(squareOffset(Square.f8));
-      await tester.pump();
-      expect(find.byKey(const Key('f8-whitequeen')), findsOneWidget);
-      expect(find.byKey(const Key('f7-whitepawn')), findsNothing);
-    });
-
     testWidgets('king check square black', (WidgetTester tester) async {
       await tester.pumpWidget(
         buildBoard(
@@ -496,6 +452,83 @@ void main() {
       await tester.tapAt(squareOffset(Square.e2));
       await tester.pump();
       expect(find.byKey(const Key('e2-selected')), findsOneWidget);
+    });
+  });
+
+  group('Promotion', () {
+    testWidgets('promote a knight', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        buildBoard(
+          initialInteractableSide: InteractableSide.both,
+          initialFen: '8/5P2/2RK2P1/8/4k3/8/8/7r w - - 0 1',
+        ),
+      );
+
+      await tester.tap(find.byKey(const Key('f7-whitepawn')));
+      await tester.pump();
+      await tester.tapAt(squareOffset(Square.f8));
+      await tester.pump();
+
+      // promotion dialog is shown
+      expect(find.byType(PromotionSelector), findsOneWidget);
+
+      // pawn is on the eighth rank
+      expect(find.byKey(const Key('f8-whitepawn')), findsOneWidget);
+      expect(find.byKey(const Key('f7-whitepawn')), findsNothing);
+
+      // tap on the knight
+      await tester.tapAt(squareOffset(Square.f7));
+      await tester.pump();
+      expect(find.byKey(const Key('f8-whiteknight')), findsOneWidget);
+      expect(find.byKey(const Key('f7-whitepawn')), findsNothing);
+    });
+
+    testWidgets('cancels promotion', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        buildBoard(
+          initialInteractableSide: InteractableSide.both,
+          initialFen: '8/5P2/2RK2P1/8/4k3/8/8/7r w - - 0 1',
+        ),
+      );
+
+      await tester.tap(find.byKey(const Key('f7-whitepawn')));
+      await tester.pump();
+      await tester.tapAt(squareOffset(Square.f8));
+      await tester.pump();
+
+      // promotion dialog is shown
+      expect(find.byType(PromotionSelector), findsOneWidget);
+
+      // pawn is on the eighth rank
+      expect(find.byKey(const Key('f8-whitepawn')), findsOneWidget);
+      expect(find.byKey(const Key('f7-whitepawn')), findsNothing);
+
+      // tap outside the promotion dialog
+      await tester.tapAt(squareOffset(Square.c4));
+
+      await tester.pump();
+
+      // promotion dialog is closed, move is cancelled
+      expect(find.byType(PromotionSelector), findsNothing);
+      expect(find.byKey(const Key('f8-whitepawn')), findsNothing);
+      expect(find.byKey(const Key('f7-whitepawn')), findsOneWidget);
+    });
+
+    testWidgets('promotion, auto queen enabled', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        buildBoard(
+          settings: const ChessboardSettings(autoQueenPromotion: true),
+          initialInteractableSide: InteractableSide.both,
+          initialFen: '8/5P2/2RK2P1/8/4k3/8/8/7r w - - 0 1',
+        ),
+      );
+
+      await tester.tap(find.byKey(const Key('f7-whitepawn')));
+      await tester.pump();
+      await tester.tapAt(squareOffset(Square.f8));
+      await tester.pump();
+      expect(find.byKey(const Key('f8-whitequeen')), findsOneWidget);
+      expect(find.byKey(const Key('f7-whitepawn')), findsNothing);
     });
   });
 
@@ -860,7 +893,7 @@ void main() {
     });
   });
 
-  group('drawing shapes', () {
+  group('Drawing shapes', () {
     testWidgets('preconfigure board to draw a circle',
         (WidgetTester tester) async {
       await tester.pumpWidget(
