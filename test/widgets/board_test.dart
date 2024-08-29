@@ -1215,81 +1215,84 @@ Widget buildBoard({
           pieceShiftMethod: pieceShiftMethod,
         );
 
-        return Chessboard(
-          size: boardSize,
-          settings: settings ?? defaultSettings,
-          state: ChessboardState(
-            interactableSide: interactableSide,
-            orientation: orientation,
-            fen: position.fen,
-            lastMove: lastMove,
-            isCheck: position.isCheck,
-            sideToMove: position.turn == Side.white ? Side.white : Side.black,
-            validMoves: makeLegalMoves(position),
-            promotionMove: promotionMove,
-            premove: premove,
-            shapes: shapes,
-          ),
-          onMove: (NormalMove move, {bool? isDrop, bool? shouldPromote}) {
-            setState(() {
-              if (shouldPromote == true) {
-                promotionMove = move;
-              } else {
-                playMove(move);
-              }
-            });
-
-            if (shouldPlayOpponentMove) {
-              Timer(const Duration(milliseconds: 200), () {
-                final allMoves = [
-                  for (final entry in position.legalMoves.entries)
-                    for (final dest in entry.value.squares)
-                      NormalMove(from: entry.key, to: dest),
-                ];
-                final opponentMove = allMoves.first;
-                setState(() {
-                  position = position.playUnchecked(opponentMove);
-                  if (position.isGameOver) {
-                    interactableSide = InteractableSide.none;
-                  }
-                  lastMove = NormalMove.fromUci(opponentMove.uci);
-                });
-
-                if (premove != null && position.isLegal(premove!)) {
-                  // if premove autoqueen if off, detect pawn promotion
-                  final isPawnPromotion = premove!.promotion == null &&
-                      position.board.roleAt(premove!.from) == Role.pawn &&
-                      (premove!.to.rank == Rank.first ||
-                          premove!.to.rank == Rank.eighth);
-
-                  if (!isPawnPromotion) {
-                    Timer.run(() {
-                      setState(() {
-                        position = position.playUnchecked(premove!);
-                        premove = null;
-                      });
-                    });
-                  }
+        return Align(
+          alignment: Alignment.topLeft,
+          child: Chessboard(
+            size: boardSize,
+            settings: settings ?? defaultSettings,
+            state: ChessboardState(
+              interactableSide: interactableSide,
+              orientation: orientation,
+              fen: position.fen,
+              lastMove: lastMove,
+              isCheck: position.isCheck,
+              sideToMove: position.turn == Side.white ? Side.white : Side.black,
+              validMoves: makeLegalMoves(position),
+              promotionMove: promotionMove,
+              premove: premove,
+              shapes: shapes,
+            ),
+            onMove: (NormalMove move, {bool? isDrop, bool? shouldPromote}) {
+              setState(() {
+                if (shouldPromote == true) {
+                  promotionMove = move;
+                } else {
+                  playMove(move);
                 }
               });
-            }
-          },
-          onPromotionSelect: (Role role) {
-            setState(() {
-              playMove(promotionMove!.withPromotion(role));
-              promotionMove = null;
-            });
-          },
-          onPromotionCancel: () {
-            setState(() {
-              promotionMove = null;
-            });
-          },
-          onSetPremove: (NormalMove? move, {bool? shouldPromote}) {
-            setState(() {
-              premove = move;
-            });
-          },
+
+              if (shouldPlayOpponentMove) {
+                Timer(const Duration(milliseconds: 200), () {
+                  final allMoves = [
+                    for (final entry in position.legalMoves.entries)
+                      for (final dest in entry.value.squares)
+                        NormalMove(from: entry.key, to: dest),
+                  ];
+                  final opponentMove = allMoves.first;
+                  setState(() {
+                    position = position.playUnchecked(opponentMove);
+                    if (position.isGameOver) {
+                      interactableSide = InteractableSide.none;
+                    }
+                    lastMove = NormalMove.fromUci(opponentMove.uci);
+                  });
+
+                  if (premove != null && position.isLegal(premove!)) {
+                    // if premove autoqueen if off, detect pawn promotion
+                    final isPawnPromotion = premove!.promotion == null &&
+                        position.board.roleAt(premove!.from) == Role.pawn &&
+                        (premove!.to.rank == Rank.first ||
+                            premove!.to.rank == Rank.eighth);
+
+                    if (!isPawnPromotion) {
+                      Timer.run(() {
+                        setState(() {
+                          position = position.playUnchecked(premove!);
+                          premove = null;
+                        });
+                      });
+                    }
+                  }
+                });
+              }
+            },
+            onPromotionSelect: (Role role) {
+              setState(() {
+                playMove(promotionMove!.withPromotion(role));
+                promotionMove = null;
+              });
+            },
+            onPromotionCancel: () {
+              setState(() {
+                promotionMove = null;
+              });
+            },
+            onSetPremove: (NormalMove? move, {bool? shouldPromote}) {
+              setState(() {
+                premove = move;
+              });
+            },
+          ),
         );
       },
     ),
