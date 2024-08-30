@@ -7,6 +7,7 @@
 - Promotion state is now lifted up to the parent widget, in order to allow more
   control over the promotion dialog.
 - `ChessboardEditor` now supports highlighting squares.
+- Fix: ensure the board background does not overflow the board.
 
 ### Breaking changes:
 - `Chessboard` now require a `gameState` parameter of type `GameState` instead
