@@ -308,29 +308,31 @@ class _HomePageState extends State<HomePage> {
               pieceShiftMethod: pieceShiftMethod,
               autoQueenPromotionOnPremove: false,
             ),
-            state: ChessboardState(
-              interactableSide:
+            orientation: orientation,
+            opponentsPiecesUpsideDown: playMode == Mode.freePlay,
+            fen: fen,
+            lastMove: lastMove,
+            game: GameState(
+              playerSide:
                   (playMode == Mode.botPlay || playMode == Mode.inputMove)
-                      ? InteractableSide.white
+                      ? PlayerSide.white
                       : (position.turn == Side.white
-                          ? InteractableSide.white
-                          : InteractableSide.black),
+                          ? PlayerSide.white
+                          : PlayerSide.black),
               validMoves: validMoves,
-              orientation: orientation,
-              opponentsPiecesUpsideDown: playMode == Mode.freePlay,
-              fen: fen,
-              lastMove: lastMove,
               sideToMove: position.turn == Side.white ? Side.white : Side.black,
               isCheck: position.isCheck,
               promotionMove: promotionMove,
-              premove: premove,
-              shapes: shapes.isNotEmpty ? shapes : null,
+              onMove:
+                  playMode == Mode.botPlay ? _onUserMoveAgainstBot : _playMove,
+              onPromotionSelect: _onPromotionSelect,
+              onPromotionCancel: _onPromotionCancel,
+              premovable: (
+                onSetPremove: _onSetPremove,
+                premove: premove,
+              ),
             ),
-            onMove:
-                playMode == Mode.botPlay ? _onUserMoveAgainstBot : _playMove,
-            onPromotionSelect: _onPromotionSelect,
-            onPromotionCancel: _onPromotionCancel,
-            onSetPremove: _onSetPremove,
+            shapes: shapes.isNotEmpty ? shapes : null,
           ),
           Column(
             crossAxisAlignment: CrossAxisAlignment.center,

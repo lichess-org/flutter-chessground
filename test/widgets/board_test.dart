@@ -14,13 +14,10 @@ void main() {
   group('Non-interactable board', () {
     const viewOnlyBoard = Directionality(
       textDirection: TextDirection.ltr,
-      child: Chessboard(
+      child: Chessboard.fixed(
         size: boardSize,
-        state: ChessboardState(
-          interactableSide: InteractableSide.none,
-          orientation: Side.white,
-          fen: kInitialFEN,
-        ),
+        orientation: Side.white,
+        fen: kInitialFEN,
         settings: ChessboardSettings(
           drawShape: DrawShapeOptions(enable: true),
         ),
@@ -59,7 +56,7 @@ void main() {
     testWidgets('selecting and deselecting a square',
         (WidgetTester tester) async {
       await tester.pumpWidget(
-        buildBoard(initialInteractableSide: InteractableSide.both),
+        buildBoard(initialPlayerSide: PlayerSide.both),
       );
       await tester.tap(find.byKey(const Key('a2-whitepawn')));
       await tester.pump();
@@ -101,7 +98,7 @@ void main() {
 
     testWidgets('play e2-e4 move by tap', (WidgetTester tester) async {
       await tester.pumpWidget(
-        buildBoard(initialInteractableSide: InteractableSide.both),
+        buildBoard(initialPlayerSide: PlayerSide.both),
       );
       await tester.tap(find.byKey(const Key('e2-whitepawn')));
       await tester.pump();
@@ -128,7 +125,7 @@ void main() {
         (WidgetTester tester) async {
       await tester.pumpWidget(
         buildBoard(
-          initialInteractableSide: InteractableSide.both,
+          initialPlayerSide: PlayerSide.both,
           pieceShiftMethod: PieceShiftMethod.drag,
         ),
       );
@@ -157,7 +154,7 @@ void main() {
         buildBoard(
           initialFen:
               'r1bqk1nr/pppp1ppp/2n5/2b1p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4',
-          initialInteractableSide: InteractableSide.both,
+          initialPlayerSide: PlayerSide.both,
         ),
       );
       await tester.tap(find.byKey(const Key('e1-whiteking')));
@@ -178,7 +175,7 @@ void main() {
 
     testWidgets('dragging off target', (WidgetTester tester) async {
       await tester.pumpWidget(
-        buildBoard(initialInteractableSide: InteractableSide.both),
+        buildBoard(initialPlayerSide: PlayerSide.both),
       );
 
       final e2 = squareOffset(Square.e2);
@@ -191,7 +188,7 @@ void main() {
 
     testWidgets('dragging off board', (WidgetTester tester) async {
       await tester.pumpWidget(
-        buildBoard(initialInteractableSide: InteractableSide.both),
+        buildBoard(initialPlayerSide: PlayerSide.both),
       );
 
       await tester.dragFrom(
@@ -206,7 +203,7 @@ void main() {
 
     testWidgets('e2-e4 drag move', (WidgetTester tester) async {
       await tester.pumpWidget(
-        buildBoard(initialInteractableSide: InteractableSide.both),
+        buildBoard(initialPlayerSide: PlayerSide.both),
       );
       await tester.dragFrom(
         squareOffset(Square.e2),
@@ -228,7 +225,7 @@ void main() {
             animationDuration: Duration.zero,
             pieceShiftMethod: PieceShiftMethod.tapTwoSquares,
           ),
-          initialInteractableSide: InteractableSide.white,
+          initialPlayerSide: PlayerSide.white,
         ),
       );
       await tester.dragFrom(
@@ -262,7 +259,7 @@ void main() {
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(
-        buildBoard(initialInteractableSide: InteractableSide.both),
+        buildBoard(initialPlayerSide: PlayerSide.both),
       );
       await TestAsyncUtils.guard<void>(() async {
         await tester.startGesture(squareOffset(Square.e2));
@@ -287,7 +284,7 @@ void main() {
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(
-        buildBoard(initialInteractableSide: InteractableSide.both),
+        buildBoard(initialPlayerSide: PlayerSide.both),
       );
 
       // drag a piece and tap on another own square while dragging
@@ -352,7 +349,7 @@ void main() {
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(
-        buildBoard(initialInteractableSide: InteractableSide.both),
+        buildBoard(initialPlayerSide: PlayerSide.both),
       );
       final e2 = squareOffset(Square.e2);
       await tester.tapAt(e2);
@@ -377,7 +374,7 @@ void main() {
         buildBoard(
           initialFen:
               'rnbqkbnr/ppp2ppp/3p4/4p3/3PP3/8/PPP2PPP/RNBQKBNR w KQkq - 0 3',
-          initialInteractableSide: InteractableSide.white,
+          initialPlayerSide: PlayerSide.white,
         ),
       );
       await makeMove(tester, Square.f1, Square.b5);
@@ -389,7 +386,7 @@ void main() {
         buildBoard(
           initialFen:
               'rnbqkbnr/pppp1ppp/8/4p3/3P4/4P3/PPP2PPP/RNBQKBNR b KQkq - 0 2',
-          initialInteractableSide: InteractableSide.black,
+          initialPlayerSide: PlayerSide.black,
         ),
       );
       await makeMove(tester, Square.f8, Square.b4);
@@ -402,7 +399,7 @@ void main() {
       await tester.pumpWidget(
         buildBoard(
           initialFen: kInitialBoardFEN,
-          initialInteractableSide: InteractableSide.white,
+          initialPlayerSide: PlayerSide.white,
         ),
       );
 
@@ -413,7 +410,7 @@ void main() {
       await tester.pumpWidget(
         buildBoard(
           initialFen: kInitialBoardFEN,
-          initialInteractableSide: InteractableSide.none,
+          initialPlayerSide: PlayerSide.none,
         ),
       );
 
@@ -426,7 +423,7 @@ void main() {
       await tester.pumpWidget(
         buildBoard(
           initialFen: kInitialBoardFEN,
-          initialInteractableSide: InteractableSide.white,
+          initialPlayerSide: PlayerSide.white,
         ),
       );
 
@@ -440,7 +437,7 @@ void main() {
       await tester.pumpWidget(
         buildBoard(
           initialFen: kInitialBoardFEN,
-          initialInteractableSide: InteractableSide.none,
+          initialPlayerSide: PlayerSide.none,
         ),
       );
 
@@ -455,7 +452,7 @@ void main() {
       await tester.pumpWidget(
         buildBoard(
           initialFen: kInitialBoardFEN,
-          initialInteractableSide: InteractableSide.white,
+          initialPlayerSide: PlayerSide.white,
         ),
       );
 
@@ -471,7 +468,7 @@ void main() {
     testWidgets('can display the selector', (WidgetTester tester) async {
       await tester.pumpWidget(
         buildBoard(
-          initialInteractableSide: InteractableSide.both,
+          initialPlayerSide: PlayerSide.both,
           initialFen: '8/5P2/2RK2P1/8/4k3/8/8/7r w - - 0 1',
           initialPromotionMove:
               const NormalMove(from: Square.f7, to: Square.f8),
@@ -485,7 +482,7 @@ void main() {
     testWidgets('promote a knight', (WidgetTester tester) async {
       await tester.pumpWidget(
         buildBoard(
-          initialInteractableSide: InteractableSide.both,
+          initialPlayerSide: PlayerSide.both,
           initialFen: '8/5P2/2RK2P1/8/4k3/8/8/7r w - - 0 1',
         ),
       );
@@ -512,7 +509,7 @@ void main() {
     testWidgets('cancels promotion', (WidgetTester tester) async {
       await tester.pumpWidget(
         buildBoard(
-          initialInteractableSide: InteractableSide.both,
+          initialPlayerSide: PlayerSide.both,
           initialFen: '8/5P2/2RK2P1/8/4k3/8/8/7r w - - 0 1',
         ),
       );
@@ -540,7 +537,7 @@ void main() {
       await tester.pumpWidget(
         buildBoard(
           settings: const ChessboardSettings(autoQueenPromotion: true),
-          initialInteractableSide: InteractableSide.both,
+          initialPlayerSide: PlayerSide.both,
           initialFen: '8/5P2/2RK2P1/8/4k3/8/8/7r w - - 0 1',
         ),
       );
@@ -561,7 +558,7 @@ void main() {
         buildBoard(
           initialFen:
               'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
-          initialInteractableSide: InteractableSide.white,
+          initialPlayerSide: PlayerSide.white,
         ),
       );
 
@@ -582,7 +579,7 @@ void main() {
         buildBoard(
           initialFen:
               'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
-          initialInteractableSide: InteractableSide.white,
+          initialPlayerSide: PlayerSide.white,
         ),
       );
 
@@ -603,7 +600,7 @@ void main() {
         buildBoard(
           initialFen:
               'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
-          initialInteractableSide: InteractableSide.white,
+          initialPlayerSide: PlayerSide.white,
         ),
       );
 
@@ -624,7 +621,7 @@ void main() {
         buildBoard(
           initialFen:
               'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
-          initialInteractableSide: InteractableSide.white,
+          initialPlayerSide: PlayerSide.white,
         ),
       );
 
@@ -654,7 +651,7 @@ void main() {
         buildBoard(
           initialFen:
               'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
-          initialInteractableSide: InteractableSide.white,
+          initialPlayerSide: PlayerSide.white,
         ),
       );
 
@@ -679,7 +676,7 @@ void main() {
         buildBoard(
           initialFen:
               'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
-          initialInteractableSide: InteractableSide.white,
+          initialPlayerSide: PlayerSide.white,
         ),
       );
 
@@ -704,7 +701,7 @@ void main() {
         buildBoard(
           initialFen:
               'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
-          initialInteractableSide: InteractableSide.white,
+          initialPlayerSide: PlayerSide.white,
         ),
       );
 
@@ -725,7 +722,7 @@ void main() {
         buildBoard(
           initialFen:
               'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
-          initialInteractableSide: InteractableSide.white,
+          initialPlayerSide: PlayerSide.white,
         ),
       );
 
@@ -752,7 +749,7 @@ void main() {
         buildBoard(
           initialFen:
               'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
-          initialInteractableSide: InteractableSide.white,
+          initialPlayerSide: PlayerSide.white,
         ),
       );
 
@@ -776,7 +773,7 @@ void main() {
         buildBoard(
           initialFen:
               'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
-          initialInteractableSide: InteractableSide.white,
+          initialPlayerSide: PlayerSide.white,
         ),
       );
 
@@ -796,7 +793,7 @@ void main() {
         buildBoard(
           initialFen:
               'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
-          initialInteractableSide: InteractableSide.white,
+          initialPlayerSide: PlayerSide.white,
         ),
       );
 
@@ -814,7 +811,7 @@ void main() {
       await tester.pumpWidget(
         buildBoard(
           settings: const ChessboardSettings(animationDuration: Duration.zero),
-          initialInteractableSide: InteractableSide.white,
+          initialPlayerSide: PlayerSide.white,
           shouldPlayOpponentMove: true,
         ),
       );
@@ -846,7 +843,7 @@ void main() {
       await tester.pumpWidget(
         buildBoard(
           settings: const ChessboardSettings(animationDuration: Duration.zero),
-          initialInteractableSide: InteractableSide.white,
+          initialPlayerSide: PlayerSide.white,
           initialFen: '8/5P2/2RK2P1/8/4k3/8/8/8 w - - 0 1',
           shouldPlayOpponentMove: true,
         ),
@@ -878,7 +875,7 @@ void main() {
             autoQueenPromotionOnPremove: false,
             animationDuration: Duration.zero,
           ),
-          initialInteractableSide: InteractableSide.white,
+          initialPlayerSide: PlayerSide.white,
           initialFen: '8/5P2/2RK2P1/8/4k3/8/8/8 w - - 0 1',
           shouldPlayOpponentMove: true,
         ),
@@ -920,7 +917,7 @@ void main() {
         (WidgetTester tester) async {
       await tester.pumpWidget(
         buildBoard(
-          initialInteractableSide: InteractableSide.both,
+          initialPlayerSide: PlayerSide.both,
           initialShapes: ISet(
             {const Circle(orig: Square.e4, color: Color(0xFF0000FF))},
           ),
@@ -937,7 +934,7 @@ void main() {
         (WidgetTester tester) async {
       await tester.pumpWidget(
         buildBoard(
-          initialInteractableSide: InteractableSide.both,
+          initialPlayerSide: PlayerSide.both,
           initialShapes: ISet({
             const Arrow(
               orig: Square.e2,
@@ -960,7 +957,7 @@ void main() {
         (WidgetTester tester) async {
       await tester.pumpWidget(
         buildBoard(
-          initialInteractableSide: InteractableSide.both,
+          initialPlayerSide: PlayerSide.both,
           initialShapes: ISet({
             const PieceShape(
               orig: Square.e4,
@@ -981,7 +978,7 @@ void main() {
     testWidgets('cannot draw if not enabled', (WidgetTester tester) async {
       await tester.pumpWidget(
         buildBoard(
-          initialInteractableSide: InteractableSide.both,
+          initialPlayerSide: PlayerSide.both,
         ),
       );
 
@@ -1002,7 +999,7 @@ void main() {
     testWidgets('draw a circle by hand', (WidgetTester tester) async {
       await tester.pumpWidget(
         buildBoard(
-          initialInteractableSide: InteractableSide.both,
+          initialPlayerSide: PlayerSide.both,
           enableDrawingShapes: true,
         ),
       );
@@ -1030,7 +1027,7 @@ void main() {
     testWidgets('draw an arrow by hand', (WidgetTester tester) async {
       await tester.pumpWidget(
         buildBoard(
-          initialInteractableSide: InteractableSide.both,
+          initialPlayerSide: PlayerSide.both,
           enableDrawingShapes: true,
         ),
       );
@@ -1060,7 +1057,7 @@ void main() {
         (WidgetTester tester) async {
       await tester.pumpWidget(
         buildBoard(
-          initialInteractableSide: InteractableSide.none,
+          initialPlayerSide: PlayerSide.none,
           enableDrawingShapes: true,
         ),
       );
@@ -1089,7 +1086,7 @@ void main() {
     testWidgets('double tap to clear shapes', (WidgetTester tester) async {
       await tester.pumpWidget(
         buildBoard(
-          initialInteractableSide: InteractableSide.both,
+          initialPlayerSide: PlayerSide.both,
           enableDrawingShapes: true,
         ),
       );
@@ -1134,7 +1131,7 @@ void main() {
         (WidgetTester tester) async {
       await tester.pumpWidget(
         buildBoard(
-          initialInteractableSide: InteractableSide.both,
+          initialPlayerSide: PlayerSide.both,
           enableDrawingShapes: true,
         ),
       );
@@ -1171,7 +1168,7 @@ Future<void> makeMove(WidgetTester tester, Square from, Square to) async {
 }
 
 Widget buildBoard({
-  required InteractableSide initialInteractableSide,
+  required PlayerSide initialPlayerSide,
   ChessboardSettings? settings,
   Side orientation = Side.white,
   String initialFen = kInitialFEN,
@@ -1183,7 +1180,7 @@ Widget buildBoard({
   /// play the first available move for the opponent after a delay of 200ms
   bool shouldPlayOpponentMove = false,
 }) {
-  InteractableSide interactableSide = initialInteractableSide;
+  PlayerSide interactiveSide = initialPlayerSide;
   Position<Chess> position = Chess.fromSetup(Setup.parseFen(initialFen));
   NormalMove? lastMove;
   NormalMove? premove;
@@ -1193,7 +1190,7 @@ Widget buildBoard({
   void playMove(NormalMove move) {
     position = position.playUnchecked(move);
     if (position.isGameOver) {
-      interactableSide = InteractableSide.none;
+      interactiveSide = PlayerSide.none;
     }
     lastMove = move;
   }
@@ -1220,78 +1217,80 @@ Widget buildBoard({
           child: Chessboard(
             size: boardSize,
             settings: settings ?? defaultSettings,
-            state: ChessboardState(
-              interactableSide: interactableSide,
-              orientation: orientation,
-              fen: position.fen,
-              lastMove: lastMove,
+            orientation: orientation,
+            fen: position.fen,
+            lastMove: lastMove,
+            game: GameState(
+              playerSide: interactiveSide,
               isCheck: position.isCheck,
               sideToMove: position.turn == Side.white ? Side.white : Side.black,
               validMoves: makeLegalMoves(position),
               promotionMove: promotionMove,
-              premove: premove,
-              shapes: shapes,
-            ),
-            onMove: (NormalMove move, {bool? isDrop, bool? shouldPromote}) {
-              setState(() {
-                if (shouldPromote == true) {
-                  promotionMove = move;
-                } else {
-                  playMove(move);
-                }
-              });
-
-              if (shouldPlayOpponentMove) {
-                Timer(const Duration(milliseconds: 200), () {
-                  final allMoves = [
-                    for (final entry in position.legalMoves.entries)
-                      for (final dest in entry.value.squares)
-                        NormalMove(from: entry.key, to: dest),
-                  ];
-                  final opponentMove = allMoves.first;
-                  setState(() {
-                    position = position.playUnchecked(opponentMove);
-                    if (position.isGameOver) {
-                      interactableSide = InteractableSide.none;
-                    }
-                    lastMove = NormalMove.fromUci(opponentMove.uci);
-                  });
-
-                  if (premove != null && position.isLegal(premove!)) {
-                    // if premove autoqueen if off, detect pawn promotion
-                    final isPawnPromotion = premove!.promotion == null &&
-                        position.board.roleAt(premove!.from) == Role.pawn &&
-                        (premove!.to.rank == Rank.first ||
-                            premove!.to.rank == Rank.eighth);
-
-                    if (!isPawnPromotion) {
-                      Timer.run(() {
-                        setState(() {
-                          position = position.playUnchecked(premove!);
-                          premove = null;
-                        });
-                      });
-                    }
+              onMove: (NormalMove move, {bool? isDrop, bool? shouldPromote}) {
+                setState(() {
+                  if (shouldPromote == true) {
+                    promotionMove = move;
+                  } else {
+                    playMove(move);
                   }
                 });
-              }
-            },
-            onPromotionSelect: (Role role) {
-              setState(() {
-                playMove(promotionMove!.withPromotion(role));
-                promotionMove = null;
-              });
-            },
-            onPromotionCancel: () {
-              setState(() {
-                promotionMove = null;
-              });
-            },
-            onSetPremove: (NormalMove? move, {bool? shouldPromote}) {
-              setState(() {
-                premove = move;
-              });
-            },
+
+                if (shouldPlayOpponentMove) {
+                  Timer(const Duration(milliseconds: 200), () {
+                    final allMoves = [
+                      for (final entry in position.legalMoves.entries)
+                        for (final dest in entry.value.squares)
+                          NormalMove(from: entry.key, to: dest),
+                    ];
+                    final opponentMove = allMoves.first;
+                    setState(() {
+                      position = position.playUnchecked(opponentMove);
+                      if (position.isGameOver) {
+                        interactiveSide = PlayerSide.none;
+                      }
+                      lastMove = NormalMove.fromUci(opponentMove.uci);
+                    });
+
+                    if (premove != null && position.isLegal(premove!)) {
+                      // if premove autoqueen if off, detect pawn promotion
+                      final isPawnPromotion = premove!.promotion == null &&
+                          position.board.roleAt(premove!.from) == Role.pawn &&
+                          (premove!.to.rank == Rank.first ||
+                              premove!.to.rank == Rank.eighth);
+
+                      if (!isPawnPromotion) {
+                        Timer.run(() {
+                          setState(() {
+                            position = position.playUnchecked(premove!);
+                            premove = null;
+                          });
+                        });
+                      }
+                    }
+                  });
+                }
+              },
+              onPromotionSelect: (Role role) {
+                setState(() {
+                  playMove(promotionMove!.withPromotion(role));
+                  promotionMove = null;
+                });
+              },
+              onPromotionCancel: () {
+                setState(() {
+                  promotionMove = null;
+                });
+              },
+              premovable: (
+                premove: premove,
+                onSetPremove: (NormalMove? move, {bool? shouldPromote}) {
+                  setState(() {
+                    premove = move;
+                  });
+                },
+              ),
+            ),
+            shapes: shapes,
           ),
         );
       },

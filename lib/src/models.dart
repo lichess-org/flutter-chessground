@@ -3,7 +3,93 @@ import 'package:flutter/widgets.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 
 /// The side that can interact with the board.
-enum InteractableSide { both, none, white, black }
+enum PlayerSide {
+  /// No side can interact with the board.
+  none,
+
+  /// Both sides can interact with the board.
+  ///
+  /// This is used for games where both players can move the pieces as in over-the-board games.
+  both,
+
+  /// Only white side can interact with the board.
+  white,
+
+  /// Only black side can interact with the board.
+  black;
+}
+
+/// State of a game in an interactive chessboard.
+@immutable
+class GameState {
+  /// Creates a new game state.
+  const GameState({
+    required this.playerSide,
+    required this.sideToMove,
+    required this.validMoves,
+    required this.onMove,
+    required this.onPromotionSelect,
+    required this.onPromotionCancel,
+    this.promotionMove,
+    this.isCheck,
+    this.premovable,
+  });
+
+  /// Side that is allowed to move.
+  final PlayerSide playerSide;
+
+  /// Side which is to move.
+  final Side sideToMove;
+
+  /// A pawn move that should be promoted.
+  ///
+  /// Setting this will show a promotion dialog.
+  final NormalMove? promotionMove;
+
+  /// Highlight the king of current side to move
+  final bool? isCheck;
+
+  /// Set of moves allowed to be played by current side to move.
+  final ValidMoves validMoves;
+
+  /// Callback called after a move has been made.
+  ///
+  /// If the move is a pawn move that should trigger a promotion, `shouldPromote` will be true.
+  ///
+  /// If the move has been made with drag-n-drop, `isDrop` will be true.
+  final void Function(NormalMove, {bool? isDrop, bool? shouldPromote}) onMove;
+
+  /// Callback called after a piece has been selected for promotion.
+  ///
+  /// The move is guaranteed to be a promotion move.
+  final void Function(Role) onPromotionSelect;
+
+  /// Callback called after a promotion has been canceled.
+  final void Function() onPromotionCancel;
+
+  /// Optional premovable state of the board.
+  ///
+  /// If `null`, the board will not allow premoves.
+  final Premovable? premovable;
+}
+
+/// State of a premovable chessboard.
+typedef Premovable = ({
+  /// Registered premove.
+  ///
+  /// Will be shown on the board as a preview move.
+  ///
+  /// Chessground will not play the premove automatically, it is up to the library user to play it.
+  NormalMove? premove,
+
+  /// Callback called after a premove has been set/unset.
+  ///
+  /// If the callback is null, the board will not allow premoves.
+  ///
+  /// If the premove is a pawn move that should trigger a promotion, `shouldPromote`
+  /// will be true. This is useful to show a promotion selector to the user.
+  void Function(NormalMove?, {bool? shouldPromote}) onSetPremove,
+});
 
 /// Describes a set of piece assets.
 ///
