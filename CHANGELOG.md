@@ -1,8 +1,16 @@
-## 4.1.0
+## 5.0.0
 
+- Added another `Chessboard.fixed` constructor that allows to set the board to a
+  fixed position.
+- Premove state is now lifted up to the parent widget, in order to allow
+  instant play of premoves.
+- Promotion state is now lifted up to the parent widget, in order to allow more
+  control over the promotion dialog.
 - `ChessboardEditor` now supports highlighting squares.
 
 ### Breaking changes:
+- `Chessboard` now require a `gameState` parameter of type `GameState` instead
+  of `BoardData`.
 - Added required parameters `piece` and `pieceAssets` to `PieceShape`, removed `role`. Added optional
   `opacity` parameter.
 
