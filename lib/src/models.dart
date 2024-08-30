@@ -56,7 +56,7 @@ class GameState {
   ///
   /// If the move is a pawn move that should trigger a promotion, `shouldPromote` will be true.
   ///
-  /// If the move has been made with drag-n-drop, `isDrop` will be true.
+  /// If the move has been made with drag and drop, `isDrop` will be true.
   final void Function(NormalMove, {bool? isDrop, bool? shouldPromote}) onMove;
 
   /// Callback called after a piece has been selected for promotion.
