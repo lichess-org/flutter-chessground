@@ -1295,6 +1295,7 @@ Widget buildBoard({
                       lastMove = NormalMove.fromUci(opponentMove.uci);
                     });
 
+                    // play premove just after the opponent move
                     if (premoveData != null) {
                       if (position.isLegal(premoveData!)) {
                         if (!isPromotionPawnMove(premoveData!)) {
