@@ -1220,7 +1220,7 @@ Widget buildBoard({
   PlayerSide interactiveSide = initialPlayerSide;
   Position<Chess> position = Chess.fromSetup(Setup.parseFen(initialFen));
   NormalMove? lastMove;
-  NormalMove? premove;
+  NormalMove? premoveData;
   NormalMove? promotionMove = initialPromotionMove;
   ISet<Shape> shapes = initialShapes ?? ISet();
 
@@ -1230,6 +1230,13 @@ Widget buildBoard({
       interactiveSide = PlayerSide.none;
     }
     lastMove = move;
+  }
+
+  bool isPromotionPawnMove(NormalMove move) {
+    return move.promotion == null &&
+        position.board.roleAt(move.from) == Role.pawn &&
+        ((move.to.rank == Rank.first && position.turn == Side.black) ||
+            (move.to.rank == Rank.eighth && position.turn == Side.white));
   }
 
   return MaterialApp(
@@ -1257,15 +1264,15 @@ Widget buildBoard({
             orientation: orientation,
             fen: position.fen,
             lastMove: lastMove,
-            game: GameState(
+            game: GameData(
               playerSide: interactiveSide,
               isCheck: position.isCheck,
               sideToMove: position.turn == Side.white ? Side.white : Side.black,
               validMoves: makeLegalMoves(position),
               promotionMove: promotionMove,
-              onMove: (NormalMove move, {bool? isDrop, bool? shouldPromote}) {
+              onMove: (NormalMove move, {isDrop, captured}) {
                 setState(() {
-                  if (shouldPromote == true) {
+                  if (isPromotionPawnMove(move)) {
                     promotionMove = move;
                   } else {
                     playMove(move);
@@ -1288,25 +1295,21 @@ Widget buildBoard({
                       lastMove = NormalMove.fromUci(opponentMove.uci);
                     });
 
-                    if (premove != null && position.isLegal(premove!)) {
-                      // if premove autoqueen if off, detect pawn promotion
-                      final isPawnPromotion = premove!.promotion == null &&
-                          position.board.roleAt(premove!.from) == Role.pawn &&
-                          (premove!.to.rank == Rank.first ||
-                              premove!.to.rank == Rank.eighth);
-
-                      if (!isPawnPromotion) {
-                        Timer.run(() {
-                          setState(() {
-                            position = position.playUnchecked(premove!);
-                            premove = null;
+                    if (premoveData != null) {
+                      if (position.isLegal(premoveData!)) {
+                        if (!isPromotionPawnMove(premoveData!)) {
+                          Timer.run(() {
+                            setState(() {
+                              position = position.playUnchecked(premoveData!);
+                              premoveData = null;
+                            });
                           });
-                        });
-                      } else {
-                        setState(() {
-                          promotionMove = premove;
-                          premove = null;
-                        });
+                        } else {
+                          setState(() {
+                            promotionMove = premoveData;
+                            premoveData = null;
+                          });
+                        }
                       }
                     }
                   });
@@ -1324,10 +1327,15 @@ Widget buildBoard({
                 });
               },
               premovable: (
-                premove: premove,
-                onSetPremove: (NormalMove? move, {bool? shouldPromote}) {
+                premove: premoveData,
+                onSetPremove: (NormalMove move) {
                   setState(() {
-                    premove = move;
+                    premoveData = move;
+                  });
+                },
+                onUnsetPremove: () {
+                  setState(() {
+                    premoveData = null;
                   });
                 },
               ),

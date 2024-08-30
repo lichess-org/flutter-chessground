@@ -10,7 +10,7 @@
 - Fix: ensure the board background does not overflow the board.
 
 ### Breaking changes:
-- `Chessboard` now require a `gameState` parameter of type `GameState` instead
+- `Chessboard` now require a `game` parameter of type `GameData` instead
   of `BoardData`.
 - Added required parameters `piece` and `pieceAssets` to `PieceShape`, removed `role`. Added optional
   `opacity` parameter.

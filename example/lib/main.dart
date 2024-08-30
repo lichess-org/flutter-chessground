@@ -312,7 +312,7 @@ class _HomePageState extends State<HomePage> {
             opponentsPiecesUpsideDown: playMode == Mode.freePlay,
             fen: fen,
             lastMove: lastMove,
-            game: GameState(
+            game: GameData(
               playerSide:
                   (playMode == Mode.botPlay || playMode == Mode.inputMove)
                       ? PlayerSide.white
@@ -329,6 +329,11 @@ class _HomePageState extends State<HomePage> {
               onPromotionCancel: _onPromotionCancel,
               premovable: (
                 onSetPremove: _onSetPremove,
+                onUnsetPremove: () {
+                  setState(() {
+                    premove = null;
+                  });
+                },
                 premove: premove,
               ),
             ),
@@ -352,7 +357,7 @@ class _HomePageState extends State<HomePage> {
           (premove!.to.rank == Rank.first || premove!.to.rank == Rank.eighth);
       if (!isPawnPromotion) {
         Timer.run(() {
-          _playMove(premove!, isPremove: true);
+          _playMove(premove!);
         });
       }
     }
@@ -415,7 +420,7 @@ class _HomePageState extends State<HomePage> {
     super.initState();
   }
 
-  void _onSetPremove(NormalMove? move, {bool? shouldPromote}) {
+  void _onSetPremove(NormalMove move) {
     setState(() {
       premove = move;
     });
@@ -437,10 +442,9 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  void _playMove(NormalMove move,
-      {bool? isDrop, bool? isPremove, bool? shouldPromote}) {
+  void _playMove(NormalMove move, {bool? isDrop, Piece? captured}) {
     lastPos = position;
-    if (shouldPromote == true) {
+    if (isPromotionPawnMove(move)) {
       setState(() {
         promotionMove = move;
       });
@@ -450,18 +454,15 @@ class _HomePageState extends State<HomePage> {
         lastMove = move;
         fen = position.fen;
         validMoves = makeLegalMoves(position);
-        if (isPremove == true) {
-          premove = null;
-        }
         promotionMove = null;
+        premove = null;
       });
     }
   }
 
-  void _onUserMoveAgainstBot(NormalMove move,
-      {bool? isDrop, bool? shouldPromote}) async {
+  void _onUserMoveAgainstBot(NormalMove move, {isDrop, captured}) async {
     lastPos = position;
-    if (shouldPromote == true) {
+    if (isPromotionPawnMove(move)) {
       setState(() {
         promotionMove = move;
       });
@@ -501,5 +502,12 @@ class _HomePageState extends State<HomePage> {
         lastPos = position;
       }
     }
+  }
+
+  bool isPromotionPawnMove(NormalMove move) {
+    return move.promotion == null &&
+        position.board.roleAt(move.from) == Role.pawn &&
+        ((move.to.rank == Rank.first && position.turn == Side.black) ||
+            (move.to.rank == Rank.eighth && position.turn == Side.white));
   }
 }

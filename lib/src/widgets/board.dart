@@ -77,12 +77,12 @@ class Chessboard extends StatefulWidget with ChessboardGeometry {
   final String fen;
 
   /// Last move played, used to highlight corresponding squares.
-  final NormalMove? lastMove;
+  final Move? lastMove;
 
   /// Game state of the board.
   ///
   /// If `null`, the board cannot be interacted with.
-  final GameState? game;
+  final GameData? game;
 
   /// Optional set of [Shape] to be drawn on the board.
   final ISet<Shape>? shapes;
@@ -609,7 +609,7 @@ class _BoardState extends State<Chessboard> {
     // - cancel premove
     // - unselect piece
     else if (widget.game?.premovable?.premove != null) {
-      widget.game?.premovable?.onSetPremove.call(null);
+      widget.game?.premovable?.onUnsetPremove.call();
       setState(() {
         selected = null;
         _premoveDests = null;
@@ -692,12 +692,12 @@ class _BoardState extends State<Chessboard> {
         final couldMove = _tryMoveOrPremoveTo(square, drop: true);
         // if the premove was not possible, cancel the current premove
         if (!couldMove && widget.game?.premovable?.premove != null) {
-          widget.game?.premovable?.onSetPremove.call(null);
+          widget.game?.premovable?.onUnsetPremove.call();
         }
       }
       // if the user drags a piece to an empty square, cancel the premove
       else if (widget.game?.premovable?.premove != null) {
-        widget.game?.premovable?.onSetPremove.call(null);
+        widget.game?.premovable?.onUnsetPremove.call();
       }
       _onDragEnd();
       setState(() {
@@ -720,7 +720,7 @@ class _BoardState extends State<Chessboard> {
         widget.game?.premovable?.premove != null &&
         widget.game?.premovable?.premove!.from == square) {
       _shouldCancelPremoveOnTapUp = false;
-      widget.game?.premovable?.onSetPremove.call(null);
+      widget.game?.premovable?.onUnsetPremove.call();
     }
 
     _shouldDeselectOnTapUp = false;
@@ -873,10 +873,12 @@ class _BoardState extends State<Chessboard> {
       }
       if (_isPromoMove(selectedPiece, square)) {
         if (widget.settings.autoQueenPromotion) {
-          widget.game?.onMove
-              .call(move.withPromotion(Role.queen), isDrop: drop);
+          widget.game?.onMove.call(
+            move.withPromotion(Role.queen),
+            isDrop: drop,
+          );
         } else {
-          widget.game?.onMove.call(move, isDrop: drop, shouldPromote: true);
+          widget.game?.onMove.call(move, isDrop: drop);
         }
       } else {
         widget.game?.onMove.call(move, isDrop: drop);
@@ -889,11 +891,7 @@ class _BoardState extends State<Chessboard> {
           widget.settings.autoQueenPromotionOnPremove && isPromoPremove
               ? NormalMove(from: selected!, to: square, promotion: Role.queen)
               : NormalMove(from: selected!, to: square);
-      widget.game?.premovable?.onSetPremove.call(
-        premove,
-        shouldPromote:
-            !widget.settings.autoQueenPromotionOnPremove && isPromoPremove,
-      );
+      widget.game?.premovable?.onSetPremove.call(premove);
       return true;
     }
     return false;

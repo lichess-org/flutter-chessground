@@ -19,11 +19,13 @@ enum PlayerSide {
   black;
 }
 
-/// State of a game in an interactive chessboard.
+/// Game data for an interactive chessboard.
+///
+/// This is used to control the state of the chessboard and to provide callbacks for user interactions.
 @immutable
-class GameState {
-  /// Creates a new game state.
-  const GameState({
+class GameData {
+  /// Creates a new [GameData] with the provided values.
+  const GameData({
     required this.playerSide,
     required this.sideToMove,
     required this.validMoves,
@@ -54,10 +56,10 @@ class GameState {
 
   /// Callback called after a move has been made.
   ///
-  /// If the move is a pawn move that should trigger a promotion, `shouldPromote` will be true.
-  ///
   /// If the move has been made with drag and drop, `isDrop` will be true.
-  final void Function(NormalMove, {bool? isDrop, bool? shouldPromote}) onMove;
+  ///
+  /// If a piece has been captured, `captured` will be the captured piece.
+  final void Function(NormalMove, {bool? isDrop, Piece? captured}) onMove;
 
   /// Callback called after a piece has been selected for promotion.
   ///
@@ -82,13 +84,11 @@ typedef Premovable = ({
   /// Chessground will not play the premove automatically, it is up to the library user to play it.
   NormalMove? premove,
 
-  /// Callback called after a premove has been set/unset.
-  ///
-  /// If the callback is null, the board will not allow premoves.
-  ///
-  /// If the premove is a pawn move that should trigger a promotion, `shouldPromote`
-  /// will be true. This is useful to show a promotion selector to the user.
-  void Function(NormalMove?, {bool? shouldPromote}) onSetPremove,
+  /// Callback called after a premove has been set.
+  void Function(NormalMove) onSetPremove,
+
+  /// Callback called after a premove has been unset.
+  void Function() onUnsetPremove,
 });
 
 /// Describes a set of piece assets.
