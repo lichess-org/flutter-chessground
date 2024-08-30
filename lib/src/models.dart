@@ -30,7 +30,7 @@ class GameState {
     required this.onMove,
     required this.onPromotionSelect,
     required this.onPromotionCancel,
-    this.promotionMove,
+    required this.promotionMove,
     this.isCheck,
     this.premovable,
   });
@@ -43,7 +43,7 @@ class GameState {
 
   /// A pawn move that should be promoted.
   ///
-  /// Setting this will show a promotion dialog.
+  /// Will show a promotion dialog if not null.
   final NormalMove? promotionMove;
 
   /// Highlight the king of current side to move

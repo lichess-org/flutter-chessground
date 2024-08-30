@@ -279,7 +279,8 @@ class _BoardState extends State<Chessboard> {
         ),
       for (final entry in pieces.entries)
         if (!translatingPieces.containsKey(entry.key) &&
-            entry.key != _draggedPieceSquare)
+            entry.key != _draggedPieceSquare &&
+            entry.key != widget.game?.promotionMove?.from)
           PositionedSquare(
             key: ValueKey('${entry.key.name}-${entry.value}'),
             size: widget.size,

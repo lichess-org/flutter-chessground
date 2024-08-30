@@ -496,8 +496,8 @@ void main() {
       await tester.pump();
       expect(find.byType(PromotionSelector), findsOneWidget);
 
-      // pawn is still on the seventh rank
-      expect(find.byKey(const Key('f7-whitepawn')), findsOneWidget);
+      // promotion pawn is not visible
+      expect(find.byKey(const Key('f7-whitepawn')), findsNothing);
 
       // tap on the knight
       await tester.tapAt(squareOffset(Square.f7));
@@ -896,8 +896,7 @@ void main() {
       expect(find.byKey(const Key('g7-premove')), findsNothing);
       expect(find.byKey(const Key('g8-premove')), findsNothing);
 
-      // pawn is on the last rank
-      expect(find.byKey(const Key('g8-whitepawn')), findsOneWidget);
+      // promotion pawn is not visible
       expect(find.byKey(const Key('g7-whitepawn')), findsNothing);
 
       // select knight
@@ -909,6 +908,44 @@ void main() {
 
       // wait for other opponent move to be played
       await tester.pump(const Duration(milliseconds: 200));
+    });
+
+    testWidgets('cancel a premove promotion', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        buildBoard(
+          settings: const ChessboardSettings(
+            autoQueenPromotionOnPremove: false,
+            animationDuration: Duration.zero,
+          ),
+          initialPlayerSide: PlayerSide.white,
+          initialFen: '8/5P2/2RK2P1/8/4k3/8/8/8 w - - 0 1',
+          shouldPlayOpponentMove: true,
+        ),
+      );
+
+      await makeMove(tester, Square.g6, Square.g7);
+      await makeMove(tester, Square.g7, Square.g8);
+      expect(find.byKey(const Key('g7-premove')), findsOneWidget);
+      expect(find.byKey(const Key('g8-premove')), findsOneWidget);
+
+      // wait for opponent move to be played
+      await tester.pump(const Duration(milliseconds: 200));
+
+      // promotion dialog is shown
+      expect(find.byType(PromotionSelector), findsOneWidget);
+
+      // premove highlight are not shown anymore
+      expect(find.byKey(const Key('g7-premove')), findsNothing);
+      expect(find.byKey(const Key('g8-premove')), findsNothing);
+
+      // cancel promotion dialog
+      await tester.tapAt(squareOffset(Square.c3));
+      await tester.pump();
+
+      // promotion dialog is closed
+      expect(find.byType(PromotionSelector), findsNothing);
+
+      expect(find.byKey(const Key('g7-whitepawn')), findsOneWidget);
     });
   });
 
@@ -1264,6 +1301,11 @@ Widget buildBoard({
                             position = position.playUnchecked(premove!);
                             premove = null;
                           });
+                        });
+                      } else {
+                        setState(() {
+                          promotionMove = premove;
+                          premove = null;
                         });
                       }
                     }
