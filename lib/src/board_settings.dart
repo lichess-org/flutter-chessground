@@ -17,6 +17,18 @@ enum PieceShiftMethod {
   either;
 }
 
+/// Describes how pieces on the board are oriented.
+enum PieceOrientationBehavior {
+  /// Pieces are always facing user (the default).
+  facingUser,
+
+  /// Opponent's pieces are upside down, for over the board play face to face.
+  opponentUpsideDown,
+
+  /// Piece orientation matches side to play, for over the board play where each user grabs the device in turn.
+  sideToPlay,
+}
+
 /// Board settings that controls visual aspects and behavior of the board.
 ///
 /// This is meant for fixed settings that don't change during a game. Sensible
@@ -37,6 +49,7 @@ class ChessboardSettings {
     this.blindfoldMode = false,
     this.dragFeedbackScale = 2.0,
     this.dragFeedbackOffset = const Offset(0.0, -1.0),
+    this.pieceOrientationBehavior = PieceOrientationBehavior.facingUser,
 
     // shape drawing
     this.drawShape = const DrawShapeOptions(),
@@ -81,6 +94,9 @@ class ChessboardSettings {
   // Offset for the piece currently under drag
   final Offset dragFeedbackOffset;
 
+  /// Controls if any pieces are displayed upside down.
+  final PieceOrientationBehavior pieceOrientationBehavior;
+
   /// Whether castling is enabled with a premove.
   final bool enablePremoveCastling;
 
@@ -118,6 +134,7 @@ class ChessboardSettings {
         other.blindfoldMode == blindfoldMode &&
         other.dragFeedbackScale == dragFeedbackScale &&
         other.dragFeedbackOffset == dragFeedbackOffset &&
+        other.pieceOrientationBehavior == pieceOrientationBehavior &&
         other.enablePremoveCastling == enablePremoveCastling &&
         other.autoQueenPromotion == autoQueenPromotion &&
         other.autoQueenPromotionOnPremove == autoQueenPromotionOnPremove &&
@@ -138,6 +155,7 @@ class ChessboardSettings {
         blindfoldMode,
         dragFeedbackScale,
         dragFeedbackOffset,
+        pieceOrientationBehavior,
         enablePremoveCastling,
         autoQueenPromotion,
         autoQueenPromotionOnPremove,
@@ -157,6 +175,7 @@ class ChessboardSettings {
     bool? blindfoldMode,
     double? dragFeedbackScale,
     Offset? dragFeedbackOffset,
+    PieceOrientationBehavior? pieceOrientationBehavior,
     bool? enablePremoveCastling,
     bool? autoQueenPromotion,
     bool? autoQueenPromotionOnPremove,
@@ -175,6 +194,8 @@ class ChessboardSettings {
       blindfoldMode: blindfoldMode ?? this.blindfoldMode,
       dragFeedbackScale: dragFeedbackScale ?? this.dragFeedbackScale,
       dragFeedbackOffset: dragFeedbackOffset ?? this.dragFeedbackOffset,
+      pieceOrientationBehavior:
+          pieceOrientationBehavior ?? this.pieceOrientationBehavior,
       enablePremoveCastling:
           enablePremoveCastling ?? this.enablePremoveCastling,
       autoQueenPromotionOnPremove:

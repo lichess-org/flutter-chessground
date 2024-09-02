@@ -1,4 +1,3 @@
-import 'package:chessground/chessground.dart';
 import 'package:chessground/src/widgets/geometry.dart';
 import 'package:dartchess/dartchess.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
@@ -7,6 +6,7 @@ import 'package:flutter/widgets.dart';
 import '../board_settings.dart';
 import '../models.dart';
 import '../fen.dart';
+import 'highlight.dart';
 import 'piece.dart';
 import 'positioned_square.dart';
 

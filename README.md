@@ -28,11 +28,13 @@ This package exports a `Chessboard` widget which can be interactable or not.
 It is configurable with a `ChessboardSettings` object which defines the board
 behavior and appearance.
 
-You must provide a `ChessboardState` object to the `Chessboard` widget. This
-object is immutable and contains the board state (the position, which side has
-to move, etc.).
+To interact with the board in order to play a game, you must provide a `GameData`
+object to the `Chessboard` widget. This object is immutable and contains the game
+state (which side is to move, the current valid moves, etc.), along with the
+callback functions to handle user interactions.
+
 All chess logic must be handled outside of this package. Any change in the state
-of the game needs to be transferred to the board by creating a new `ChessboardState` object.
+of the game needs to be transferred to the board by creating a new `GameData` object.
 
 ## Usage
 
@@ -62,13 +64,10 @@ class _MyHomePageState extends State<MyHomePage> {
         title: const Text('Chessground demo'),
       ),
       body: Center(
-        child: Chessboard(
+        child: Chessboard.fixed(
           size: screenWidth,
-          state: ChessboardState(
-            interactableSide: InteractableSide.none,
-            orientation: Side.white,
-            fen: fen,
-          ),
+          orientation: Side.white,
+          fen: fen,
         ),
       ),
     );

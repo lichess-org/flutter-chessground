@@ -1,11 +1,23 @@
-## 4.1.0
+## 5.0.0
 
+- Added another `Chessboard.fixed` constructor that allows to set the board to a
+  fixed position.
+- Premove state is now lifted up to the parent widget, in order to allow
+  instant play of premoves.
+- Promotion state is now lifted up to the parent widget, in order to allow more
+  control over the promotion dialog.
 - Add symmetric piece set (`PieceAssets.symmetric`).
 - `ChessboardEditor` now supports highlighting squares.
+- Flip `BoardSettings.dragFeedbackOffset.dy` for flipped pieces.
+  Support displaying all pieces upside down based on side to move.
+- Fix: ensure the board background does not overflow the board.
 
 ### Breaking changes:
+- `Chessboard` now require a `game` parameter of type `GameData` instead
+  of `BoardData`.
 - Added required parameters `piece` and `pieceAssets` to `PieceShape`, removed `role`. Added optional
   `opacity` parameter.
+- Remove 'ChessboardState.opponentsPiecesUpsideDown' in favor of `ChessboardSettings.pieceOrientationBehavior`.
 
 ## 4.0.0
 
