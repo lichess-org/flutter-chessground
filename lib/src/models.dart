@@ -57,13 +57,9 @@ class GameData {
   /// Callback called after a move has been made.
   ///
   /// If the move has been made with drag and drop, `isDrop` will be true.
-  ///
-  /// If a piece has been captured, `captured` will be the captured piece.
-  final void Function(NormalMove, {bool? isDrop, Piece? captured}) onMove;
+  final void Function(NormalMove, {bool? isDrop}) onMove;
 
   /// Callback called after a piece has been selected for promotion.
-  ///
-  /// The move is guaranteed to be a promotion move.
   final void Function(Role) onPromotionSelect;
 
   /// Callback called after a promotion has been canceled.

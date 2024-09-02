@@ -437,7 +437,7 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  void _playMove(NormalMove move, {bool? isDrop, Piece? captured}) {
+  void _playMove(NormalMove move, {bool? isDrop}) {
     lastPos = position;
     if (isPromotionPawnMove(move)) {
       setState(() {
@@ -455,7 +455,7 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  void _onUserMoveAgainstBot(NormalMove move, {isDrop, captured}) async {
+  void _onUserMoveAgainstBot(NormalMove move, {isDrop}) async {
     lastPos = position;
     if (isPromotionPawnMove(move)) {
       setState(() {

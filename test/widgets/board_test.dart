@@ -1270,7 +1270,7 @@ Widget buildBoard({
               sideToMove: position.turn == Side.white ? Side.white : Side.black,
               validMoves: makeLegalMoves(position),
               promotionMove: promotionMove,
-              onMove: (NormalMove move, {isDrop, captured}) {
+              onMove: (NormalMove move, {isDrop}) {
                 setState(() {
                   if (isPromotionPawnMove(move)) {
                     promotionMove = move;
