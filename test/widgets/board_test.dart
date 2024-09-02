@@ -1195,12 +1195,115 @@ void main() {
       expect(find.byType(ShapeWidget), findsNothing);
     });
   });
+
+  group('piece orientation behavior', () {
+    void checkUpsideDownPieces(
+      WidgetTester tester, {
+      required bool expectWhiteUpsideDown,
+      required bool expectBlackUpsideDown,
+    }) {
+      final pieceWidgets =
+          tester.widgetList<PieceWidget>(find.byType(PieceWidget));
+      expect(pieceWidgets, hasLength(32));
+      for (final pieceWidget in pieceWidgets) {
+        if (pieceWidget.piece.color == Side.white) {
+          expect(pieceWidget.upsideDown, expectWhiteUpsideDown);
+        } else {
+          expect(pieceWidget.upsideDown, expectBlackUpsideDown);
+        }
+      }
+    }
+
+    testWidgets('default', (WidgetTester tester) async {
+      for (final orientation in Side.values) {
+        await tester.pumpWidget(
+          buildBoard(
+            initialInteractableSide: InteractableSide.both,
+            orientation: orientation,
+          ),
+        );
+
+        checkUpsideDownPieces(
+          tester,
+          expectWhiteUpsideDown: false,
+          expectBlackUpsideDown: false,
+        );
+
+        await makeMove(tester, Square.e2, Square.e4);
+
+        checkUpsideDownPieces(
+          tester,
+          expectWhiteUpsideDown: false,
+          expectBlackUpsideDown: false,
+        );
+      }
+    });
+
+    testWidgets('opponent upside down', (WidgetTester tester) async {
+      for (final orientation in Side.values) {
+        await tester.pumpWidget(
+          buildBoard(
+            initialInteractableSide: InteractableSide.both,
+            orientation: orientation,
+            settings: const ChessboardSettings(
+              pieceOrientationBehavior:
+                  PieceOrientationBehavior.opponentUpsideDown,
+            ),
+          ),
+        );
+
+        checkUpsideDownPieces(
+          tester,
+          expectWhiteUpsideDown: orientation != Side.white,
+          expectBlackUpsideDown: orientation == Side.white,
+        );
+
+        await makeMove(tester, Square.e2, Square.e4);
+
+        checkUpsideDownPieces(
+          tester,
+          expectWhiteUpsideDown: orientation != Side.white,
+          expectBlackUpsideDown: orientation == Side.white,
+        );
+      }
+    });
+
+    testWidgets('side to play', (WidgetTester tester) async {
+      for (final orientation in Side.values) {
+        await tester.pumpWidget(
+          buildBoard(
+            initialInteractableSide: InteractableSide.both,
+            orientation: orientation,
+            settings: const ChessboardSettings(
+              pieceOrientationBehavior: PieceOrientationBehavior.sideToPlay,
+            ),
+          ),
+        );
+
+        checkUpsideDownPieces(
+          tester,
+          expectWhiteUpsideDown: orientation != Side.white,
+          expectBlackUpsideDown: orientation != Side.white,
+        );
+
+        await makeMove(tester, Square.e2, Square.e4);
+
+        checkUpsideDownPieces(
+          tester,
+          expectWhiteUpsideDown: orientation == Side.white,
+          expectBlackUpsideDown: orientation == Side.white,
+        );
+      }
+    });
+  });
 }
 
 Future<void> makeMove(WidgetTester tester, Square from, Square to) async {
-  await tester.tapAt(squareOffset(from));
+  final orientation =
+      tester.widget<Chessboard>(find.byType(Chessboard)).state.orientation;
+  await tester.tapAt(squareOffset(from, orientation: orientation));
   await tester.pump();
-  await tester.tapAt(squareOffset(to));
+  await tester.tapAt(squareOffset(to, orientation: orientation));
   await tester.pump();
 }
 

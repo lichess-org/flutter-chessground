@@ -7,6 +7,8 @@
 - Promotion state is now lifted up to the parent widget, in order to allow more
   control over the promotion dialog.
 - `ChessboardEditor` now supports highlighting squares.
+- Flip `BoardSettings.dragFeedbackOffset.dy` for flipped pieces.
+  Support displaying all pieces upside down based on side to move.
 - Fix: ensure the board background does not overflow the board.
 
 ### Breaking changes:
@@ -14,6 +16,7 @@
   of `BoardData`.
 - Added required parameters `piece` and `pieceAssets` to `PieceShape`, removed `role`. Added optional
   `opacity` parameter.
+- Remove 'ChessboardState.opponentsPiecesUpsideDown' in favor of `ChessboardSettings.pieceOrientationBehavior`.
 
 ## 4.0.0
 
