@@ -824,7 +824,7 @@ class _BoardState extends State<Chessboard> {
   /// widget settings.
   bool _isUpsideDown(Side pieceColor) =>
       switch (widget.settings.pieceOrientationBehavior) {
-        PieceOrientationBehavior.default_ => false,
+        PieceOrientationBehavior.facingUser => false,
         PieceOrientationBehavior.opponentUpsideDown =>
           pieceColor == widget.orientation.opposite,
         PieceOrientationBehavior.sideToPlay =>

@@ -1214,11 +1214,14 @@ void main() {
       }
     }
 
-    testWidgets('default', (WidgetTester tester) async {
+    testWidgets('facing user', (WidgetTester tester) async {
       for (final orientation in Side.values) {
         await tester.pumpWidget(
           buildBoard(
-            initialInteractableSide: InteractableSide.both,
+            settings: const ChessboardSettings(
+              animationDuration: Duration.zero,
+            ),
+            initialPlayerSide: PlayerSide.both,
             orientation: orientation,
           ),
         );
@@ -1243,9 +1246,10 @@ void main() {
       for (final orientation in Side.values) {
         await tester.pumpWidget(
           buildBoard(
-            initialInteractableSide: InteractableSide.both,
+            initialPlayerSide: PlayerSide.both,
             orientation: orientation,
             settings: const ChessboardSettings(
+              animationDuration: Duration.zero,
               pieceOrientationBehavior:
                   PieceOrientationBehavior.opponentUpsideDown,
             ),
@@ -1272,9 +1276,10 @@ void main() {
       for (final orientation in Side.values) {
         await tester.pumpWidget(
           buildBoard(
-            initialInteractableSide: InteractableSide.both,
+            initialPlayerSide: PlayerSide.both,
             orientation: orientation,
             settings: const ChessboardSettings(
+              animationDuration: Duration.zero,
               pieceOrientationBehavior: PieceOrientationBehavior.sideToPlay,
             ),
           ),
@@ -1300,7 +1305,7 @@ void main() {
 
 Future<void> makeMove(WidgetTester tester, Square from, Square to) async {
   final orientation =
-      tester.widget<Chessboard>(find.byType(Chessboard)).state.orientation;
+      tester.widget<Chessboard>(find.byType(Chessboard)).orientation;
   await tester.tapAt(squareOffset(from, orientation: orientation));
   await tester.pump();
   await tester.tapAt(squareOffset(to, orientation: orientation));

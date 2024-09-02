@@ -19,13 +19,13 @@ enum PieceShiftMethod {
 
 /// Describes how pieces on the board are oriented.
 enum PieceOrientationBehavior {
-  /// Pieces are always facing user
-  default_,
+  /// Pieces are always facing user (the default).
+  facingUser,
 
   /// Opponent's pieces are upside down, for over the board play face to face.
   opponentUpsideDown,
 
-  /// Piece orientation matches side to play, for over the board play where each user grabs the device in turn
+  /// Piece orientation matches side to play, for over the board play where each user grabs the device in turn.
   sideToPlay,
 }
 
@@ -49,7 +49,7 @@ class ChessboardSettings {
     this.blindfoldMode = false,
     this.dragFeedbackScale = 2.0,
     this.dragFeedbackOffset = const Offset(0.0, -1.0),
-    this.pieceOrientationBehavior = PieceOrientationBehavior.default_,
+    this.pieceOrientationBehavior = PieceOrientationBehavior.facingUser,
 
     // shape drawing
     this.drawShape = const DrawShapeOptions(),

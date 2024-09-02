@@ -309,7 +309,7 @@ class _HomePageState extends State<HomePage> {
               autoQueenPromotionOnPremove: false,
               pieceOrientationBehavior: playMode == Mode.freePlay
                   ? PieceOrientationBehavior.opponentUpsideDown
-                  : PieceOrientationBehavior.default_,
+                  : PieceOrientationBehavior.facingUser,
             ),
             orientation: orientation,
             fen: fen,
