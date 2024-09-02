@@ -6,6 +6,7 @@
   instant play of premoves.
 - Promotion state is now lifted up to the parent widget, in order to allow more
   control over the promotion dialog.
+- Add symmetric piece set (`PieceAssets.symmetric`).
 - `ChessboardEditor` now supports highlighting squares.
 - Flip `BoardSettings.dragFeedbackOffset.dy` for flipped pieces.
   Support displaying all pieces upside down based on side to move.

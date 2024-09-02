@@ -56,5 +56,6 @@ flutter:
     - assets/piece_sets/shapes/
     - assets/piece_sets/spatial/
     - assets/piece_sets/staunty/
+    - assets/piece_sets/symmetric/
     - assets/piece_sets/tatiana/
     - assets/boards/
