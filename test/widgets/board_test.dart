@@ -1329,14 +1329,9 @@ Widget buildBoard({
               },
               premovable: (
                 premove: premoveData,
-                onSetPremove: (NormalMove move) {
+                onSetPremove: (NormalMove? move) {
                   setState(() {
                     premoveData = move;
-                  });
-                },
-                onUnsetPremove: () {
-                  setState(() {
-                    premoveData = null;
                   });
                 },
               ),

@@ -609,7 +609,7 @@ class _BoardState extends State<Chessboard> {
     // - cancel premove
     // - unselect piece
     else if (widget.game?.premovable?.premove != null) {
-      widget.game?.premovable?.onUnsetPremove.call();
+      widget.game?.premovable?.onSetPremove.call(null);
       setState(() {
         selected = null;
         _premoveDests = null;
@@ -692,12 +692,12 @@ class _BoardState extends State<Chessboard> {
         final couldMove = _tryMoveOrPremoveTo(square, drop: true);
         // if the premove was not possible, cancel the current premove
         if (!couldMove && widget.game?.premovable?.premove != null) {
-          widget.game?.premovable?.onUnsetPremove.call();
+          widget.game?.premovable?.onSetPremove.call(null);
         }
       }
       // if the user drags a piece to an empty square, cancel the premove
       else if (widget.game?.premovable?.premove != null) {
-        widget.game?.premovable?.onUnsetPremove.call();
+        widget.game?.premovable?.onSetPremove.call(null);
       }
       _onDragEnd();
       setState(() {
@@ -720,7 +720,7 @@ class _BoardState extends State<Chessboard> {
         widget.game?.premovable?.premove != null &&
         widget.game?.premovable?.premove!.from == square) {
       _shouldCancelPremoveOnTapUp = false;
-      widget.game?.premovable?.onUnsetPremove.call();
+      widget.game?.premovable?.onSetPremove.call(null);
     }
 
     _shouldDeselectOnTapUp = false;

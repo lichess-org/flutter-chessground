@@ -329,11 +329,6 @@ class _HomePageState extends State<HomePage> {
               onPromotionCancel: _onPromotionCancel,
               premovable: (
                 onSetPremove: _onSetPremove,
-                onUnsetPremove: () {
-                  setState(() {
-                    premove = null;
-                  });
-                },
                 premove: premove,
               ),
             ),
@@ -420,7 +415,7 @@ class _HomePageState extends State<HomePage> {
     super.initState();
   }
 
-  void _onSetPremove(NormalMove move) {
+  void _onSetPremove(NormalMove? move) {
     setState(() {
       premove = move;
     });

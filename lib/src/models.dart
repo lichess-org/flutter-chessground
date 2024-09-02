@@ -84,11 +84,10 @@ typedef Premovable = ({
   /// Chessground will not play the premove automatically, it is up to the library user to play it.
   NormalMove? premove,
 
-  /// Callback called after a premove has been set.
-  void Function(NormalMove) onSetPremove,
-
-  /// Callback called after a premove has been unset.
-  void Function() onUnsetPremove,
+  /// Callback called after a premove has been set/unset.
+  ///
+  /// If `null`, the premove will be unset.
+  void Function(NormalMove?) onSetPremove,
 });
 
 /// Describes a set of piece assets.
