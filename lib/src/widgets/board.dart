@@ -269,7 +269,7 @@ class _BoardState extends State<Chessboard> {
             size: widget.squareSize,
             pieceAssets: widget.settings.pieceAssets,
             blindfoldMode: widget.settings.blindfoldMode,
-            upsideDown: _isUpsideDown(entry.value),
+            upsideDown: _isUpsideDown(entry.value.color),
             onComplete: () {
               setState(() {
                 fadingPieces.remove(entry.key);
@@ -291,7 +291,7 @@ class _BoardState extends State<Chessboard> {
               size: widget.squareSize,
               pieceAssets: widget.settings.pieceAssets,
               blindfoldMode: widget.settings.blindfoldMode,
-              upsideDown: _isUpsideDown(entry.value),
+              upsideDown: _isUpsideDown(entry.value.color),
             ),
           ),
       for (final entry in translatingPieces.entries)
@@ -315,7 +315,7 @@ class _BoardState extends State<Chessboard> {
               size: widget.squareSize,
               pieceAssets: widget.settings.pieceAssets,
               blindfoldMode: widget.settings.blindfoldMode,
-              upsideDown: _isUpsideDown(entry.value.piece),
+              upsideDown: _isUpsideDown(entry.value.piece.color),
             ),
           ),
         ),
@@ -378,8 +378,7 @@ class _BoardState extends State<Chessboard> {
                 size: widget.size,
                 color: widget.game!.sideToMove,
                 orientation: widget.orientation,
-                piecesUpsideDown: widget.opponentsPiecesUpsideDown &&
-                    widget.game?.sideToMove != widget.orientation,
+                piecesUpsideDown: _isUpsideDown(widget.game!.sideToMove),
                 onSelect: widget.game!.onPromotionSelection,
                 onCancel: () {
                   widget.game!.onPromotionSelection(null);
@@ -767,6 +766,10 @@ class _BoardState extends State<Chessboard> {
         _draggedPieceSquare = square;
       });
       _renderBox ??= context.findRenderObject()! as RenderBox;
+
+      final dragFeedbackOffsetY = (_isUpsideDown(piece.color) ? -1 : 1) *
+          widget.settings.dragFeedbackOffset.dy;
+
       _dragAvatar = _DragAvatar(
         overlayState: Overlay.of(context, debugRequiredFor: widget),
         initialPosition: origin.position,
@@ -783,14 +786,14 @@ class _BoardState extends State<Chessboard> {
         pieceFeedback: Transform.translate(
           offset: Offset(
             ((widget.settings.dragFeedbackOffset.dx - 1) * feedbackSize) / 2,
-            ((widget.settings.dragFeedbackOffset.dy - 1) * feedbackSize) / 2,
+            ((dragFeedbackOffsetY - 1) * feedbackSize) / 2,
           ),
           child: PieceWidget(
             piece: piece,
             size: feedbackSize,
             pieceAssets: widget.settings.pieceAssets,
             blindfoldMode: widget.settings.blindfoldMode,
-            upsideDown: _isUpsideDown(piece),
+            upsideDown: _isUpsideDown(piece.color),
           ),
         ),
       );
@@ -817,12 +820,16 @@ class _BoardState extends State<Chessboard> {
     _shouldCancelPremoveOnTapUp = false;
   }
 
-  /// Whether the piece should be displayed upside down, according to the
+  /// Whether the piece with this color should be displayed upside down, according to the
   /// widget settings.
-  bool _isUpsideDown(Piece piece) {
-    return widget.opponentsPiecesUpsideDown &&
-        piece.color != widget.orientation;
-  }
+  bool _isUpsideDown(Side pieceColor) =>
+      switch (widget.settings.pieceOrientationBehavior) {
+        PieceOrientationBehavior.facingUser => false,
+        PieceOrientationBehavior.opponentUpsideDown =>
+          pieceColor == widget.orientation.opposite,
+        PieceOrientationBehavior.sideToPlay =>
+          widget.game?.sideToMove == widget.orientation.opposite,
+      };
 
   /// Whether the piece is movable by the current side to move.
   bool _isMovable(Piece? piece) {

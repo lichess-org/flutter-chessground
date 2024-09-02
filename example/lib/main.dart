@@ -307,9 +307,11 @@ class _HomePageState extends State<HomePage> {
               ),
               pieceShiftMethod: pieceShiftMethod,
               autoQueenPromotionOnPremove: false,
+              pieceOrientationBehavior: playMode == Mode.freePlay
+                  ? PieceOrientationBehavior.opponentUpsideDown
+                  : PieceOrientationBehavior.facingUser,
             ),
             orientation: orientation,
-            opponentsPiecesUpsideDown: playMode == Mode.freePlay,
             fen: fen,
             lastMove: lastMove,
             game: GameData(
