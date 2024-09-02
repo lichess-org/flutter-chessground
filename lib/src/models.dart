@@ -29,10 +29,9 @@ class GameData {
     required this.playerSide,
     required this.sideToMove,
     required this.validMoves,
-    required this.onMove,
-    required this.onPromotionSelect,
-    required this.onPromotionCancel,
     required this.promotionMove,
+    required this.onMove,
+    required this.onPromotionSelection,
     this.isCheck,
     this.premovable,
   });
@@ -60,10 +59,9 @@ class GameData {
   final void Function(NormalMove, {bool? isDrop}) onMove;
 
   /// Callback called after a piece has been selected for promotion.
-  final void Function(Role) onPromotionSelect;
-
-  /// Callback called after a promotion has been canceled.
-  final void Function() onPromotionCancel;
+  ///
+  /// If the argument is `null`, the promotion should be canceled.
+  final void Function(Role? role) onPromotionSelection;
 
   /// Optional premovable state of the board.
   ///

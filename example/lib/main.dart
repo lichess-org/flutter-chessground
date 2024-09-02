@@ -325,8 +325,7 @@ class _HomePageState extends State<HomePage> {
               promotionMove: promotionMove,
               onMove:
                   playMode == Mode.botPlay ? _onUserMoveAgainstBot : _playMove,
-              onPromotionSelect: _onPromotionSelect,
-              onPromotionCancel: _onPromotionCancel,
+              onPromotionSelection: _onPromotionSelection,
               premovable: (
                 onSetPremove: _onSetPremove,
                 premove: premove,
@@ -421,8 +420,10 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  void _onPromotionSelect(Role role) {
-    if (promotionMove != null) {
+  void _onPromotionSelection(Role? role) {
+    if (role == null) {
+      _onPromotionCancel();
+    } else if (promotionMove != null) {
       if (playMode == Mode.botPlay) {
         _onUserMoveAgainstBot(promotionMove!.withPromotion(role));
       } else {

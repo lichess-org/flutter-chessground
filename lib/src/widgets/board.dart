@@ -371,7 +371,7 @@ class _BoardState extends State<Chessboard> {
             else
               ...highlightedBackground,
             ...objects,
-            if (widget.game != null && widget.game?.promotionMove != null)
+            if (widget.game?.promotionMove != null)
               PromotionSelector(
                 pieceAssets: widget.settings.pieceAssets,
                 move: widget.game!.promotionMove!,
@@ -380,8 +380,10 @@ class _BoardState extends State<Chessboard> {
                 orientation: widget.orientation,
                 piecesUpsideDown: widget.opponentsPiecesUpsideDown &&
                     widget.game?.sideToMove != widget.orientation,
-                onSelect: widget.game!.onPromotionSelect,
-                onCancel: widget.game!.onPromotionCancel,
+                onSelect: widget.game!.onPromotionSelection,
+                onCancel: () {
+                  widget.game!.onPromotionSelection(null);
+                },
               ),
           ],
         ),

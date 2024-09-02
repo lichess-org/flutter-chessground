@@ -1316,14 +1316,11 @@ Widget buildBoard({
                   });
                 }
               },
-              onPromotionSelect: (Role role) {
+              onPromotionSelection: (Role? role) {
                 setState(() {
-                  playMove(promotionMove!.withPromotion(role));
-                  promotionMove = null;
-                });
-              },
-              onPromotionCancel: () {
-                setState(() {
+                  if (role != null) {
+                    playMove(promotionMove!.withPromotion(role));
+                  }
                   promotionMove = null;
                 });
               },
