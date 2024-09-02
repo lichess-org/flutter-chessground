@@ -42,10 +42,10 @@ class PromotionSelector extends StatelessWidget with ChessboardGeometry {
   final bool piecesUpsideDown;
 
   /// Callback when a piece is selected.
-  final void Function(NormalMove, Piece) onSelect;
+  final void Function(Role) onSelect;
 
   /// Callback when the promotion is canceled.
-  final void Function(NormalMove) onCancel;
+  final void Function() onCancel;
 
   /// The square the pawn is moving to.
   Square get square => move.to;
@@ -64,7 +64,7 @@ class PromotionSelector extends StatelessWidget with ChessboardGeometry {
     final offset = squareOffset(anchorSquare);
 
     return GestureDetector(
-      onTap: () => onCancel(move),
+      onTap: () => onCancel(),
       child: Container(
         width: double.infinity,
         height: double.infinity,
@@ -100,7 +100,7 @@ class PromotionSelector extends StatelessWidget with ChessboardGeometry {
                   ),
                 ].map((Piece piece) {
                   return GestureDetector(
-                    onTap: () => onSelect(move, piece),
+                    onTap: () => onSelect(piece.role),
                     child: Stack(
                       children: [
                         Container(
