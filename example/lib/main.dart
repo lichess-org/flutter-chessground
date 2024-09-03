@@ -347,15 +347,9 @@ class _HomePageState extends State<HomePage> {
 
   void _tryPlayPremove() {
     if (premove != null) {
-      // if premove autoqueen if off, detect pawn promotion
-      final isPawnPromotion = premove!.promotion == null &&
-          position.board.roleAt(premove!.from) == Role.pawn &&
-          (premove!.to.rank == Rank.first || premove!.to.rank == Rank.eighth);
-      if (!isPawnPromotion) {
-        Timer.run(() {
-          _playMove(premove!);
-        });
-      }
+      Timer.run(() {
+        _playMove(premove!, isPremove: true);
+      });
     }
   }
 
@@ -440,7 +434,7 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  void _playMove(NormalMove move, {bool? isDrop}) {
+  void _playMove(NormalMove move, {bool? isDrop, bool? isPremove}) {
     lastPos = position;
     if (isPromotionPawnMove(move)) {
       setState(() {
@@ -453,7 +447,9 @@ class _HomePageState extends State<HomePage> {
         fen = position.fen;
         validMoves = makeLegalMoves(position);
         promotionMove = null;
-        premove = null;
+        if (isPremove == true) {
+          premove = null;
+        }
       });
     }
   }
