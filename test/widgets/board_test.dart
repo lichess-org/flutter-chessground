@@ -345,6 +345,20 @@ void main() {
       expect(find.byKey(const Key('d2-selected')), findsNothing);
     });
 
+    testWidgets(
+        'dragging an unselected piece to the same square should keep the piece selected',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(
+        buildBoard(initialPlayerSide: PlayerSide.both),
+      );
+      final e2 = squareOffset(Square.e2);
+      await tester.dragFrom(e2, const Offset(0, -(squareSize / 3)));
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('e2-whitepawn')), findsOneWidget);
+      expect(find.byKey(const Key('e2-selected')), findsOneWidget);
+    });
+
     testWidgets('dragging an already selected piece should not deselect it', (
       WidgetTester tester,
     ) async {
@@ -569,7 +583,7 @@ void main() {
 
       await tester.tapAt(squareOffset(Square.b4));
       await tester.pump();
-      expect(find.byKey(const Key('e4-selected')), findsNothing);
+      expect(find.byKey(const Key('f1-selected')), findsNothing);
       expect(find.byType(ValidMoveHighlight), findsNothing);
     });
 
@@ -590,7 +604,7 @@ void main() {
 
       await tester.tapAt(squareOffset(Square.f8));
       await tester.pump();
-      expect(find.byKey(const Key('e4-selected')), findsNothing);
+      expect(find.byKey(const Key('f1-selected')), findsNothing);
       expect(find.byType(ValidMoveHighlight), findsNothing);
     });
 
@@ -611,7 +625,74 @@ void main() {
 
       await tester.tapAt(squareOffset(Square.f1));
       await tester.pump();
-      expect(find.byKey(const Key('e4-selected')), findsNothing);
+      expect(find.byKey(const Key('f1-selected')), findsNothing);
+      expect(find.byType(ValidMoveHighlight), findsNothing);
+    });
+
+    testWidgets(
+        'dragging an unselected piece to the same square should keep the piece selected',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(
+        buildBoard(
+          initialFen:
+              'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
+          initialPlayerSide: PlayerSide.white,
+        ),
+      );
+
+      final f1 = squareOffset(Square.f1);
+      await tester.dragFrom(f1, const Offset(0, -(squareSize / 3)));
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('f1-selected')), findsOneWidget);
+      expect(find.byType(ValidMoveHighlight), findsNWidgets(7));
+    });
+
+    testWidgets('dragging off target unselects', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        buildBoard(
+          initialFen:
+              'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
+          initialPlayerSide: PlayerSide.white,
+        ),
+      );
+
+      await tester.tapAt(squareOffset(Square.f1));
+      await tester.pump();
+      expect(find.byKey(const Key('f1-selected')), findsOneWidget);
+      expect(find.byType(ValidMoveHighlight), findsNWidgets(7));
+
+      await tester.dragFrom(
+        squareOffset(Square.f1),
+        squareOffset(Square.f1) + const Offset(0, -squareSize * 3),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('f1-selected')), findsNothing);
+      expect(find.byType(ValidMoveHighlight), findsNothing);
+    });
+
+    testWidgets('dragging off board unselects', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        buildBoard(
+          initialFen:
+              'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
+          initialPlayerSide: PlayerSide.white,
+        ),
+      );
+
+      await tester.tapAt(squareOffset(Square.f1));
+      await tester.pump();
+      expect(find.byKey(const Key('f1-selected')), findsOneWidget);
+      expect(find.byType(ValidMoveHighlight), findsNWidgets(7));
+
+      await tester.dragFrom(
+        squareOffset(Square.f1),
+        squareOffset(Square.f1) + const Offset(0, -boardSize + squareSize),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('f1-selected')), findsNothing);
       expect(find.byType(ValidMoveHighlight), findsNothing);
     });
 

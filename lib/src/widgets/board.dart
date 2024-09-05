@@ -686,27 +686,36 @@ class _BoardState extends State<Chessboard> {
 
     final square = widget.offsetSquare(details.localPosition);
 
+    // handle pointer up while dragging a piece
     if (_dragAvatar != null) {
-      // if the user drags a piece to a square, try to move the piece to the
-      // target square
-      if (square != null && square != selected) {
-        final couldMove = _tryMoveOrPremoveTo(square, drop: true);
-        // if the premove was not possible, cancel the current premove
-        if (!couldMove && widget.game?.premovable?.premove != null) {
-          widget.game?.premovable?.onSetPremove.call(null);
+      bool shouldDeselect = true;
+
+      if (square != null) {
+        if (square != selected) {
+          final couldMove = _tryMoveOrPremoveTo(square, drop: true);
+          // if the premove was not possible, cancel the current premove
+          if (!couldMove && widget.game?.premovable?.premove != null) {
+            widget.game?.premovable?.onSetPremove.call(null);
+          }
+        } else {
+          shouldDeselect = false;
         }
       }
-      // if the user drags a piece to an empty square, cancel the premove
+      // if the user drags a piece outside the board, cancel the premove
       else if (widget.game?.premovable?.premove != null) {
         widget.game?.premovable?.onSetPremove.call(null);
       }
       _onDragEnd();
       setState(() {
+        if (shouldDeselect) {
+          selected = null;
+          _premoveDests = null;
+        }
         _draggedPieceSquare = null;
-        selected = null;
-        _premoveDests = null;
       });
-    } else if (selected != null) {
+    }
+    // handle pointer up while not dragging a piece
+    else if (selected != null) {
       if (square == selected && _shouldDeselectOnTapUp) {
         _shouldDeselectOnTapUp = false;
         setState(() {
