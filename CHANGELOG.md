@@ -1,3 +1,7 @@
+## 5.1.0
+
+- Dragging a piece to the same square will now keep the piece selected.
+
 ## 5.0.0
 
 - Added another `Chessboard.fixed` constructor that allows to set the board to a
