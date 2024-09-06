@@ -1,3 +1,8 @@
+## 5.1.1
+
+- Reset animation state when the board is updated. This fixes potential issues
+  where the board would display ghost pieces on some conditions.
+
 ## 5.1.0
 
 - Dragging a piece to the same square will now keep the piece selected.
