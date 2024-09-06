@@ -109,10 +109,11 @@ void main() {
       await tester.tapAt(squareOffset(Square.e4));
       await tester.pump();
 
-      expect(find.byKey(const Key('e4-whitepawn-translating')), findsOneWidget);
+      expect(find.byKey(const Key('e4-whitepawn')), findsOneWidget);
       expect(find.byKey(const Key('e2-selected')), findsNothing);
       expect(find.byType(ValidMoveHighlight), findsNothing);
 
+      // wait for the animations to finish
       await tester.pumpAndSettle();
 
       expect(find.byKey(const Key('e4-whitepawn')), findsOneWidget);

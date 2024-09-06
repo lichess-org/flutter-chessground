@@ -271,9 +271,7 @@ class _BoardState extends State<Chessboard> {
             blindfoldMode: widget.settings.blindfoldMode,
             upsideDown: _isUpsideDown(entry.value.color),
             onComplete: () {
-              setState(() {
-                fadingPieces.remove(entry.key);
-              });
+              fadingPieces.remove(entry.key);
             },
           ),
         ),
@@ -296,7 +294,7 @@ class _BoardState extends State<Chessboard> {
           ),
       for (final entry in translatingPieces.entries)
         PositionedSquare(
-          key: ValueKey('${entry.key.name}-${entry.value.piece}-translating'),
+          key: ValueKey('${entry.key.name}-${entry.value.piece}'),
           size: widget.size,
           orientation: widget.orientation,
           square: entry.key,
@@ -306,9 +304,7 @@ class _BoardState extends State<Chessboard> {
             orientation: widget.orientation,
             duration: widget.settings.animationDuration,
             onComplete: () {
-              setState(() {
-                translatingPieces.remove(entry.key);
-              });
+              translatingPieces.remove(entry.key);
             },
             child: PieceWidget(
               piece: entry.value.piece,
@@ -427,6 +423,9 @@ class _BoardState extends State<Chessboard> {
       // as long as the fen is the same as before let's keep animations
       return;
     }
+
+    translatingPieces = {};
+    fadingPieces = {};
 
     final newPieces = readFen(widget.fen);
 
