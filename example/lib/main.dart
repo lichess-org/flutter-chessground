@@ -71,6 +71,7 @@ class _HomePageState extends State<HomePage> {
   bool drawMode = true;
   bool pieceAnimation = true;
   bool dragMagnify = true;
+  bool pieceShadow = true;
   Mode playMode = Mode.botPlay;
   Position<Chess>? lastPos;
   ISet<Shape> shapes = ISet();
@@ -170,6 +171,22 @@ class _HomePageState extends State<HomePage> {
         mainAxisSize: MainAxisSize.max,
         children: [
           ElevatedButton(
+              child: Text(
+                  'Shadow under dragged piece: ${pieceShadow ? 'ON' : 'OFF'}'),
+              onPressed: () {
+                setState(() {
+                  pieceShadow = !pieceShadow;
+                });
+              }
+          ),
+          const SizedBox(width: 8),
+        ],
+      ),
+      Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.max,
+        children: [
+          ElevatedButton(
             child: Text(
                 'Piece shift method: ${pieceShiftMethodLabel(pieceShiftMethod)}'),
             onPressed: () => _showChoicesPicker<PieceShiftMethod>(
@@ -194,11 +211,11 @@ class _HomePageState extends State<HomePage> {
             child: IconButton(
                 onPressed: lastPos != null
                     ? () => setState(() {
-                          position = lastPos!;
-                          fen = position.fen;
-                          validMoves = makeLegalMoves(position);
-                          lastPos = null;
-                        })
+                  position = lastPos!;
+                  fen = position.fen;
+                  validMoves = makeLegalMoves(position);
+                  lastPos = null;
+                })
                     : null,
                 icon: const Icon(Icons.chevron_left_sharp))),
     ];
@@ -222,67 +239,67 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
           title: switch (playMode) {
-        Mode.botPlay => const Text('Random Bot'),
-        Mode.inputMove => const Text('Enter opponent move'),
-        Mode.freePlay => const Text('Free Play'),
-      }),
+            Mode.botPlay => const Text('Random Bot'),
+            Mode.inputMove => const Text('Enter opponent move'),
+            Mode.freePlay => const Text('Free Play'),
+          }),
       drawer: Drawer(
           child: ListView(
-        children: [
-          ListTile(
-            title: const Text('Random Bot'),
-            onTap: () {
-              setState(() {
-                playMode = Mode.botPlay;
-              });
-              if (position.turn == Side.black) {
-                _playBlackMove();
-              }
-              Navigator.pop(context);
-            },
-          ),
-          ListTile(
-            title: const Text('Enter opponent move'),
-            onTap: () {
-              setState(() {
-                playMode = Mode.inputMove;
-              });
-              Navigator.pop(context);
-            },
-          ),
-          ListTile(
-            title: const Text('Free Play'),
-            onTap: () {
-              setState(() {
-                playMode = Mode.freePlay;
-              });
-              Navigator.pop(context);
-            },
-          ),
-          ListTile(
-            title: const Text('Board Editor'),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const BoardEditorPage(),
-                ),
-              );
-            },
-          ),
-          ListTile(
-            title: const Text('Board Thumbnails'),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const BoardThumbnailsPage(),
-                ),
-              );
-            },
-          ),
-        ],
-      )),
+            children: [
+              ListTile(
+                title: const Text('Random Bot'),
+                onTap: () {
+                  setState(() {
+                    playMode = Mode.botPlay;
+                  });
+                  if (position.turn == Side.black) {
+                    _playBlackMove();
+                  }
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                title: const Text('Enter opponent move'),
+                onTap: () {
+                  setState(() {
+                    playMode = Mode.inputMove;
+                  });
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                title: const Text('Free Play'),
+                onTap: () {
+                  setState(() {
+                    playMode = Mode.freePlay;
+                  });
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                title: const Text('Board Editor'),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const BoardEditorPage(),
+                    ),
+                  );
+                },
+              ),
+              ListTile(
+                title: const Text('Board Thumbnails'),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const BoardThumbnailsPage(),
+                    ),
+                  );
+                },
+              ),
+            ],
+          )),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
@@ -296,6 +313,7 @@ class _HomePageState extends State<HomePage> {
                   ? const Duration(milliseconds: 200)
                   : Duration.zero,
               dragFeedbackScale: dragMagnify ? 2.0 : 1.0,
+              pieceShadow: pieceShadow,
               drawShape: DrawShapeOptions(
                 enable: drawMode,
                 onCompleteShape: _onCompleteShape,
@@ -316,21 +334,21 @@ class _HomePageState extends State<HomePage> {
             lastMove: lastMove,
             game: GameData(
               playerSide:
-                  (playMode == Mode.botPlay || playMode == Mode.inputMove)
-                      ? PlayerSide.white
-                      : (position.turn == Side.white
-                          ? PlayerSide.white
-                          : PlayerSide.black),
+              (playMode == Mode.botPlay || playMode == Mode.inputMove)
+                  ? PlayerSide.white
+                  : (position.turn == Side.white
+                  ? PlayerSide.white
+                  : PlayerSide.black),
               validMoves: validMoves,
               sideToMove: position.turn == Side.white ? Side.white : Side.black,
               isCheck: position.isCheck,
               promotionMove: promotionMove,
               onMove:
-                  playMode == Mode.botPlay ? _onUserMoveAgainstBot : _playMove,
+              playMode == Mode.botPlay ? _onUserMoveAgainstBot : _playMove,
               onPromotionSelection: _onPromotionSelection,
               premovable: (
-                onSetPremove: _onSetPremove,
-                premove: premove,
+              onSetPremove: _onSetPremove,
+              premove: premove,
               ),
             ),
             shapes: shapes.isNotEmpty ? shapes : null,
@@ -338,7 +356,7 @@ class _HomePageState extends State<HomePage> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children:
-                playMode == Mode.inputMove ? inputMoveWidgets : settingsWidgets,
+            playMode == Mode.inputMove ? inputMoveWidgets : settingsWidgets,
           ),
         ],
       ),
@@ -367,12 +385,12 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _showChoicesPicker<T extends Enum>(
-    BuildContext context, {
-    required List<T> choices,
-    required T selectedItem,
-    required Widget Function(T choice) labelBuilder,
-    required void Function(T choice) onSelectedItemChanged,
-  }) {
+      BuildContext context, {
+        required List<T> choices,
+        required T selectedItem,
+        required Widget Function(T choice) labelBuilder,
+        required void Function(T choice) onSelectedItemChanged,
+      }) {
     showDialog<void>(
       context: context,
       builder: (context) {

@@ -49,6 +49,7 @@ class ChessboardSettings {
     this.blindfoldMode = false,
     this.dragFeedbackScale = 2.0,
     this.dragFeedbackOffset = const Offset(0.0, -1.0),
+    this.pieceShadow = true,
     this.pieceOrientationBehavior = PieceOrientationBehavior.facingUser,
 
     // shape drawing
@@ -94,6 +95,9 @@ class ChessboardSettings {
   // Offset for the piece currently under drag
   final Offset dragFeedbackOffset;
 
+  /// Whether the dark shadow under dragged pieces is enabled
+  final bool pieceShadow;
+
   /// Controls if any pieces are displayed upside down.
   final PieceOrientationBehavior pieceOrientationBehavior;
 
@@ -134,6 +138,7 @@ class ChessboardSettings {
         other.blindfoldMode == blindfoldMode &&
         other.dragFeedbackScale == dragFeedbackScale &&
         other.dragFeedbackOffset == dragFeedbackOffset &&
+        other.pieceShadow == pieceShadow &&
         other.pieceOrientationBehavior == pieceOrientationBehavior &&
         other.enablePremoveCastling == enablePremoveCastling &&
         other.autoQueenPromotion == autoQueenPromotion &&
@@ -144,24 +149,25 @@ class ChessboardSettings {
 
   @override
   int get hashCode => Object.hash(
-        colorScheme,
-        pieceAssets,
-        borderRadius,
-        boxShadow,
-        enableCoordinates,
-        animationDuration,
-        showLastMove,
-        showValidMoves,
-        blindfoldMode,
-        dragFeedbackScale,
-        dragFeedbackOffset,
-        pieceOrientationBehavior,
-        enablePremoveCastling,
-        autoQueenPromotion,
-        autoQueenPromotionOnPremove,
-        pieceShiftMethod,
-        drawShape,
-      );
+    colorScheme,
+    pieceAssets,
+    borderRadius,
+    boxShadow,
+    enableCoordinates,
+    animationDuration,
+    showLastMove,
+    showValidMoves,
+    blindfoldMode,
+    dragFeedbackScale,
+    dragFeedbackOffset,
+    pieceShadow,
+    pieceOrientationBehavior,
+    enablePremoveCastling,
+    autoQueenPromotion,
+    autoQueenPromotionOnPremove,
+    pieceShiftMethod,
+    drawShape,
+  );
 
   ChessboardSettings copyWith({
     ChessboardColorScheme? colorScheme,
@@ -175,6 +181,7 @@ class ChessboardSettings {
     bool? blindfoldMode,
     double? dragFeedbackScale,
     Offset? dragFeedbackOffset,
+    bool? pieceShadow,
     PieceOrientationBehavior? pieceOrientationBehavior,
     bool? enablePremoveCastling,
     bool? autoQueenPromotion,
@@ -194,12 +201,13 @@ class ChessboardSettings {
       blindfoldMode: blindfoldMode ?? this.blindfoldMode,
       dragFeedbackScale: dragFeedbackScale ?? this.dragFeedbackScale,
       dragFeedbackOffset: dragFeedbackOffset ?? this.dragFeedbackOffset,
+      pieceShadow: pieceShadow ?? this.pieceShadow,
       pieceOrientationBehavior:
-          pieceOrientationBehavior ?? this.pieceOrientationBehavior,
+      pieceOrientationBehavior ?? this.pieceOrientationBehavior,
       enablePremoveCastling:
-          enablePremoveCastling ?? this.enablePremoveCastling,
+      enablePremoveCastling ?? this.enablePremoveCastling,
       autoQueenPromotionOnPremove:
-          autoQueenPromotionOnPremove ?? this.autoQueenPromotionOnPremove,
+      autoQueenPromotionOnPremove ?? this.autoQueenPromotionOnPremove,
       autoQueenPromotion: autoQueenPromotion ?? this.autoQueenPromotion,
       pieceShiftMethod: pieceShiftMethod ?? this.pieceShiftMethod,
       drawShape: drawShape ?? this.drawShape,
@@ -224,6 +232,7 @@ class ChessboardEditorSettings {
     this.enableCoordinates = true,
     this.dragFeedbackScale = 2.0,
     this.dragFeedbackOffset = const Offset(0.0, -1.0),
+    this.pieceShadow = true,
   });
 
   /// Theme of the board.
@@ -247,6 +256,9 @@ class ChessboardEditorSettings {
   // Offset for the piece currently under drag.
   final Offset dragFeedbackOffset;
 
+  // Whether the dark shadow under dragged pieces is enabled.
+  final bool pieceShadow;
+
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) {
@@ -262,19 +274,21 @@ class ChessboardEditorSettings {
         other.boxShadow == boxShadow &&
         other.enableCoordinates == enableCoordinates &&
         other.dragFeedbackScale == dragFeedbackScale &&
-        other.dragFeedbackOffset == dragFeedbackOffset;
+        other.dragFeedbackOffset == dragFeedbackOffset &&
+        other.pieceShadow == pieceShadow;
   }
 
   @override
   int get hashCode => Object.hash(
-        colorScheme,
-        pieceAssets,
-        borderRadius,
-        boxShadow,
-        enableCoordinates,
-        dragFeedbackScale,
-        dragFeedbackOffset,
-      );
+    colorScheme,
+    pieceAssets,
+    borderRadius,
+    boxShadow,
+    enableCoordinates,
+    dragFeedbackScale,
+    dragFeedbackOffset,
+    pieceShadow,
+  );
 
   /// Creates a copy of this [ChessboardEditorSettings] but with the given fields replaced with the new values.
   ChessboardEditorSettings copyWith({
@@ -285,6 +299,7 @@ class ChessboardEditorSettings {
     bool? enableCoordinates,
     double? dragFeedbackScale,
     Offset? dragFeedbackOffset,
+    bool? pieceShadow,
   }) {
     return ChessboardEditorSettings(
       colorScheme: colorScheme ?? this.colorScheme,
@@ -294,6 +309,7 @@ class ChessboardEditorSettings {
       enableCoordinates: enableCoordinates ?? this.enableCoordinates,
       dragFeedbackScale: dragFeedbackScale ?? this.dragFeedbackScale,
       dragFeedbackOffset: dragFeedbackOffset ?? this.dragFeedbackOffset,
+      pieceShadow: pieceShadow ?? this.pieceShadow,
     );
   }
 }
