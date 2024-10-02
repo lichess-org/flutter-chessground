@@ -1,21 +1,22 @@
 import 'dart:async';
+
 import 'package:chessground/src/widgets/geometry.dart';
 import 'package:dartchess/dartchess.dart';
+import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
-import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 
-import 'piece.dart';
-import 'highlight.dart';
-import 'positioned_square.dart';
+import '../board_settings.dart';
+import '../fen.dart';
+import '../models.dart';
+import '../premove.dart';
 import 'animation.dart';
+import 'board_annotation.dart';
+import 'highlight.dart';
+import 'piece.dart';
+import 'positioned_square.dart';
 import 'promotion.dart';
 import 'shape.dart';
-import 'board_annotation.dart';
-import '../models.dart';
-import '../fen.dart';
-import '../premove.dart';
-import '../board_settings.dart';
 
 /// Number of logical pixels that have to be dragged before a drag starts.
 const double _kDragDistanceThreshold = 3.0;
@@ -169,12 +170,12 @@ class _BoardState extends State<Chessboard> {
   Widget build(BuildContext context) {
     final colorScheme = widget.settings.colorScheme;
     final ISet<Square> moveDests = widget.settings.showValidMoves &&
-            selected != null &&
-            widget.game?.validMoves != null
+        selected != null &&
+        widget.game?.validMoves != null
         ? widget.game?.validMoves[selected!] ?? _emptyValidMoves
         : _emptyValidMoves;
     final Set<Square> premoveDests =
-        widget.settings.showValidMoves ? _premoveDests ?? {} : {};
+    widget.settings.showValidMoves ? _premoveDests ?? {} : {};
     final shapes = widget.shapes ?? _emptyShapes;
     final annotations = widget.annotations ?? _emptyAnnotations;
     final checkSquare = widget.game?.isCheck == true ? _getKingSquare() : null;
@@ -182,8 +183,8 @@ class _BoardState extends State<Chessboard> {
 
     final background = widget.settings.enableCoordinates
         ? widget.orientation == Side.white
-            ? colorScheme.whiteCoordBackground
-            : colorScheme.blackCoordBackground
+        ? colorScheme.whiteCoordBackground
+        : colorScheme.blackCoordBackground
         : colorScheme.background;
 
     final List<Widget> highlightedBackground = [
@@ -524,8 +525,8 @@ class _BoardState extends State<Chessboard> {
           } else {
             _cancelShapesDoubleTapTimer =
                 Timer(_kCancelShapesDoubleTapDelay, () {
-              _cancelShapesDoubleTapTimer = null;
-            });
+                  _cancelShapesDoubleTapTimer = null;
+                });
           }
         }
         // selecting a piece to move should clear shapes
@@ -782,14 +783,16 @@ class _BoardState extends State<Chessboard> {
         overlayState: Overlay.of(context, debugRequiredFor: widget),
         initialPosition: origin.position,
         initialTargetPosition:
-            _squareTargetGlobalOffset(origin.localPosition, _renderBox!),
+        _squareTargetGlobalOffset(origin.localPosition, _renderBox!),
         squareTargetFeedback: Container(
           width: widget.squareSize * 2,
           height: widget.squareSize * 2,
-          decoration: const BoxDecoration(
+          decoration: widget.settings.pieceShadow
+              ? const BoxDecoration(
             color: Color(0x33000000),
             shape: BoxShape.circle,
-          ),
+          )
+              : null,
         ),
         pieceFeedback: Transform.translate(
           offset: Offset(
@@ -834,9 +837,9 @@ class _BoardState extends State<Chessboard> {
       switch (widget.settings.pieceOrientationBehavior) {
         PieceOrientationBehavior.facingUser => false,
         PieceOrientationBehavior.opponentUpsideDown =>
-          pieceColor == widget.orientation.opposite,
+        pieceColor == widget.orientation.opposite,
         PieceOrientationBehavior.sideToPlay =>
-          widget.game?.sideToMove == widget.orientation.opposite,
+        widget.game?.sideToMove == widget.orientation.opposite,
       };
 
   /// Whether the piece is movable by the current side to move.
@@ -905,9 +908,9 @@ class _BoardState extends State<Chessboard> {
         _canPremoveTo(selected!, square)) {
       final isPromoPremove = _isPromoMove(selectedPiece!, square);
       final premove =
-          widget.settings.autoQueenPromotionOnPremove && isPromoPremove
-              ? NormalMove(from: selected!, to: square, promotion: Role.queen)
-              : NormalMove(from: selected!, to: square);
+      widget.settings.autoQueenPromotionOnPremove && isPromoPremove
+          ? NormalMove(from: selected!, to: square, promotion: Role.queen)
+          : NormalMove(from: selected!, to: square);
       widget.game?.premovable?.onSetPremove.call(premove);
       return true;
     }
