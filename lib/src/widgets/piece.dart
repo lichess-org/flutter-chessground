@@ -40,12 +40,7 @@ class PieceWidget extends StatelessWidget {
     }
 
     final asset = pieceAssets[piece.kind]!;
-    final deviceRatio = MediaQuery.devicePixelRatioOf(context);
-    // the ratio is defined by the resolution aware image assets defined in
-    // assets/piece_sets/
-    // that's why 4 is the maximum ratio
-    final ratio = math.min(deviceRatio.ceilToDouble(), 4.0);
-    final cacheSize = (size * ratio).ceil();
+
     final image = Image.asset(
       asset.assetName,
       bundle: asset.bundle,
@@ -53,8 +48,6 @@ class PieceWidget extends StatelessWidget {
       opacity: opacity,
       width: size,
       height: size,
-      cacheWidth: cacheSize,
-      cacheHeight: cacheSize,
     );
     return upsideDown ? Transform.rotate(angle: math.pi, child: image) : image;
   }
