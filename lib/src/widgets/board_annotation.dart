@@ -89,7 +89,7 @@ class _BoardAnnotationState extends State<BoardAnnotation> {
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFF000000).withOpacity(0.5),
+                  color: const Color(0xFF000000).withValues(alpha: 0.5),
                   blurRadius: 1,
                   offset: const Offset(1, 1),
                 ),
