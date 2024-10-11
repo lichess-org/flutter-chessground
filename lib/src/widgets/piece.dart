@@ -1,8 +1,8 @@
 import 'dart:math' as math;
 import 'package:dartchess/dartchess.dart' show Piece;
 import 'package:flutter/widgets.dart';
-import '../chessground.dart';
 import '../models.dart';
+import '../images.dart';
 
 /// Widget that displays a chess piece.
 class PieceWidget extends StatelessWidget {
@@ -43,7 +43,7 @@ class PieceWidget extends StatelessWidget {
       return SizedBox(width: size, height: size);
     }
 
-    final fromCache = Chessground.images.fromCache(imageProvider.assetName);
+    final fromCache = ChessgroundImages.instance.get(imageProvider);
 
     final image = fromCache != null
         ? RawImage(
