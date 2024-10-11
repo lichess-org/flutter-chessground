@@ -1,6 +1,6 @@
 ## 5.2.0
 
-- Introduced a `ChessgrounImages` singleton to precache piece images. This is
+- Introduced a `ChessgroundImages` singleton to precache piece images. This is
   useful when using the same piece set in multiple places, and to avoid using the
   global flutter image cache, which can be unpredictable.
   It should prevent any "blinking" effect that could happen with the `Image`
