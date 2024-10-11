@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 import 'package:dartchess/dartchess.dart' show Piece;
 import 'package:flutter/widgets.dart';
+import '../chessground.dart';
 import '../models.dart';
 
 /// Widget that displays a chess piece.
@@ -21,7 +22,7 @@ class PieceWidget extends StatelessWidget {
   /// Size of the board square the piece will occupy.
   final double size;
 
-  /// Piece set.
+  /// Piece set assets.
   final PieceAssets pieceAssets;
 
   /// Pieces are hidden in blindfold mode.
@@ -33,22 +34,32 @@ class PieceWidget extends StatelessWidget {
   /// This value is used to animate the opacity of the piece.
   final Animation<double>? opacity;
 
+  /// [AssetImage] provider for the piece.
+  AssetImage get imageProvider => pieceAssets[piece.kind]!;
+
   @override
   Widget build(BuildContext context) {
     if (blindfoldMode) {
       return SizedBox(width: size, height: size);
     }
 
-    final asset = pieceAssets[piece.kind]!;
+    final fromCache = Chessground.images.fromCache(imageProvider.assetName);
 
-    final image = Image.asset(
-      asset.assetName,
-      bundle: asset.bundle,
-      package: asset.package,
-      opacity: opacity,
-      width: size,
-      height: size,
-    );
+    final image = fromCache != null
+        ? RawImage(
+            image: fromCache,
+            debugImageLabel: 'PieceWidgetCache(${imageProvider.assetName})',
+            width: size,
+            height: size,
+            opacity: opacity,
+          )
+        : Image(
+            image: imageProvider,
+            width: size,
+            height: size,
+            opacity: opacity,
+          );
+
     return upsideDown ? Transform.rotate(angle: math.pi, child: image) : image;
   }
 }
