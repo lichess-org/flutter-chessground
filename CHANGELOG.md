@@ -1,3 +1,11 @@
+## 5.2.0
+
+- Introduced a `ChessgroundImages` singleton to precache piece images. This is
+  useful when using the same piece set in multiple places, and to avoid using the
+  global flutter image cache, which can be unpredictable.
+  It should prevent any "blinking" effect that could happen with the `Image`
+  widget when the image is reloaded from the cache.
+
 ## 5.1.1
 
 - Reset animation state when the board is updated. This fixes potential issues

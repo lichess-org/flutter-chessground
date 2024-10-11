@@ -1,6 +1,6 @@
 name: chessground
 description: Chess board UI developed for lichess.org. It has no chess logic inside so it can be used for chess variants.
-version: 5.1.1
+version: 5.2.0
 repository: https://github.com/lichess-org/flutter-chessground
 funding:
   - https://lichess.org/patron
@@ -10,7 +10,7 @@ environment:
   flutter: ">=3.10.0"
 
 dependencies:
-  dartchess: ^0.8.0
+  dartchess: ^0.9.0
   fast_immutable_collections: ^10.0.0
   flutter:
     sdk: flutter
@@ -19,6 +19,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   lint: ^2.0.1
+  mocktail: ^1.0.4
 
 flutter:
   assets:

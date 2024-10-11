@@ -9,6 +9,7 @@ export 'src/board_settings.dart';
 export 'src/fen.dart';
 export 'src/models.dart';
 export 'src/piece_set.dart';
+export 'src/images.dart';
 export 'src/premove.dart';
 export 'src/widgets/board.dart';
 export 'src/widgets/board_editor.dart';
