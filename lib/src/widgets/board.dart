@@ -90,6 +90,9 @@ class Chessboard extends StatefulWidget with ChessboardGeometry {
   /// Move annotations to be displayed on the board.
   final IMap<Square, Annotation>? annotations;
 
+  /// Whether the pieces can be moved by one side or both.
+  bool get interactive => game != null && game!.playerSide != PlayerSide.none;
+
   @override
   // ignore: library_private_types_in_public_api
   _BoardState createState() => _BoardState();
@@ -339,15 +342,14 @@ class _BoardState extends State<Chessboard> {
         ),
     ];
 
-    final interactable =
-        (widget.game != null && widget.game!.playerSide != PlayerSide.none) ||
-            widget.settings.drawShape.enable;
+    final enableListeners =
+        widget.interactive || widget.settings.drawShape.enable;
 
     return Listener(
-      onPointerDown: interactable ? _onPointerDown : null,
-      onPointerMove: interactable ? _onPointerMove : null,
-      onPointerUp: interactable ? _onPointerUp : null,
-      onPointerCancel: interactable ? _onPointerCancel : null,
+      onPointerDown: enableListeners ? _onPointerDown : null,
+      onPointerMove: enableListeners ? _onPointerMove : null,
+      onPointerUp: enableListeners ? _onPointerUp : null,
+      onPointerCancel: enableListeners ? _onPointerCancel : null,
       child: SizedBox.square(
         dimension: widget.size,
         child: Stack(
@@ -407,7 +409,7 @@ class _BoardState extends State<Chessboard> {
       _drawOrigin = null;
       _shapeAvatar = null;
     }
-    if (widget.game?.playerSide == PlayerSide.none) {
+    if (widget.interactive == false) {
       _currentPointerDownEvent = null;
       _dragAvatar?.cancel();
       _dragAvatar = null;
@@ -549,7 +551,7 @@ class _BoardState extends State<Chessboard> {
       }
     }
 
-    if (widget.game?.playerSide == PlayerSide.none) return;
+    if (widget.interactive == false) return;
 
     // From here on, we only allow 1 pointer to interact with the board. Other
     // pointers will cancel any current gesture.

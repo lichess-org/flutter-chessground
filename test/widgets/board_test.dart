@@ -11,7 +11,7 @@ const boardSize = 200.0;
 const squareSize = boardSize / 8;
 
 void main() {
-  group('Non-interactable board', () {
+  group('Non-interactive board', () {
     const viewOnlyBoard = Directionality(
       textDirection: TextDirection.ltr,
       child: Chessboard.fixed(
@@ -52,7 +52,7 @@ void main() {
     });
   });
 
-  group('Interactable board', () {
+  group('Interactive board', () {
     testWidgets('selecting and deselecting a square',
         (WidgetTester tester) async {
       await tester.pumpWidget(
@@ -408,8 +408,7 @@ void main() {
       expect(find.byKey(const Key('e1-check')), findsOneWidget);
     });
 
-    testWidgets(
-        'cancel piece selection if board is made non interactable again',
+    testWidgets('cancel piece selection if board is made non interactive again',
         (WidgetTester tester) async {
       await tester.pumpWidget(
         buildBoard(
@@ -433,7 +432,7 @@ void main() {
     });
 
     testWidgets(
-        'cancel piece current pointer event if board is made non interactable again',
+        'cancel piece current pointer event if board is made non interactive again',
         (WidgetTester tester) async {
       await tester.pumpWidget(
         buildBoard(
@@ -448,7 +447,7 @@ void main() {
         expect(find.byKey(const Key('e2-selected')), findsOneWidget);
       });
 
-      // make board non interactable in the middle of the gesture
+      // make board non interactive in the middle of the gesture
       await tester.pumpWidget(
         buildBoard(
           initialFen: kInitialBoardFEN,
@@ -458,12 +457,12 @@ void main() {
 
       expect(find.byKey(const Key('e2-selected')), findsNothing);
 
-      // board is not interactable, so the piece should not be selected
+      // board is not interactive, so the piece should not be selected
       await tester.tapAt(squareOffset(Square.e2));
       await tester.pump();
       expect(find.byKey(const Key('e2-selected')), findsNothing);
 
-      // make board interactable again
+      // make board interactive again
       await tester.pumpWidget(
         buildBoard(
           initialFen: kInitialBoardFEN,
@@ -1172,7 +1171,7 @@ void main() {
       );
     });
 
-    testWidgets('can draw shapes on an non-interactable board',
+    testWidgets('can draw shapes on an non-interactive board',
         (WidgetTester tester) async {
       await tester.pumpWidget(
         buildBoard(
