@@ -1,3 +1,11 @@
+## 5.3.0
+
+- Added a new `StaticChessboard` widget that is optimized for scrollable
+  contexts.
+- `SolidColorChessboardBackground` is now implemented with `CustomPaint` to improve
+  performance when building a lot of boards.
+- Added a new board colorscheme: `ic`.
+
 ## 5.2.0
 
 - Introduced a `ChessgroundImages` singleton to precache piece images. This is
