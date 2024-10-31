@@ -31,39 +31,35 @@ class SolidColorChessboardBackground extends ChessboardBackground {
 
   @override
   Widget build(BuildContext context) {
-    return Directionality(
-      textDirection: TextDirection.ltr,
-      child: SizedBox.expand(
-        child: Column(
-          children: List.generate(
-            8,
-            (rank) => Expanded(
-              child: Row(
-                children: List.generate(
-                  8,
-                  (file) => Expanded(
-                    child: Container(
-                      width: double.infinity,
-                      height: double.infinity,
-                      color: (rank + file).isEven ? lightSquare : darkSquare,
-                      child: coordinates && (file == 7 || rank == 7)
-                          ? _Coordinate(
-                              rank: rank,
-                              file: file,
-                              orientation: orientation,
-                              color: (rank + file).isEven
-                                  ? darkSquare
-                                  : lightSquare,
-                            )
-                          : null,
-                    ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final squareSize = constraints.biggest.shortestSide / 8;
+        return Stack(
+          clipBehavior: Clip.none,
+          children: [
+            for (var rank = 0; rank < 8; rank++)
+              for (var file = 0; file < 8; file++)
+                Positioned(
+                  left: file * squareSize,
+                  top: rank * squareSize,
+                  child: Container(
+                    width: squareSize,
+                    height: squareSize,
+                    color: (rank + file).isEven ? lightSquare : darkSquare,
+                    child: coordinates && (file == 7 || rank == 7)
+                        ? _Coordinate(
+                            rank: rank,
+                            file: file,
+                            orientation: orientation,
+                            color:
+                                (rank + file).isEven ? darkSquare : lightSquare,
+                          )
+                        : null,
                   ),
                 ),
-              ),
-            ),
-          ),
-        ),
-      ),
+          ],
+        );
+      },
     );
   }
 }
@@ -83,43 +79,39 @@ class ImageChessboardBackground extends ChessboardBackground {
 
   @override
   Widget build(BuildContext context) {
-    return Directionality(
-      textDirection: TextDirection.ltr,
-      child: SizedBox.expand(
-        child: Stack(
-          children: [
-            Image(image: image),
-            if (coordinates)
-              Column(
-                children: List.generate(
-                  8,
-                  (rank) => Expanded(
-                    child: Row(
-                      children: List.generate(
-                        8,
-                        (file) => Expanded(
-                          child: SizedBox.expand(
-                            child: rank == 7 || file == 7
-                                ? _Coordinate(
-                                    rank: rank,
-                                    file: file,
-                                    orientation: orientation,
-                                    color: (rank + file).isEven
-                                        ? darkSquare
-                                        : lightSquare,
-                                  )
-                                : null,
-                          ),
+    if (coordinates) {
+      return LayoutBuilder(
+        builder: (context, constraints) {
+          final squareSize = constraints.biggest.shortestSide / 8;
+          return Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Image(image: image),
+              for (var rank = 0; rank < 8; rank++)
+                for (var file = 0; file < 8; file++)
+                  if (file == 7 || rank == 7)
+                    Positioned(
+                      left: file * squareSize,
+                      top: rank * squareSize,
+                      child: SizedBox(
+                        width: squareSize,
+                        height: squareSize,
+                        child: _Coordinate(
+                          rank: rank,
+                          file: file,
+                          orientation: orientation,
+                          color:
+                              (rank + file).isEven ? darkSquare : lightSquare,
                         ),
                       ),
                     ),
-                  ),
-                ),
-              ),
-          ],
-        ),
-      ),
-    );
+            ],
+          );
+        },
+      );
+    } else {
+      return Image(image: image);
+    }
   }
 }
 
