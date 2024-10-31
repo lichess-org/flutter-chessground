@@ -154,6 +154,30 @@ class ChessboardColorScheme {
     validPremoves: Color(0x40203085),
   );
 
+  static const ic = ChessboardColorScheme(
+    lightSquare: Color(0xffececec),
+    darkSquare: Color(0xffc1c18e),
+    background: SolidColorChessboardBackground(
+      lightSquare: Color(0xffececec),
+      darkSquare: Color(0xffc1c18e),
+    ),
+    whiteCoordBackground: SolidColorChessboardBackground(
+      lightSquare: Color(0xffececec),
+      darkSquare: Color(0xffc1c18e),
+      coordinates: true,
+    ),
+    blackCoordBackground: SolidColorChessboardBackground(
+      lightSquare: Color(0xffececec),
+      darkSquare: Color(0xffc1c18e),
+      coordinates: true,
+      orientation: Side.black,
+    ),
+    lastMove: HighlightDetails(solidColor: Color(0x809cc700)),
+    selected: HighlightDetails(solidColor: Color(0x6014551e)),
+    validMoves: Color(0x4014551e),
+    validPremoves: Color(0x40203085),
+  );
+
   static const blue2 = ChessboardColorScheme(
     lightSquare: Color(0xff97b2c7),
     darkSquare: Color(0xff546f82),
