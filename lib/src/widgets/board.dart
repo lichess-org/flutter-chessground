@@ -12,6 +12,7 @@ import 'animation.dart';
 import 'promotion.dart';
 import 'shape.dart';
 import 'board_annotation.dart';
+import 'static_board.dart';
 import '../models.dart';
 import '../fen.dart';
 import '../premove.dart';
@@ -24,7 +25,10 @@ const _kCancelShapesDoubleTapDelay = Duration(milliseconds: 200);
 
 /// A chessboard widget.
 ///
-/// This widget can be used to display a static board or a full interactive board.
+/// This widget can be used to display a fully interactive board, or a non-interactive
+/// board that can be animated.
+///
+/// For a completely static board, see also [StaticChessboard].
 class Chessboard extends StatefulWidget with ChessboardGeometry {
   /// Creates a new chessboard widget with interactive pieces.
   ///
@@ -43,7 +47,7 @@ class Chessboard extends StatefulWidget with ChessboardGeometry {
     this.annotations,
   });
 
-  /// Creates a new chessboard widget with fixed pieces.
+  /// Creates a new chessboard widget that cannot be interacted with.
   ///
   /// Provide a [fen] string to describe the position of the pieces on the board.
   /// Pieces will be animated when the position changes.
@@ -353,6 +357,7 @@ class _BoardState extends State<Chessboard> {
       child: SizedBox.square(
         dimension: widget.size,
         child: Stack(
+          alignment: Alignment.topLeft,
           clipBehavior: Clip.none,
           children: [
             if (widget.settings.boxShadow.isNotEmpty ||
@@ -364,7 +369,10 @@ class _BoardState extends State<Chessboard> {
                   borderRadius: widget.settings.borderRadius,
                   boxShadow: widget.settings.boxShadow,
                 ),
-                child: Stack(children: highlightedBackground),
+                child: Stack(
+                  alignment: Alignment.topLeft,
+                  children: highlightedBackground,
+                ),
               )
             else
               ...highlightedBackground,

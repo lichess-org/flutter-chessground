@@ -11,43 +11,26 @@ class BoardThumbnailsPage extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Board Thumbnails'),
       ),
-      body: GridView.count(
+      body: GridView.builder(
         padding: const EdgeInsets.all(20),
-        crossAxisSpacing: 15,
-        mainAxisSpacing: 15,
-        crossAxisCount: 2,
-        children: [
-          for (final fen in positions)
-            LayoutBuilder(builder: (context, constraints) {
-              return Chessboard.fixed(
-                size: constraints.biggest.width,
-                settings: ChessboardSettings(
-                  enableCoordinates: false,
-                  borderRadius: BorderRadius.circular(5),
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color(0x00000000).withOpacity(0.14),
-                      blurRadius: 2,
-                      offset: const Offset(0, 2),
-                    ),
-                    BoxShadow(
-                      color: const Color(0x00000000).withOpacity(0.2),
-                      blurRadius: 1,
-                      spreadRadius: -2,
-                      offset: const Offset(0, 3),
-                    ),
-                    BoxShadow(
-                      color: const Color(0x00000000).withOpacity(0.12),
-                      blurRadius: 5,
-                      offset: const Offset(0, 1),
-                    ),
-                  ],
-                ),
-                orientation: Side.white,
-                fen: fen,
-              );
-            }),
-        ],
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisSpacing: 15,
+          mainAxisSpacing: 15,
+          crossAxisCount: 2,
+        ),
+        itemCount: positions.length,
+        itemBuilder: (context, index) {
+          return LayoutBuilder(builder: (context, constraints) {
+            return StaticChessboard(
+              size: constraints.biggest.width,
+              enableCoordinates: false,
+              borderRadius: BorderRadius.circular(5),
+              orientation: Side.white,
+              fen: positions[index],
+              colorScheme: ChessboardColorScheme.metal,
+            );
+          });
+        },
       ),
     );
   }

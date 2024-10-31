@@ -35,6 +35,7 @@ class SolidColorChessboardBackground extends ChessboardBackground {
       builder: (context, constraints) {
         final squareSize = constraints.biggest.shortestSide / 8;
         return Stack(
+          alignment: Alignment.topLeft,
           clipBehavior: Clip.none,
           children: [
             for (var rank = 0; rank < 8; rank++)
@@ -84,6 +85,7 @@ class ImageChessboardBackground extends ChessboardBackground {
         builder: (context, constraints) {
           final squareSize = constraints.biggest.shortestSide / 8;
           return Stack(
+            alignment: Alignment.topLeft,
             clipBehavior: Clip.none,
             children: [
               Image(image: image),
@@ -139,6 +141,7 @@ class _Coordinate extends StatelessWidget {
       height: 1.0,
     );
     return Stack(
+      alignment: Alignment.topLeft,
       children: [
         if (file == 7)
           Positioned(
@@ -147,6 +150,7 @@ class _Coordinate extends StatelessWidget {
             child: Align(
               alignment: Alignment.topRight,
               child: Text(
+                textDirection: TextDirection.ltr,
                 orientation == Side.white ? '${8 - rank}' : '${rank + 1}',
                 style: coordStyle,
                 textScaler: TextScaler.noScaling,
@@ -161,6 +165,7 @@ class _Coordinate extends StatelessWidget {
             child: Align(
               alignment: Alignment.bottomLeft,
               child: Text(
+                textDirection: TextDirection.ltr,
                 orientation == Side.white
                     ? String.fromCharCode(97 + file)
                     : String.fromCharCode(97 + 7 - file),

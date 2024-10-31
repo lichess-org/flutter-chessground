@@ -118,6 +118,7 @@ class _BoardEditorState extends State<ChessboardEditor> {
           hitTestBehavior: HitTestBehavior.opaque,
           builder: (context, candidateData, rejectedData) {
             return Stack(
+              alignment: Alignment.topLeft,
               children: [
                 // Show a drop target if a piece is dragged over the square
                 if (candidateData.isNotEmpty)
@@ -201,6 +202,7 @@ class _BoardEditorState extends State<ChessboardEditor> {
         onPanStart: (details) => _onTouchedEvent(details.localPosition),
         onPanUpdate: (details) => _onTouchedEvent(details.localPosition),
         child: Stack(
+          alignment: Alignment.topLeft,
           clipBehavior: Clip.none,
           children: [
             if (widget.settings.boxShadow.isNotEmpty ||
@@ -211,7 +213,10 @@ class _BoardEditorState extends State<ChessboardEditor> {
                   borderRadius: widget.settings.borderRadius,
                   boxShadow: widget.settings.boxShadow,
                 ),
-                child: Stack(children: highlightedBackground),
+                child: Stack(
+                  alignment: Alignment.topLeft,
+                  children: highlightedBackground,
+                ),
               )
             else
               ...highlightedBackground,

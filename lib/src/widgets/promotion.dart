@@ -70,6 +70,7 @@ class PromotionSelector extends StatelessWidget with ChessboardGeometry {
         height: double.infinity,
         color: const Color(0xB3161512),
         child: Stack(
+          alignment: Alignment.topLeft,
           children: [
             Positioned(
               width: squareSize,
@@ -102,6 +103,7 @@ class PromotionSelector extends StatelessWidget with ChessboardGeometry {
                   return GestureDetector(
                     onTap: () => onSelect(piece.role),
                     child: Stack(
+                      alignment: Alignment.topLeft,
                       children: [
                         Container(
                           width: squareSize,

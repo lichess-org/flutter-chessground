@@ -12,15 +12,12 @@ const squareSize = boardSize / 8;
 
 void main() {
   group('Non-interactive board', () {
-    const viewOnlyBoard = Directionality(
-      textDirection: TextDirection.ltr,
-      child: Chessboard.fixed(
-        size: boardSize,
-        orientation: Side.white,
-        fen: kInitialFEN,
-        settings: ChessboardSettings(
-          drawShape: DrawShapeOptions(enable: true),
-        ),
+    const viewOnlyBoard = Chessboard.fixed(
+      size: boardSize,
+      orientation: Side.white,
+      fen: kInitialFEN,
+      settings: ChessboardSettings(
+        drawShape: DrawShapeOptions(enable: true),
       ),
     );
 
@@ -44,11 +41,11 @@ void main() {
     ) async {
       await tester.pumpWidget(viewOnlyBoard);
 
-      final background = tester.widget<SizedBox>(
-        find.byKey(const Key('board-background')),
+      final size = tester.getSize(
+        find.byType(SolidColorChessboardBackground),
       );
-      expect(background.width, boardSize);
-      expect(background.height, boardSize);
+      expect(size.width, boardSize);
+      expect(size.height, boardSize);
     });
   });
 
