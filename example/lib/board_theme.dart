@@ -15,6 +15,7 @@ enum BoardTheme {
   maple2('Maple 2', ChessboardColorScheme.maple2),
   brown('Brown', ChessboardColorScheme.brown),
   leather('Leather', ChessboardColorScheme.leather),
+  ic('IC', ChessboardColorScheme.ic),
   green('Green', ChessboardColorScheme.green),
   marble('Marble', ChessboardColorScheme.marble),
   greenPlastic('Green Plastic', ChessboardColorScheme.greenPlastic),

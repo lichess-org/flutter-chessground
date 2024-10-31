@@ -65,9 +65,9 @@ class _HomePageState extends State<HomePage> {
   NormalMove? premove;
   ValidMoves validMoves = IMap(const {});
   Side sideToMove = Side.white;
-  PieceSet pieceSet = PieceSet.merida;
+  PieceSet pieceSet = PieceSet.gioco;
   PieceShiftMethod pieceShiftMethod = PieceShiftMethod.either;
-  BoardTheme boardTheme = BoardTheme.blue;
+  BoardTheme boardTheme = BoardTheme.brown;
   bool drawMode = true;
   bool pieceAnimation = true;
   bool dragMagnify = true;
