@@ -27,7 +27,7 @@ class BoardThumbnailsPage extends StatelessWidget {
               borderRadius: BorderRadius.circular(5),
               orientation: Side.white,
               fen: positions[index],
-              colorScheme: ChessboardColorScheme.metal,
+              colorScheme: ChessboardColorScheme.brown,
             );
           });
         },
