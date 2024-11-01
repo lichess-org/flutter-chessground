@@ -5,6 +5,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 
+import 'coordinate.dart';
 import 'piece.dart';
 import 'highlight.dart';
 import 'positioned_square.dart';
@@ -36,7 +37,7 @@ class Chessboard extends StatefulWidget with ChessboardGeometry {
   /// The [fen] string should be updated when the position changes.
   const Chessboard({
     super.key,
-    required this.size,
+    required double size,
     this.settings = const ChessboardSettings(),
     required this.orientation,
     required this.fen,
@@ -45,7 +46,7 @@ class Chessboard extends StatefulWidget with ChessboardGeometry {
     required this.game,
     this.shapes,
     this.annotations,
-  });
+  }) : _size = size;
 
   /// Creates a new chessboard widget that cannot be interacted with.
   ///
@@ -53,19 +54,22 @@ class Chessboard extends StatefulWidget with ChessboardGeometry {
   /// Pieces will be animated when the position changes.
   const Chessboard.fixed({
     super.key,
-    required this.size,
+    required double size,
     this.settings = const ChessboardSettings(),
     required this.orientation,
     required this.fen,
     this.lastMove,
     this.shapes,
     this.annotations,
-  })  : game = null,
+  })  : _size = size,
+        game = null,
         opponentsPiecesUpsideDown = false;
+
+  final double _size;
 
   /// Size of the board in logical pixels.
   @override
-  final double size;
+  double get size => _size - (settings.border?.width ?? 0) * 2;
 
   /// Side by which the board is oriented.
   @override
@@ -174,20 +178,21 @@ class _BoardState extends State<Chessboard> {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = widget.settings.colorScheme;
-    final ISet<Square> moveDests = widget.settings.showValidMoves &&
+    final settings = widget.settings;
+    final colorScheme = settings.colorScheme;
+    final ISet<Square> moveDests = settings.showValidMoves &&
             selected != null &&
             widget.game?.validMoves != null
         ? widget.game?.validMoves[selected!] ?? _emptyValidMoves
         : _emptyValidMoves;
     final Set<Square> premoveDests =
-        widget.settings.showValidMoves ? _premoveDests ?? {} : {};
+        settings.showValidMoves ? _premoveDests ?? {} : {};
     final shapes = widget.shapes ?? _emptyShapes;
     final annotations = widget.annotations ?? _emptyAnnotations;
     final checkSquare = widget.game?.isCheck == true ? _getKingSquare() : null;
     final premove = widget.game?.premovable?.premove;
 
-    final background = widget.settings.enableCoordinates
+    final background = settings.border == null && settings.enableCoordinates
         ? widget.orientation == Side.white
             ? colorScheme.whiteCoordBackground
             : colorScheme.blackCoordBackground
@@ -199,7 +204,7 @@ class _BoardState extends State<Chessboard> {
         dimension: widget.size,
         child: background,
       ),
-      if (widget.settings.showLastMove && widget.lastMove != null)
+      if (settings.showLastMove && widget.lastMove != null)
         for (final square in widget.lastMove!.squares)
           if (premove == null || !premove.hasSquare(square))
             PositionedSquare(
@@ -271,11 +276,11 @@ class _BoardState extends State<Chessboard> {
           orientation: widget.orientation,
           square: entry.key,
           child: AnimatedPieceFadeOut(
-            duration: widget.settings.animationDuration,
+            duration: settings.animationDuration,
             piece: entry.value,
             size: widget.squareSize,
-            pieceAssets: widget.settings.pieceAssets,
-            blindfoldMode: widget.settings.blindfoldMode,
+            pieceAssets: settings.pieceAssets,
+            blindfoldMode: settings.blindfoldMode,
             upsideDown: _isUpsideDown(entry.value.color),
             onComplete: () {
               fadingPieces.remove(entry.key);
@@ -294,8 +299,8 @@ class _BoardState extends State<Chessboard> {
             child: PieceWidget(
               piece: entry.value,
               size: widget.squareSize,
-              pieceAssets: widget.settings.pieceAssets,
-              blindfoldMode: widget.settings.blindfoldMode,
+              pieceAssets: settings.pieceAssets,
+              blindfoldMode: settings.blindfoldMode,
               upsideDown: _isUpsideDown(entry.value.color),
             ),
           ),
@@ -309,15 +314,15 @@ class _BoardState extends State<Chessboard> {
             fromSquare: entry.value.from,
             toSquare: entry.key,
             orientation: widget.orientation,
-            duration: widget.settings.animationDuration,
+            duration: settings.animationDuration,
             onComplete: () {
               translatingPieces.remove(entry.key);
             },
             child: PieceWidget(
               piece: entry.value.piece,
               size: widget.squareSize,
-              pieceAssets: widget.settings.pieceAssets,
-              blindfoldMode: widget.settings.blindfoldMode,
+              pieceAssets: settings.pieceAssets,
+              blindfoldMode: settings.blindfoldMode,
               upsideDown: _isUpsideDown(entry.value.piece.color),
             ),
           ),
@@ -346,28 +351,29 @@ class _BoardState extends State<Chessboard> {
         ),
     ];
 
-    final enableListeners =
-        widget.interactive || widget.settings.drawShape.enable;
+    final enableListeners = widget.interactive || settings.drawShape.enable;
 
-    return Listener(
+    final board = Listener(
       onPointerDown: enableListeners ? _onPointerDown : null,
       onPointerMove: enableListeners ? _onPointerMove : null,
       onPointerUp: enableListeners ? _onPointerUp : null,
       onPointerCancel: enableListeners ? _onPointerCancel : null,
       child: SizedBox.square(
+        key: const ValueKey('board-container'),
         dimension: widget.size,
         child: Stack(
           alignment: Alignment.topLeft,
           clipBehavior: Clip.none,
           children: [
-            if (widget.settings.boxShadow.isNotEmpty ||
-                widget.settings.borderRadius != BorderRadius.zero)
+            if (settings.border == null &&
+                (settings.boxShadow.isNotEmpty ||
+                    settings.borderRadius != BorderRadius.zero))
               Container(
                 key: const ValueKey('background-container'),
                 clipBehavior: Clip.hardEdge,
                 decoration: BoxDecoration(
-                  borderRadius: widget.settings.borderRadius,
-                  boxShadow: widget.settings.boxShadow,
+                  borderRadius: settings.borderRadius,
+                  boxShadow: settings.boxShadow,
                 ),
                 child: Stack(
                   alignment: Alignment.topLeft,
@@ -379,7 +385,7 @@ class _BoardState extends State<Chessboard> {
             ...objects,
             if (widget.game?.promotionMove != null)
               PromotionSelector(
-                pieceAssets: widget.settings.pieceAssets,
+                pieceAssets: settings.pieceAssets,
                 move: widget.game!.promotionMove!,
                 size: widget.size,
                 color: widget.game!.sideToMove,
@@ -394,6 +400,42 @@ class _BoardState extends State<Chessboard> {
         ),
       ),
     );
+
+    if (settings.border != null) {
+      return Container(
+        width: widget.size + settings.border!.width * 2,
+        height: widget.size + settings.border!.width * 2,
+        color: settings.border!.color,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            board,
+            if (settings.enableCoordinates)
+              Positioned(
+                top: settings.border!.width,
+                left: 0,
+                child: BorderRankCoordinates(
+                  orientation: widget.orientation,
+                  width: settings.border!.width,
+                  height: widget.size,
+                ),
+              ),
+            if (settings.enableCoordinates)
+              Positioned(
+                bottom: 0,
+                left: settings.border!.width,
+                child: BorderFileCoordinates(
+                  orientation: widget.orientation,
+                  width: widget.size,
+                  height: settings.border!.width,
+                ),
+              ),
+          ],
+        ),
+      );
+    }
+
+    return board;
   }
 
   @override
@@ -506,8 +548,12 @@ class _BoardState extends State<Chessboard> {
     final localOffset = widget.squareOffset(square);
     final tmpOffset = box.localToGlobal(localOffset);
     return Offset(
-      tmpOffset.dx - widget.squareSize / 2,
-      tmpOffset.dy - widget.squareSize / 2,
+      (widget.settings.border?.width ?? 0) +
+          tmpOffset.dx -
+          widget.squareSize / 2,
+      (widget.settings.border?.width ?? 0) +
+          tmpOffset.dy -
+          widget.squareSize / 2,
     );
   }
 
@@ -691,7 +737,9 @@ class _BoardState extends State<Chessboard> {
     }
 
     if (_currentPointerDownEvent == null ||
-        _currentPointerDownEvent!.pointer != details.pointer) return;
+        _currentPointerDownEvent!.pointer != details.pointer) {
+      return;
+    }
 
     final square = widget.offsetSquare(details.localPosition);
 
@@ -762,7 +810,9 @@ class _BoardState extends State<Chessboard> {
     }
 
     if (_currentPointerDownEvent == null ||
-        _currentPointerDownEvent!.pointer != details.pointer) return;
+        _currentPointerDownEvent!.pointer != details.pointer) {
+      return;
+    }
 
     _onDragEnd();
     setState(() {
