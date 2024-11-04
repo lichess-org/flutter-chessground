@@ -29,6 +29,47 @@ enum PieceOrientationBehavior {
   sideToPlay,
 }
 
+@immutable
+
+/// Describes the border of the board.
+class BoardBorder {
+  /// Creates a new border with the provided values.
+  const BoardBorder({
+    required this.color,
+    required this.width,
+  });
+
+  /// Color of the border
+  final Color color;
+
+  /// Width of the border
+  final double width;
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
+    return other is BoardBorder && other.color == color && other.width == width;
+  }
+
+  @override
+  int get hashCode => Object.hash(color, width);
+
+  BoardBorder copyWith({
+    Color? color,
+    double? width,
+  }) {
+    return BoardBorder(
+      color: color ?? this.color,
+      width: width ?? this.width,
+    );
+  }
+}
+
 /// Board settings that controls visual aspects and behavior of the board.
 ///
 /// This is meant for fixed settings that don't change during a game. Sensible
@@ -40,6 +81,7 @@ class ChessboardSettings {
     this.colorScheme = ChessboardColorScheme.brown,
     this.pieceAssets = PieceSet.cburnettAssets,
     // visual settings
+    this.border,
     this.borderRadius = BorderRadius.zero,
     this.boxShadow = const <BoxShadow>[],
     this.enableCoordinates = true,
@@ -66,6 +108,9 @@ class ChessboardSettings {
 
   /// Piece set
   final PieceAssets pieceAssets;
+
+  /// Optional border of the board
+  final BoardBorder? border;
 
   /// Border radius of the board
   final BorderRadiusGeometry borderRadius;
@@ -125,6 +170,7 @@ class ChessboardSettings {
     return other is ChessboardSettings &&
         other.colorScheme == colorScheme &&
         other.pieceAssets == pieceAssets &&
+        other.border == border &&
         other.borderRadius == borderRadius &&
         other.boxShadow == boxShadow &&
         other.enableCoordinates == enableCoordinates &&
@@ -146,6 +192,7 @@ class ChessboardSettings {
   int get hashCode => Object.hash(
         colorScheme,
         pieceAssets,
+        border,
         borderRadius,
         boxShadow,
         enableCoordinates,
@@ -219,6 +266,7 @@ class ChessboardEditorSettings {
     this.colorScheme = ChessboardColorScheme.brown,
     this.pieceAssets = PieceSet.cburnettAssets,
     // visual settings
+    this.border,
     this.borderRadius = BorderRadius.zero,
     this.boxShadow = const <BoxShadow>[],
     this.enableCoordinates = true,
@@ -231,6 +279,9 @@ class ChessboardEditorSettings {
 
   /// Piece set.
   final PieceAssets pieceAssets;
+
+  /// Optional border of the board
+  final BoardBorder? border;
 
   /// Border radius of the board.
   final BorderRadiusGeometry borderRadius;
@@ -258,6 +309,7 @@ class ChessboardEditorSettings {
     return other is ChessboardEditorSettings &&
         other.colorScheme == colorScheme &&
         other.pieceAssets == pieceAssets &&
+        other.border == border &&
         other.borderRadius == borderRadius &&
         other.boxShadow == boxShadow &&
         other.enableCoordinates == enableCoordinates &&
@@ -269,6 +321,7 @@ class ChessboardEditorSettings {
   int get hashCode => Object.hash(
         colorScheme,
         pieceAssets,
+        border,
         borderRadius,
         boxShadow,
         enableCoordinates,

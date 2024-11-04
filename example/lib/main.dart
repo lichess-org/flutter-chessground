@@ -74,6 +74,7 @@ class _HomePageState extends State<HomePage> {
   Mode playMode = Mode.botPlay;
   Position<Chess>? lastPos;
   ISet<Shape> shapes = ISet();
+  bool showBorder = false;
 
   @override
   Widget build(BuildContext context) {
@@ -170,8 +171,8 @@ class _HomePageState extends State<HomePage> {
         mainAxisSize: MainAxisSize.max,
         children: [
           ElevatedButton(
-            child: Text(
-                'Piece shift method: ${pieceShiftMethodLabel(pieceShiftMethod)}'),
+            child:
+                Text('Piece Shift: ${pieceShiftMethodLabel(pieceShiftMethod)}'),
             onPressed: () => _showChoicesPicker<PieceShiftMethod>(
               context,
               choices: PieceShiftMethod.values,
@@ -187,6 +188,14 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
           const SizedBox(width: 8),
+          ElevatedButton(
+            child: Text("Show border: ${showBorder ? 'ON' : 'OFF'}"),
+            onPressed: () {
+              setState(() {
+                showBorder = !showBorder;
+              });
+            },
+          ),
         ],
       ),
       if (playMode == Mode.freePlay)
@@ -291,6 +300,12 @@ class _HomePageState extends State<HomePage> {
             settings: ChessboardSettings(
               pieceAssets: pieceSet.assets,
               colorScheme: boardTheme.colors,
+              border: showBorder
+                  ? BoardBorder(
+                      width: 16.0,
+                      color: _darken(boardTheme.colors.darkSquare, 0.2),
+                    )
+                  : null,
               enableCoordinates: true,
               animationDuration: pieceAnimation
                   ? const Duration(milliseconds: 200)
@@ -504,4 +519,9 @@ class _HomePageState extends State<HomePage> {
         ((move.to.rank == Rank.first && position.turn == Side.black) ||
             (move.to.rank == Rank.eighth && position.turn == Side.white));
   }
+}
+
+Color _darken(Color c, [double amount = .1]) {
+  assert(amount >= 0 && amount <= 1);
+  return Color.lerp(c, const Color(0xFF000000), amount) ?? c;
 }
