@@ -34,7 +34,7 @@ import 'widgets/piece.dart';
 /// the piece image using the [RawImage] widget.
 ///
 /// This is the responsibility of the user to dispose of the cache when it is no
-/// longer needed, or when changing the piece set, using the [clearCache] method.
+/// longer needed, or when changing the piece set, using the [clear] method.
 class ChessgroundImages {
   ChessgroundImages._();
 
@@ -65,7 +65,7 @@ class ChessgroundImages {
   /// Removes all cached images.
   ///
   /// This calls [ui.Image.dispose] for all images in the cache, so make sure that
-  /// you don't use any of the previously cached images once [clearCache] has
+  /// you don't use any of the previously cached images once [clear] has
   /// been called.
   void clear() {
     _assets.forEach((_, asset) => asset.dispose());
