@@ -1521,7 +1521,6 @@ class _TestApp extends StatefulWidget {
     this.initialPromotionMove,
     this.initialShapes,
     this.enableDrawingShapes = false,
-    this.pieceShiftMethod = PieceShiftMethod.either,
     this.shouldPlayOpponentMove = false,
     this.gameEventStream,
     super.key,
@@ -1535,7 +1534,6 @@ class _TestApp extends StatefulWidget {
   final NormalMove? initialPromotionMove;
   final ISet<Shape>? initialShapes;
   final bool enableDrawingShapes;
-  final PieceShiftMethod pieceShiftMethod;
 
   /// play the first available move for the opponent after a delay of 200ms
   final bool shouldPlayOpponentMove;
@@ -1568,7 +1566,6 @@ class _TestAppState extends State<_TestApp> {
           },
           newShapeColor: const Color(0xFF0000FF),
         ),
-        pieceShiftMethod: widget.pieceShiftMethod,
       );
 
   @override

@@ -1,4 +1,3 @@
-import 'package:chessground/src/widgets/coordinate.dart';
 import 'package:dartchess/dartchess.dart' show Side;
 import 'package:flutter/widgets.dart';
 

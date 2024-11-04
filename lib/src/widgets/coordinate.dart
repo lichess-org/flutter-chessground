@@ -10,6 +10,7 @@ const _coordStyle = TextStyle(
   color: Color(0x99FFFFFF),
 );
 
+/// A widget that displays the rank coordinates of a chess board.
 class BorderRankCoordinates extends StatelessWidget {
   const BorderRankCoordinates({
     required this.orientation,
@@ -48,6 +49,7 @@ class BorderRankCoordinates extends StatelessWidget {
   }
 }
 
+/// A widget that displays the file coordinates of a chess board.
 class BorderFileCoordinates extends StatelessWidget {
   const BorderFileCoordinates({
     required this.orientation,
@@ -82,70 +84,6 @@ class BorderFileCoordinates extends StatelessWidget {
             ),
         ],
       ),
-    );
-  }
-}
-
-class InnerBoardCoordinate extends StatelessWidget {
-  const InnerBoardCoordinate({
-    required this.rank,
-    required this.file,
-    required this.color,
-    required this.orientation,
-    super.key,
-  });
-
-  final int rank;
-  final int file;
-  final Color color;
-  final Side orientation;
-
-  @override
-  Widget build(BuildContext context) {
-    final coordStyle = TextStyle(
-      inherit: false,
-      fontWeight: FontWeight.bold,
-      fontSize: 10.0,
-      color: color,
-      fontFamily: 'Roboto',
-      height: 1.0,
-    );
-    return Stack(
-      alignment: Alignment.topLeft,
-      children: [
-        if (file == 7)
-          Positioned(
-            top: 2.0,
-            right: 2.0,
-            child: Align(
-              alignment: Alignment.topRight,
-              child: Text(
-                textDirection: TextDirection.ltr,
-                orientation == Side.white ? '${8 - rank}' : '${rank + 1}',
-                style: coordStyle,
-                textScaler: TextScaler.noScaling,
-                textAlign: TextAlign.center,
-              ),
-            ),
-          ),
-        if (rank == 7)
-          Positioned(
-            bottom: 2.0,
-            left: 2.0,
-            child: Align(
-              alignment: Alignment.bottomLeft,
-              child: Text(
-                textDirection: TextDirection.ltr,
-                orientation == Side.white
-                    ? String.fromCharCode(97 + file)
-                    : String.fromCharCode(97 + 7 - file),
-                style: coordStyle,
-                textScaler: TextScaler.noScaling,
-                textAlign: TextAlign.center,
-              ),
-            ),
-          ),
-      ],
     );
   }
 }
