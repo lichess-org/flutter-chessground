@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:chessground/chessground.dart';
 
@@ -33,6 +34,15 @@ void main() {
             )
             .colorScheme,
         ChessboardColorScheme.blue,
+      );
+
+      expect(
+        const ChessboardSettings(
+          border: BoardBorder(color: Color(0xFFFFFFFF), width: 16.0),
+        ).copyWith(),
+        const ChessboardSettings(
+          border: BoardBorder(color: Color(0xFFFFFFFF), width: 16.0),
+        ),
       );
     });
   });

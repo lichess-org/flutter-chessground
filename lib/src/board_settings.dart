@@ -232,6 +232,7 @@ class ChessboardSettings {
     return ChessboardSettings(
       colorScheme: colorScheme ?? this.colorScheme,
       pieceAssets: pieceAssets ?? this.pieceAssets,
+      border: border,
       borderRadius: borderRadius ?? this.borderRadius,
       boxShadow: boxShadow ?? this.boxShadow,
       enableCoordinates: enableCoordinates ?? this.enableCoordinates,
