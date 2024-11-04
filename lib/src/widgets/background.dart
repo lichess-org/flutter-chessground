@@ -33,6 +33,7 @@ class SolidColorChessboardBackground extends ChessboardBackground {
   @override
   Widget build(BuildContext context) {
     return CustomPaint(
+      size: Size.infinite,
       painter: _SolidColorChessboardPainter(
         lightSquare: lightSquare,
         darkSquare: darkSquare,
@@ -140,38 +141,101 @@ class ImageChessboardBackground extends ChessboardBackground {
   @override
   Widget build(BuildContext context) {
     if (coordinates) {
-      return LayoutBuilder(
-        builder: (context, constraints) {
-          final squareSize = constraints.biggest.shortestSide / 8;
-          return Stack(
-            alignment: Alignment.topLeft,
-            clipBehavior: Clip.none,
-            children: [
-              Image(image: image),
-              for (var rank = 0; rank < 8; rank++)
-                for (var file = 0; file < 8; file++)
-                  if (file == 7 || rank == 7)
-                    Positioned(
-                      left: file * squareSize,
-                      top: rank * squareSize,
-                      child: SizedBox(
-                        width: squareSize,
-                        height: squareSize,
-                        child: InnerBoardCoordinate(
-                          rank: rank,
-                          file: file,
-                          orientation: orientation,
-                          color:
-                              (rank + file).isEven ? darkSquare : lightSquare,
-                        ),
-                      ),
-                    ),
-            ],
-          );
-        },
+      return Stack(
+        alignment: Alignment.topLeft,
+        clipBehavior: Clip.none,
+        children: [
+          Image(image: image),
+          CustomPaint(
+            size: Size.infinite,
+            painter: _ImageBackgroundCoordinatePainter(
+              lightSquare: lightSquare,
+              darkSquare: darkSquare,
+              orientation: orientation,
+            ),
+          ),
+        ],
       );
     } else {
       return Image(image: image);
     }
+  }
+}
+
+class _ImageBackgroundCoordinatePainter extends CustomPainter {
+  _ImageBackgroundCoordinatePainter({
+    required this.lightSquare,
+    required this.darkSquare,
+    required this.orientation,
+  });
+
+  final Side orientation;
+  final Color lightSquare;
+  final Color darkSquare;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final squareSize = size.shortestSide / 8;
+    for (var rank = 0; rank < 8; rank++) {
+      for (var file = 0; file < 8; file++) {
+        if (file == 7 || rank == 7) {
+          final coordStyle = TextStyle(
+            inherit: false,
+            fontWeight: FontWeight.bold,
+            fontSize: 10.0,
+            color: (rank + file).isEven ? darkSquare : lightSquare,
+            fontFamily: 'Roboto',
+            height: 1.0,
+          );
+          final square = Rect.fromLTWH(
+            file * squareSize,
+            rank * squareSize,
+            squareSize,
+            squareSize,
+          );
+          final paint = Paint()..color = const Color(0x00000000);
+          canvas.drawRect(square, paint);
+          if (file == 7) {
+            final coord = TextPainter(
+              text: TextSpan(
+                text: orientation == Side.white ? '${8 - rank}' : '${rank + 1}',
+                style: coordStyle,
+              ),
+              textDirection: TextDirection.ltr,
+            );
+            coord.layout();
+            const edgeOffset = 2.0;
+            final offset = Offset(
+              file * squareSize + (squareSize - coord.width) - edgeOffset,
+              rank * squareSize + edgeOffset,
+            );
+            coord.paint(canvas, offset);
+          }
+          if (rank == 7) {
+            final coord = TextPainter(
+              text: TextSpan(
+                text: orientation == Side.white
+                    ? String.fromCharCode(97 + file)
+                    : String.fromCharCode(97 + 7 - file),
+                style: coordStyle,
+              ),
+              textDirection: TextDirection.ltr,
+            );
+            coord.layout();
+            const edgeOffset = 2.0;
+            final offset = Offset(
+              file * squareSize + edgeOffset,
+              rank * squareSize + (squareSize - coord.height) - edgeOffset,
+            );
+            coord.paint(canvas, offset);
+          }
+        }
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) {
+    return false;
   }
 }
