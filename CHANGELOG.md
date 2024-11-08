@@ -1,3 +1,8 @@
+## 5.4.0
+
+- Add a new `border` settings to show a border around the board.
+- Fixed a timer not properly canceled when the board is disposed.
+
 ## 5.3.0
 
 - Added a new `StaticChessboard` widget that is optimized for scrollable

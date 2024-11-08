@@ -448,6 +448,7 @@ class _BoardState extends State<Chessboard> {
   void dispose() {
     super.dispose();
     _dragAvatar?.cancel();
+    _cancelShapesDoubleTapTimer?.cancel();
   }
 
   @override
