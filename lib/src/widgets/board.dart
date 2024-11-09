@@ -5,7 +5,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 
-import 'coordinate.dart';
+import 'board_border.dart';
 import 'piece.dart';
 import 'highlight.dart';
 import 'positioned_square.dart';
@@ -402,36 +402,12 @@ class _BoardState extends State<Chessboard> {
     );
 
     if (settings.border != null) {
-      return Container(
-        width: widget.size + settings.border!.width * 2,
-        height: widget.size + settings.border!.width * 2,
-        color: settings.border!.color,
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            board,
-            if (settings.enableCoordinates)
-              Positioned(
-                top: settings.border!.width,
-                left: 0,
-                child: BorderRankCoordinates(
-                  orientation: widget.orientation,
-                  width: settings.border!.width,
-                  height: widget.size,
-                ),
-              ),
-            if (settings.enableCoordinates)
-              Positioned(
-                bottom: 0,
-                left: settings.border!.width,
-                child: BorderFileCoordinates(
-                  orientation: widget.orientation,
-                  width: widget.size,
-                  height: settings.border!.width,
-                ),
-              ),
-          ],
-        ),
+      return BorderedChessboard(
+        size: widget.size,
+        orientation: widget.orientation,
+        border: settings.border!,
+        showCoordinates: settings.enableCoordinates,
+        child: board,
       );
     }
 

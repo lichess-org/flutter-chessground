@@ -25,7 +25,7 @@ class _BoardEditorPageState extends State<BoardEditorPage> {
 
     const PieceSet pieceSet = PieceSet.merida;
 
-    final settings = ChessboardEditorSettings(
+    final settings = ChessboardSettings(
       pieceAssets: pieceSet.assets,
       colorScheme: BoardTheme.blue.colors,
       enableCoordinates: true,
@@ -122,7 +122,7 @@ class PieceMenu extends StatelessWidget {
   final Piece? pieceEdition;
 
   final EditorPointerMode pointerMode;
-  final ChessboardEditorSettings settings;
+  final ChessboardSettings settings;
   final Function(Role role) pieceTapped;
   final Function() deleteTapped;
   final Function() pointerModeTapped;

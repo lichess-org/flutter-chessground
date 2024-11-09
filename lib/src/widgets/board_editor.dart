@@ -6,6 +6,7 @@ import 'package:flutter/widgets.dart';
 import '../board_settings.dart';
 import '../models.dart';
 import '../fen.dart';
+import 'board_border.dart';
 import 'highlight.dart';
 import 'piece.dart';
 import 'positioned_square.dart';
@@ -39,19 +40,21 @@ enum EditorPointerMode {
 class ChessboardEditor extends StatefulWidget with ChessboardGeometry {
   const ChessboardEditor({
     super.key,
-    required this.size,
+    required double size,
     required this.orientation,
     required this.pieces,
     this.pointerMode = EditorPointerMode.drag,
-    this.settings = const ChessboardEditorSettings(),
+    this.settings = const ChessboardSettings(),
     this.squareHighlights = const IMap.empty(),
     this.onEditedSquare,
     this.onDroppedPiece,
     this.onDiscardedPiece,
-  });
+  }) : _size = size;
+
+  final double _size;
 
   @override
-  final double size;
+  double get size => _size - (settings.border?.width ?? 0) * 2;
 
   @override
   final Side orientation;
@@ -64,7 +67,7 @@ class ChessboardEditor extends StatefulWidget with ChessboardGeometry {
   final Pieces pieces;
 
   /// Settings that control the appearance of the board editor.
-  final ChessboardEditorSettings settings;
+  final ChessboardSettings settings;
 
   /// The current mode of the pointer tool.
   final EditorPointerMode pointerMode;
@@ -176,11 +179,12 @@ class _BoardEditorState extends State<ChessboardEditor> {
       );
     }).toList();
 
-    final background = widget.settings.enableCoordinates
-        ? widget.orientation == Side.white
-            ? widget.settings.colorScheme.whiteCoordBackground
-            : widget.settings.colorScheme.blackCoordBackground
-        : widget.settings.colorScheme.background;
+    final background =
+        widget.settings.border == null && widget.settings.enableCoordinates
+            ? widget.orientation == Side.white
+                ? widget.settings.colorScheme.whiteCoordBackground
+                : widget.settings.colorScheme.blackCoordBackground
+            : widget.settings.colorScheme.background;
 
     final List<Widget> highlightedBackground = [
       background,
@@ -195,7 +199,7 @@ class _BoardEditorState extends State<ChessboardEditor> {
         ),
     ];
 
-    return SizedBox.square(
+    final board = SizedBox.square(
       dimension: widget.size,
       child: GestureDetector(
         onTapDown: (details) => _onTouchedEvent(details.localPosition),
@@ -205,8 +209,9 @@ class _BoardEditorState extends State<ChessboardEditor> {
           alignment: Alignment.topLeft,
           clipBehavior: Clip.none,
           children: [
-            if (widget.settings.boxShadow.isNotEmpty ||
-                widget.settings.borderRadius != BorderRadius.zero)
+            if (widget.settings.border == null &&
+                (widget.settings.boxShadow.isNotEmpty ||
+                    widget.settings.borderRadius != BorderRadius.zero))
               Container(
                 clipBehavior: Clip.hardEdge,
                 decoration: BoxDecoration(
@@ -225,6 +230,18 @@ class _BoardEditorState extends State<ChessboardEditor> {
         ),
       ),
     );
+
+    if (widget.settings.border != null) {
+      return BorderedChessboard(
+        size: widget.size,
+        orientation: widget.orientation,
+        border: widget.settings.border!,
+        showCoordinates: widget.settings.enableCoordinates,
+        child: board,
+      );
+    }
+
+    return board;
   }
 
   void _onTouchedEvent(Offset localPosition) {
