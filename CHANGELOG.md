@@ -1,4 +1,8 @@
-## 5.4.0
+## 6.0.0
+
+### Breaking changes:
+- Removed `ChessboardEditorSettings`. The `ChessboardEditor` widget now takes a
+  `ChessboardSettings` object as a parameter.
 
 - Add a new `border` settings to show a border around the board.
 - Fixed a timer not properly canceled when the board is disposed.
