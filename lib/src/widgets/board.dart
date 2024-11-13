@@ -519,11 +519,18 @@ class _BoardState extends State<Chessboard> {
   }
 
   /// Returns the position of the square target during drag as a global offset.
-  Offset? _squareTargetGlobalOffset(Offset localPosition, RenderBox box) {
+  Offset? _squareTargetGlobalOffset(
+      Offset localPosition, RenderBox box, bool isMousePointer) {
     final square = widget.offsetSquare(localPosition);
     if (square == null) return null;
     final localOffset = widget.squareOffset(square);
     final tmpOffset = box.localToGlobal(localOffset);
+    if (isMousePointer) {
+      return Offset(
+        tmpOffset.dx,
+        tmpOffset.dy,
+      );
+    }
     return Offset(
       (widget.settings.border?.width ?? 0) +
           tmpOffset.dx -
@@ -691,9 +698,12 @@ class _BoardState extends State<Chessboard> {
       _onDragStart(_currentPointerDownEvent!);
     }
 
+    final bool isMousePointer = details.kind == PointerDeviceKind.mouse;
+
     _dragAvatar?.update(details);
     _dragAvatar?.updateSquareTarget(
-      _squareTargetGlobalOffset(details.localPosition, _renderBox!),
+      _squareTargetGlobalOffset(
+          details.localPosition, _renderBox!, isMousePointer),
     );
   }
 
@@ -804,6 +814,7 @@ class _BoardState extends State<Chessboard> {
     final square = widget.offsetSquare(origin.localPosition);
     final piece = square != null ? pieces[square] : null;
     final feedbackSize = widget.squareSize * widget.settings.dragFeedbackScale;
+    final bool isMousePointer = origin.kind == PointerDeviceKind.mouse;
     if (square != null &&
         piece != null &&
         (_isMovable(piece) || _isPremovable(piece))) {
@@ -815,24 +826,30 @@ class _BoardState extends State<Chessboard> {
       final dragFeedbackOffsetY = (_isUpsideDown(piece.color) ? -1 : 1) *
           widget.settings.dragFeedbackOffset.dy;
 
+      final Offset mouseOffset = Offset(
+        ((widget.settings.dragFeedbackOffset.dx - 1) * feedbackSize) / 2,
+        ((dragFeedbackOffsetY - 1) * feedbackSize) / 4,
+      );
+      final Offset touchOffset = Offset(
+        ((widget.settings.dragFeedbackOffset.dx - 1) * feedbackSize) / 2,
+        ((dragFeedbackOffsetY - 1) * feedbackSize) / 2,
+      );
+
       _dragAvatar = _DragAvatar(
         overlayState: Overlay.of(context, debugRequiredFor: widget),
         initialPosition: origin.position,
-        initialTargetPosition:
-            _squareTargetGlobalOffset(origin.localPosition, _renderBox!),
+        initialTargetPosition: _squareTargetGlobalOffset(
+            origin.localPosition, _renderBox!, isMousePointer),
         squareTargetFeedback: Container(
-          width: widget.squareSize * 2,
-          height: widget.squareSize * 2,
-          decoration: const BoxDecoration(
+          width: isMousePointer ? widget.squareSize : widget.squareSize * 2,
+          height: isMousePointer ? widget.squareSize : widget.squareSize * 2,
+          decoration: BoxDecoration(
             color: Color(0x33000000),
-            shape: BoxShape.circle,
+            shape: isMousePointer ? BoxShape.rectangle : BoxShape.circle,
           ),
         ),
         pieceFeedback: Transform.translate(
-          offset: Offset(
-            ((widget.settings.dragFeedbackOffset.dx - 1) * feedbackSize) / 2,
-            ((dragFeedbackOffsetY - 1) * feedbackSize) / 2,
-          ),
+          offset: isMousePointer ? mouseOffset : touchOffset,
           child: PieceWidget(
             piece: piece,
             size: feedbackSize,
