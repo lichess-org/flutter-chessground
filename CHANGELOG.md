@@ -4,6 +4,7 @@
   target.
 - Detects if the drag is triggered with a mouse or a touch event, and adjust the
   drag settings accordingly to provide a better experience.
+- Removed the `withValues` not yet available in specified dart sdk version.
 
 ## 6.0.0
 
