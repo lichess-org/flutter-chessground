@@ -1,3 +1,10 @@
+## 6.1.0
+
+- Added a new `DragTargetKind` settings to control the appearance of the drag
+  target.
+- Detects if the drag is triggered with a mouse or a touch event, and adjust the
+  drag settings accordingly to provide a better experience.
+
 ## 6.0.0
 
 ### Breaking changes:
