@@ -67,6 +67,7 @@ class _HomePageState extends State<HomePage> {
   Side sideToMove = Side.white;
   PieceSet pieceSet = PieceSet.gioco;
   PieceShiftMethod pieceShiftMethod = PieceShiftMethod.either;
+  DragTargetKind dragTargetKind = DragTargetKind.circle;
   BoardTheme boardTheme = BoardTheme.brown;
   bool drawMode = true;
   bool pieceAnimation = true;
@@ -86,21 +87,27 @@ class _HomePageState extends State<HomePage> {
         mainAxisSize: MainAxisSize.max,
         children: [
           ElevatedButton(
-            child: Text('Orientation: ${orientation.name}'),
-            onPressed: () {
-              setState(() {
-                orientation = orientation.opposite;
-              });
-            },
-          ),
-          const SizedBox(width: 8),
-          ElevatedButton(
             child: Text("Magnify drag: ${dragMagnify ? 'ON' : 'OFF'}"),
             onPressed: () {
               setState(() {
                 dragMagnify = !dragMagnify;
               });
             },
+          ),
+          const SizedBox(width: 8),
+          ElevatedButton(
+            child: Text('Drag target: ${dragTargetKind.name}'),
+            onPressed: () => _showChoicesPicker<DragTargetKind>(
+              context,
+              choices: DragTargetKind.values,
+              selectedItem: dragTargetKind,
+              labelBuilder: (t) => Text(t.name),
+              onSelectedItemChanged: (DragTargetKind value) {
+                setState(() {
+                  dragTargetKind = value;
+                });
+              },
+            ),
           ),
         ],
       ),
@@ -109,10 +116,10 @@ class _HomePageState extends State<HomePage> {
         mainAxisSize: MainAxisSize.max,
         children: [
           ElevatedButton(
-            child: Text("Drawing mode: ${drawMode ? 'ON' : 'OFF'}"),
+            child: Text('Orientation: ${orientation.name}'),
             onPressed: () {
               setState(() {
-                drawMode = !drawMode;
+                orientation = orientation.opposite;
               });
             },
           ),
@@ -311,6 +318,7 @@ class _HomePageState extends State<HomePage> {
                   ? const Duration(milliseconds: 200)
                   : Duration.zero,
               dragFeedbackScale: dragMagnify ? 2.0 : 1.0,
+              dragTargetKind: dragTargetKind,
               drawShape: DrawShapeOptions(
                 enable: drawMode,
                 onCompleteShape: _onCompleteShape,

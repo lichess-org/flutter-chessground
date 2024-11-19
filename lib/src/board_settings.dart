@@ -29,9 +29,20 @@ enum PieceOrientationBehavior {
   sideToPlay,
 }
 
-@immutable
+/// Describes the kind of drag target highlighted on the board when dragging a piece.
+enum DragTargetKind {
+  /// A circle twice the size of a board square.
+  circle,
+
+  /// A square the size of a board square.
+  square,
+
+  /// No target is shown.
+  none;
+}
 
 /// Describes the border of the board.
+@immutable
 class BoardBorder {
   /// Creates a new border with the provided values.
   const BoardBorder({
@@ -91,6 +102,7 @@ class ChessboardSettings {
     this.blindfoldMode = false,
     this.dragFeedbackScale = 2.0,
     this.dragFeedbackOffset = const Offset(0.0, -1.0),
+    this.dragTargetKind = DragTargetKind.circle,
     this.pieceOrientationBehavior = PieceOrientationBehavior.facingUser,
 
     // shape drawing
@@ -139,6 +151,9 @@ class ChessboardSettings {
   // Offset for the piece currently under drag
   final Offset dragFeedbackOffset;
 
+  /// The kind of drag target highlight when dragging a piece
+  final DragTargetKind dragTargetKind;
+
   /// Controls if any pieces are displayed upside down.
   final PieceOrientationBehavior pieceOrientationBehavior;
 
@@ -180,6 +195,7 @@ class ChessboardSettings {
         other.blindfoldMode == blindfoldMode &&
         other.dragFeedbackScale == dragFeedbackScale &&
         other.dragFeedbackOffset == dragFeedbackOffset &&
+        other.dragTargetKind == dragTargetKind &&
         other.pieceOrientationBehavior == pieceOrientationBehavior &&
         other.enablePremoveCastling == enablePremoveCastling &&
         other.autoQueenPromotion == autoQueenPromotion &&
@@ -202,6 +218,7 @@ class ChessboardSettings {
         blindfoldMode,
         dragFeedbackScale,
         dragFeedbackOffset,
+        dragTargetKind,
         pieceOrientationBehavior,
         enablePremoveCastling,
         autoQueenPromotion,
@@ -222,6 +239,7 @@ class ChessboardSettings {
     bool? blindfoldMode,
     double? dragFeedbackScale,
     Offset? dragFeedbackOffset,
+    DragTargetKind? dragTargetKind,
     PieceOrientationBehavior? pieceOrientationBehavior,
     bool? enablePremoveCastling,
     bool? autoQueenPromotion,
@@ -242,6 +260,7 @@ class ChessboardSettings {
       blindfoldMode: blindfoldMode ?? this.blindfoldMode,
       dragFeedbackScale: dragFeedbackScale ?? this.dragFeedbackScale,
       dragFeedbackOffset: dragFeedbackOffset ?? this.dragFeedbackOffset,
+      dragTargetKind: dragTargetKind ?? this.dragTargetKind,
       pieceOrientationBehavior:
           pieceOrientationBehavior ?? this.pieceOrientationBehavior,
       enablePremoveCastling:
