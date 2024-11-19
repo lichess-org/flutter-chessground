@@ -520,24 +520,21 @@ class _BoardState extends State<Chessboard> {
 
   /// Returns the position of the square target during drag as a global offset.
   Offset? _squareTargetGlobalOffset(
-      Offset localPosition, RenderBox box, bool isMousePointer) {
+    Offset localPosition,
+    RenderBox box, {
+    required bool isLargeCircle,
+  }) {
     final square = widget.offsetSquare(localPosition);
     if (square == null) return null;
     final localOffset = widget.squareOffset(square);
     final tmpOffset = box.localToGlobal(localOffset);
-    if (isMousePointer) {
-      return Offset(
-        tmpOffset.dx,
-        tmpOffset.dy,
-      );
-    }
     return Offset(
       (widget.settings.border?.width ?? 0) +
           tmpOffset.dx -
-          widget.squareSize / 2,
+          (isLargeCircle ? widget.squareSize / 2 : 0),
       (widget.settings.border?.width ?? 0) +
           tmpOffset.dy -
-          widget.squareSize / 2,
+          (isLargeCircle ? widget.squareSize / 2 : 0),
     );
   }
 
@@ -703,7 +700,11 @@ class _BoardState extends State<Chessboard> {
     _dragAvatar?.update(details);
     _dragAvatar?.updateSquareTarget(
       _squareTargetGlobalOffset(
-          details.localPosition, _renderBox!, isMousePointer),
+        details.localPosition,
+        _renderBox!,
+        isLargeCircle: !isMousePointer &&
+            widget.settings.dragTargetKind == DragTargetKind.circle,
+      ),
     );
   }
 
@@ -811,10 +812,11 @@ class _BoardState extends State<Chessboard> {
   }
 
   void _onDragStart(PointerEvent origin) {
+    final bool isMousePointer = origin.kind == PointerDeviceKind.mouse;
     final square = widget.offsetSquare(origin.localPosition);
     final piece = square != null ? pieces[square] : null;
-    final feedbackSize = widget.squareSize * widget.settings.dragFeedbackScale;
-    final bool isMousePointer = origin.kind == PointerDeviceKind.mouse;
+    final feedbackSize = widget.squareSize *
+        (isMousePointer ? 1 : widget.settings.dragFeedbackScale);
     if (square != null &&
         piece != null &&
         (_isMovable(piece) || _isPremovable(piece))) {
@@ -826,30 +828,53 @@ class _BoardState extends State<Chessboard> {
       final dragFeedbackOffsetY = (_isUpsideDown(piece.color) ? -1 : 1) *
           widget.settings.dragFeedbackOffset.dy;
 
-      final Offset mouseOffset = Offset(
-        ((widget.settings.dragFeedbackOffset.dx - 1) * feedbackSize) / 2,
-        ((dragFeedbackOffsetY - 1) * feedbackSize) / 4,
-      );
-      final Offset touchOffset = Offset(
-        ((widget.settings.dragFeedbackOffset.dx - 1) * feedbackSize) / 2,
-        ((dragFeedbackOffsetY - 1) * feedbackSize) / 2,
-      );
+      final Offset feedbackOffset = feedbackSize == widget.squareSize
+          ? Offset(
+              (-1 * feedbackSize) / 2,
+              (-1 * feedbackSize) / 2,
+            )
+          : Offset(
+              ((widget.settings.dragFeedbackOffset.dx - 1) * feedbackSize) / 2,
+              ((dragFeedbackOffsetY - 1) * feedbackSize) / 2,
+            );
+
+      final targetKind = isMousePointer &&
+              widget.settings.dragTargetKind != DragTargetKind.none
+          ? DragTargetKind.square
+          : widget.settings.dragTargetKind;
+
+      final targetWidget = switch (targetKind) {
+        DragTargetKind.circle => Container(
+            key: const ValueKey('drag-target-circle'),
+            width: widget.squareSize * 2,
+            height: widget.squareSize * 2,
+            decoration: const BoxDecoration(
+              color: Color(0x33000000),
+              shape: BoxShape.circle,
+            ),
+          ),
+        DragTargetKind.square => Container(
+            key: const ValueKey('drag-target-square'),
+            width: widget.squareSize,
+            height: widget.squareSize,
+            decoration: const BoxDecoration(
+              color: Color(0x33000000),
+            ),
+          ),
+        DragTargetKind.none => const SizedBox.shrink(),
+      };
 
       _dragAvatar = _DragAvatar(
         overlayState: Overlay.of(context, debugRequiredFor: widget),
         initialPosition: origin.position,
         initialTargetPosition: _squareTargetGlobalOffset(
-            origin.localPosition, _renderBox!, isMousePointer),
-        squareTargetFeedback: Container(
-          width: isMousePointer ? widget.squareSize : widget.squareSize * 2,
-          height: isMousePointer ? widget.squareSize : widget.squareSize * 2,
-          decoration: BoxDecoration(
-            color: Color(0x33000000),
-            shape: isMousePointer ? BoxShape.rectangle : BoxShape.circle,
-          ),
+          origin.localPosition,
+          _renderBox!,
+          isLargeCircle: targetKind == DragTargetKind.circle,
         ),
+        squareTargetFeedback: targetWidget,
         pieceFeedback: Transform.translate(
-          offset: isMousePointer ? mouseOffset : touchOffset,
+          offset: feedbackOffset,
           child: PieceWidget(
             piece: piece,
             size: feedbackSize,
