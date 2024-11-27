@@ -46,6 +46,7 @@ class Chessboard extends StatefulWidget with ChessboardGeometry {
     required this.game,
     this.shapes,
     this.annotations,
+    this.castlingMethod = CastlingMethod.both,
   }) : _size = size;
 
   /// Creates a new chessboard widget that cannot be interacted with.
@@ -56,6 +57,7 @@ class Chessboard extends StatefulWidget with ChessboardGeometry {
     super.key,
     required double size,
     this.settings = const ChessboardSettings(),
+    this.castlingMethod = CastlingMethod.both,
     required this.orientation,
     required this.fen,
     this.lastMove,
@@ -77,6 +79,9 @@ class Chessboard extends StatefulWidget with ChessboardGeometry {
 
   /// Settings that control the theme and behavior of the board.
   final ChessboardSettings settings;
+
+  /// The methods available for castling, used for premoves
+  final CastlingMethod castlingMethod;
 
   /// If `true` the opponent`s pieces are displayed rotated by 180 degrees.
   final bool opponentsPiecesUpsideDown;
@@ -179,6 +184,7 @@ class _BoardState extends State<Chessboard> {
   @override
   Widget build(BuildContext context) {
     final settings = widget.settings;
+    final castlingMethod = widget.castlingMethod;
     final colorScheme = settings.colorScheme;
     final ISet<Square> moveDests = settings.showValidMoves &&
             selected != null &&
@@ -639,6 +645,7 @@ class _BoardState extends State<Chessboard> {
           square,
           pieces,
           canCastle: widget.settings.enablePremoveCastling,
+          castlingMethod: widget.castlingMethod
         );
       });
     }
@@ -947,6 +954,7 @@ class _BoardState extends State<Chessboard> {
           orig,
           pieces,
           canCastle: widget.settings.enablePremoveCastling,
+          castlingMethod: widget.castlingMethod,
         ).contains(dest);
   }
 

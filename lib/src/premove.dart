@@ -7,6 +7,8 @@ Set<Square> premovesOf(
   Square square,
   Pieces pieces, {
   bool canCastle = false,
+  CastlingMethod castlingMethod =
+      CastlingMethod.both,
 }) {
   final piece = pieces[square];
   if (piece == null) return {};
@@ -29,6 +31,7 @@ Set<Square> premovesOf(
           piece.color,
           _rookFilesOf(pieces, piece.color),
           canCastle,
+          castlingMethod,
         );
     }
   })();
@@ -73,16 +76,25 @@ bool _queen(int x1, int y1, int x2, int y2) {
   return _bishop(x1, y1, x2, y2) || _rook(x1, y1, x2, y2);
 }
 
-_Mobility _king(Side color, List<File> rookFiles, bool canCastle) {
+_Mobility _king(Side color, List<File> rookFiles, bool canCastle,
+    CastlingMethod castlingmethod) {
   return (int x1, int y1, int x2, int y2) =>
       (_diff(x1, x2) < 2 && _diff(y1, y2) < 2) ||
       (canCastle &&
-          y1 == y2 &&
-          y1 == (color == Side.white ? 0 : 7) &&
-          ((x1 == 4 &&
-                  ((x2 == 2 && rookFiles.contains(0)) ||
-                      (x2 == 6 && rookFiles.contains(7)))) ||
-              rookFiles.contains(x2)));
+          y1 == y2 && //dest square is on the same rank
+          y1 ==
+              (color == Side.white
+                  ? 0
+                  : 7) && // king is on back rank (colour dependent)
+          ((x1 == 4 && // king is on initial file
+                  (castlingmethod != CastlingMethod.kingOverRook &&
+                      ((x2 == 2 &&
+                              rookFiles.contains(0)) || //two squares queen side
+                          (x2 == 6 &&
+                              rookFiles
+                                  .contains(7))))) || //two squares king side
+              (castlingmethod != CastlingMethod.kingTwoSquares &&
+                  rookFiles.contains(x2)))); // king onto rook
 }
 
 List<File> _rookFilesOf(Pieces pieces, Side color) {
