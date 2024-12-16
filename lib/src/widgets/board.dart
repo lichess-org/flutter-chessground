@@ -402,26 +402,23 @@ class _BoardState extends State<Chessboard> {
       ),
     );
 
-    final coloredBoard =
-        widget.settings.hue != 0 || widget.settings.brightness != 0
-            ? ChangeColors(
-                hue: widget.settings.hue,
-                brightness: widget.settings.brightness,
-                child: board,
-              )
-            : board;
+    final borderedChessboard = settings.border != null
+        ? BorderedChessboard(
+            size: widget.size,
+            orientation: widget.orientation,
+            border: settings.border!,
+            showCoordinates: settings.enableCoordinates,
+            child: board,
+          )
+        : board;
 
-    if (settings.border != null) {
-      return BorderedChessboard(
-        size: widget.size,
-        orientation: widget.orientation,
-        border: settings.border!,
-        showCoordinates: settings.enableCoordinates,
-        child: coloredBoard,
-      );
-    }
-
-    return coloredBoard;
+    return widget.settings.hue != 0 || widget.settings.brightness != 0
+        ? ChangeColors(
+            hue: widget.settings.hue,
+            brightness: widget.settings.brightness,
+            child: borderedChessboard,
+          )
+        : borderedChessboard;
   }
 
   @override
