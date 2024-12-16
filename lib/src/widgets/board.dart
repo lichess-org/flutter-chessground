@@ -359,52 +359,57 @@ class _BoardState extends State<Chessboard> {
       onPointerMove: enableListeners ? _onPointerMove : null,
       onPointerUp: enableListeners ? _onPointerUp : null,
       onPointerCancel: enableListeners ? _onPointerCancel : null,
-      child: ChangeColors(
-        brightness: settings.brightness,
-        hue: settings.hue,
-        child: SizedBox.square(
-          key: const ValueKey('board-container'),
-          dimension: widget.size,
-          child: Stack(
-            alignment: Alignment.topLeft,
-            clipBehavior: Clip.none,
-            children: [
-              if (settings.border == null &&
-                  (settings.boxShadow.isNotEmpty ||
-                      settings.borderRadius != BorderRadius.zero))
-                Container(
-                  key: const ValueKey('background-container'),
-                  clipBehavior: Clip.hardEdge,
-                  decoration: BoxDecoration(
-                    borderRadius: settings.borderRadius,
-                    boxShadow: settings.boxShadow,
-                  ),
-                  child: Stack(
-                    alignment: Alignment.topLeft,
-                    children: highlightedBackground,
-                  ),
-                )
-              else
-                ...highlightedBackground,
-              ...objects,
-              if (widget.game?.promotionMove != null)
-                PromotionSelector(
-                  pieceAssets: settings.pieceAssets,
-                  move: widget.game!.promotionMove!,
-                  size: widget.size,
-                  color: widget.game!.sideToMove,
-                  orientation: widget.orientation,
-                  piecesUpsideDown: _isUpsideDown(widget.game!.sideToMove),
-                  onSelect: widget.game!.onPromotionSelection,
-                  onCancel: () {
-                    widget.game!.onPromotionSelection(null);
-                  },
+      child: SizedBox.square(
+        key: const ValueKey('board-container'),
+        dimension: widget.size,
+        child: Stack(
+          alignment: Alignment.topLeft,
+          clipBehavior: Clip.none,
+          children: [
+            if (settings.border == null &&
+                (settings.boxShadow.isNotEmpty ||
+                    settings.borderRadius != BorderRadius.zero))
+              Container(
+                key: const ValueKey('background-container'),
+                clipBehavior: Clip.hardEdge,
+                decoration: BoxDecoration(
+                  borderRadius: settings.borderRadius,
+                  boxShadow: settings.boxShadow,
                 ),
-            ],
-          ),
+                child: Stack(
+                  alignment: Alignment.topLeft,
+                  children: highlightedBackground,
+                ),
+              )
+            else
+              ...highlightedBackground,
+            ...objects,
+            if (widget.game?.promotionMove != null)
+              PromotionSelector(
+                pieceAssets: settings.pieceAssets,
+                move: widget.game!.promotionMove!,
+                size: widget.size,
+                color: widget.game!.sideToMove,
+                orientation: widget.orientation,
+                piecesUpsideDown: _isUpsideDown(widget.game!.sideToMove),
+                onSelect: widget.game!.onPromotionSelection,
+                onCancel: () {
+                  widget.game!.onPromotionSelection(null);
+                },
+              ),
+          ],
         ),
       ),
     );
+
+    final coloredBoard =
+        widget.settings.hue != 0 || widget.settings.brightness != 0
+            ? ChangeColors(
+                hue: widget.settings.hue,
+                brightness: widget.settings.brightness,
+                child: board,
+              )
+            : board;
 
     if (settings.border != null) {
       return BorderedChessboard(
@@ -412,11 +417,11 @@ class _BoardState extends State<Chessboard> {
         orientation: widget.orientation,
         border: settings.border!,
         showCoordinates: settings.enableCoordinates,
-        child: board,
+        child: coloredBoard,
       );
     }
 
-    return board;
+    return coloredBoard;
   }
 
   @override

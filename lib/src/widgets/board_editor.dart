@@ -232,20 +232,29 @@ class _BoardEditorState extends State<ChessboardEditor> {
       ),
     );
 
+    final coloredBoard =
+        widget.settings.hue != 0 || widget.settings.brightness != 0
+            ? ChangeColors(
+                hue: widget.settings.hue,
+                brightness: widget.settings.brightness,
+                child: board,
+              )
+            : board;
+
     if (widget.settings.border != null) {
       return BorderedChessboard(
         size: widget.size,
         orientation: widget.orientation,
         border: widget.settings.border!,
         showCoordinates: widget.settings.enableCoordinates,
-        child: board,
+        child: coloredBoard,
       );
     }
 
     return ChangeColors(
       brightness: widget.settings.brightness,
       hue: widget.settings.hue,
-      child: board,
+      child: coloredBoard,
     );
   }
 

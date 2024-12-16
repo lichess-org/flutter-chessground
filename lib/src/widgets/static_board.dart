@@ -118,45 +118,49 @@ class _StaticChessboardState extends State<StaticChessboard> {
             child: SquareHighlight(details: widget.colorScheme.lastMove),
           ),
     ];
-    return ChangeColors(
-      brightness: widget.brightness,
-      hue: widget.hue,
-      child: SizedBox.square(
-        dimension: widget.size,
-        child: Stack(
-          alignment: Alignment.topLeft,
-          clipBehavior: Clip.none,
-          children: [
-            if (widget.boxShadow.isNotEmpty ||
-                widget.borderRadius != BorderRadius.zero)
-              Container(
-                clipBehavior: Clip.hardEdge,
-                decoration: BoxDecoration(
-                  borderRadius: widget.borderRadius,
-                  boxShadow: widget.boxShadow,
+    final board = SizedBox.square(
+      dimension: widget.size,
+      child: Stack(
+        alignment: Alignment.topLeft,
+        clipBehavior: Clip.none,
+        children: [
+          if (widget.boxShadow.isNotEmpty ||
+              widget.borderRadius != BorderRadius.zero)
+            Container(
+              clipBehavior: Clip.hardEdge,
+              decoration: BoxDecoration(
+                borderRadius: widget.borderRadius,
+                boxShadow: widget.boxShadow,
+              ),
+              child: Stack(
+                alignment: Alignment.topLeft,
+                children: highlightedBackground,
+              ),
+            )
+          else
+            ...highlightedBackground,
+          if (!deferImagesLoading)
+            for (final entry in readFen(widget.fen).entries)
+              PositionedSquare(
+                size: widget.size,
+                orientation: widget.orientation,
+                square: entry.key,
+                child: PieceWidget(
+                  piece: entry.value,
+                  size: widget.squareSize,
+                  pieceAssets: widget.pieceAssets,
                 ),
-                child: Stack(
-                  alignment: Alignment.topLeft,
-                  children: highlightedBackground,
-                ),
-              )
-            else
-              ...highlightedBackground,
-            if (!deferImagesLoading)
-              for (final entry in readFen(widget.fen).entries)
-                PositionedSquare(
-                  size: widget.size,
-                  orientation: widget.orientation,
-                  square: entry.key,
-                  child: PieceWidget(
-                    piece: entry.value,
-                    size: widget.squareSize,
-                    pieceAssets: widget.pieceAssets,
-                  ),
-                ),
-          ],
-        ),
+              ),
+        ],
       ),
     );
+
+    return widget.hue != 0 || widget.brightness != 0
+        ? ChangeColors(
+            hue: widget.hue,
+            brightness: widget.brightness,
+            child: board,
+          )
+        : board;
   }
 }
