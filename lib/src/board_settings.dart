@@ -237,6 +237,8 @@ class ChessboardSettings {
 
   ChessboardSettings copyWith({
     ChessboardColorScheme? colorScheme,
+    double? brightness,
+    double? hue,
     PieceAssets? pieceAssets,
     BorderRadiusGeometry? borderRadius,
     List<BoxShadow>? boxShadow,
@@ -257,6 +259,8 @@ class ChessboardSettings {
   }) {
     return ChessboardSettings(
       colorScheme: colorScheme ?? this.colorScheme,
+      brightness: brightness ?? this.brightness,
+      hue: hue ?? this.hue,
       pieceAssets: pieceAssets ?? this.pieceAssets,
       border: border,
       borderRadius: borderRadius ?? this.borderRadius,

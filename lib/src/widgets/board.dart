@@ -354,50 +354,54 @@ class _BoardState extends State<Chessboard> {
 
     final enableListeners = widget.interactive || settings.drawShape.enable;
 
-    final board = Listener(
-      onPointerDown: enableListeners ? _onPointerDown : null,
-      onPointerMove: enableListeners ? _onPointerMove : null,
-      onPointerUp: enableListeners ? _onPointerUp : null,
-      onPointerCancel: enableListeners ? _onPointerCancel : null,
-      child: SizedBox.square(
-        key: const ValueKey('board-container'),
-        dimension: widget.size,
-        child: Stack(
-          alignment: Alignment.topLeft,
-          clipBehavior: Clip.none,
-          children: [
-            if (settings.border == null &&
-                (settings.boxShadow.isNotEmpty ||
-                    settings.borderRadius != BorderRadius.zero))
-              Container(
-                key: const ValueKey('background-container'),
-                clipBehavior: Clip.hardEdge,
-                decoration: BoxDecoration(
-                  borderRadius: settings.borderRadius,
-                  boxShadow: settings.boxShadow,
+    final board = ChangeColors(
+      brightness: settings.brightness,
+      hue: settings.hue,
+      child: Listener(
+        onPointerDown: enableListeners ? _onPointerDown : null,
+        onPointerMove: enableListeners ? _onPointerMove : null,
+        onPointerUp: enableListeners ? _onPointerUp : null,
+        onPointerCancel: enableListeners ? _onPointerCancel : null,
+        child: SizedBox.square(
+          key: const ValueKey('board-container'),
+          dimension: widget.size,
+          child: Stack(
+            alignment: Alignment.topLeft,
+            clipBehavior: Clip.none,
+            children: [
+              if (settings.border == null &&
+                  (settings.boxShadow.isNotEmpty ||
+                      settings.borderRadius != BorderRadius.zero))
+                Container(
+                  key: const ValueKey('background-container'),
+                  clipBehavior: Clip.hardEdge,
+                  decoration: BoxDecoration(
+                    borderRadius: settings.borderRadius,
+                    boxShadow: settings.boxShadow,
+                  ),
+                  child: Stack(
+                    alignment: Alignment.topLeft,
+                    children: highlightedBackground,
+                  ),
+                )
+              else
+                ...highlightedBackground,
+              ...objects,
+              if (widget.game?.promotionMove != null)
+                PromotionSelector(
+                  pieceAssets: settings.pieceAssets,
+                  move: widget.game!.promotionMove!,
+                  size: widget.size,
+                  color: widget.game!.sideToMove,
+                  orientation: widget.orientation,
+                  piecesUpsideDown: _isUpsideDown(widget.game!.sideToMove),
+                  onSelect: widget.game!.onPromotionSelection,
+                  onCancel: () {
+                    widget.game!.onPromotionSelection(null);
+                  },
                 ),
-                child: Stack(
-                  alignment: Alignment.topLeft,
-                  children: highlightedBackground,
-                ),
-              )
-            else
-              ...highlightedBackground,
-            ...objects,
-            if (widget.game?.promotionMove != null)
-              PromotionSelector(
-                pieceAssets: settings.pieceAssets,
-                move: widget.game!.promotionMove!,
-                size: widget.size,
-                color: widget.game!.sideToMove,
-                orientation: widget.orientation,
-                piecesUpsideDown: _isUpsideDown(widget.game!.sideToMove),
-                onSelect: widget.game!.onPromotionSelection,
-                onCancel: () {
-                  widget.game!.onPromotionSelection(null);
-                },
-              ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -412,11 +416,7 @@ class _BoardState extends State<Chessboard> {
       );
     }
 
-    return ChangeColors(
-      brightness: settings.brightness,
-      hue: settings.hue,
-      child: board,
-    );
+    return board;
   }
 
   @override
