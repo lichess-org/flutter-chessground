@@ -6,6 +6,7 @@ import 'package:flutter/widgets.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 
 import 'board_border.dart';
+import 'change_colors.dart';
 import 'piece.dart';
 import 'highlight.dart';
 import 'positioned_square.dart';
@@ -411,7 +412,11 @@ class _BoardState extends State<Chessboard> {
       );
     }
 
-    return board;
+    return ChangeColors(
+      brightness: settings.brightness,
+      hue: settings.hue,
+      child: board,
+    );
   }
 
   @override

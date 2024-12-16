@@ -7,6 +7,7 @@ import '../board_settings.dart';
 import '../models.dart';
 import '../fen.dart';
 import 'board_border.dart';
+import 'change_colors.dart';
 import 'highlight.dart';
 import 'piece.dart';
 import 'positioned_square.dart';
@@ -241,7 +242,11 @@ class _BoardEditorState extends State<ChessboardEditor> {
       );
     }
 
-    return board;
+    return ChangeColors(
+      brightness: widget.settings.brightness,
+      hue: widget.settings.hue,
+      child: board,
+    );
   }
 
   void _onTouchedEvent(Offset localPosition) {

@@ -7,6 +7,7 @@ import '../board_color_scheme.dart';
 import '../fen.dart';
 import '../models.dart';
 import '../piece_set.dart';
+import 'change_colors.dart';
 import 'geometry.dart';
 import 'highlight.dart';
 import 'piece.dart';
@@ -25,6 +26,8 @@ class StaticChessboard extends StatefulWidget with ChessboardGeometry {
     required this.fen,
     this.lastMove,
     this.colorScheme = ChessboardColorScheme.brown,
+    this.brightness = 0.0,
+    this.hue = 0.0,
     this.pieceAssets = PieceSet.stauntyAssets,
     this.borderRadius = BorderRadius.zero,
     this.boxShadow = const <BoxShadow>[],
@@ -48,6 +51,12 @@ class StaticChessboard extends StatefulWidget with ChessboardGeometry {
 
   /// Theme of the board
   final ChessboardColorScheme colorScheme;
+
+  /// Brightness adjustment of the board
+  final double brightness;
+
+  /// Hue adjustment of the board
+  final double hue;
 
   /// Piece set
   final PieceAssets pieceAssets;
@@ -109,40 +118,44 @@ class _StaticChessboardState extends State<StaticChessboard> {
             child: SquareHighlight(details: widget.colorScheme.lastMove),
           ),
     ];
-    return SizedBox.square(
-      dimension: widget.size,
-      child: Stack(
-        alignment: Alignment.topLeft,
-        clipBehavior: Clip.none,
-        children: [
-          if (widget.boxShadow.isNotEmpty ||
-              widget.borderRadius != BorderRadius.zero)
-            Container(
-              clipBehavior: Clip.hardEdge,
-              decoration: BoxDecoration(
-                borderRadius: widget.borderRadius,
-                boxShadow: widget.boxShadow,
-              ),
-              child: Stack(
-                alignment: Alignment.topLeft,
-                children: highlightedBackground,
-              ),
-            )
-          else
-            ...highlightedBackground,
-          if (!deferImagesLoading)
-            for (final entry in readFen(widget.fen).entries)
-              PositionedSquare(
-                size: widget.size,
-                orientation: widget.orientation,
-                square: entry.key,
-                child: PieceWidget(
-                  piece: entry.value,
-                  size: widget.squareSize,
-                  pieceAssets: widget.pieceAssets,
+    return ChangeColors(
+      brightness: widget.brightness,
+      hue: widget.hue,
+      child: SizedBox.square(
+        dimension: widget.size,
+        child: Stack(
+          alignment: Alignment.topLeft,
+          clipBehavior: Clip.none,
+          children: [
+            if (widget.boxShadow.isNotEmpty ||
+                widget.borderRadius != BorderRadius.zero)
+              Container(
+                clipBehavior: Clip.hardEdge,
+                decoration: BoxDecoration(
+                  borderRadius: widget.borderRadius,
+                  boxShadow: widget.boxShadow,
                 ),
-              ),
-        ],
+                child: Stack(
+                  alignment: Alignment.topLeft,
+                  children: highlightedBackground,
+                ),
+              )
+            else
+              ...highlightedBackground,
+            if (!deferImagesLoading)
+              for (final entry in readFen(widget.fen).entries)
+                PositionedSquare(
+                  size: widget.size,
+                  orientation: widget.orientation,
+                  square: entry.key,
+                  child: PieceWidget(
+                    piece: entry.value,
+                    size: widget.squareSize,
+                    pieceAssets: widget.pieceAssets,
+                  ),
+                ),
+          ],
+        ),
       ),
     );
   }
