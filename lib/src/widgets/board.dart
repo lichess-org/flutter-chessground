@@ -354,14 +354,14 @@ class _BoardState extends State<Chessboard> {
 
     final enableListeners = widget.interactive || settings.drawShape.enable;
 
-    final board = ChangeColors(
-      brightness: settings.brightness,
-      hue: settings.hue,
-      child: Listener(
-        onPointerDown: enableListeners ? _onPointerDown : null,
-        onPointerMove: enableListeners ? _onPointerMove : null,
-        onPointerUp: enableListeners ? _onPointerUp : null,
-        onPointerCancel: enableListeners ? _onPointerCancel : null,
+    final board = Listener(
+      onPointerDown: enableListeners ? _onPointerDown : null,
+      onPointerMove: enableListeners ? _onPointerMove : null,
+      onPointerUp: enableListeners ? _onPointerUp : null,
+      onPointerCancel: enableListeners ? _onPointerCancel : null,
+      child: ChangeColors(
+        brightness: settings.brightness,
+        hue: settings.hue,
         child: SizedBox.square(
           key: const ValueKey('board-container'),
           dimension: widget.size,
