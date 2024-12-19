@@ -1,3 +1,7 @@
+## 6.2.0
+
+- Add the possibility to change board colors
+
 ## 6.1.0
 
 - Added a new `DragTargetKind` settings to control the appearance of the drag
