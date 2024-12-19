@@ -133,9 +133,14 @@ class ChessboardSettings {
   final List<BoxShadow> boxShadow;
 
   /// Brightness adjustment of the board
+  ///
+  /// A value under 1.0 darkens the board, while a value over 1.0 brightens it.
+  /// A value of 0.0 will make it completely black. Default value is 1.0.
   final double brightness;
 
-  /// Hue adjustment of the board
+  /// Hue rotation of the board as an angle in degree from 0.0 to 360.0.
+  ///
+  /// A value of 0.0 leaves the hue unchanged. Default value is 0.0.
   final double hue;
 
   /// Whether to show board coordinates

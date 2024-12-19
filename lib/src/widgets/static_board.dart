@@ -7,7 +7,7 @@ import '../board_color_scheme.dart';
 import '../fen.dart';
 import '../models.dart';
 import '../piece_set.dart';
-import 'change_colors.dart';
+import 'color_filter.dart';
 import 'geometry.dart';
 import 'highlight.dart';
 import 'piece.dart';
@@ -156,7 +156,7 @@ class _StaticChessboardState extends State<StaticChessboard> {
     );
 
     return widget.hue != 0 || widget.brightness != 0
-        ? ChangeColors(
+        ? BrightnessHueFilter(
             hue: widget.hue,
             brightness: widget.brightness,
             child: board,

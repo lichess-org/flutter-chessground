@@ -7,7 +7,7 @@ import '../board_settings.dart';
 import '../models.dart';
 import '../fen.dart';
 import 'board_border.dart';
-import 'change_colors.dart';
+import 'color_filter.dart';
 import 'highlight.dart';
 import 'piece.dart';
 import 'positioned_square.dart';
@@ -234,7 +234,7 @@ class _BoardEditorState extends State<ChessboardEditor> {
 
     final coloredBoard =
         widget.settings.hue != 0 || widget.settings.brightness != 0
-            ? ChangeColors(
+            ? BrightnessHueFilter(
                 hue: widget.settings.hue,
                 brightness: widget.settings.brightness,
                 child: board,
@@ -251,7 +251,7 @@ class _BoardEditorState extends State<ChessboardEditor> {
       );
     }
 
-    return ChangeColors(
+    return BrightnessHueFilter(
       brightness: widget.settings.brightness,
       hue: widget.settings.hue,
       child: coloredBoard,

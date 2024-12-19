@@ -6,7 +6,7 @@ import 'package:flutter/widgets.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 
 import 'board_border.dart';
-import 'change_colors.dart';
+import 'color_filter.dart';
 import 'piece.dart';
 import 'highlight.dart';
 import 'positioned_square.dart';
@@ -413,7 +413,7 @@ class _BoardState extends State<Chessboard> {
         : board;
 
     return widget.settings.hue != 0 || widget.settings.brightness != 0
-        ? ChangeColors(
+        ? BrightnessHueFilter(
             hue: widget.settings.hue,
             brightness: widget.settings.brightness,
             child: borderedChessboard,
