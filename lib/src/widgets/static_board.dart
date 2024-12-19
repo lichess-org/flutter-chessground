@@ -26,7 +26,7 @@ class StaticChessboard extends StatefulWidget with ChessboardGeometry {
     required this.fen,
     this.lastMove,
     this.colorScheme = ChessboardColorScheme.brown,
-    this.brightness = 0.0,
+    this.brightness = 1.0,
     this.hue = 0.0,
     this.pieceAssets = PieceSet.stauntyAssets,
     this.borderRadius = BorderRadius.zero,
@@ -155,12 +155,10 @@ class _StaticChessboardState extends State<StaticChessboard> {
       ),
     );
 
-    return widget.hue != 0 || widget.brightness != 0
-        ? BrightnessHueFilter(
-            hue: widget.hue,
-            brightness: widget.brightness,
-            child: board,
-          )
-        : board;
+    return BrightnessHueFilter(
+      hue: widget.hue,
+      brightness: widget.brightness,
+      child: board,
+    );
   }
 }

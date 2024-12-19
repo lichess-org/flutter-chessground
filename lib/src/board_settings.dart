@@ -95,7 +95,7 @@ class ChessboardSettings {
     this.border,
     this.borderRadius = BorderRadius.zero,
     this.boxShadow = const <BoxShadow>[],
-    this.brightness = 0.0,
+    this.brightness = 1.0,
     this.hue = 0.0,
     this.enableCoordinates = true,
     this.animationDuration = const Duration(milliseconds: 250),

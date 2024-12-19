@@ -412,13 +412,11 @@ class _BoardState extends State<Chessboard> {
           )
         : board;
 
-    return widget.settings.hue != 0 || widget.settings.brightness != 0
-        ? BrightnessHueFilter(
-            hue: widget.settings.hue,
-            brightness: widget.settings.brightness,
-            child: borderedChessboard,
-          )
-        : borderedChessboard;
+    return BrightnessHueFilter(
+      hue: widget.settings.hue,
+      brightness: widget.settings.brightness,
+      child: borderedChessboard,
+    );
   }
 
   @override

@@ -1,3 +1,7 @@
+## 6.2.2
+
+- Fix default value of brightness
+
 ## 6.2.1
 
 - Improved the color filter
