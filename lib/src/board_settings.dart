@@ -95,6 +95,8 @@ class ChessboardSettings {
     this.border,
     this.borderRadius = BorderRadius.zero,
     this.boxShadow = const <BoxShadow>[],
+    this.brightness = 0.0,
+    this.hue = 0.0,
     this.enableCoordinates = true,
     this.animationDuration = const Duration(milliseconds: 250),
     this.showLastMove = true,
@@ -129,6 +131,12 @@ class ChessboardSettings {
 
   /// Box shadow of the board
   final List<BoxShadow> boxShadow;
+
+  /// Brightness adjustment of the board
+  final double brightness;
+
+  /// Hue adjustment of the board
+  final double hue;
 
   /// Whether to show board coordinates
   final bool enableCoordinates;
@@ -229,6 +237,8 @@ class ChessboardSettings {
 
   ChessboardSettings copyWith({
     ChessboardColorScheme? colorScheme,
+    double? brightness,
+    double? hue,
     PieceAssets? pieceAssets,
     BorderRadiusGeometry? borderRadius,
     List<BoxShadow>? boxShadow,
@@ -249,6 +259,8 @@ class ChessboardSettings {
   }) {
     return ChessboardSettings(
       colorScheme: colorScheme ?? this.colorScheme,
+      brightness: brightness ?? this.brightness,
+      hue: hue ?? this.hue,
       pieceAssets: pieceAssets ?? this.pieceAssets,
       border: border,
       borderRadius: borderRadius ?? this.borderRadius,

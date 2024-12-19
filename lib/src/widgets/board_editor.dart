@@ -7,6 +7,7 @@ import '../board_settings.dart';
 import '../models.dart';
 import '../fen.dart';
 import 'board_border.dart';
+import 'change_colors.dart';
 import 'highlight.dart';
 import 'piece.dart';
 import 'positioned_square.dart';
@@ -231,17 +232,30 @@ class _BoardEditorState extends State<ChessboardEditor> {
       ),
     );
 
+    final coloredBoard =
+        widget.settings.hue != 0 || widget.settings.brightness != 0
+            ? ChangeColors(
+                hue: widget.settings.hue,
+                brightness: widget.settings.brightness,
+                child: board,
+              )
+            : board;
+
     if (widget.settings.border != null) {
       return BorderedChessboard(
         size: widget.size,
         orientation: widget.orientation,
         border: widget.settings.border!,
         showCoordinates: widget.settings.enableCoordinates,
-        child: board,
+        child: coloredBoard,
       );
     }
 
-    return board;
+    return ChangeColors(
+      brightness: widget.settings.brightness,
+      hue: widget.settings.hue,
+      child: coloredBoard,
+    );
   }
 
   void _onTouchedEvent(Offset localPosition) {

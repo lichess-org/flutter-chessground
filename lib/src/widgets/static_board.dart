@@ -7,6 +7,7 @@ import '../board_color_scheme.dart';
 import '../fen.dart';
 import '../models.dart';
 import '../piece_set.dart';
+import 'change_colors.dart';
 import 'geometry.dart';
 import 'highlight.dart';
 import 'piece.dart';
@@ -25,6 +26,8 @@ class StaticChessboard extends StatefulWidget with ChessboardGeometry {
     required this.fen,
     this.lastMove,
     this.colorScheme = ChessboardColorScheme.brown,
+    this.brightness = 0.0,
+    this.hue = 0.0,
     this.pieceAssets = PieceSet.stauntyAssets,
     this.borderRadius = BorderRadius.zero,
     this.boxShadow = const <BoxShadow>[],
@@ -48,6 +51,12 @@ class StaticChessboard extends StatefulWidget with ChessboardGeometry {
 
   /// Theme of the board
   final ChessboardColorScheme colorScheme;
+
+  /// Brightness adjustment of the board
+  final double brightness;
+
+  /// Hue adjustment of the board
+  final double hue;
 
   /// Piece set
   final PieceAssets pieceAssets;
@@ -109,7 +118,7 @@ class _StaticChessboardState extends State<StaticChessboard> {
             child: SquareHighlight(details: widget.colorScheme.lastMove),
           ),
     ];
-    return SizedBox.square(
+    final board = SizedBox.square(
       dimension: widget.size,
       child: Stack(
         alignment: Alignment.topLeft,
@@ -145,5 +154,13 @@ class _StaticChessboardState extends State<StaticChessboard> {
         ],
       ),
     );
+
+    return widget.hue != 0 || widget.brightness != 0
+        ? ChangeColors(
+            hue: widget.hue,
+            brightness: widget.brightness,
+            child: board,
+          )
+        : board;
   }
 }
