@@ -1,3 +1,9 @@
+## 6.2.1
+
+- Improved the color filter
+- Values of hue and brightness are now precised in the documentation
+- `BrightnessHueFilter` widget is now exposed.
+
 ## 6.2.0
 
 - Add the possibility to change board colors

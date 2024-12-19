@@ -46,7 +46,7 @@ class BrightnessHueFilter extends StatelessWidget {
 }
 
 List<double> _brightnessFilter(List<double> matrix, {required double value}) {
-  return multiplyMatrix5(matrix, <double>[
+  return _multiplyMatrix5(matrix, <double>[
     // dart format off
     value, 0, 0, 0, 0,
     0, value, 0, 0, 0,
@@ -66,7 +66,7 @@ List<double> _hueFilter(List<double> matrix, {required double value}) {
   const double lumG = 0.715;
   const double lumB = 0.072;
 
-  return multiplyMatrix5(matrix, <double>[
+  return _multiplyMatrix5(matrix, <double>[
     (lumR + (cosVal * (1 - lumR))) + (sinVal * (-lumR)),
     (lumG + (cosVal * (-lumG))) + (sinVal * (-lumG)),
     (lumB + (cosVal * (-lumB))) + (sinVal * (1 - lumB)),
@@ -107,7 +107,7 @@ const List<double> _baseMatrix = [
 
 /// Check: https://github.com/openkraken/kraken/blob/main/kraken/lib/src/css/filter.dart
 /// Calc 5x5 matrix multiplication.
-List<double> multiplyMatrix5(List<double> a, List<double> b) {
+List<double> _multiplyMatrix5(List<double> a, List<double> b) {
   if (a.length != b.length) {
     throw ArgumentError('Matrix length should be same.');
   }
