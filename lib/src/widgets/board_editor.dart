@@ -232,26 +232,20 @@ class _BoardEditorState extends State<ChessboardEditor> {
       ),
     );
 
-    final coloredBoard = BrightnessHueFilter(
-      hue: widget.settings.hue,
-      brightness: widget.settings.brightness,
-      child: board,
-    );
-
-    if (widget.settings.border != null) {
-      return BorderedChessboard(
-        size: widget.size,
-        orientation: widget.orientation,
-        border: widget.settings.border!,
-        showCoordinates: widget.settings.enableCoordinates,
-        child: coloredBoard,
-      );
-    }
+    final borderedChessboard = widget.settings.border != null
+        ? BorderedChessboard(
+            size: widget.size,
+            orientation: widget.orientation,
+            border: widget.settings.border!,
+            showCoordinates: widget.settings.enableCoordinates,
+            child: board,
+          )
+        : board;
 
     return BrightnessHueFilter(
       brightness: widget.settings.brightness,
       hue: widget.settings.hue,
-      child: coloredBoard,
+      child: borderedChessboard,
     );
   }
 

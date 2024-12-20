@@ -1,3 +1,7 @@
+## 6.2.3
+
+- Fix board editor color filter
+
 ## 6.2.2
 
 - Fix default value of brightness

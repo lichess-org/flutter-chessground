@@ -56,6 +56,60 @@ void main() {
       expect(find.byType(PieceWidget), findsNWidgets(12));
     });
 
+    testWidgets('displays a border', (WidgetTester tester) async {
+      const board = ChessboardEditor(
+        size: boardSize,
+        orientation: Side.white,
+        pieces: {},
+        settings: ChessboardSettings(
+          border: BoardBorder(
+            width: 16.0,
+            color: Color(0xFF000000),
+          ),
+        ),
+      );
+
+      await tester.pumpWidget(board);
+
+      final size = tester.getSize(
+        find.byType(SolidColorChessboardBackground),
+      );
+      expect(size.width, boardSize - 32.0);
+      expect(size.height, boardSize - 32.0);
+    });
+
+    testWidgets('change in hue will use a color filter',
+        (WidgetTester tester) async {
+      const board = ChessboardEditor(
+        size: boardSize,
+        orientation: Side.white,
+        pieces: {},
+        settings: ChessboardSettings(
+          hue: 100.0,
+        ),
+      );
+
+      await tester.pumpWidget(board);
+
+      expect(find.byType(ColorFiltered), findsOneWidget);
+    });
+
+    testWidgets('change in brightness will use a color filter',
+        (WidgetTester tester) async {
+      const board = ChessboardEditor(
+        size: boardSize,
+        orientation: Side.white,
+        pieces: {},
+        settings: ChessboardSettings(
+          brightness: 0.9,
+        ),
+      );
+
+      await tester.pumpWidget(board);
+
+      expect(find.byType(ColorFiltered), findsOneWidget);
+    });
+
     testWidgets(
         'touching a square triggers the onEditedSquare callback when the board pointer tool mode is `edit`',
         (WidgetTester tester) async {

@@ -70,6 +70,38 @@ void main() {
       expect(size.width, boardSize - 32.0);
       expect(size.height, boardSize - 32.0);
     });
+
+    testWidgets('change in hue will use a color filter',
+        (WidgetTester tester) async {
+      const board = Chessboard.fixed(
+        size: boardSize,
+        orientation: Side.white,
+        fen: kInitialFEN,
+        settings: ChessboardSettings(
+          hue: 100.0,
+        ),
+      );
+
+      await tester.pumpWidget(board);
+
+      expect(find.byType(ColorFiltered), findsOneWidget);
+    });
+
+    testWidgets('change in brightness will use a color filter',
+        (WidgetTester tester) async {
+      const board = Chessboard.fixed(
+        size: boardSize,
+        orientation: Side.white,
+        fen: kInitialFEN,
+        settings: ChessboardSettings(
+          brightness: 0.9,
+        ),
+      );
+
+      await tester.pumpWidget(board);
+
+      expect(find.byType(ColorFiltered), findsOneWidget);
+    });
   });
 
   group('Interactive board', () {
