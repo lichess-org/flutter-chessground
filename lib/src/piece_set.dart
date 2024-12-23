@@ -33,7 +33,6 @@ enum PieceSet {
   governor('Governor', PieceSet.governorAssets),
   dubrovny('Dubrovny', PieceSet.dubrovnyAssets),
   icpieces('Icpieces', PieceSet.icpiecesAssets),
-  libra('Libra', PieceSet.libraAssets),
   mpchess('Mpchess', PieceSet.mpchessAssets),
   shapes('Shapes', PieceSet.shapesAssets),
   kiwenSuwi('Kiwen-suwi', PieceSet.kiwenSuwiAssets),
@@ -401,22 +400,6 @@ enum PieceSet {
     PieceKind.whiteBishop: AssetImage('$_pieceSetsPath/letter/wB.png', package: 'chessground'),
     PieceKind.whiteQueen: AssetImage('$_pieceSetsPath/letter/wQ.png', package: 'chessground'),
     PieceKind.whiteKing: AssetImage('$_pieceSetsPath/letter/wK.png', package: 'chessground'),
-  });
-
-  /// The [PieceAssets] for the 'Libra' piece set.
-  static const PieceAssets libraAssets = IMapConst({
-    PieceKind.blackRook: AssetImage('$_pieceSetsPath/libra/bR.png', package: 'chessground'),
-    PieceKind.blackPawn: AssetImage('$_pieceSetsPath/libra/bP.png', package: 'chessground'),
-    PieceKind.blackKnight: AssetImage('$_pieceSetsPath/libra/bN.png', package: 'chessground'),
-    PieceKind.blackBishop: AssetImage('$_pieceSetsPath/libra/bB.png', package: 'chessground'),
-    PieceKind.blackQueen: AssetImage('$_pieceSetsPath/libra/bQ.png', package: 'chessground'),
-    PieceKind.blackKing: AssetImage('$_pieceSetsPath/libra/bK.png', package: 'chessground'),
-    PieceKind.whiteRook: AssetImage('$_pieceSetsPath/libra/wR.png', package: 'chessground'),
-    PieceKind.whitePawn: AssetImage('$_pieceSetsPath/libra/wP.png', package: 'chessground'),
-    PieceKind.whiteKnight: AssetImage('$_pieceSetsPath/libra/wN.png', package: 'chessground'),
-    PieceKind.whiteBishop: AssetImage('$_pieceSetsPath/libra/wB.png', package: 'chessground'),
-    PieceKind.whiteQueen: AssetImage('$_pieceSetsPath/libra/wQ.png', package: 'chessground'),
-    PieceKind.whiteKing: AssetImage('$_pieceSetsPath/libra/wK.png', package: 'chessground'),
   });
 
   /// The [PieceAssets] for the 'Maestro' piece set.
