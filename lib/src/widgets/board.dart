@@ -44,6 +44,7 @@ class Chessboard extends StatefulWidget with ChessboardGeometry {
     required this.fen,
     this.opponentsPiecesUpsideDown = false,
     this.lastMove,
+    this.onTappedSquare,
     required this.game,
     this.shapes,
     this.annotations,
@@ -60,6 +61,7 @@ class Chessboard extends StatefulWidget with ChessboardGeometry {
     required this.orientation,
     required this.fen,
     this.lastMove,
+    this.onTappedSquare,
     this.shapes,
     this.annotations,
   })  : _size = size,
@@ -87,6 +89,12 @@ class Chessboard extends StatefulWidget with ChessboardGeometry {
 
   /// Last move played, used to highlight corresponding squares.
   final Move? lastMove;
+
+  /// Callback called after a square has been tapped.
+  ///
+  /// This will be called even when the board is not interactable.
+  /// For a callback when a move has been made, use [GameData.onMove].
+  final void Function(Square)? onTappedSquare;
 
   /// Game state of the board.
   ///
@@ -548,6 +556,8 @@ class _BoardState extends State<Chessboard> {
 
     final square = widget.offsetSquare(details.localPosition);
     if (square == null) return;
+
+    widget.onTappedSquare?.call(square);
 
     final Piece? piece = pieces[square];
 
