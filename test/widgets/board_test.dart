@@ -18,6 +18,10 @@ class OnTappedSquareMock extends Mock {
 void main() {
   group('Non-interactive board', () {
     final onTappedSquare = OnTappedSquareMock();
+    tearDown(() {
+      reset(onTappedSquare);
+    });
+
     final viewOnlyBoard = Chessboard.fixed(
       size: boardSize,
       orientation: Side.white,
@@ -36,8 +40,6 @@ void main() {
     });
 
     testWidgets('cannot select piece', (WidgetTester tester) async {
-      reset(onTappedSquare);
-
       await tester.pumpWidget(viewOnlyBoard);
       await tester.tap(find.byKey(const Key('e2-whitepawn')));
       await tester.pump();
