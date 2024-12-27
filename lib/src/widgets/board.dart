@@ -44,6 +44,8 @@ class Chessboard extends StatefulWidget with ChessboardGeometry {
     required this.fen,
     this.opponentsPiecesUpsideDown = false,
     this.lastMove,
+    this.squareHighlights = const IMapConst({}),
+    this.onTappedSquare,
     required this.game,
     this.shapes,
     this.annotations,
@@ -60,6 +62,8 @@ class Chessboard extends StatefulWidget with ChessboardGeometry {
     required this.orientation,
     required this.fen,
     this.lastMove,
+    this.squareHighlights = const IMapConst({}),
+    this.onTappedSquare,
     this.shapes,
     this.annotations,
   })  : _size = size,
@@ -82,11 +86,19 @@ class Chessboard extends StatefulWidget with ChessboardGeometry {
   /// If `true` the opponent`s pieces are displayed rotated by 180 degrees.
   final bool opponentsPiecesUpsideDown;
 
+  final IMap<Square, SquareHighlight> squareHighlights;
+
   /// FEN string describing the position of the board.
   final String fen;
 
   /// Last move played, used to highlight corresponding squares.
   final Move? lastMove;
+
+  /// Callback called after a square has been tapped.
+  ///
+  /// This will be called even when the board is not interactable.
+  /// For a callback when a move has been made, use [GameData.onMove].
+  final void Function(Square)? onTappedSquare;
 
   /// Game state of the board.
   ///
@@ -266,6 +278,15 @@ class _BoardState extends State<Chessboard> {
           orientation: widget.orientation,
           square: checkSquare,
           child: CheckHighlight(size: widget.squareSize),
+        ),
+      for (final MapEntry(key: square, value: highlight)
+          in widget.squareHighlights.entries)
+        PositionedSquare(
+          key: ValueKey('${square.name}-highlight'),
+          size: widget.size,
+          orientation: widget.orientation,
+          square: square,
+          child: highlight,
         ),
     ];
 
@@ -548,6 +569,8 @@ class _BoardState extends State<Chessboard> {
 
     final square = widget.offsetSquare(details.localPosition);
     if (square == null) return;
+
+    widget.onTappedSquare?.call(square);
 
     final Piece? piece = pieces[square];
 
