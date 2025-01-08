@@ -378,7 +378,9 @@ class _BoardState extends State<Chessboard> {
     final board = Listener(
       onPointerDown: enableListeners ? _onPointerDown : null,
       onPointerMove: enableListeners ? _onPointerMove : null,
-      onPointerUp: enableListeners ? _onPointerUp : null,
+      // This one has to enabled even if the board is non interactive,
+      // since it triggers the onTappedSquare callback.
+      onPointerUp: _onPointerUp,
       onPointerCancel: enableListeners ? _onPointerCancel : null,
       child: SizedBox.square(
         key: const ValueKey('board-container'),
@@ -570,8 +572,6 @@ class _BoardState extends State<Chessboard> {
     final square = widget.offsetSquare(details.localPosition);
     if (square == null) return;
 
-    widget.onTappedSquare?.call(square);
-
     final Piece? piece = pieces[square];
 
     if (widget.settings.drawShape.enable) {
@@ -752,12 +752,16 @@ class _BoardState extends State<Chessboard> {
       return;
     }
 
+    final square = widget.offsetSquare(details.localPosition);
+
+    if (square != null) {
+      widget.onTappedSquare?.call(square);
+    }
+
     if (_currentPointerDownEvent == null ||
         _currentPointerDownEvent!.pointer != details.pointer) {
       return;
     }
-
-    final square = widget.offsetSquare(details.localPosition);
 
     // handle pointer up while dragging a piece
     if (_dragAvatar != null) {
