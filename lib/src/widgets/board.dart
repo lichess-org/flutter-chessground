@@ -170,6 +170,11 @@ class _BoardState extends State<Chessboard> {
   /// gesture.
   PointerDownEvent? _currentPointerDownEvent;
 
+  /// Square that was hit as part of [_currentPointerDownEvent].
+  ///
+  /// This field is reset to null when the pointer is released (up or cancel).
+  Square? _currentPointerDownSquare;
+
   /// Current render box during drag.
   // ignore: use_late_for_private_fields_and_variables
   RenderBox? _renderBox;
@@ -373,15 +378,13 @@ class _BoardState extends State<Chessboard> {
         ),
     ];
 
-    final enableListeners = widget.interactive || settings.drawShape.enable;
-
     final board = Listener(
-      onPointerDown: enableListeners ? _onPointerDown : null,
-      onPointerMove: enableListeners ? _onPointerMove : null,
+      onPointerDown: _onPointerDown,
+      onPointerMove: _onPointerMove,
       // This one has to enabled even if the board is non interactive,
       // since it triggers the onTappedSquare callback.
       onPointerUp: _onPointerUp,
-      onPointerCancel: enableListeners ? _onPointerCancel : null,
+      onPointerCancel: _onPointerCancel,
       child: SizedBox.square(
         key: const ValueKey('board-container'),
         dimension: widget.size,
@@ -466,6 +469,7 @@ class _BoardState extends State<Chessboard> {
     }
     if (widget.interactive == false) {
       _currentPointerDownEvent = null;
+      _currentPointerDownSquare = null;
       _dragAvatar?.cancel();
       _dragAvatar = null;
       _draggedPieceSquare = null;
@@ -571,6 +575,7 @@ class _BoardState extends State<Chessboard> {
 
     final square = widget.offsetSquare(details.localPosition);
     if (square == null) return;
+    _currentPointerDownSquare = square;
 
     final Piece? piece = pieces[square];
 
@@ -754,8 +759,9 @@ class _BoardState extends State<Chessboard> {
 
     final square = widget.offsetSquare(details.localPosition);
 
-    if (square != null) {
+    if (square != null && square == _currentPointerDownSquare) {
       widget.onTappedSquare?.call(square);
+      _currentPointerDownSquare = null;
     }
 
     if (_currentPointerDownEvent == null ||

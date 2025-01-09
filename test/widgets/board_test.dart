@@ -261,7 +261,6 @@ void main() {
 
         verifyInOrder([
           () => onTappedSquare.call(Square.e2),
-          () => onTappedSquare.call(Square.e4),
         ]);
         verifyNoMoreInteractions(onTappedSquare);
       }
