@@ -666,6 +666,12 @@ void main() {
       const Offset(0, -(squareSize / 2)),
     );
 
+    // Drag from an empty square another empty square -> should not trigger callback
+    await tester.dragFrom(
+      squareOffset(tester, Square.a4),
+      const Offset(0, -squareSize),
+    );
+
     // Drag piece to a different square (i.e. make a move) -> should not trigger callback
     await tester.dragFrom(
       squareOffset(tester, Square.a2),
