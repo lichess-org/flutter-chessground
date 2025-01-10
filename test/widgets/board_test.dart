@@ -632,6 +632,61 @@ void main() {
     });
   });
 
+  testWidgets('onTappedSquare callback', (WidgetTester tester) async {
+    final controller = StreamController<GameEvent>.broadcast();
+
+    addTearDown(() {
+      controller.close();
+    });
+
+    final onTappedSquare = OnTappedSquareMock();
+    await tester.pumpWidget(
+      _TestApp(
+        initialPlayerSide: PlayerSide.white,
+        gameEventStream: controller.stream,
+        onTappedSquare: onTappedSquare.call,
+      ),
+    );
+
+    // Trigger callback by tapping a square with a piece on it
+    await tester.tapAt(squareOffset(tester, Square.a1));
+
+    // Trigger callback by tapping an empty square
+    await tester.tapAt(squareOffset(tester, Square.e4));
+
+    // Drag a piece to the same square -> should trigger callback
+    await tester.dragFrom(
+      squareOffset(tester, Square.a2),
+      const Offset(0, -(squareSize / 2)),
+    );
+
+    // Drag from a empty square to the same square -> should trigger callback
+    await tester.dragFrom(
+      squareOffset(tester, Square.a4),
+      const Offset(0, -(squareSize / 2)),
+    );
+
+    // Drag piece to a different square (i.e. make a move) -> should not trigger callback
+    await tester.dragFrom(
+      squareOffset(tester, Square.a2),
+      const Offset(0, -squareSize),
+    );
+
+    // Callback should be triggered even if the board is non-interactive
+    controller.add(GameEvent.nonInteractiveBoardEvent);
+    await tester.pump(const Duration(milliseconds: 1));
+    await tester.tapAt(squareOffset(tester, Square.e3));
+
+    verifyInOrder([
+      () => onTappedSquare(Square.a1),
+      () => onTappedSquare(Square.e4),
+      () => onTappedSquare(Square.a2),
+      () => onTappedSquare(Square.a4),
+      () => onTappedSquare(Square.e3),
+    ]);
+    verifyNoMoreInteractions(onTappedSquare);
+  });
+
   group('Promotion', () {
     testWidgets('can display the selector', (WidgetTester tester) async {
       await tester.pumpWidget(

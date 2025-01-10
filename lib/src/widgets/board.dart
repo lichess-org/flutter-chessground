@@ -381,8 +381,6 @@ class _BoardState extends State<Chessboard> {
     final board = Listener(
       onPointerDown: _onPointerDown,
       onPointerMove: _onPointerMove,
-      // This one has to enabled even if the board is non interactive,
-      // since it triggers the onTappedSquare callback.
       onPointerUp: _onPointerUp,
       onPointerCancel: _onPointerCancel,
       child: SizedBox.square(
