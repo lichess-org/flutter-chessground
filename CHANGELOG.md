@@ -1,3 +1,8 @@
+## 6.3.0
+
+- Added a `onTappedSquare` callback to `Chessboard`
+- `Chessboard` now supports highlighting arbitrary squares.
+
 ## 6.2.3
 
 - Fix board editor color filter

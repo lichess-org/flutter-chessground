@@ -6,19 +6,30 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:dartchess/dartchess.dart';
 import 'package:chessground/chessground.dart';
+import 'package:mocktail/mocktail.dart';
 
 const boardSize = 200.0;
 const squareSize = boardSize / 8;
 
+class OnTappedSquareMock extends Mock {
+  void call(Square square);
+}
+
 void main() {
   group('Non-interactive board', () {
-    const viewOnlyBoard = Chessboard.fixed(
+    final onTappedSquare = OnTappedSquareMock();
+    tearDown(() {
+      reset(onTappedSquare);
+    });
+
+    final viewOnlyBoard = Chessboard.fixed(
       size: boardSize,
       orientation: Side.white,
       fen: kInitialFEN,
-      settings: ChessboardSettings(
+      settings: const ChessboardSettings(
         drawShape: DrawShapeOptions(enable: true),
       ),
+      onTappedSquare: onTappedSquare.call,
     );
 
     testWidgets('initial position display', (WidgetTester tester) async {
@@ -34,6 +45,9 @@ void main() {
       await tester.pump();
 
       expect(find.byKey(const Key('e2-selected')), findsNothing);
+
+      verify(() => onTappedSquare.call(Square.e2)).called(1);
+      verifyNoMoreInteractions(onTappedSquare);
     });
 
     testWidgets('background is constrained to the size of the board', (
@@ -113,11 +127,13 @@ void main() {
           border: BoardBorder(width: 16.0, color: Color(0xFF000000)),
         ),
       ]) {
+        final onTappedSquare = OnTappedSquareMock();
         await tester.pumpWidget(
           _TestApp(
             initialPlayerSide: PlayerSide.both,
             settings: settings,
             key: ValueKey(settings.hashCode),
+            onTappedSquare: onTappedSquare.call,
           ),
         );
         await tester.tap(find.byKey(const Key('a2-whitepawn')));
@@ -156,6 +172,17 @@ void main() {
         await tester.tap(find.byKey(const Key('e7-blackpawn')));
         await tester.pump();
         expect(find.byKey(const Key('e7-selected')), findsNothing);
+
+        verifyInOrder([
+          () => onTappedSquare.call(Square.a2),
+          () => onTappedSquare.call(Square.a2),
+          () => onTappedSquare.call(Square.a1),
+          () => onTappedSquare.call(Square.e7),
+          () => onTappedSquare.call(Square.a1),
+          () => onTappedSquare.call(Square.c4),
+          () => onTappedSquare.call(Square.e7),
+        ]);
+        verifyNoMoreInteractions(onTappedSquare);
       }
     });
 
@@ -205,11 +232,13 @@ void main() {
           border: BoardBorder(width: 16.0, color: Color(0xFF000000)),
         ),
       ]) {
+        final onTappedSquare = OnTappedSquareMock();
         await tester.pumpWidget(
           _TestApp(
             initialPlayerSide: PlayerSide.both,
             settings: settings,
             key: ValueKey(settings.hashCode),
+            onTappedSquare: onTappedSquare.call,
           ),
         );
         await tester.tap(find.byKey(const Key('e2-whitepawn')));
@@ -229,6 +258,11 @@ void main() {
         expect(find.byKey(const Key('e2-whitepawn')), findsNothing);
         expect(find.byKey(const Key('e2-lastMove')), findsOneWidget);
         expect(find.byKey(const Key('e4-lastMove')), findsOneWidget);
+
+        verifyInOrder([
+          () => onTappedSquare.call(Square.e2),
+        ]);
+        verifyNoMoreInteractions(onTappedSquare);
       }
     });
 
@@ -596,6 +630,67 @@ void main() {
       await tester.pump();
       expect(find.byKey(const Key('f3-selected')), findsOneWidget);
     });
+  });
+
+  testWidgets('onTappedSquare callback', (WidgetTester tester) async {
+    final controller = StreamController<GameEvent>.broadcast();
+
+    addTearDown(() {
+      controller.close();
+    });
+
+    final onTappedSquare = OnTappedSquareMock();
+    await tester.pumpWidget(
+      _TestApp(
+        initialPlayerSide: PlayerSide.white,
+        gameEventStream: controller.stream,
+        onTappedSquare: onTappedSquare.call,
+      ),
+    );
+
+    // Trigger callback by tapping a square with a piece on it
+    await tester.tapAt(squareOffset(tester, Square.a1));
+
+    // Trigger callback by tapping an empty square
+    await tester.tapAt(squareOffset(tester, Square.e4));
+
+    // Drag a piece to the same square -> should trigger callback
+    await tester.dragFrom(
+      squareOffset(tester, Square.a2),
+      const Offset(0, -(squareSize / 2)),
+    );
+
+    // Drag from a empty square to the same square -> should trigger callback
+    await tester.dragFrom(
+      squareOffset(tester, Square.a4),
+      const Offset(0, -(squareSize / 2)),
+    );
+
+    // Drag from an empty square another empty square -> should not trigger callback
+    await tester.dragFrom(
+      squareOffset(tester, Square.a4),
+      const Offset(0, -squareSize),
+    );
+
+    // Drag piece to a different square (i.e. make a move) -> should not trigger callback
+    await tester.dragFrom(
+      squareOffset(tester, Square.a2),
+      const Offset(0, -squareSize),
+    );
+
+    // Callback should be triggered even if the board is non-interactive
+    controller.add(GameEvent.nonInteractiveBoardEvent);
+    await tester.pump(const Duration(milliseconds: 1));
+    await tester.tapAt(squareOffset(tester, Square.e3));
+
+    verifyInOrder([
+      () => onTappedSquare(Square.a1),
+      () => onTappedSquare(Square.e4),
+      () => onTappedSquare(Square.a2),
+      () => onTappedSquare(Square.a4),
+      () => onTappedSquare(Square.e3),
+    ]);
+    verifyNoMoreInteractions(onTappedSquare);
   });
 
   group('Promotion', () {
@@ -1555,6 +1650,7 @@ class _TestApp extends StatefulWidget {
     this.enableDrawingShapes = false,
     this.shouldPlayOpponentMove = false,
     this.gameEventStream,
+    this.onTappedSquare,
     super.key,
   });
 
@@ -1572,6 +1668,8 @@ class _TestApp extends StatefulWidget {
 
   /// A stream of game events
   final Stream<GameEvent>? gameEventStream;
+
+  final void Function(Square)? onTappedSquare;
 
   @override
   State<_TestApp> createState() => _TestAppState();
@@ -1729,6 +1827,7 @@ class _TestAppState extends State<_TestApp> {
               },
             ),
           ),
+          onTappedSquare: widget.onTappedSquare,
           shapes: shapes,
         ),
       ),

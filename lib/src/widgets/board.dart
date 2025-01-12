@@ -44,6 +44,8 @@ class Chessboard extends StatefulWidget with ChessboardGeometry {
     required this.fen,
     this.opponentsPiecesUpsideDown = false,
     this.lastMove,
+    this.squareHighlights = const IMapConst({}),
+    this.onTappedSquare,
     required this.game,
     this.shapes,
     this.annotations,
@@ -60,6 +62,8 @@ class Chessboard extends StatefulWidget with ChessboardGeometry {
     required this.orientation,
     required this.fen,
     this.lastMove,
+    this.squareHighlights = const IMapConst({}),
+    this.onTappedSquare,
     this.shapes,
     this.annotations,
   })  : _size = size,
@@ -82,11 +86,19 @@ class Chessboard extends StatefulWidget with ChessboardGeometry {
   /// If `true` the opponent`s pieces are displayed rotated by 180 degrees.
   final bool opponentsPiecesUpsideDown;
 
+  final IMap<Square, SquareHighlight> squareHighlights;
+
   /// FEN string describing the position of the board.
   final String fen;
 
   /// Last move played, used to highlight corresponding squares.
   final Move? lastMove;
+
+  /// Callback called after a square has been tapped.
+  ///
+  /// This will be called even when the board is not interactable.
+  /// For a callback when a move has been made, use [GameData.onMove].
+  final void Function(Square)? onTappedSquare;
 
   /// Game state of the board.
   ///
@@ -157,6 +169,11 @@ class _BoardState extends State<Chessboard> {
   /// Other simultaneous pointer events are ignored and will cancel the current
   /// gesture.
   PointerDownEvent? _currentPointerDownEvent;
+
+  /// Square that was hit as part of [_currentPointerDownEvent].
+  ///
+  /// This field is reset to null when the pointer is released (up or cancel).
+  Square? _currentPointerDownSquare;
 
   /// Current render box during drag.
   // ignore: use_late_for_private_fields_and_variables
@@ -267,6 +284,15 @@ class _BoardState extends State<Chessboard> {
           square: checkSquare,
           child: CheckHighlight(size: widget.squareSize),
         ),
+      for (final MapEntry(key: square, value: highlight)
+          in widget.squareHighlights.entries)
+        PositionedSquare(
+          key: ValueKey('${square.name}-highlight'),
+          size: widget.size,
+          orientation: widget.orientation,
+          square: square,
+          child: highlight,
+        ),
     ];
 
     final List<Widget> objects = [
@@ -352,13 +378,11 @@ class _BoardState extends State<Chessboard> {
         ),
     ];
 
-    final enableListeners = widget.interactive || settings.drawShape.enable;
-
     final board = Listener(
-      onPointerDown: enableListeners ? _onPointerDown : null,
-      onPointerMove: enableListeners ? _onPointerMove : null,
-      onPointerUp: enableListeners ? _onPointerUp : null,
-      onPointerCancel: enableListeners ? _onPointerCancel : null,
+      onPointerDown: _onPointerDown,
+      onPointerMove: _onPointerMove,
+      onPointerUp: _onPointerUp,
+      onPointerCancel: _onPointerCancel,
       child: SizedBox.square(
         key: const ValueKey('board-container'),
         dimension: widget.size,
@@ -443,6 +467,7 @@ class _BoardState extends State<Chessboard> {
     }
     if (widget.interactive == false) {
       _currentPointerDownEvent = null;
+      _currentPointerDownSquare = null;
       _dragAvatar?.cancel();
       _dragAvatar = null;
       _draggedPieceSquare = null;
@@ -548,6 +573,7 @@ class _BoardState extends State<Chessboard> {
 
     final square = widget.offsetSquare(details.localPosition);
     if (square == null) return;
+    _currentPointerDownSquare = square;
 
     final Piece? piece = pieces[square];
 
@@ -729,12 +755,17 @@ class _BoardState extends State<Chessboard> {
       return;
     }
 
+    final square = widget.offsetSquare(details.localPosition);
+
+    if (square != null && square == _currentPointerDownSquare) {
+      widget.onTappedSquare?.call(square);
+      _currentPointerDownSquare = null;
+    }
+
     if (_currentPointerDownEvent == null ||
         _currentPointerDownEvent!.pointer != details.pointer) {
       return;
     }
-
-    final square = widget.offsetSquare(details.localPosition);
 
     // handle pointer up while dragging a piece
     if (_dragAvatar != null) {
