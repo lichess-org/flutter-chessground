@@ -1,6 +1,6 @@
 ## 6.3.0
 
-- Added a `onTappedSquare` callback to `Chessboard`
+- Added an `onTouchedSquare` callback to `Chessboard`
 - `Chessboard` now supports highlighting arbitrary squares.
 
 ## 6.2.3
