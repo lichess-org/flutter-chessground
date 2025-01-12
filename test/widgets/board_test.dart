@@ -17,9 +17,9 @@ class OnTappedSquareMock extends Mock {
 
 void main() {
   group('Non-interactive board', () {
-    final onTappedSquare = OnTappedSquareMock();
+    final onTouchedSquare = OnTappedSquareMock();
     tearDown(() {
-      reset(onTappedSquare);
+      reset(onTouchedSquare);
     });
 
     final viewOnlyBoard = Chessboard.fixed(
@@ -29,7 +29,7 @@ void main() {
       settings: const ChessboardSettings(
         drawShape: DrawShapeOptions(enable: true),
       ),
-      onTappedSquare: onTappedSquare.call,
+      onTouchedSquare: onTouchedSquare.call,
     );
 
     testWidgets('initial position display', (WidgetTester tester) async {
@@ -46,8 +46,8 @@ void main() {
 
       expect(find.byKey(const Key('e2-selected')), findsNothing);
 
-      verify(() => onTappedSquare.call(Square.e2)).called(1);
-      verifyNoMoreInteractions(onTappedSquare);
+      verify(() => onTouchedSquare.call(Square.e2)).called(1);
+      verifyNoMoreInteractions(onTouchedSquare);
     });
 
     testWidgets('background is constrained to the size of the board', (
@@ -127,13 +127,13 @@ void main() {
           border: BoardBorder(width: 16.0, color: Color(0xFF000000)),
         ),
       ]) {
-        final onTappedSquare = OnTappedSquareMock();
+        final onTouchedSquare = OnTappedSquareMock();
         await tester.pumpWidget(
           _TestApp(
             initialPlayerSide: PlayerSide.both,
             settings: settings,
             key: ValueKey(settings.hashCode),
-            onTappedSquare: onTappedSquare.call,
+            onTouchedSquare: onTouchedSquare.call,
           ),
         );
         await tester.tap(find.byKey(const Key('a2-whitepawn')));
@@ -174,15 +174,15 @@ void main() {
         expect(find.byKey(const Key('e7-selected')), findsNothing);
 
         verifyInOrder([
-          () => onTappedSquare.call(Square.a2),
-          () => onTappedSquare.call(Square.a2),
-          () => onTappedSquare.call(Square.a1),
-          () => onTappedSquare.call(Square.e7),
-          () => onTappedSquare.call(Square.a1),
-          () => onTappedSquare.call(Square.c4),
-          () => onTappedSquare.call(Square.e7),
+          () => onTouchedSquare.call(Square.a2),
+          () => onTouchedSquare.call(Square.a2),
+          () => onTouchedSquare.call(Square.a1),
+          () => onTouchedSquare.call(Square.e7),
+          () => onTouchedSquare.call(Square.a1),
+          () => onTouchedSquare.call(Square.c4),
+          () => onTouchedSquare.call(Square.e7),
         ]);
-        verifyNoMoreInteractions(onTappedSquare);
+        verifyNoMoreInteractions(onTouchedSquare);
       }
     });
 
@@ -232,13 +232,13 @@ void main() {
           border: BoardBorder(width: 16.0, color: Color(0xFF000000)),
         ),
       ]) {
-        final onTappedSquare = OnTappedSquareMock();
+        final onTouchedSquare = OnTappedSquareMock();
         await tester.pumpWidget(
           _TestApp(
             initialPlayerSide: PlayerSide.both,
             settings: settings,
             key: ValueKey(settings.hashCode),
-            onTappedSquare: onTappedSquare.call,
+            onTouchedSquare: onTouchedSquare.call,
           ),
         );
         await tester.tap(find.byKey(const Key('e2-whitepawn')));
@@ -260,9 +260,10 @@ void main() {
         expect(find.byKey(const Key('e4-lastMove')), findsOneWidget);
 
         verifyInOrder([
-          () => onTappedSquare.call(Square.e2),
+          () => onTouchedSquare.call(Square.e2),
+          () => onTouchedSquare.call(Square.e2),
         ]);
-        verifyNoMoreInteractions(onTappedSquare);
+        verifyNoMoreInteractions(onTouchedSquare);
       }
     });
 
@@ -632,19 +633,19 @@ void main() {
     });
   });
 
-  testWidgets('onTappedSquare callback', (WidgetTester tester) async {
+  testWidgets('onTouchedSquare callback', (WidgetTester tester) async {
     final controller = StreamController<GameEvent>.broadcast();
 
     addTearDown(() {
       controller.close();
     });
 
-    final onTappedSquare = OnTappedSquareMock();
+    final onTouchedSquare = OnTappedSquareMock();
     await tester.pumpWidget(
       _TestApp(
         initialPlayerSide: PlayerSide.white,
         gameEventStream: controller.stream,
-        onTappedSquare: onTappedSquare.call,
+        onTouchedSquare: onTouchedSquare.call,
       ),
     );
 
@@ -666,13 +667,13 @@ void main() {
       const Offset(0, -(squareSize / 2)),
     );
 
-    // Drag from an empty square another empty square -> should not trigger callback
+    // Drag from an empty square another empty square -> should trigger callback on 1st square
     await tester.dragFrom(
       squareOffset(tester, Square.a4),
       const Offset(0, -squareSize),
     );
 
-    // Drag piece to a different square (i.e. make a move) -> should not trigger callback
+    // Drag piece to a different square (i.e. make a move) -> should trigger callback on 1st square
     await tester.dragFrom(
       squareOffset(tester, Square.a2),
       const Offset(0, -squareSize),
@@ -684,13 +685,15 @@ void main() {
     await tester.tapAt(squareOffset(tester, Square.e3));
 
     verifyInOrder([
-      () => onTappedSquare(Square.a1),
-      () => onTappedSquare(Square.e4),
-      () => onTappedSquare(Square.a2),
-      () => onTappedSquare(Square.a4),
-      () => onTappedSquare(Square.e3),
+      () => onTouchedSquare(Square.a1),
+      () => onTouchedSquare(Square.e4),
+      () => onTouchedSquare(Square.a2),
+      () => onTouchedSquare(Square.a4),
+      () => onTouchedSquare(Square.a4),
+      () => onTouchedSquare(Square.a2),
+      () => onTouchedSquare(Square.e3),
     ]);
-    verifyNoMoreInteractions(onTappedSquare);
+    verifyNoMoreInteractions(onTouchedSquare);
   });
 
   group('Promotion', () {
@@ -1650,7 +1653,7 @@ class _TestApp extends StatefulWidget {
     this.enableDrawingShapes = false,
     this.shouldPlayOpponentMove = false,
     this.gameEventStream,
-    this.onTappedSquare,
+    this.onTouchedSquare,
     super.key,
   });
 
@@ -1669,7 +1672,7 @@ class _TestApp extends StatefulWidget {
   /// A stream of game events
   final Stream<GameEvent>? gameEventStream;
 
-  final void Function(Square)? onTappedSquare;
+  final void Function(Square)? onTouchedSquare;
 
   @override
   State<_TestApp> createState() => _TestAppState();
@@ -1827,7 +1830,7 @@ class _TestAppState extends State<_TestApp> {
               },
             ),
           ),
-          onTappedSquare: widget.onTappedSquare,
+          onTouchedSquare: widget.onTouchedSquare,
           shapes: shapes,
         ),
       ),
