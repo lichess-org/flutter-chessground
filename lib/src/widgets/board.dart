@@ -27,10 +27,9 @@ const _kCancelShapesDoubleTapDelay = Duration(milliseconds: 200);
 
 /// A chessboard widget.
 ///
-/// This widget can be used to display a fully interactive board, or a non-interactive
-/// board that can be animated.
+/// This widget is primarily used to display a chessboard with interactive pieces.
 ///
-/// For a completely static board, see also [StaticChessboard].
+/// For a view-only board, see also [StaticChessboard].
 class Chessboard extends StatefulWidget with ChessboardGeometry {
   /// Creates a new chessboard widget with interactive pieces.
   ///
@@ -127,10 +126,10 @@ class _BoardState extends State<Chessboard> {
   /// Pieces that are currently being translated from one square to another.
   ///
   /// The key is the target square of the piece.
-  Map<Square, ({Piece piece, Square from})> translatingPieces = {};
+  TranslatingPieces translatingPieces = {};
 
   /// Pieces that are currently fading out.
-  Map<Square, Piece> fadingPieces = {};
+  FadingPieces fadingPieces = {};
 
   /// Currently selected square.
   Square? selected;
@@ -306,7 +305,9 @@ class _BoardState extends State<Chessboard> {
             blindfoldMode: settings.blindfoldMode,
             upsideDown: _isUpsideDown(entry.value.color),
             onComplete: () {
-              fadingPieces.remove(entry.key);
+              setState(() {
+                fadingPieces.remove(entry.key);
+              });
             },
           ),
         ),
@@ -339,7 +340,9 @@ class _BoardState extends State<Chessboard> {
             orientation: widget.orientation,
             duration: settings.animationDuration,
             onComplete: () {
-              translatingPieces.remove(entry.key);
+              setState(() {
+                translatingPieces.remove(entry.key);
+              });
             },
             child: PieceWidget(
               piece: entry.value.piece,
@@ -484,53 +487,14 @@ class _BoardState extends State<Chessboard> {
     final newPieces = readFen(widget.fen);
 
     if (widget.settings.animationDuration > Duration.zero) {
-      _preparePieceAnimations(newPieces);
+      final (translatingPieces, fadingPieces) =
+          preparePieceAnimations(pieces, newPieces, lastDrop: _lastDrop);
+      this.translatingPieces = translatingPieces;
+      this.fadingPieces = fadingPieces;
     }
 
     _lastDrop = null;
     pieces = newPieces;
-  }
-
-  /// Detects pieces that changed squares and prepares animations for them.
-  void _preparePieceAnimations(Pieces newPieces) {
-    final List<(Piece, Square)> newOnSquare = [];
-    final List<(Piece, Square)> missingOnSquare = [];
-    final Set<Square> animatedOrigins = {};
-    for (final s in Square.values) {
-      if (s == _lastDrop?.from || s == _lastDrop?.to) {
-        continue;
-      }
-      final oldP = pieces[s];
-      final newP = newPieces[s];
-      if (newP != null) {
-        if (oldP != null) {
-          if (newP != oldP) {
-            missingOnSquare.add((oldP, s));
-            newOnSquare.add((newP, s));
-          }
-        } else {
-          newOnSquare.add((newP, s));
-        }
-      } else if (oldP != null) {
-        missingOnSquare.add((oldP, s));
-      }
-    }
-    for (final (newPiece, newPieceSquare) in newOnSquare) {
-      // find the closest square that the piece was on before
-      final fromSquare = _closestSquare(
-        newPieceSquare,
-        missingOnSquare.where((m) => m.$1 == newPiece).map((e) => e.$2),
-      );
-      if (fromSquare != null) {
-        translatingPieces[newPieceSquare] = (piece: newPiece, from: fromSquare);
-        animatedOrigins.add(fromSquare);
-      }
-    }
-    for (final (missingPiece, missingPieceSquare) in missingOnSquare) {
-      if (!animatedOrigins.contains(missingPieceSquare)) {
-        fadingPieces[missingPieceSquare] = missingPiece;
-      }
-    }
   }
 
   Square? _getKingSquare() {
@@ -1106,19 +1070,3 @@ class _DragAvatar {
 const ISet<Square> _emptyValidMoves = ISetConst({});
 const ISet<Shape> _emptyShapes = ISetConst({});
 const IMap<Square, Annotation> _emptyAnnotations = IMapConst({});
-
-/// Returns the closest square to the target square from a list of squares.
-Square? _closestSquare(Square square, Iterable<Square> squares) {
-  if (squares.isEmpty) return null;
-  return squares.reduce((a, b) {
-    final aDist = _distanceSq(square, a);
-    final bDist = _distanceSq(square, b);
-    return aDist < bDist ? a : b;
-  });
-}
-
-int _distanceSq(Square pos1, Square pos2) {
-  final dx = pos1.file - pos2.file;
-  final dy = pos1.rank - pos2.rank;
-  return dx * dx + dy * dy;
-}

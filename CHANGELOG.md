@@ -2,6 +2,7 @@
 
 - Added an `onTouchedSquare` callback to `Chessboard`
 - `Chessboard` now supports highlighting arbitrary squares.
+- `StaticChessboard` now supports position change animations.
 
 ## 6.2.3
 

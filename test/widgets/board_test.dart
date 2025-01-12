@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:chessground/src/widgets/animation.dart';
 import 'package:chessground/src/widgets/promotion.dart';
 import 'package:chessground/src/widgets/shape.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
@@ -48,6 +49,77 @@ void main() {
 
       verify(() => onTouchedSquare.call(Square.e2)).called(1);
       verifyNoMoreInteractions(onTouchedSquare);
+    });
+
+    testWidgets('moved piece is animated when the position change',
+        (WidgetTester tester) async {
+      const board = Chessboard.fixed(
+        size: boardSize,
+        orientation: Side.white,
+        fen: kInitialFEN,
+      );
+
+      await tester.pumpWidget(board);
+
+      expect(find.byType(AnimatedPieceTranslation), findsNothing);
+      expect(find.byType(PieceWidget), findsNWidgets(32));
+
+      const board2 = Chessboard.fixed(
+        size: boardSize,
+        orientation: Side.white,
+        fen: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
+      );
+
+      await tester.pumpWidget(board2);
+
+      expect(find.byType(PieceWidget), findsNWidgets(32));
+      expect(find.byType(AnimatedPieceTranslation), findsOneWidget);
+
+      final translation =
+          tester.firstWidget(find.byType(AnimatedPieceTranslation))
+              as AnimatedPieceTranslation;
+      expect(translation.fromSquare, Square.e2);
+      expect(translation.toSquare, Square.e4);
+      expect(translation.orientation, Side.white);
+      expect(translation.duration, const Duration(milliseconds: 250));
+
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('e2-whitepawn')), findsNothing);
+      expect(find.byKey(const Key('e4-whitepawn')), findsOneWidget);
+
+      expect(find.byType(AnimatedPieceTranslation), findsNothing);
+    });
+
+    testWidgets('several pieces can be animated when the position change',
+        (WidgetTester tester) async {
+      const board = Chessboard.fixed(
+        size: boardSize,
+        orientation: Side.white,
+        fen:
+            'rnbqk2r/pppp1ppp/5n2/2b1p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4',
+      );
+
+      await tester.pumpWidget(board);
+
+      expect(find.byType(AnimatedPieceTranslation), findsNothing);
+      expect(find.byType(PieceWidget), findsNWidgets(32));
+
+      const board2 = Chessboard.fixed(
+        size: boardSize,
+        orientation: Side.white,
+        fen:
+            'rnbqk2r/pppp1ppp/5n2/2b1p3/2B1P3/5N2/PPPP1PPP/RNBQ1RK1 b kq - 5 4',
+      );
+
+      await tester.pumpWidget(board2);
+
+      expect(find.byType(PieceWidget), findsNWidgets(32));
+      expect(find.byType(AnimatedPieceTranslation), findsNWidgets(2));
+
+      await tester.pumpAndSettle();
+
+      expect(find.byType(AnimatedPieceTranslation), findsNothing);
     });
 
     testWidgets('background is constrained to the size of the board', (

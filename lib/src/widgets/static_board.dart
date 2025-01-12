@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:chessground/src/widgets/animation.dart';
 import 'package:dartchess/dartchess.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
@@ -13,12 +14,15 @@ import 'highlight.dart';
 import 'piece.dart';
 import 'positioned_square.dart';
 
-/// A chessboard widget whose position is static.
+/// A chessboard widget that cannot be interacted with.
 ///
 /// This widget makes use of [Scrollable.recommendDeferredLoadingForContext] to
 /// avoid loading pieces when rapidly scrolling.
 /// This should allow for a better scrolling experience when displaying a lot of
 /// chessboards in a [ListView] or [GridView].
+///
+/// The [fen] property is used to describe the position of the board.
+/// Pass a new FEN to update the board position. The board will animate the pieces to their new positions.
 class StaticChessboard extends StatefulWidget with ChessboardGeometry {
   const StaticChessboard({
     required this.size,
@@ -32,6 +36,7 @@ class StaticChessboard extends StatefulWidget with ChessboardGeometry {
     this.borderRadius = BorderRadius.zero,
     this.boxShadow = const <BoxShadow>[],
     this.enableCoordinates = false,
+    this.animationDuration = const Duration(milliseconds: 200),
     super.key,
   });
 
@@ -70,12 +75,55 @@ class StaticChessboard extends StatefulWidget with ChessboardGeometry {
   /// Whether to show board coordinates
   final bool enableCoordinates;
 
+  /// Piece animation duration
+  final Duration animationDuration;
+
   @override
   State<StaticChessboard> createState() => _StaticChessboardState();
 }
 
 class _StaticChessboardState extends State<StaticChessboard> {
   bool deferImagesLoading = false;
+
+  /// Pieces on the board.
+  Pieces pieces = {};
+
+  /// Pieces that are currently being translated from one square to another.
+  ///
+  /// The key is the target square of the piece.
+  TranslatingPieces translatingPieces = {};
+
+  /// Pieces that are currently fading out.
+  FadingPieces fadingPieces = {};
+
+  @override
+  void initState() {
+    super.initState();
+    pieces = readFen(widget.fen);
+  }
+
+  @override
+  void didUpdateWidget(covariant StaticChessboard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.fen == widget.fen) {
+      return;
+    }
+
+    translatingPieces = {};
+    fadingPieces = {};
+
+    final newPieces = readFen(widget.fen);
+
+    if (widget.animationDuration > Duration.zero) {
+      final (translatingPieces, fadingPieces) =
+          preparePieceAnimations(pieces, newPieces);
+      this.translatingPieces = translatingPieces;
+      this.fadingPieces = fadingPieces;
+    }
+
+    pieces = newPieces;
+  }
 
   @override
   void didChangeDependencies() {
@@ -140,15 +188,57 @@ class _StaticChessboardState extends State<StaticChessboard> {
           else
             ...highlightedBackground,
           if (!deferImagesLoading)
-            for (final entry in readFen(widget.fen).entries)
+            for (final entry in fadingPieces.entries)
               PositionedSquare(
                 size: widget.size,
                 orientation: widget.orientation,
                 square: entry.key,
-                child: PieceWidget(
+                child: AnimatedPieceFadeOut(
+                  duration: widget.animationDuration,
                   piece: entry.value,
                   size: widget.squareSize,
                   pieceAssets: widget.pieceAssets,
+                  onComplete: () {
+                    setState(() {
+                      fadingPieces.remove(entry.key);
+                    });
+                  },
+                ),
+              ),
+          if (!deferImagesLoading)
+            for (final entry in pieces.entries)
+              if (!translatingPieces.containsKey(entry.key))
+                PositionedSquare(
+                  size: widget.size,
+                  orientation: widget.orientation,
+                  square: entry.key,
+                  child: PieceWidget(
+                    piece: entry.value,
+                    size: widget.squareSize,
+                    pieceAssets: widget.pieceAssets,
+                  ),
+                ),
+          if (!deferImagesLoading)
+            for (final entry in translatingPieces.entries)
+              PositionedSquare(
+                size: widget.size,
+                orientation: widget.orientation,
+                square: entry.key,
+                child: AnimatedPieceTranslation(
+                  fromSquare: entry.value.from,
+                  toSquare: entry.key,
+                  orientation: widget.orientation,
+                  duration: widget.animationDuration,
+                  onComplete: () {
+                    setState(() {
+                      translatingPieces.remove(entry.key);
+                    });
+                  },
+                  child: PieceWidget(
+                    piece: entry.value.piece,
+                    size: widget.squareSize,
+                    pieceAssets: widget.pieceAssets,
+                  ),
                 ),
               ),
         ],
