@@ -1,4 +1,4 @@
-## 7.0.0
+## 7.0.0-beta.1
 
 - Update dependencies
 - Update minimum Dart SDK version to 3.7.0 and minimum Flutter version to
