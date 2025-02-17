@@ -500,24 +500,33 @@ class _HomePageState extends State<HomePage> {
     Future.delayed(const Duration(milliseconds: 100)).then((value) {
       setState(() {});
     });
-    if (!position.isGameOver) {
-      final random = Random();
-      await Future.delayed(Duration(milliseconds: random.nextInt(1000) + 500));
-      final allMoves = [
-        for (final entry in position.legalMoves.entries)
-          for (final dest in entry.value.squares)
-            NormalMove(from: entry.key, to: dest)
-      ];
-      if (allMoves.isNotEmpty) {
-        final mv = (allMoves..shuffle()).first;
-        setState(() {
-          position = position.playUnchecked(mv);
-          lastMove = NormalMove(from: mv.from, to: mv.to);
-          fen = position.fen;
-          validMoves = makeLegalMoves(position);
-        });
-        lastPos = position;
+    if (position.isGameOver) return;
+
+    final random = Random();
+    await Future.delayed(Duration(milliseconds: random.nextInt(1000) + 500));
+    final allMoves = [
+      for (final entry in position.legalMoves.entries)
+        for (final dest in entry.value.squares)
+          NormalMove(from: entry.key, to: dest)
+    ];
+    if (allMoves.isNotEmpty) {
+      NormalMove mv = (allMoves..shuffle()).first;
+      // Auto promote to a random non-pawn role
+      if (isPromotionPawnMove(mv)) {
+        final potentialRoles =
+            Role.values.where((role) => role != Role.pawn).toList();
+        final role = potentialRoles[random.nextInt(potentialRoles.length)];
+        mv = mv.withPromotion(role);
       }
+
+      setState(() {
+        position = position.playUnchecked(mv);
+        lastMove =
+            NormalMove(from: mv.from, to: mv.to, promotion: mv.promotion);
+        fen = position.fen;
+        validMoves = makeLegalMoves(position);
+      });
+      lastPos = position;
     }
   }
 
