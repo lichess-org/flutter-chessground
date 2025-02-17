@@ -45,20 +45,21 @@ class PieceWidget extends StatelessWidget {
 
     final fromCache = ChessgroundImages.instance.get(imageProvider);
 
-    final image = fromCache != null
-        ? RawImage(
-            image: fromCache,
-            debugImageLabel: 'PieceWidgetCache(${imageProvider.assetName})',
-            width: size,
-            height: size,
-            opacity: opacity,
-          )
-        : Image(
-            image: imageProvider,
-            width: size,
-            height: size,
-            opacity: opacity,
-          );
+    final image =
+        fromCache != null
+            ? RawImage(
+              image: fromCache,
+              debugImageLabel: 'PieceWidgetCache(${imageProvider.assetName})',
+              width: size,
+              height: size,
+              opacity: opacity,
+            )
+            : Image(
+              image: imageProvider,
+              width: size,
+              height: size,
+              opacity: opacity,
+            );
 
     return upsideDown ? Transform.rotate(angle: math.pi, child: image) : image;
   }

@@ -16,7 +16,7 @@ enum PlayerSide {
   white,
 
   /// Only black side can interact with the board.
-  black;
+  black,
 }
 
 /// Game data for an interactive chessboard.
@@ -70,19 +70,20 @@ class GameData {
 }
 
 /// State of a premovable chessboard.
-typedef Premovable = ({
-  /// Registered premove.
-  ///
-  /// Will be shown on the board as a preview move.
-  ///
-  /// Chessground will not play the premove automatically, it is up to the library user to play it.
-  NormalMove? premove,
+typedef Premovable =
+    ({
+      /// Registered premove.
+      ///
+      /// Will be shown on the board as a preview move.
+      ///
+      /// Chessground will not play the premove automatically, it is up to the library user to play it.
+      NormalMove? premove,
 
-  /// Callback called after a premove has been set/unset.
-  ///
-  /// If `null`, the premove will be unset.
-  void Function(NormalMove?) onSetPremove,
-});
+      /// Callback called after a premove has been set/unset.
+      ///
+      /// If `null`, the premove will be unset.
+      void Function(NormalMove?) onSetPremove,
+    });
 
 /// Describes a set of piece assets.
 ///
@@ -98,13 +99,11 @@ typedef ValidMoves = IMap<Square, ISet<Square>>;
 /// Square highlight color or image on the chessboard.
 @immutable
 class HighlightDetails {
-  const HighlightDetails({
-    this.solidColor,
-    this.image,
-  }) : assert(
-          solidColor != null || image != null,
-          'You must provide either `solidColor` or `image`.',
-        );
+  const HighlightDetails({this.solidColor, this.image})
+    : assert(
+        solidColor != null || image != null,
+        'You must provide either `solidColor` or `image`.',
+      );
 
   final Color? solidColor;
   final AssetImage? image;
@@ -113,11 +112,7 @@ class HighlightDetails {
 /// A chess move annotation represented by a symbol and a color.
 @immutable
 class Annotation {
-  const Annotation({
-    required this.symbol,
-    required this.color,
-    this.duration,
-  });
+  const Annotation({required this.symbol, required this.color, this.duration});
 
   /// Annotation symbol. Two letters max.
   final String symbol;
@@ -160,11 +155,8 @@ class Circle implements Shape {
   /// Creates a new [Circle] with the provided values.
   ///
   /// The [scale] must be between 0.0 and 1.0.
-  const Circle({
-    required this.color,
-    required this.orig,
-    this.scale = 1.0,
-  }) : assert(scale > 0.0 && scale <= 1.0);
+  const Circle({required this.color, required this.orig, this.scale = 1.0})
+    : assert(scale > 0.0 && scale <= 1.0);
 
   final Color color;
   final Square orig;
@@ -201,11 +193,7 @@ class Circle implements Shape {
   int get hashCode => Object.hash(color, orig, scale);
 
   /// Creates a copy of this [Circle] with the given fields replaced by the new values.
-  Circle copyWith({
-    Color? color,
-    Square? orig,
-    double? scale,
-  }) {
+  Circle copyWith({Color? color, Square? orig, double? scale}) {
     return Circle(
       color: color ?? this.color,
       orig: orig ?? this.orig,
@@ -265,12 +253,7 @@ class Arrow implements Shape {
   int get hashCode => Object.hash(color, orig, dest, scale);
 
   /// Creates a copy of this [Arrow] with the given fields replaced by the new values.
-  Arrow copyWith({
-    Color? color,
-    Square? orig,
-    Square? dest,
-    double? scale,
-  }) {
+  Arrow copyWith({Color? color, Square? orig, Square? dest, double? scale}) {
     return Arrow(
       color: color ?? this.color,
       orig: orig ?? this.orig,

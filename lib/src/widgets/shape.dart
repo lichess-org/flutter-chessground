@@ -32,11 +32,11 @@ class ShapeWidget extends StatelessWidget with ChessboardGeometry {
   Widget build(BuildContext context) {
     switch (shape) {
       case Arrow(
-          color: final color,
-          orig: final orig,
-          dest: final dest,
-          scale: final scale,
-        ):
+        color: final color,
+        orig: final orig,
+        dest: final dest,
+        scale: final scale,
+      ):
         return SizedBox.square(
           dimension: size,
           child: CustomPaint(
@@ -62,13 +62,13 @@ class ShapeWidget extends StatelessWidget with ChessboardGeometry {
           ),
         );
       case PieceShape(
-          color: final color,
-          orig: final orig,
-          piece: final piece,
-          pieceAssets: final pieceAssets,
-          opacity: final opacity,
-          scale: final scale,
-        ):
+        color: final color,
+        orig: final orig,
+        piece: final piece,
+        pieceAssets: final pieceAssets,
+        opacity: final opacity,
+        scale: final scale,
+      ):
         {
           final asset = pieceAssets[piece.kind]!;
           return PositionedSquare(
@@ -109,18 +109,23 @@ class _ArrowPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final squareSize = size.width / 8;
     final lineWidth = scale * squareSize / 4;
-    final paint = Paint()
-      ..strokeWidth = lineWidth
-      ..color = color
-      ..style = PaintingStyle.stroke;
+    final paint =
+        Paint()
+          ..strokeWidth = lineWidth
+          ..color = color
+          ..style = PaintingStyle.stroke;
 
     final shift = Offset(squareSize / 2, squareSize / 2);
     final margin = squareSize / 3;
 
-    final angle =
-        math.atan2(toOffset.dy - fromOffset.dy, toOffset.dx - fromOffset.dx);
-    final fromMarginOffset =
-        Offset(margin * math.cos(angle), margin * math.sin(angle));
+    final angle = math.atan2(
+      toOffset.dy - fromOffset.dy,
+      toOffset.dx - fromOffset.dx,
+    );
+    final fromMarginOffset = Offset(
+      margin * math.cos(angle),
+      margin * math.sin(angle),
+    );
     final arrowSize = scale * squareSize * 0.48;
     const arrowAngle = math.pi / 5;
 
@@ -140,14 +145,17 @@ class _ArrowPainter extends CustomPainter {
     path.close();
 
     final arrowHeight = arrowSize * math.sin((math.pi - (arrowAngle * 2)) / 2);
-    final arrowOffset =
-        Offset(arrowHeight * math.cos(angle), arrowHeight * math.sin(angle));
+    final arrowOffset = Offset(
+      arrowHeight * math.cos(angle),
+      arrowHeight * math.sin(angle),
+    );
 
     canvas.drawLine(from, to - arrowOffset, paint);
 
-    final pathPaint = paint
-      ..strokeWidth = 0
-      ..style = PaintingStyle.fill;
+    final pathPaint =
+        paint
+          ..strokeWidth = 0
+          ..style = PaintingStyle.fill;
     canvas.drawPath(path, pathPaint);
   }
 
@@ -172,18 +180,19 @@ class _CirclePainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final squareSize = size.width / 8;
     final lineWidth = scale * squareSize / 16;
-    final paint = Paint()
-      ..strokeWidth = lineWidth
-      ..color = color
-      ..style = PaintingStyle.stroke;
+    final paint =
+        Paint()
+          ..strokeWidth = lineWidth
+          ..color = color
+          ..style = PaintingStyle.stroke;
 
-    final circle = Path()
-      ..addOval(
-        Rect.fromCircle(
-          center: circleOffset + Offset(squareSize / 2, squareSize / 2),
-          radius: squareSize / 2 - lineWidth / 2,
-        ),
-      );
+    final circle =
+        Path()..addOval(
+          Rect.fromCircle(
+            center: circleOffset + Offset(squareSize / 2, squareSize / 2),
+            radius: squareSize / 2 - lineWidth / 2,
+          ),
+        );
     canvas.drawPath(circle, paint);
   }
 

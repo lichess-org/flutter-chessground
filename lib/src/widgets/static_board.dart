@@ -116,8 +116,10 @@ class _StaticChessboardState extends State<StaticChessboard> {
     final newPieces = readFen(widget.fen);
 
     if (widget.animationDuration > Duration.zero) {
-      final (translatingPieces, fadingPieces) =
-          preparePieceAnimations(pieces, newPieces);
+      final (translatingPieces, fadingPieces) = preparePieceAnimations(
+        pieces,
+        newPieces,
+      );
       this.translatingPieces = translatingPieces;
       this.fadingPieces = fadingPieces;
     }
@@ -146,17 +148,15 @@ class _StaticChessboardState extends State<StaticChessboard> {
 
   @override
   Widget build(BuildContext context) {
-    final background = widget.enableCoordinates
-        ? widget.orientation == Side.white
-            ? widget.colorScheme.whiteCoordBackground
-            : widget.colorScheme.blackCoordBackground
-        : widget.colorScheme.background;
+    final background =
+        widget.enableCoordinates
+            ? widget.orientation == Side.white
+                ? widget.colorScheme.whiteCoordBackground
+                : widget.colorScheme.blackCoordBackground
+            : widget.colorScheme.background;
 
     final List<Widget> highlightedBackground = [
-      SizedBox.square(
-        dimension: widget.size,
-        child: background,
-      ),
+      SizedBox.square(dimension: widget.size, child: background),
       if (widget.lastMove != null)
         for (final square in widget.lastMove!.squares)
           PositionedSquare(

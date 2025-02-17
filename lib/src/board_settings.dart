@@ -14,7 +14,7 @@ enum PieceShiftMethod {
   drag,
 
   /// Both tap and drag are enabled.
-  either;
+  either,
 }
 
 /// Describes how pieces on the board are oriented.
@@ -38,17 +38,14 @@ enum DragTargetKind {
   square,
 
   /// No target is shown.
-  none;
+  none,
 }
 
 /// Describes the border of the board.
 @immutable
 class BoardBorder {
   /// Creates a new border with the provided values.
-  const BoardBorder({
-    required this.color,
-    required this.width,
-  });
+  const BoardBorder({required this.color, required this.width});
 
   /// Color of the border
   final Color color;
@@ -70,14 +67,8 @@ class BoardBorder {
   @override
   int get hashCode => Object.hash(color, width);
 
-  BoardBorder copyWith({
-    Color? color,
-    double? width,
-  }) {
-    return BoardBorder(
-      color: color ?? this.color,
-      width: width ?? this.width,
-    );
+  BoardBorder copyWith({Color? color, double? width}) {
+    return BoardBorder(color: color ?? this.color, width: width ?? this.width);
   }
 }
 
@@ -219,26 +210,26 @@ class ChessboardSettings {
 
   @override
   int get hashCode => Object.hash(
-        colorScheme,
-        pieceAssets,
-        border,
-        borderRadius,
-        boxShadow,
-        enableCoordinates,
-        animationDuration,
-        showLastMove,
-        showValidMoves,
-        blindfoldMode,
-        dragFeedbackScale,
-        dragFeedbackOffset,
-        dragTargetKind,
-        pieceOrientationBehavior,
-        enablePremoveCastling,
-        autoQueenPromotion,
-        autoQueenPromotionOnPremove,
-        pieceShiftMethod,
-        drawShape,
-      );
+    colorScheme,
+    pieceAssets,
+    border,
+    borderRadius,
+    boxShadow,
+    enableCoordinates,
+    animationDuration,
+    showLastMove,
+    showValidMoves,
+    blindfoldMode,
+    dragFeedbackScale,
+    dragFeedbackOffset,
+    dragTargetKind,
+    pieceOrientationBehavior,
+    enablePremoveCastling,
+    autoQueenPromotion,
+    autoQueenPromotionOnPremove,
+    pieceShiftMethod,
+    drawShape,
+  );
 
   ChessboardSettings copyWith({
     ChessboardColorScheme? colorScheme,

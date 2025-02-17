@@ -8,10 +8,7 @@ import '../models.dart';
 /// This is useful to indicate interesting squares on the board, such as the last
 /// move, a check, or a selected piece.
 class SquareHighlight extends StatelessWidget {
-  const SquareHighlight({
-    super.key,
-    required this.details,
-  });
+  const SquareHighlight({super.key, required this.details});
 
   final HighlightDetails details;
 
@@ -20,17 +17,12 @@ class SquareHighlight extends StatelessWidget {
     if (details.image != null) {
       return Container(
         decoration: BoxDecoration(
-          image: DecorationImage(
-            image: details.image!,
-            fit: BoxFit.cover,
-          ),
+          image: DecorationImage(image: details.image!, fit: BoxFit.cover),
         ),
         color: details.solidColor,
       );
     }
-    return Container(
-      color: details.solidColor,
-    );
+    return Container(color: details.solidColor);
   }
 }
 
@@ -90,17 +82,14 @@ class ValidMoveHighlight extends StatelessWidget {
     return occupied
         ? OccupiedValidMoveHighlight(color: color, size: size)
         : SizedBox.square(
-            dimension: size,
-            child: Padding(
-              padding: EdgeInsets.all(size / 3),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: color,
-                  shape: BoxShape.circle,
-                ),
-              ),
+          dimension: size,
+          child: Padding(
+            padding: EdgeInsets.all(size / 3),
+            child: Container(
+              decoration: BoxDecoration(color: color, shape: BoxShape.circle),
             ),
-          );
+          ),
+        );
   }
 }
 
@@ -122,9 +111,7 @@ class OccupiedValidMoveHighlight extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox.square(
       dimension: size,
-      child: CustomPaint(
-        painter: _OccupiedMoveDestPainter(color),
-      ),
+      child: CustomPaint(painter: _OccupiedMoveDestPainter(color)),
     );
   }
 }
@@ -136,10 +123,11 @@ class _OccupiedMoveDestPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color
-      ..strokeWidth = size.width / 5
-      ..style = PaintingStyle.stroke;
+    final paint =
+        Paint()
+          ..color = color
+          ..strokeWidth = size.width / 5
+          ..style = PaintingStyle.stroke;
 
     canvas.clipRect(Rect.fromLTWH(0, 0, size.width, size.height));
 

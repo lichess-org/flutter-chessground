@@ -63,9 +63,10 @@ class _BoardAnnotationState extends State<BoardAnnotation> {
   Widget build(BuildContext context) {
     final squareOffset = widget.squareOffset(widget.square);
     final size = widget.squareSize * 0.48;
-    final onRightEdge = widget.orientation == Side.white
-        ? widget.square.file == File.h
-        : widget.square.file == File.a;
+    final onRightEdge =
+        widget.orientation == Side.white
+            ? widget.square.file == File.h
+            : widget.square.file == File.a;
     final offset = squareOffset.translate(
       onRightEdge
           ? widget.squareSize - (size * 0.9)
@@ -89,7 +90,7 @@ class _BoardAnnotationState extends State<BoardAnnotation> {
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFF000000).withOpacity(0.5),
+                  color: const Color(0xFF000000).withValues(alpha: 0.5),
                   blurRadius: 1,
                   offset: const Offset(1, 1),
                 ),

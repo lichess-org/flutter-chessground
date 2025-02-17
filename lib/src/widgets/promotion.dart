@@ -57,9 +57,9 @@ class PromotionSelector extends StatelessWidget with ChessboardGeometry {
                 orientation == Side.black && square.rank == Rank.first)
             ? square
             : Square.fromCoords(
-                square.file,
-                orientation == Side.white ? Rank.fourth : Rank.fifth,
-              );
+              square.file,
+              orientation == Side.white ? Rank.fourth : Rank.fifth,
+            );
 
     final offset = squareOffset(anchorSquare);
 
@@ -79,63 +79,47 @@ class PromotionSelector extends StatelessWidget with ChessboardGeometry {
               top: offset.dy,
               child: Column(
                 children: [
-                  Piece(
-                    color: color,
-                    role: Role.queen,
-                    promoted: true,
-                  ),
-                  Piece(
-                    color: color,
-                    role: Role.knight,
-                    promoted: true,
-                  ),
-                  Piece(
-                    color: color,
-                    role: Role.rook,
-                    promoted: true,
-                  ),
-                  Piece(
-                    color: color,
-                    role: Role.bishop,
-                    promoted: true,
-                  ),
-                ].map((Piece piece) {
-                  return GestureDetector(
-                    onTap: () => onSelect(piece.role),
-                    child: Stack(
-                      alignment: Alignment.topLeft,
-                      children: [
-                        Container(
-                          width: squareSize,
-                          height: squareSize,
-                          decoration: const BoxDecoration(
-                            shape: BoxShape.circle,
-                            boxShadow: [
-                              BoxShadow(
-                                color: Color(0xFFb0b0b0),
+                      Piece(color: color, role: Role.queen, promoted: true),
+                      Piece(color: color, role: Role.knight, promoted: true),
+                      Piece(color: color, role: Role.rook, promoted: true),
+                      Piece(color: color, role: Role.bishop, promoted: true),
+                    ]
+                    .map((Piece piece) {
+                      return GestureDetector(
+                        onTap: () => onSelect(piece.role),
+                        child: Stack(
+                          alignment: Alignment.topLeft,
+                          children: [
+                            Container(
+                              width: squareSize,
+                              height: squareSize,
+                              decoration: const BoxDecoration(
+                                shape: BoxShape.circle,
+                                boxShadow: [
+                                  BoxShadow(color: Color(0xFFb0b0b0)),
+                                  BoxShadow(
+                                    color: Color(0xFF808080),
+                                    blurRadius: 25.0,
+                                    spreadRadius: -3.0,
+                                  ),
+                                ],
                               ),
-                              BoxShadow(
-                                color: Color(0xFF808080),
-                                blurRadius: 25.0,
-                                spreadRadius: -3.0,
+                            ),
+                            Positioned(
+                              left: 5.0,
+                              top: 5.0,
+                              child: PieceWidget(
+                                piece: piece,
+                                size: squareSize - 10.0,
+                                pieceAssets: pieceAssets,
+                                upsideDown: piecesUpsideDown,
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
-                        Positioned(
-                          left: 5.0,
-                          top: 5.0,
-                          child: PieceWidget(
-                            piece: piece,
-                            size: squareSize - 10.0,
-                            pieceAssets: pieceAssets,
-                            upsideDown: piecesUpsideDown,
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                }).toList(growable: false),
+                      );
+                    })
+                    .toList(growable: false),
               ),
             ),
           ],

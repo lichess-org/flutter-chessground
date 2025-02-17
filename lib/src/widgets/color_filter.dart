@@ -41,7 +41,9 @@ class BrightnessHueFilter extends StatelessWidget {
       matrix = _hueFilter(matrix, value: hue);
     }
     return ColorFiltered(
-        colorFilter: ColorFilter.matrix(matrix.sublist(0, 20)), child: child);
+      colorFilter: ColorFilter.matrix(matrix.sublist(0, 20)),
+      child: child,
+    );
   }
 }
 
@@ -52,7 +54,7 @@ List<double> _brightnessFilter(List<double> matrix, {required double value}) {
     0, value, 0, 0, 0,
     0, 0, value, 0, 0,
     0, 0, 0, 1, 0,
-    0, 0, 0, 0, 1
+    0, 0, 0, 0, 1,
     // dart format on
   ]);
 }
@@ -101,7 +103,7 @@ const List<double> _baseMatrix = [
   0, 1, 0, 0, 0,
   0, 0, 1, 0, 0,
   0, 0, 0, 1, 0,
-  0, 0, 0, 0, 1
+  0, 0, 0, 0, 1,
   // dart format on
 ];
 

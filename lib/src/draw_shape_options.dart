@@ -8,8 +8,9 @@ class DrawShapeOptions {
     this.enable = false,
     this.onCompleteShape,
     this.onClearShapes,
-    this.newShapeColor =
-        const Color(0xAA15781b), // default to lichess.org green
+    this.newShapeColor = const Color(
+      0xAA15781b,
+    ), // default to lichess.org green
   });
 
   /// Whether to enable shape drawing.

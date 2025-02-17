@@ -65,9 +65,9 @@ class Chessboard extends StatefulWidget with ChessboardGeometry {
     this.onTouchedSquare,
     this.shapes,
     this.annotations,
-  })  : _size = size,
-        game = null,
-        opponentsPiecesUpsideDown = false;
+  }) : _size = size,
+       game = null,
+       opponentsPiecesUpsideDown = false;
 
   final double _size;
 
@@ -115,6 +115,7 @@ class Chessboard extends StatefulWidget with ChessboardGeometry {
   bool get interactive => game != null && game!.playerSide != PlayerSide.none;
 
   @override
+  // No need to make this class public, as it is only used internally.
   // ignore: library_private_types_in_public_api
   _BoardState createState() => _BoardState();
 }
@@ -193,11 +194,12 @@ class _BoardState extends State<Chessboard> {
   Widget build(BuildContext context) {
     final settings = widget.settings;
     final colorScheme = settings.colorScheme;
-    final ISet<Square> moveDests = settings.showValidMoves &&
-            selected != null &&
-            widget.game?.validMoves != null
-        ? widget.game?.validMoves[selected!] ?? _emptyValidMoves
-        : _emptyValidMoves;
+    final ISet<Square> moveDests =
+        settings.showValidMoves &&
+                selected != null &&
+                widget.game?.validMoves != null
+            ? widget.game?.validMoves[selected!] ?? _emptyValidMoves
+            : _emptyValidMoves;
     final Set<Square> premoveDests =
         settings.showValidMoves ? _premoveDests ?? {} : {};
     final shapes = widget.shapes ?? _emptyShapes;
@@ -205,11 +207,12 @@ class _BoardState extends State<Chessboard> {
     final checkSquare = widget.game?.isCheck == true ? _getKingSquare() : null;
     final premove = widget.game?.premovable?.premove;
 
-    final background = settings.border == null && settings.enableCoordinates
-        ? widget.orientation == Side.white
-            ? colorScheme.whiteCoordBackground
-            : colorScheme.blackCoordBackground
-        : colorScheme.background;
+    final background =
+        settings.border == null && settings.enableCoordinates
+            ? widget.orientation == Side.white
+                ? colorScheme.whiteCoordBackground
+                : colorScheme.blackCoordBackground
+            : colorScheme.background;
 
     final List<Widget> highlightedBackground = [
       SizedBox.square(
@@ -425,15 +428,16 @@ class _BoardState extends State<Chessboard> {
       ),
     );
 
-    final borderedChessboard = settings.border != null
-        ? BorderedChessboard(
-            size: widget.size,
-            orientation: widget.orientation,
-            border: settings.border!,
-            showCoordinates: settings.enableCoordinates,
-            child: board,
-          )
-        : board;
+    final borderedChessboard =
+        settings.border != null
+            ? BorderedChessboard(
+              size: widget.size,
+              orientation: widget.orientation,
+              border: settings.border!,
+              showCoordinates: settings.enableCoordinates,
+              child: board,
+            )
+            : board;
 
     return BrightnessHueFilter(
       hue: widget.settings.hue,
@@ -487,8 +491,11 @@ class _BoardState extends State<Chessboard> {
     final newPieces = readFen(widget.fen);
 
     if (widget.settings.animationDuration > Duration.zero) {
-      final (translatingPieces, fadingPieces) =
-          preparePieceAnimations(pieces, newPieces, lastDrop: _lastDrop);
+      final (translatingPieces, fadingPieces) = preparePieceAnimations(
+        pieces,
+        newPieces,
+        lastDrop: _lastDrop,
+      );
       this.translatingPieces = translatingPieces;
       this.fadingPieces = fadingPieces;
     }
@@ -550,10 +557,12 @@ class _BoardState extends State<Chessboard> {
             _cancelShapesDoubleTapTimer?.cancel();
             _cancelShapesDoubleTapTimer = null;
           } else {
-            _cancelShapesDoubleTapTimer =
-                Timer(_kCancelShapesDoubleTapDelay, () {
-              _cancelShapesDoubleTapTimer = null;
-            });
+            _cancelShapesDoubleTapTimer = Timer(
+              _kCancelShapesDoubleTapDelay,
+              () {
+                _cancelShapesDoubleTapTimer = null;
+              },
+            );
           }
         }
         // selecting a piece to move should clear shapes
@@ -562,7 +571,6 @@ class _BoardState extends State<Chessboard> {
           widget.settings.drawShape.onClearShapes?.call();
         }
       }
-
       // draw mode takes priority over play mode when the draw mode lock is set
       else if (_drawModeLockOrigin!.pointer != details.pointer) {
         _drawOrigin = details;
@@ -693,7 +701,8 @@ class _BoardState extends State<Chessboard> {
       _squareTargetGlobalOffset(
         details.localPosition,
         _renderBox!,
-        isLargeCircle: !isMousePointer &&
+        isLargeCircle:
+            !isMousePointer &&
             widget.settings.dragTargetKind == DragTargetKind.circle,
       ),
     );
@@ -706,8 +715,9 @@ class _BoardState extends State<Chessboard> {
     } else if (_shapeAvatar != null &&
         _drawOrigin != null &&
         _drawOrigin!.pointer == details.pointer) {
-      widget.settings.drawShape.onCompleteShape
-          ?.call(_shapeAvatar!.withScale(1.0));
+      widget.settings.drawShape.onCompleteShape?.call(
+        _shapeAvatar!.withScale(1.0),
+      );
       setState(() {
         _shapeAvatar = null;
       });
@@ -806,7 +816,8 @@ class _BoardState extends State<Chessboard> {
     final bool isMousePointer = origin.kind == PointerDeviceKind.mouse;
     final square = widget.offsetSquare(origin.localPosition);
     final piece = square != null ? pieces[square] : null;
-    final feedbackSize = widget.squareSize *
+    final feedbackSize =
+        widget.squareSize *
         (isMousePointer ? 1 : widget.settings.dragFeedbackScale);
     if (square != null &&
         piece != null &&
@@ -816,42 +827,41 @@ class _BoardState extends State<Chessboard> {
       });
       _renderBox ??= context.findRenderObject()! as RenderBox;
 
-      final dragFeedbackOffsetY = (_isUpsideDown(piece.color) ? -1 : 1) *
+      final dragFeedbackOffsetY =
+          (_isUpsideDown(piece.color) ? -1 : 1) *
           widget.settings.dragFeedbackOffset.dy;
 
-      final Offset feedbackOffset = feedbackSize == widget.squareSize
-          ? Offset(
-              (-1 * feedbackSize) / 2,
-              (-1 * feedbackSize) / 2,
-            )
-          : Offset(
-              ((widget.settings.dragFeedbackOffset.dx - 1) * feedbackSize) / 2,
-              ((dragFeedbackOffsetY - 1) * feedbackSize) / 2,
-            );
+      final Offset feedbackOffset =
+          feedbackSize == widget.squareSize
+              ? Offset((-1 * feedbackSize) / 2, (-1 * feedbackSize) / 2)
+              : Offset(
+                ((widget.settings.dragFeedbackOffset.dx - 1) * feedbackSize) /
+                    2,
+                ((dragFeedbackOffsetY - 1) * feedbackSize) / 2,
+              );
 
-      final targetKind = isMousePointer &&
-              widget.settings.dragTargetKind != DragTargetKind.none
-          ? DragTargetKind.square
-          : widget.settings.dragTargetKind;
+      final targetKind =
+          isMousePointer &&
+                  widget.settings.dragTargetKind != DragTargetKind.none
+              ? DragTargetKind.square
+              : widget.settings.dragTargetKind;
 
       final targetWidget = switch (targetKind) {
         DragTargetKind.circle => Container(
-            key: const ValueKey('drag-target-circle'),
-            width: widget.squareSize * 2,
-            height: widget.squareSize * 2,
-            decoration: const BoxDecoration(
-              color: Color(0x33000000),
-              shape: BoxShape.circle,
-            ),
+          key: const ValueKey('drag-target-circle'),
+          width: widget.squareSize * 2,
+          height: widget.squareSize * 2,
+          decoration: const BoxDecoration(
+            color: Color(0x33000000),
+            shape: BoxShape.circle,
           ),
+        ),
         DragTargetKind.square => Container(
-            key: const ValueKey('drag-target-square'),
-            width: widget.squareSize,
-            height: widget.squareSize,
-            decoration: const BoxDecoration(
-              color: Color(0x33000000),
-            ),
-          ),
+          key: const ValueKey('drag-target-square'),
+          width: widget.squareSize,
+          height: widget.squareSize,
+          decoration: const BoxDecoration(color: Color(0x33000000)),
+        ),
         DragTargetKind.none => const SizedBox.shrink(),
       };
 
@@ -900,14 +910,15 @@ class _BoardState extends State<Chessboard> {
 
   /// Whether the piece with this color should be displayed upside down, according to the
   /// widget settings.
-  bool _isUpsideDown(Side pieceColor) =>
-      switch (widget.settings.pieceOrientationBehavior) {
-        PieceOrientationBehavior.facingUser => false,
-        PieceOrientationBehavior.opponentUpsideDown =>
-          pieceColor == widget.orientation.opposite,
-        PieceOrientationBehavior.sideToPlay =>
-          widget.game?.sideToMove == widget.orientation.opposite,
-      };
+  bool _isUpsideDown(Side pieceColor) => switch (widget
+      .settings
+      .pieceOrientationBehavior) {
+    PieceOrientationBehavior.facingUser => false,
+    PieceOrientationBehavior.opponentUpsideDown =>
+      pieceColor == widget.orientation.opposite,
+    PieceOrientationBehavior.sideToPlay =>
+      widget.game?.sideToMove == widget.orientation.opposite,
+  };
 
   /// Whether the piece is movable by the current side to move.
   bool _isMovable(Piece? piece) {
@@ -1004,8 +1015,8 @@ class _DragAvatar {
     Offset? initialTargetPosition,
     required this.pieceFeedback,
     required this.squareTargetFeedback,
-  })  : _position = initialPosition,
-        _squareTargetPosition = initialTargetPosition {
+  }) : _position = initialPosition,
+       _squareTargetPosition = initialTargetPosition {
     _pieceEntry = OverlayEntry(builder: _buildPieceFeedback);
     _squareTargetEntry = OverlayEntry(builder: _buildSquareTargetFeedback);
     overlayState.insert(_squareTargetEntry);
@@ -1046,9 +1057,7 @@ class _DragAvatar {
     return Positioned(
       left: _position.dx,
       top: _position.dy,
-      child: IgnorePointer(
-        child: pieceFeedback,
-      ),
+      child: IgnorePointer(child: pieceFeedback),
     );
   }
 
@@ -1057,9 +1066,7 @@ class _DragAvatar {
       return Positioned(
         left: _squareTargetPosition!.dx,
         top: _squareTargetPosition!.dy,
-        child: IgnorePointer(
-          child: squareTargetFeedback,
-        ),
+        child: IgnorePointer(child: squareTargetFeedback),
       );
     } else {
       return const SizedBox.shrink();

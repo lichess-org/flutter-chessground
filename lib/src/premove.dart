@@ -3,35 +3,32 @@ import 'package:dartchess/dartchess.dart';
 import './models.dart';
 
 /// Returns the read-only set of squares that the piece on [square] can potentially premove to.
-Set<Square> premovesOf(
-  Square square,
-  Pieces pieces, {
-  bool canCastle = false,
-}) {
+Set<Square> premovesOf(Square square, Pieces pieces, {bool canCastle = false}) {
   final piece = pieces[square];
   if (piece == null) return {};
   final r = piece.role;
 
-  final mobility = (() {
-    switch (r) {
-      case Role.pawn:
-        return _pawn(piece.color);
-      case Role.knight:
-        return _knight;
-      case Role.bishop:
-        return _bishop;
-      case Role.rook:
-        return _rook;
-      case Role.queen:
-        return _queen;
-      case Role.king:
-        return _king(
-          piece.color,
-          _rookFilesOf(pieces, piece.color),
-          canCastle,
-        );
-    }
-  })();
+  final mobility =
+      (() {
+        switch (r) {
+          case Role.pawn:
+            return _pawn(piece.color);
+          case Role.knight:
+            return _knight;
+          case Role.bishop:
+            return _bishop;
+          case Role.rook:
+            return _rook;
+          case Role.queen:
+            return _queen;
+          case Role.king:
+            return _king(
+              piece.color,
+              _rookFilesOf(pieces, piece.color),
+              canCastle,
+            );
+        }
+      })();
 
   return Set.unmodifiable({
     for (final s in Square.values)

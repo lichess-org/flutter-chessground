@@ -90,15 +90,13 @@ class ChessgroundImages {
   ///
   /// The [devicePixelRatio] can be specified to load the image at a different
   /// resolution than the default.
-  Future<ui.Image> load(
-    AssetImage asset, {
-    double? devicePixelRatio,
-  }) async {
-    final key = await asset
-        .obtainKey(ImageConfiguration(devicePixelRatio: devicePixelRatio));
+  Future<ui.Image> load(AssetImage asset, {double? devicePixelRatio}) async {
+    final key = await asset.obtainKey(
+      ImageConfiguration(devicePixelRatio: devicePixelRatio),
+    );
     return (_assets[asset] ??= _ImageEntry.future(
-      _fetchToMemory(asset.bundle ?? rootBundle, key.name),
-    ))
+          _fetchToMemory(asset.bundle ?? rootBundle, key.name),
+        ))
         .retrieveAsync();
   }
 

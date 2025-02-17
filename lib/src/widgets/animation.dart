@@ -95,8 +95,8 @@ class AnimatedPieceTranslation extends StatefulWidget {
     required this.onComplete,
     Duration? duration,
     Curve? curve,
-  })  : duration = duration ?? const Duration(milliseconds: 150),
-        curve = curve ?? Curves.easeInOutCubic;
+  }) : duration = duration ?? const Duration(milliseconds: 150),
+       curve = curve ?? Curves.easeInOutCubic;
 
   /// The widget to animate. Typically a [PieceWidget].
   final Widget child;
@@ -131,25 +131,18 @@ class AnimatedPieceTranslation extends StatefulWidget {
 
 class _PieceTranslationState extends State<AnimatedPieceTranslation>
     with SingleTickerProviderStateMixin {
-  late final AnimationController _controller = AnimationController(
-    duration: widget.duration,
-    vsync: this,
-  )
-    ..addStatusListener((status) {
-      if (status == AnimationStatus.completed) {
-        widget.onComplete();
-      }
-    })
-    ..forward();
+  late final AnimationController _controller =
+      AnimationController(duration: widget.duration, vsync: this)
+        ..addStatusListener((status) {
+          if (status == AnimationStatus.completed) {
+            widget.onComplete();
+          }
+        })
+        ..forward();
   late final Animation<Offset> _offsetAnimation = Tween<Offset>(
     begin: Offset(widget.dx, widget.dy),
     end: Offset.zero,
-  ).animate(
-    CurvedAnimation(
-      parent: _controller,
-      curve: widget.curve,
-    ),
-  );
+  ).animate(CurvedAnimation(parent: _controller, curve: widget.curve));
 
   @override
   void dispose() {
@@ -159,10 +152,7 @@ class _PieceTranslationState extends State<AnimatedPieceTranslation>
 
   @override
   Widget build(BuildContext context) {
-    return SlideTransition(
-      position: _offsetAnimation,
-      child: widget.child,
-    );
+    return SlideTransition(position: _offsetAnimation, child: widget.child);
   }
 }
 
@@ -179,8 +169,8 @@ class AnimatedPieceFadeOut extends StatefulWidget {
     this.upsideDown = false,
     Duration? duration,
     Curve? curve,
-  })  : duration = duration ?? const Duration(milliseconds: 150),
-        curve = curve ?? Curves.easeInQuad;
+  }) : duration = duration ?? const Duration(milliseconds: 150),
+       curve = curve ?? Curves.easeInQuad;
 
   /// The piece to fade out.
   final Piece piece;
@@ -212,25 +202,18 @@ class AnimatedPieceFadeOut extends StatefulWidget {
 
 class _PieceFadeOutState extends State<AnimatedPieceFadeOut>
     with TickerProviderStateMixin {
-  late final AnimationController _controller = AnimationController(
-    duration: widget.duration,
-    vsync: this,
-  )
-    ..addStatusListener((status) {
-      if (status == AnimationStatus.completed) {
-        widget.onComplete();
-      }
-    })
-    ..forward();
+  late final AnimationController _controller =
+      AnimationController(duration: widget.duration, vsync: this)
+        ..addStatusListener((status) {
+          if (status == AnimationStatus.completed) {
+            widget.onComplete();
+          }
+        })
+        ..forward();
   late final Animation<double> _animation = Tween<double>(
     begin: 1.0,
     end: 0.0,
-  ).animate(
-    CurvedAnimation(
-      parent: _controller,
-      curve: widget.curve,
-    ),
-  );
+  ).animate(CurvedAnimation(parent: _controller, curve: widget.curve));
 
   @override
   void dispose() {
