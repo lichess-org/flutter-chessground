@@ -1754,7 +1754,7 @@ class _TestAppState extends State<_TestApp> {
   late PlayerSide interactiveSide;
   late NormalMove? promotionMove;
   late ISet<Shape> shapes;
-  late Position<Chess> position;
+  late Position position;
   NormalMove? lastMove;
   NormalMove? premoveData;
 

@@ -57,7 +57,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  Position<Chess> position = Chess.initial;
+  Position position = Chess.initial;
   Side orientation = Side.white;
   String fen = kInitialBoardFEN;
   NormalMove? lastMove;
@@ -73,7 +73,7 @@ class _HomePageState extends State<HomePage> {
   bool pieceAnimation = true;
   bool dragMagnify = true;
   Mode playMode = Mode.botPlay;
-  Position<Chess>? lastPos;
+  Position? lastPos;
   ISet<Shape> shapes = ISet();
   bool showBorder = false;
 

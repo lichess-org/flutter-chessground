@@ -1,3 +1,9 @@
+## 6.4.0
+
+- Update dependencies
+- Update minimum Dart SDK version to 3.7.0 and minimum Flutter version to
+  3.29.0
+
 ## 6.3.0
 
 - Added an `onTouchedSquare` callback to `Chessboard`
