@@ -535,7 +535,8 @@ class _BoardState extends State<Chessboard> {
   }
 
   void _onPointerDown(PointerDownEvent details) {
-    if (details.buttons != kPrimaryButton) return;
+    final button = details.buttons;
+    if (button != kPrimaryButton && button != kSecondaryMouseButton) return;
 
     final square = widget.offsetSquare(details.localPosition);
     if (square == null) return;
@@ -545,6 +546,27 @@ class _BoardState extends State<Chessboard> {
     final Piece? piece = pieces[square];
 
     if (widget.settings.drawShape.enable) {
+      // draw mode takes priority over play mode when the draw mode lock is set or if using the right mouse button
+      final bool canDrawWithTouch =
+          _drawModeLockOrigin != null &&
+          _drawModeLockOrigin!.pointer != details.pointer;
+
+      final bool canDrawWithMouse =
+          details.kind == PointerDeviceKind.mouse &&
+          button == kSecondaryMouseButton;
+
+      if (canDrawWithTouch || canDrawWithMouse) {
+        _drawOrigin = details;
+        setState(() {
+          _shapeAvatar = Circle(
+            color: widget.settings.drawShape.newShapeColor,
+            orig: square,
+            scale: 0.80,
+          );
+        });
+        return;
+      }
+
       if (_drawModeLockOrigin == null) {
         if (piece == null) {
           // Sets a lock to the draw mode if the user holds the pointer to an
@@ -571,19 +593,10 @@ class _BoardState extends State<Chessboard> {
           widget.settings.drawShape.onClearShapes?.call();
         }
       }
-      // draw mode takes priority over play mode when the draw mode lock is set
-      else if (_drawModeLockOrigin!.pointer != details.pointer) {
-        _drawOrigin = details;
-        setState(() {
-          _shapeAvatar = Circle(
-            color: widget.settings.drawShape.newShapeColor,
-            orig: square,
-            scale: 0.80,
-          );
-        });
-        return;
-      }
     }
+
+    // Right mouse button is only used above to draw, we can ignore it from here
+    if (button == kSecondaryMouseButton) return;
 
     if (widget.interactive == false) return;
 
@@ -666,7 +679,8 @@ class _BoardState extends State<Chessboard> {
   }
 
   void _onPointerMove(PointerMoveEvent details) {
-    if (details.buttons != kPrimaryButton) return;
+    final button = details.buttons;
+    if (button != kPrimaryButton && button != kSecondaryMouseButton) return;
 
     // draw mode takes priority over play mode when the draw mode lock is set
     if (_shapeAvatar != null &&
@@ -681,6 +695,9 @@ class _BoardState extends State<Chessboard> {
         });
       }
     }
+
+    // Right mouse button is only used above to draw, we can ignore it from here
+    if (button == kSecondaryMouseButton) return;
 
     if (_currentPointerDownEvent == null ||
         _currentPointerDownEvent!.pointer != details.pointer ||

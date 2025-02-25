@@ -3,6 +3,7 @@ import 'package:chessground/src/widgets/animation.dart';
 import 'package:chessground/src/widgets/promotion.dart';
 import 'package:chessground/src/widgets/shape.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:dartchess/dartchess.dart';
@@ -1467,6 +1468,90 @@ void main() {
       );
     });
 
+  testWidgets('draw a circle by mouse right click', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        const _TestApp(
+          initialPlayerSide: PlayerSide.both,
+          enableDrawingShapes: true,
+        ),
+      );
+
+      await TestAsyncUtils.guard<void>(() async {
+        // keep pressing an empty square to enable drawing shapes
+        final pressGesture = await tester.startGesture(
+          squareOffset(tester, Square.a3),
+        );
+
+        // drawing a circle with another tap
+        final tapGesture = await tester.startGesture(
+          squareOffset(tester, Square.e4),
+        );
+        await tapGesture.up();
+
+        await pressGesture.up();
+      });
+
+      // wait for the double tap delay to expire
+      await tester.pump(const Duration(milliseconds: 210));
+
+      expect(
+        find.byType(ShapeWidget),
+        paints..path(color: const Color(0xFF0000FF)),
+      );
+    });
+
+    testWidgets('draw an arrow by mouse right click', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        const _TestApp(
+          initialPlayerSide: PlayerSide.both,
+          enableDrawingShapes: true,
+        ),
+      );
+
+      await tester.dragFrom(
+        squareOffset(tester, Square.e2),
+        const Offset(0, -(squareSize * 2)),
+        buttons: kSecondaryMouseButton,
+        kind: PointerDeviceKind.mouse,
+      );
+
+      await tester.pump();
+
+      expect(
+        find.byType(ShapeWidget),
+        paints
+          ..line(color: const Color(0xFF0000FF))
+          ..path(color: const Color(0xFF0000FF)),
+      );
+    });
+
+    testWidgets('can draw shapes on an non-interactive board', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        const _TestApp(
+          initialPlayerSide: PlayerSide.none,
+          enableDrawingShapes: true,
+        ),
+      );
+
+      await tester.dragFrom(
+        squareOffset(tester, Square.e2),
+        const Offset(0, -(squareSize * 2)),
+        buttons: kSecondaryMouseButton,
+        kind: PointerDeviceKind.mouse,
+      );
+
+      await tester.pump();
+
+      expect(
+        find.byType(ShapeWidget),
+        paints
+          ..line(color: const Color(0xFF0000FF))
+          ..path(color: const Color(0xFF0000FF)),
+      );
+    });
+    
     testWidgets('can draw shapes on an non-interactive board',
         (WidgetTester tester) async {
       await tester.pumpWidget(
