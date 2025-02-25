@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:chessground/src/widgets/geometry.dart';
 import 'package:dartchess/dartchess.dart';
 import 'package:flutter/gestures.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter/widgets.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 
@@ -223,6 +224,27 @@ class _BoardState extends State<Chessboard> {
         dimension: widget.size,
         child: background,
       ),
+
+      for (final square in Square.values)
+        PositionedSquare(
+          key: ValueKey('${square.name}-accessibilty'),
+          size: widget.size,
+          orientation: widget.orientation,
+          square: square,
+          child: Semantics(
+            label: square.name,
+            value: pieces[square]?.toString(),
+            hint: _getSquareHint(square),
+            selected: selected == square,
+            onTap: () {
+              widget.onTouchedSquare?.call(square);
+              _onSquarePointerDown(square);
+              _onSquarePointerUp(square);
+            },
+            child: const SizedBox.shrink(),
+          ),
+        ),
+
       if (settings.showLastMove && widget.lastMove != null)
         for (final square in widget.lastMove!.squares)
           if (premove == null || !premove.hasSquare(square))
@@ -600,10 +622,15 @@ class _BoardState extends State<Chessboard> {
     // pointer events
     _currentPointerDownEvent = details;
 
+    _onSquarePointerDown(square);
+  }
+
+  void _onSquarePointerDown(Square square) {
     // a piece was selected and the user taps on a different square:
     // - try to move the piece to the target square
     // - if the move was not possible but there is a movable piece under the
     // target square, select it
+    final piece = pieces[square];
     if (selected != null && square != selected) {
       final couldMove = _tryMoveOrPremoveTo(square);
       if (!couldMove && _isMovable(piece)) {
@@ -734,6 +761,10 @@ class _BoardState extends State<Chessboard> {
 
     final square = widget.offsetSquare(details.localPosition);
 
+    _onSquarePointerUp(square);
+  }
+
+  void _onSquarePointerUp(Square? square) {
     // handle pointer up while dragging a piece
     if (_dragAvatar != null) {
       bool shouldDeselect = true;
@@ -995,6 +1026,33 @@ class _BoardState extends State<Chessboard> {
       return true;
     }
     return false;
+  }
+  
+  String? _getSquareHint(Square square) {
+    // no selection
+      // my piece --> tap to move
+      // opponent piece --> none
+    // selection
+      // same square
+      // legal move
+        // empty square
+        // capture
+        // promotion
+        // en passant?
+        // castling?
+      // illegal move
+    if (selected == null) {
+      return _isMovable(pieces[square]) ? 'Tap to move' : null;
+    } else {
+      if (square == selected) {
+        return 'Deselect';
+      } else if (_canMoveTo(selected!, square)) {
+        return 'Move ${pieces[selected]!.role.name} to ${square.name}';
+      } else {
+        return null;
+      }
+    }
+
   }
 }
 
