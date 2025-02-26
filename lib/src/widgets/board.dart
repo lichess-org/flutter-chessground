@@ -190,6 +190,8 @@ class _BoardState extends State<Chessboard> {
   /// Avatar of the shape being drawn.
   Shape? _shapeAvatar;
 
+  bool get _enforceTouchMoveRule => widget.settings.enforceTouchMoveRule;
+
   @override
   Widget build(BuildContext context) {
     final settings = widget.settings;
@@ -605,21 +607,33 @@ class _BoardState extends State<Chessboard> {
     if (selected != null && square != selected) {
       final couldMove = _tryMoveOrPremoveTo(square);
       if (!couldMove && _isMovable(piece)) {
-        setState(() {
-          selected = square;
-        });
+        // Do not change the selected piece if the touch-move-rule
+        // is enforced and the selected piece has a legal move
+        if (!(_enforceTouchMoveRule && _selectedPieceHasLegalMove())) {
+          setState(() {
+            selected = square;
+          });
+        }
       } else {
-        setState(() {
-          selected = null;
-          _premoveDests = null;
-        });
+        // Do not deselect the selected piece if the touch-move-rule
+        // is enforced and the selected piece has a legal move
+        if (!(_enforceTouchMoveRule && _selectedPieceHasLegalMove())) {
+          setState(() {
+            selected = null;
+            _premoveDests = null;
+          });
+        }
       }
     }
     // the selected piece is touched again:
     // - deselect the piece on the next tap up event (as we don't want to deselect
     // the piece when the user drags it)
     else if (selected == square) {
-      _shouldDeselectOnTapUp = true;
+      // Do not deselect the selected piece if the touch-move-rule
+      // is enforced and the selected piece has a legal move
+      if (!(_enforceTouchMoveRule && _selectedPieceHasLegalMove())) {
+        _shouldDeselectOnTapUp = true;
+      }
     }
     // no piece was selected yet and a movable piece is touched:
     // - select the piece
@@ -743,13 +757,24 @@ class _BoardState extends State<Chessboard> {
           if (!couldMove && widget.game?.premovable?.premove != null) {
             widget.game?.premovable?.onSetPremove.call(null);
           }
+          // if the move is not possible and the touch-move-rule is enforced,
+          // keep the dragged piece selected
+          if (!couldMove && _enforceTouchMoveRule) {
+            shouldDeselect = false;
+          }
         } else {
           shouldDeselect = false;
         }
-      }
-      // if the user drags a piece outside the board, cancel the premove
-      else if (widget.game?.premovable?.premove != null) {
-        widget.game?.premovable?.onSetPremove.call(null);
+      } else {
+        // if the user drags a piece outside the board, cancel the premove
+        if (widget.game?.premovable?.premove != null) {
+          widget.game?.premovable?.onSetPremove.call(null);
+        }
+        // and keep the dragged piece selected if the touch-move-rule
+        // is enforced
+        if (_enforceTouchMoveRule) {
+          shouldDeselect = false;
+        }
       }
       _onDragEnd();
       setState(() {
@@ -815,6 +840,11 @@ class _BoardState extends State<Chessboard> {
   void _onDragStart(PointerEvent origin) {
     final bool isMousePointer = origin.kind == PointerDeviceKind.mouse;
     final square = widget.offsetSquare(origin.localPosition);
+    // Do nothing if another piece is already selected and
+    // the touch-move-rule is enforced
+    if (selected != square && _enforceTouchMoveRule) {
+      return;
+    }
     final piece = square != null ? pieces[square] : null;
     final feedbackSize =
         widget.squareSize *
@@ -993,6 +1023,15 @@ class _BoardState extends State<Chessboard> {
       return true;
     }
     return false;
+  }
+
+  bool _selectedPieceHasLegalMove() {
+    final selected = this.selected;
+    if (selected == null) {
+      throw StateError('No piece selected');
+    }
+    final validMoves = widget.game?.validMoves[selected];
+    return validMoves != null && validMoves.isNotEmpty;
   }
 }
 

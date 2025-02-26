@@ -1695,6 +1695,201 @@ void main() {
       }
     });
   });
+
+  group('enforce touch-move-rule', () {
+    testWidgets('Dragging a piece to an invalid target keeps it selected',
+        (WidgetTester tester) async {
+      await (WidgetTester tester) async {
+        await tester.pumpWidget(
+          const _TestApp(
+            initialPlayerSide: PlayerSide.white,
+            settings: ChessboardSettings(
+              animationDuration: Duration.zero,
+              enforceTouchMoveRule: true,
+            ),
+          ),
+        );
+      }(tester);
+      await tester.dragFrom(
+        squareOffset(tester, Square.e2),
+        const Offset(0, -(squareSize * 3)),
+      );
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('e2-selected')), findsOneWidget);
+    });
+
+    testWidgets('Dragging a piece outside the board keeps it selected',
+        (WidgetTester tester) async {
+      await (WidgetTester tester) async {
+        await tester.pumpWidget(
+          const _TestApp(
+            initialPlayerSide: PlayerSide.white,
+            settings: ChessboardSettings(
+              animationDuration: Duration.zero,
+              enforceTouchMoveRule: true,
+            ),
+          ),
+        );
+      }(tester);
+      await tester.dragFrom(
+        squareOffset(tester, Square.e2),
+        const Offset(0, squareSize * 3),
+      );
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('e2-selected')), findsOneWidget);
+    });
+
+    group('after a moveable white piece has been selected', () {
+      testWidgets('tap on empty square does nothing',
+          (WidgetTester tester) async {
+        await (WidgetTester tester) async {
+          await tester.pumpWidget(
+            const _TestApp(
+              initialPlayerSide: PlayerSide.white,
+              settings: ChessboardSettings(
+                animationDuration: Duration.zero,
+                enforceTouchMoveRule: true,
+              ),
+            ),
+          );
+        }(tester);
+        await tester.tapAt(squareOffset(tester, Square.e2));
+        await tester.pump();
+        await tester.tapAt(squareOffset(tester, Square.c5));
+        await tester.pump();
+        expect(find.byKey(const Key('e2-selected')), findsOneWidget);
+      });
+
+      testWidgets('tap on black piece does nothing',
+          (WidgetTester tester) async {
+        await (WidgetTester tester) async {
+          await tester.pumpWidget(
+            const _TestApp(
+              initialPlayerSide: PlayerSide.white,
+              settings: ChessboardSettings(
+                animationDuration: Duration.zero,
+                enforceTouchMoveRule: true,
+              ),
+            ),
+          );
+        }(tester);
+        await tester.tapAt(squareOffset(tester, Square.e2));
+        await tester.pump();
+        await tester.tapAt(squareOffset(tester, Square.e7));
+        await tester.pump();
+        expect(find.byKey(const Key('e2-selected')), findsOneWidget);
+      });
+
+      testWidgets('tap on another white piece does nothing',
+          (WidgetTester tester) async {
+        await (WidgetTester tester) async {
+          await tester.pumpWidget(
+            const _TestApp(
+              initialPlayerSide: PlayerSide.white,
+              settings: ChessboardSettings(
+                animationDuration: Duration.zero,
+                enforceTouchMoveRule: true,
+              ),
+            ),
+          );
+        }(tester);
+        await tester.tapAt(squareOffset(tester, Square.e2));
+        await tester.pump();
+        await tester.tapAt(squareOffset(tester, Square.d2));
+        await tester.pump();
+        expect(find.byKey(const Key('e2-selected')), findsOneWidget);
+      });
+
+      testWidgets('tap on same white piece does nothing',
+          (WidgetTester tester) async {
+        await (WidgetTester tester) async {
+          await tester.pumpWidget(
+            const _TestApp(
+              initialPlayerSide: PlayerSide.white,
+              settings: ChessboardSettings(
+                animationDuration: Duration.zero,
+                enforceTouchMoveRule: true,
+              ),
+            ),
+          );
+        }(tester);
+        await tester.tapAt(squareOffset(tester, Square.e2));
+        await tester.pump();
+        await tester.tapAt(squareOffset(tester, Square.e2));
+        await tester.pump();
+        expect(find.byKey(const Key('e2-selected')), findsOneWidget);
+      });
+
+      testWidgets('another white piece cannot be dragged',
+          (WidgetTester tester) async {
+        await (WidgetTester tester) async {
+          await tester.pumpWidget(
+            const _TestApp(
+              initialPlayerSide: PlayerSide.white,
+              settings: ChessboardSettings(
+                animationDuration: Duration.zero,
+                enforceTouchMoveRule: true,
+              ),
+            ),
+          );
+        }(tester);
+        await tester.tapAt(squareOffset(tester, Square.e2));
+        await tester.dragFrom(
+          squareOffset(tester, Square.d2),
+          const Offset(0, -squareSize),
+        );
+        await tester.pumpAndSettle();
+        expect(find.byKey(const Key('e2-selected')), findsOneWidget);
+      });
+    });
+
+    group('after a unmoveable white piece has been selected', () {
+      testWidgets('tapping another white piece selects it',
+          (WidgetTester tester) async {
+        await (WidgetTester tester) async {
+          await tester.pumpWidget(
+            const _TestApp(
+              initialPlayerSide: PlayerSide.white,
+              settings: ChessboardSettings(
+                animationDuration: Duration.zero,
+                enforceTouchMoveRule: true,
+              ),
+            ),
+          );
+        }(tester);
+        await tester.tapAt(squareOffset(tester, Square.d1));
+        await tester.pumpAndSettle();
+        expect(find.byKey(const Key('d1-selected')), findsOneWidget);
+        await tester.tapAt(squareOffset(tester, Square.d2));
+        await tester.pumpAndSettle();
+        expect(find.byKey(const Key('d2-selected')), findsOneWidget);
+      });
+
+      testWidgets('another white piece can be dragged',
+          (WidgetTester tester) async {
+        await (WidgetTester tester) async {
+          await tester.pumpWidget(
+            const _TestApp(
+              initialPlayerSide: PlayerSide.white,
+              settings: ChessboardSettings(
+                animationDuration: Duration.zero,
+                enforceTouchMoveRule: true,
+              ),
+            ),
+          );
+        }(tester);
+        await tester.tapAt(squareOffset(tester, Square.d1));
+        await tester.pumpAndSettle();
+        expect(find.byKey(const Key('d1-selected')), findsOneWidget);
+        await tester.dragFrom(
+          squareOffset(tester, Square.d2),
+          const Offset(0, -3 * squareSize),
+        );
+        await tester.pumpAndSettle();
+        expect(find.byKey(const Key('d2-selected')), findsOneWidget);
+      });
+    });
+  });
 }
 
 Future<void> makeMove(WidgetTester tester, Square from, Square to) async {

@@ -106,6 +106,7 @@ class ChessboardSettings {
     this.autoQueenPromotion = false,
     this.autoQueenPromotionOnPremove = true,
     this.pieceShiftMethod = PieceShiftMethod.either,
+    this.enforceTouchMoveRule = false,
   });
 
   /// Theme of the board
@@ -174,6 +175,11 @@ class ChessboardSettings {
 
   /// Controls how moves are made.
   final PieceShiftMethod pieceShiftMethod;
+
+  /// If true a selected piece, which can make a legal move, cannot
+  /// be unselected (and no other piece can be selected) until a move
+  /// with the selected piece is made.
+  final bool enforceTouchMoveRule;
 
   /// Shape drawing options object containing data about how new shapes can be drawn.
   final DrawShapeOptions drawShape;
