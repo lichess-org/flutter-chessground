@@ -333,7 +333,7 @@ class _HomePageState extends State<HomePage> {
         children: [
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Text('PGN: $pgn', style: const TextStyle(fontSize: 18)),
+            child: Text(pgn, style: const TextStyle(fontSize: 18)),
           ),
           Chessboard(
             size: screenWidth,
@@ -539,7 +539,9 @@ class _HomePageState extends State<HomePage> {
     if (position.isGameOver) {
       String result;
       if (position.isCheckmate) {
-        result = position.turn == Side.white ? 'Black wins by checkmate' : 'White wins by checkmate';
+        result = position.turn == Side.white
+            ? 'Black wins by checkmate'
+            : 'White wins by checkmate';
       } else if (position.isStalemate) {
         result = 'Draw by stalemate';
       } else if (position.isInsufficientMaterial) {
@@ -570,13 +572,43 @@ class _HomePageState extends State<HomePage> {
   }
 
   String _moveToPgn(NormalMove move) {
+    final moveNumber = (moveCount ~/ 2) + 1;
+    final isWhiteMove = moveCount % 2 == 0;
+    final movePrefix = isWhiteMove ? '$moveNumber. ' : '';
+
+    if (_isKingsideCastle(move)) {
+      return '$movePrefix O-O';
+    } else if (_isQueensideCastle(move)) {
+      return '$movePrefix O-O-O';
+    }
+
     final piece = position.board.pieceAt(move.from);
-    final pieceChar = piece != null && piece.role != Role.pawn ? piece.role.uppercaseLetter : '';
+    final pieceChar = piece != null && piece.role != Role.pawn
+        ? piece.role.uppercaseLetter
+        : '';
     final capture = position.board.pieceAt(move.to) != null ? 'x' : '';
-    final promotion = move.promotion != null ? '=${move.promotion!.uppercaseLetter}' : '';
-    return '$pieceChar${move.from.name}$capture${move.to.name}$promotion';
+    final promotion =
+        move.promotion != null ? '=${move.promotion!.uppercaseLetter}' : '';
+    if (piece != null && piece.role == Role.pawn) {
+      final fromFile = capture.isNotEmpty ? move.from.file.name : '';
+      return '$movePrefix$fromFile$capture${move.to.name}$promotion';
+    } else {
+      return '$movePrefix$pieceChar$capture${move.to.name}$promotion';
+    }
   }
-  
+
+  bool _isKingsideCastle(NormalMove move) {
+    // Assuming standard chess rules
+    return (move.from == Square.e1 && move.to == Square.g1) ||
+        (move.from == Square.e8 && move.to == Square.g8);
+  }
+
+  bool _isQueensideCastle(NormalMove move) {
+    // Assuming standard chess rules
+    return (move.from == Square.e1 && move.to == Square.c1) ||
+        (move.from == Square.e8 && move.to == Square.c8);
+  }
+
   Future<void> _playBlackMove() async {
     Future.delayed(const Duration(milliseconds: 100)).then((value) {
       setState(() {});
