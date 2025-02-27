@@ -77,6 +77,7 @@ class _HomePageState extends State<HomePage> {
   ISet<Shape> shapes = ISet();
   bool showBorder = false;
   int moveCount = 0;
+  String pgn = '';
 
   void _resetGame() {
     setState(() {
@@ -89,6 +90,8 @@ class _HomePageState extends State<HomePage> {
       sideToMove = Side.white;
       lastPos = null;
       shapes = ISet();
+      moveCount = 0;
+      pgn = ''; // 重置 PGN
     });
   }
 
@@ -269,7 +272,7 @@ class _HomePageState extends State<HomePage> {
         children: [
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Text('Moves: $moveCount', style: const TextStyle(fontSize: 18)),
+            child: Text('PGN: $pgn', style: const TextStyle(fontSize: 18)),
           ),
           Chessboard(
             size: screenWidth,
@@ -443,10 +446,11 @@ class _HomePageState extends State<HomePage> {
           premove = null;
         }
         moveCount++;
+        pgn += ' ${_moveToPgn(move)}';
       });
     }
   }
-
+  
   void _onUserMoveAgainstBot(NormalMove move, {isDrop}) async {
     lastPos = position;
     if (isPromotionPawnMove(move)) {
@@ -455,18 +459,28 @@ class _HomePageState extends State<HomePage> {
       });
     } else {
       setState(() {
+        pgn += ' ${_moveToPgn(move)}';
         position = position.playUnchecked(move);
         lastMove = move;
         fen = position.fen;
         validMoves = IMap(const {});
         promotionMove = null;
         moveCount++;
+        
       });
       await _playBlackMove();
       _tryPlayPremove();
     }
   }
 
+  String _moveToPgn(NormalMove move) {
+    final piece = position.board.pieceAt(move.from);
+    final pieceChar = piece != null && piece.role != Role.pawn ? piece.role.uppercaseLetter : '';
+    final capture = position.board.pieceAt(move.to) != null ? 'x' : '';
+    final promotion = move.promotion != null ? '=${move.promotion!.uppercaseLetter}' : '';
+    return '$pieceChar${move.from.name}$capture${move.to.name}$promotion';
+  }
+  
   Future<void> _playBlackMove() async {
     Future.delayed(const Duration(milliseconds: 100)).then((value) {
       setState(() {});
