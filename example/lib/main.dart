@@ -76,6 +76,7 @@ class _HomePageState extends State<HomePage> {
   Position? lastPos;
   ISet<Shape> shapes = ISet();
   bool showBorder = false;
+  int moveCount = 0;
 
   void _resetGame() {
     setState(() {
@@ -263,66 +264,13 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
-      drawer: Drawer(
-          child: ListView(
-        children: [
-          ListTile(
-            title: const Text('Random Bot'),
-            onTap: () {
-              setState(() {
-                playMode = Mode.botPlay;
-              });
-              if (position.turn == Side.black) {
-                _playBlackMove();
-              }
-              Navigator.pop(context);
-            },
-          ),
-          ListTile(
-            title: const Text('Enter opponent move'),
-            onTap: () {
-              setState(() {
-                playMode = Mode.inputMove;
-              });
-              Navigator.pop(context);
-            },
-          ),
-          ListTile(
-            title: const Text('Free Play'),
-            onTap: () {
-              setState(() {
-                playMode = Mode.freePlay;
-              });
-              Navigator.pop(context);
-            },
-          ),
-          ListTile(
-            title: const Text('Board Editor'),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const BoardEditorPage(),
-                ),
-              );
-            },
-          ),
-          ListTile(
-            title: const Text('Board Thumbnails'),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const BoardThumbnailsPage(),
-                ),
-              );
-            },
-          ),
-        ],
-      )),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text('Moves: $moveCount', style: const TextStyle(fontSize: 18)),
+          ),
           Chessboard(
             size: screenWidth,
             settings: ChessboardSettings(
@@ -494,6 +442,7 @@ class _HomePageState extends State<HomePage> {
         if (isPremove == true) {
           premove = null;
         }
+        moveCount++;
       });
     }
   }
@@ -511,6 +460,7 @@ class _HomePageState extends State<HomePage> {
         fen = position.fen;
         validMoves = IMap(const {});
         promotionMove = null;
+        moveCount++;
       });
       await _playBlackMove();
       _tryPlayPremove();
