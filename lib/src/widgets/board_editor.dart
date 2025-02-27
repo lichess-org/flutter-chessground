@@ -1,7 +1,7 @@
 import 'package:chessground/src/widgets/geometry.dart';
 import 'package:dartchess/dartchess.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 
 import '../board_settings.dart';
 import '../models.dart';
@@ -50,6 +50,7 @@ class ChessboardEditor extends StatefulWidget with ChessboardGeometry {
     this.onEditedSquare,
     this.onDroppedPiece,
     this.onDiscardedPiece,
+    this.onReset, // Add this line
   }) : _size = size;
 
   final double _size;
@@ -100,6 +101,8 @@ class ChessboardEditor extends StatefulWidget with ChessboardGeometry {
   ///
   /// This is active only when [pointerMode] is [EditorPointerMode.drag].
   final void Function(Square square)? onDiscardedPiece;
+
+  final VoidCallback? onReset; // Add this line
 
   @override
   State<ChessboardEditor> createState() => _BoardEditorState();
@@ -244,10 +247,23 @@ class _BoardEditorState extends State<ChessboardEditor> {
             )
             : board;
 
-    return BrightnessHueFilter(
-      brightness: widget.settings.brightness,
-      hue: widget.settings.hue,
-      child: borderedChessboard,
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        BrightnessHueFilter(
+          brightness: widget.settings.brightness,
+          hue: widget.settings.hue,
+          child: borderedChessboard,
+        ),
+        if (widget.onReset != null)
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: ElevatedButton(
+              onPressed: widget.onReset,
+              child: const Text('Reset Board'),
+            ),
+          ),
+      ],
     );
   }
 

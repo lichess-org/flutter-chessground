@@ -77,6 +77,20 @@ class _HomePageState extends State<HomePage> {
   ISet<Shape> shapes = ISet();
   bool showBorder = false;
 
+  void _resetGame() {
+    setState(() {
+      position = Chess.initial;
+      fen = kInitialBoardFEN;
+      lastMove = null;
+      promotionMove = null;
+      premove = null;
+      validMoves = makeLegalMoves(position);
+      sideToMove = Side.white;
+      lastPos = null;
+      shapes = ISet();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final double screenWidth = MediaQuery.of(context).size.width;
@@ -237,11 +251,18 @@ class _HomePageState extends State<HomePage> {
 
     return Scaffold(
       appBar: AppBar(
-          title: switch (playMode) {
-        Mode.botPlay => const Text('Random Bot'),
-        Mode.inputMove => const Text('Enter opponent move'),
-        Mode.freePlay => const Text('Free Play'),
-      }),
+        title: switch (playMode) {
+          Mode.botPlay => const Text('機器人'),
+          Mode.inputMove => const Text('Enter opponent move'),
+          Mode.freePlay => const Text('與對手下棋'),
+        },
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: _resetGame,
+          ),
+        ],
+      ),
       drawer: Drawer(
           child: ListView(
         children: [
