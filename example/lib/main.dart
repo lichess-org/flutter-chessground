@@ -267,6 +267,67 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
+      drawer: Drawer(
+        child: ListView(
+          children: [
+            ListTile(
+              title: const Text('Random Bot'),
+              onTap: () {
+                setState(() {
+                  playMode = Mode.botPlay;
+                  _resetGame(); // Reset the game when switching to botPlay mode
+                });
+                if (position.turn == Side.black) {
+                  _playBlackMove();
+                }
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              title: const Text('Enter opponent move'),
+              onTap: () {
+                setState(() {
+                  playMode = Mode.inputMove;
+                  _resetGame(); // Reset the game when switching to inputMove mode
+                });
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              title: const Text('Free Play'),
+              onTap: () {
+                setState(() {
+                  playMode = Mode.freePlay;
+                  _resetGame(); // Reset the game when switching to freePlay mode
+                });
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              title: const Text('Board Editor'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const BoardEditorPage(),
+                  ),
+                );
+              },
+            ),
+            ListTile(
+              title: const Text('Board Thumbnails'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const BoardThumbnailsPage(),
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
@@ -437,6 +498,7 @@ class _HomePageState extends State<HomePage> {
       });
     } else if (position.isLegal(move)) {
       setState(() {
+        pgn += ' ${_moveToPgn(move)}';
         position = position.playUnchecked(move);
         lastMove = move;
         fen = position.fen;
@@ -446,11 +508,11 @@ class _HomePageState extends State<HomePage> {
           premove = null;
         }
         moveCount++;
-        pgn += ' ${_moveToPgn(move)}';
       });
+      _checkGameOver();
     }
   }
-  
+
   void _onUserMoveAgainstBot(NormalMove move, {isDrop}) async {
     lastPos = position;
     if (isPromotionPawnMove(move)) {
@@ -466,10 +528,44 @@ class _HomePageState extends State<HomePage> {
         validMoves = IMap(const {});
         promotionMove = null;
         moveCount++;
-        
       });
       await _playBlackMove();
       _tryPlayPremove();
+      _checkGameOver();
+    }
+  }
+
+  void _checkGameOver() {
+    if (position.isGameOver) {
+      String result;
+      if (position.isCheckmate) {
+        result = position.turn == Side.white ? 'Black wins by checkmate' : 'White wins by checkmate';
+      } else if (position.isStalemate) {
+        result = 'Draw by stalemate';
+      } else if (position.isInsufficientMaterial) {
+        result = 'Draw by insufficient material';
+      } else {
+        result = 'Draw';
+      }
+
+      showDialog<void>(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Game Over'),
+            content: Text(result),
+            actions: <Widget>[
+              TextButton(
+                child: const Text('Play Again'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  _resetGame();
+                },
+              ),
+            ],
+          );
+        },
+      );
     }
   }
 
