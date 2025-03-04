@@ -207,12 +207,15 @@ class _BoardState extends State<Chessboard> {
     final checkSquare = widget.game?.isCheck == true ? _getKingSquare() : null;
     final premove = widget.game?.premovable?.premove;
 
-    final background =
-        settings.border == null && settings.enableCoordinates
-            ? widget.orientation == Side.white
-                ? colorScheme.whiteCoordBackground
-                : colorScheme.blackCoordBackground
-            : colorScheme.background;
+    final background = BrightnessHueFilter(
+      hue: widget.settings.hue,
+      child:
+          settings.border == null && settings.enableCoordinates
+              ? widget.orientation == Side.white
+                  ? colorScheme.whiteCoordBackground
+                  : colorScheme.blackCoordBackground
+              : colorScheme.background,
+    );
 
     final List<Widget> highlightedBackground = [
       SizedBox.square(
@@ -440,7 +443,6 @@ class _BoardState extends State<Chessboard> {
             : board;
 
     return BrightnessHueFilter(
-      hue: widget.settings.hue,
       brightness: widget.settings.brightness,
       child: borderedChessboard,
     );

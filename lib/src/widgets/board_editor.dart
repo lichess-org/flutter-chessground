@@ -181,12 +181,15 @@ class _BoardEditorState extends State<ChessboardEditor> {
           );
         }).toList();
 
-    final background =
-        widget.settings.border == null && widget.settings.enableCoordinates
-            ? widget.orientation == Side.white
-                ? widget.settings.colorScheme.whiteCoordBackground
-                : widget.settings.colorScheme.blackCoordBackground
-            : widget.settings.colorScheme.background;
+    final background = BrightnessHueFilter(
+      hue: widget.settings.hue,
+      child:
+          widget.settings.border == null && widget.settings.enableCoordinates
+              ? widget.orientation == Side.white
+                  ? widget.settings.colorScheme.whiteCoordBackground
+                  : widget.settings.colorScheme.blackCoordBackground
+              : widget.settings.colorScheme.background,
+    );
 
     final List<Widget> highlightedBackground = [
       background,
@@ -246,7 +249,6 @@ class _BoardEditorState extends State<ChessboardEditor> {
 
     return BrightnessHueFilter(
       brightness: widget.settings.brightness,
-      hue: widget.settings.hue,
       child: borderedChessboard,
     );
   }

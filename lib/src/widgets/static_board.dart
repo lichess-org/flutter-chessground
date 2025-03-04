@@ -156,7 +156,10 @@ class _StaticChessboardState extends State<StaticChessboard> {
             : widget.colorScheme.background;
 
     final List<Widget> highlightedBackground = [
-      SizedBox.square(dimension: widget.size, child: background),
+      BrightnessHueFilter(
+        hue: widget.hue,
+        child: SizedBox.square(dimension: widget.size, child: background),
+      ),
       if (widget.lastMove != null)
         for (final square in widget.lastMove!.squares)
           PositionedSquare(
@@ -245,10 +248,6 @@ class _StaticChessboardState extends State<StaticChessboard> {
       ),
     );
 
-    return BrightnessHueFilter(
-      hue: widget.hue,
-      brightness: widget.brightness,
-      child: board,
-    );
+    return BrightnessHueFilter(brightness: widget.brightness, child: board);
   }
 }
