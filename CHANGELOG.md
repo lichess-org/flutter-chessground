@@ -1,3 +1,11 @@
+## 7.0.0
+
+- Make the `hue` setting apply only to the board background to avoid changing
+  board highlights colors.
+- Update dependencies
+- Update minimum Dart SDK version to 3.7.0 and minimum Flutter version to
+  3.29.0
+
 ## 7.0.0-beta.1
 
 - Update dependencies
