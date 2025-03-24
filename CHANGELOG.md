@@ -1,3 +1,7 @@
+## 7.1.0
+
+- Expose 'ShapeWidget' class.
+
 ## 7.0.0
 
 - Make the `hue` setting apply only to the board background to avoid changing
