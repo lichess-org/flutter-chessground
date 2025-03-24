@@ -13,4 +13,5 @@ export 'src/widgets/static_board.dart';
 export 'src/widgets/board_editor.dart';
 export 'src/widgets/highlight.dart';
 export 'src/widgets/piece.dart';
+export 'src/widgets/shape.dart';
 export 'src/widgets/background.dart';
