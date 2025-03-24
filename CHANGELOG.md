@@ -1,6 +1,6 @@
 ## 7.1.0
 
-- Expose 'ShapeWidget' class.
+- Expose 'BoardShapeWidget' class.
 
 ## 7.0.0
 

@@ -150,7 +150,7 @@ class _BoardEditorState extends State<ChessboardEditor> {
                         ),
                         childWhenDragging: const SizedBox.shrink(),
                         onDragStarted: () => draggedPieceOrigin = square,
-                        onDraggableCanceled: (_, __) {
+                        onDraggableCanceled: (_, _) {
                           widget.onDiscardedPiece?.call(square);
                           draggedPieceOrigin = null;
                         },

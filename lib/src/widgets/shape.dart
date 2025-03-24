@@ -4,13 +4,14 @@ import 'package:dartchess/dartchess.dart';
 import 'package:flutter/widgets.dart';
 
 import '../models.dart';
+import 'board.dart';
 import 'positioned_square.dart';
 
-/// A Widget that displays a shape overlay on the board.
+/// A Widget that displays a shape overlay on the [Chessboard].
 ///
 /// Typically used to display arrows, circles, and piece masks on the board.
-class ShapeWidget extends StatelessWidget with ChessboardGeometry {
-  const ShapeWidget({
+class BoardShapeWidget extends StatelessWidget with ChessboardGeometry {
+  const BoardShapeWidget({
     super.key,
     required this.shape,
     required this.size,

@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:chessground/src/widgets/animation.dart';
 import 'package:chessground/src/widgets/promotion.dart';
-import 'package:chessground/src/widgets/shape.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -51,8 +50,9 @@ void main() {
       verifyNoMoreInteractions(onTouchedSquare);
     });
 
-    testWidgets('moved piece is animated when the position change',
-        (WidgetTester tester) async {
+    testWidgets('moved piece is animated when the position change', (
+      WidgetTester tester,
+    ) async {
       const board = Chessboard.fixed(
         size: boardSize,
         orientation: Side.white,
@@ -91,8 +91,9 @@ void main() {
       expect(find.byType(AnimatedPieceTranslation), findsNothing);
     });
 
-    testWidgets('several pieces can be animated when the position change',
-        (WidgetTester tester) async {
+    testWidgets('several pieces can be animated when the position change', (
+      WidgetTester tester,
+    ) async {
       const board = Chessboard.fixed(
         size: boardSize,
         orientation: Side.white,
@@ -127,9 +128,7 @@ void main() {
     ) async {
       await tester.pumpWidget(viewOnlyBoard);
 
-      final size = tester.getSize(
-        find.byType(SolidColorChessboardBackground),
-      );
+      final size = tester.getSize(find.byType(SolidColorChessboardBackground));
       expect(size.width, boardSize);
       expect(size.height, boardSize);
     });
@@ -141,31 +140,25 @@ void main() {
         fen: kInitialFEN,
         settings: ChessboardSettings(
           drawShape: DrawShapeOptions(enable: true),
-          border: BoardBorder(
-            width: 16.0,
-            color: Color(0xFF000000),
-          ),
+          border: BoardBorder(width: 16.0, color: Color(0xFF000000)),
         ),
       );
 
       await tester.pumpWidget(board);
 
-      final size = tester.getSize(
-        find.byType(SolidColorChessboardBackground),
-      );
+      final size = tester.getSize(find.byType(SolidColorChessboardBackground));
       expect(size.width, boardSize - 32.0);
       expect(size.height, boardSize - 32.0);
     });
 
-    testWidgets('change in hue will use a color filter',
-        (WidgetTester tester) async {
+    testWidgets('change in hue will use a color filter', (
+      WidgetTester tester,
+    ) async {
       const board = Chessboard.fixed(
         size: boardSize,
         orientation: Side.white,
         fen: kInitialFEN,
-        settings: ChessboardSettings(
-          hue: 100.0,
-        ),
+        settings: ChessboardSettings(hue: 100.0),
       );
 
       await tester.pumpWidget(board);
@@ -173,15 +166,14 @@ void main() {
       expect(find.byType(ColorFiltered), findsOneWidget);
     });
 
-    testWidgets('change in brightness will use a color filter',
-        (WidgetTester tester) async {
+    testWidgets('change in brightness will use a color filter', (
+      WidgetTester tester,
+    ) async {
       const board = Chessboard.fixed(
         size: boardSize,
         orientation: Side.white,
         fen: kInitialFEN,
-        settings: ChessboardSettings(
-          brightness: 0.9,
-        ),
+        settings: ChessboardSettings(brightness: 0.9),
       );
 
       await tester.pumpWidget(board);
@@ -191,8 +183,9 @@ void main() {
   });
 
   group('Interactive board', () {
-    testWidgets('selecting and deselecting a square',
-        (WidgetTester tester) async {
+    testWidgets('selecting and deselecting a square', (
+      WidgetTester tester,
+    ) async {
       for (final settings in [
         const ChessboardSettings(),
         const ChessboardSettings(
@@ -295,8 +288,9 @@ void main() {
       }
     });
 
-    testWidgets('Cannot move by tap if piece shift method is drag',
-        (WidgetTester tester) async {
+    testWidgets('Cannot move by tap if piece shift method is drag', (
+      WidgetTester tester,
+    ) async {
       for (final settings in [
         const ChessboardSettings(pieceShiftMethod: PieceShiftMethod.drag),
         const ChessboardSettings(
@@ -339,8 +333,9 @@ void main() {
       }
     });
 
-    testWidgets('castling by selecting king then rook is possible',
-        (WidgetTester tester) async {
+    testWidgets('castling by selecting king then rook is possible', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         const _TestApp(
           initialFen:
@@ -477,31 +472,30 @@ void main() {
     });
 
     testWidgets(
-        '2 simultaneous pointer down events will cancel current drag/selection',
-        (
-      WidgetTester tester,
-    ) async {
-      await tester.pumpWidget(
-        const _TestApp(initialPlayerSide: PlayerSide.both),
-      );
-      await TestAsyncUtils.guard<void>(() async {
-        await tester.startGesture(squareOffset(tester, Square.e2));
+      '2 simultaneous pointer down events will cancel current drag/selection',
+      (WidgetTester tester) async {
+        await tester.pumpWidget(
+          const _TestApp(initialPlayerSide: PlayerSide.both),
+        );
+        await TestAsyncUtils.guard<void>(() async {
+          await tester.startGesture(squareOffset(tester, Square.e2));
 
-        await tester.pump();
+          await tester.pump();
 
-        expect(find.byKey(const Key('e2-selected')), findsOneWidget);
+          expect(find.byKey(const Key('e2-selected')), findsOneWidget);
 
-        await tester.startGesture(squareOffset(tester, Square.e4));
+          await tester.startGesture(squareOffset(tester, Square.e4));
 
-        await tester.pump();
+          await tester.pump();
 
-        // move is cancelled
-        expect(find.byKey(const Key('e4-whitepawn')), findsNothing);
-        expect(find.byKey(const Key('e2-whitepawn')), findsOneWidget);
-        // selection is cancelled
-        expect(find.byKey(const Key('e2-selected')), findsNothing);
-      });
-    });
+          // move is cancelled
+          expect(find.byKey(const Key('e4-whitepawn')), findsNothing);
+          expect(find.byKey(const Key('e2-whitepawn')), findsOneWidget);
+          // selection is cancelled
+          expect(find.byKey(const Key('e2-selected')), findsNothing);
+        });
+      },
+    );
 
     testWidgets('while dragging a piece, other pointer events will cancel', (
       WidgetTester tester,
@@ -512,8 +506,9 @@ void main() {
 
       // drag a piece and tap on another own square while dragging
       await TestAsyncUtils.guard<void>(() async {
-        final dragGesture =
-            await tester.startGesture(squareOffset(tester, Square.e2));
+        final dragGesture = await tester.startGesture(
+          squareOffset(tester, Square.e2),
+        );
         await tester.pump();
 
         // trigger a piece drag by moving the pointer by 4 pixels
@@ -541,8 +536,9 @@ void main() {
 
       // drag a piece and tap on an empty square while dragging
       await TestAsyncUtils.guard<void>(() async {
-        final dragGesture =
-            await tester.startGesture(squareOffset(tester, Square.d2));
+        final dragGesture = await tester.startGesture(
+          squareOffset(tester, Square.d2),
+        );
         await tester.pump();
 
         // trigger a piece drag by moving the pointer by 4 pixels
@@ -571,18 +567,19 @@ void main() {
     });
 
     testWidgets(
-        'dragging an unselected piece to the same square should keep the piece selected',
-        (WidgetTester tester) async {
-      await tester.pumpWidget(
-        const _TestApp(initialPlayerSide: PlayerSide.both),
-      );
-      final e2 = squareOffset(tester, Square.e2);
-      await tester.dragFrom(e2, const Offset(0, -(squareSize / 3)));
-      await tester.pumpAndSettle();
+      'dragging an unselected piece to the same square should keep the piece selected',
+      (WidgetTester tester) async {
+        await tester.pumpWidget(
+          const _TestApp(initialPlayerSide: PlayerSide.both),
+        );
+        final e2 = squareOffset(tester, Square.e2);
+        await tester.dragFrom(e2, const Offset(0, -(squareSize / 3)));
+        await tester.pumpAndSettle();
 
-      expect(find.byKey(const Key('e2-whitepawn')), findsOneWidget);
-      expect(find.byKey(const Key('e2-selected')), findsOneWidget);
-    });
+        expect(find.byKey(const Key('e2-whitepawn')), findsOneWidget);
+        expect(find.byKey(const Key('e2-selected')), findsOneWidget);
+      },
+    );
 
     testWidgets('dragging an already selected piece should not deselect it', (
       WidgetTester tester,
@@ -632,77 +629,80 @@ void main() {
       expect(find.byKey(const Key('e1-check')), findsOneWidget);
     });
 
-    testWidgets('cancel piece selection if board is made non interactive again',
-        (WidgetTester tester) async {
-      final controller = StreamController<GameEvent>.broadcast();
+    testWidgets(
+      'cancel piece selection if board is made non interactive again',
+      (WidgetTester tester) async {
+        final controller = StreamController<GameEvent>.broadcast();
 
-      addTearDown(() {
-        controller.close();
-      });
+        addTearDown(() {
+          controller.close();
+        });
 
-      await tester.pumpWidget(
-        _TestApp(
-          initialFen: kInitialBoardFEN,
-          initialPlayerSide: PlayerSide.white,
-          gameEventStream: controller.stream,
-        ),
-      );
+        await tester.pumpWidget(
+          _TestApp(
+            initialFen: kInitialBoardFEN,
+            initialPlayerSide: PlayerSide.white,
+            gameEventStream: controller.stream,
+          ),
+        );
 
-      await tester.tapAt(squareOffset(tester, Square.e2));
-      await tester.pump();
-      expect(find.byKey(const Key('e2-selected')), findsOneWidget);
+        await tester.tapAt(squareOffset(tester, Square.e2));
+        await tester.pump();
+        expect(find.byKey(const Key('e2-selected')), findsOneWidget);
 
-      controller.add(GameEvent.nonInteractiveBoardEvent);
-      await tester.pump(const Duration(milliseconds: 1));
+        controller.add(GameEvent.nonInteractiveBoardEvent);
+        await tester.pump(const Duration(milliseconds: 1));
 
-      expect(find.byKey(const Key('e2-selected')), findsNothing);
-    });
+        expect(find.byKey(const Key('e2-selected')), findsNothing);
+      },
+    );
 
     testWidgets(
-        'cancel piece current pointer event if board is made non interactive again',
-        (WidgetTester tester) async {
-      final controller = StreamController<GameEvent>.broadcast();
+      'cancel piece current pointer event if board is made non interactive again',
+      (WidgetTester tester) async {
+        final controller = StreamController<GameEvent>.broadcast();
 
-      addTearDown(() {
-        controller.close();
-      });
+        addTearDown(() {
+          controller.close();
+        });
 
-      await tester.pumpWidget(
-        _TestApp(
-          initialFen:
-              'r1bqkbnr/ppp2ppp/2np4/4p3/2B1P3/5Q2/PPPP1PPP/RNB1K1NR w KQkq - 0 4',
-          initialPlayerSide: PlayerSide.white,
-          gameEventStream: controller.stream,
-        ),
-      );
+        await tester.pumpWidget(
+          _TestApp(
+            initialFen:
+                'r1bqkbnr/ppp2ppp/2np4/4p3/2B1P3/5Q2/PPPP1PPP/RNB1K1NR w KQkq - 0 4',
+            initialPlayerSide: PlayerSide.white,
+            gameEventStream: controller.stream,
+          ),
+        );
 
-      await TestAsyncUtils.guard<void>(() async {
-        await tester.startGesture(squareOffset(tester, Square.f3));
+        await TestAsyncUtils.guard<void>(() async {
+          await tester.startGesture(squareOffset(tester, Square.f3));
+          await tester.pump();
+          expect(find.byKey(const Key('f3-selected')), findsOneWidget);
+        });
+
+        // make board non interactive in the middle of the gesture
+        controller.add(GameEvent.nonInteractiveBoardEvent);
+        await tester.pump(const Duration(milliseconds: 1));
+
+        expect(find.byKey(const Key('f3-selected')), findsNothing);
+
+        // board is not interactive
+        await tester.tapAt(squareOffset(tester, Square.f3));
+        await tester.pump();
+        expect(find.byKey(const Key('f3-selected')), findsNothing);
+
+        // make board interactive again
+        controller.add(GameEvent.interactiveBoardEvent);
+        await tester.pump(const Duration(milliseconds: 1));
+
+        // the piece selection should work (which would not be the case if the
+        // pointer event was not cancelled)
+        await tester.tapAt(squareOffset(tester, Square.f3));
         await tester.pump();
         expect(find.byKey(const Key('f3-selected')), findsOneWidget);
-      });
-
-      // make board non interactive in the middle of the gesture
-      controller.add(GameEvent.nonInteractiveBoardEvent);
-      await tester.pump(const Duration(milliseconds: 1));
-
-      expect(find.byKey(const Key('f3-selected')), findsNothing);
-
-      // board is not interactive
-      await tester.tapAt(squareOffset(tester, Square.f3));
-      await tester.pump();
-      expect(find.byKey(const Key('f3-selected')), findsNothing);
-
-      // make board interactive again
-      controller.add(GameEvent.interactiveBoardEvent);
-      await tester.pump(const Duration(milliseconds: 1));
-
-      // the piece selection should work (which would not be the case if the
-      // pointer event was not cancelled)
-      await tester.tapAt(squareOffset(tester, Square.f3));
-      await tester.pump();
-      expect(find.byKey(const Key('f3-selected')), findsOneWidget);
-    });
+      },
+    );
   });
 
   testWidgets('onTouchedSquare callback', (WidgetTester tester) async {
@@ -855,8 +855,9 @@ void main() {
   });
 
   group('premoves', () {
-    testWidgets('select and deselect with empty square',
-        (WidgetTester tester) async {
+    testWidgets('select and deselect with empty square', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         const _TestApp(
           initialFen:
@@ -876,8 +877,9 @@ void main() {
       expect(find.byType(ValidMoveHighlight), findsNothing);
     });
 
-    testWidgets('select and deselect with opponent piece',
-        (WidgetTester tester) async {
+    testWidgets('select and deselect with opponent piece', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         const _TestApp(
           initialFen:
@@ -897,8 +899,9 @@ void main() {
       expect(find.byType(ValidMoveHighlight), findsNothing);
     });
 
-    testWidgets('select and deselect with same piece',
-        (WidgetTester tester) async {
+    testWidgets('select and deselect with same piece', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         const _TestApp(
           initialFen:
@@ -919,23 +922,24 @@ void main() {
     });
 
     testWidgets(
-        'dragging an unselected piece to the same square should keep the piece selected',
-        (WidgetTester tester) async {
-      await tester.pumpWidget(
-        const _TestApp(
-          initialFen:
-              'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
-          initialPlayerSide: PlayerSide.white,
-        ),
-      );
+      'dragging an unselected piece to the same square should keep the piece selected',
+      (WidgetTester tester) async {
+        await tester.pumpWidget(
+          const _TestApp(
+            initialFen:
+                'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
+            initialPlayerSide: PlayerSide.white,
+          ),
+        );
 
-      final f1 = squareOffset(tester, Square.f1);
-      await tester.dragFrom(f1, const Offset(0, -(squareSize / 3)));
-      await tester.pumpAndSettle();
+        final f1 = squareOffset(tester, Square.f1);
+        await tester.dragFrom(f1, const Offset(0, -(squareSize / 3)));
+        await tester.pumpAndSettle();
 
-      expect(find.byKey(const Key('f1-selected')), findsOneWidget);
-      expect(find.byType(ValidMoveHighlight), findsNWidgets(7));
-    });
+        expect(find.byKey(const Key('f1-selected')), findsOneWidget);
+        expect(find.byType(ValidMoveHighlight), findsNWidgets(7));
+      },
+    );
 
     testWidgets('dragging off target unselects', (WidgetTester tester) async {
       await tester.pumpWidget(
@@ -986,8 +990,9 @@ void main() {
       expect(find.byType(ValidMoveHighlight), findsNothing);
     });
 
-    testWidgets('set/unset by tapping empty square or opponent piece',
-        (WidgetTester tester) async {
+    testWidgets('set/unset by tapping empty square or opponent piece', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         const _TestApp(
           initialFen:
@@ -1042,8 +1047,9 @@ void main() {
       expect(find.byKey(const Key('f5-premove')), findsNothing);
     });
 
-    testWidgets('unset by dragging to an empty square',
-        (WidgetTester tester) async {
+    testWidgets('unset by dragging to an empty square', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         const _TestApp(
           initialFen:
@@ -1067,8 +1073,9 @@ void main() {
       expect(find.byKey(const Key('f5-premove')), findsNothing);
     });
 
-    testWidgets('unset by tapping same origin square again',
-        (WidgetTester tester) async {
+    testWidgets('unset by tapping same origin square again', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         const _TestApp(
           initialFen:
@@ -1159,8 +1166,9 @@ void main() {
       expect(find.byKey(const Key('e4-selected')), findsNothing);
     });
 
-    testWidgets('select another piece from same side does not unset',
-        (WidgetTester tester) async {
+    testWidgets('select another piece from same side does not unset', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         const _TestApp(
           initialFen:
@@ -1239,8 +1247,9 @@ void main() {
       expect(find.byKey(const Key('g8-whitequeen')), findsOneWidget);
     });
 
-    testWidgets('play a premove with promotion, autoqueen disabled',
-        (WidgetTester tester) async {
+    testWidgets('play a premove with promotion, autoqueen disabled', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         const _TestApp(
           settings: ChessboardSettings(
@@ -1322,25 +1331,27 @@ void main() {
   });
 
   group('Drawing shapes', () {
-    testWidgets('preconfigure board to draw a circle',
-        (WidgetTester tester) async {
+    testWidgets('preconfigure board to draw a circle', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         _TestApp(
           initialPlayerSide: PlayerSide.both,
-          initialShapes: ISet(
-            {const Circle(orig: Square.e4, color: Color(0xFF0000FF))},
-          ),
+          initialShapes: ISet({
+            const Circle(orig: Square.e4, color: Color(0xFF0000FF)),
+          }),
         ),
       );
 
       expect(
-        find.byType(ShapeWidget),
+        find.byType(BoardShapeWidget),
         paints..path(color: const Color(0xFF0000FF)),
       );
     });
 
-    testWidgets('preconfigure board to draw an arrow',
-        (WidgetTester tester) async {
+    testWidgets('preconfigure board to draw an arrow', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         _TestApp(
           initialPlayerSide: PlayerSide.both,
@@ -1355,15 +1366,16 @@ void main() {
       );
 
       expect(
-        find.byType(ShapeWidget),
+        find.byType(BoardShapeWidget),
         paints
           ..line(color: const Color(0xFF0000FF))
           ..path(color: const Color(0xFF0000FF)),
       );
     });
 
-    testWidgets('preconfigure board to draw a piece shape',
-        (WidgetTester tester) async {
+    testWidgets('preconfigure board to draw a piece shape', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         _TestApp(
           initialPlayerSide: PlayerSide.both,
@@ -1377,34 +1389,34 @@ void main() {
         ),
       );
 
-      expect(find.byType(ShapeWidget), findsOneWidget);
+      expect(find.byType(BoardShapeWidget), findsOneWidget);
 
-      final shapeSize = tester.getSize(find.byType(ShapeWidget));
+      final shapeSize = tester.getSize(find.byType(BoardShapeWidget));
       expect(shapeSize.width, squareSize);
       expect(shapeSize.height, squareSize);
     });
 
     testWidgets('cannot draw if not enabled', (WidgetTester tester) async {
       await tester.pumpWidget(
-        const _TestApp(
-          initialPlayerSide: PlayerSide.both,
-        ),
+        const _TestApp(initialPlayerSide: PlayerSide.both),
       );
 
       await TestAsyncUtils.guard<void>(() async {
         // keep pressing an empty square to enable drawing shapes
-        final pressGesture =
-            await tester.startGesture(squareOffset(tester, Square.a3));
+        final pressGesture = await tester.startGesture(
+          squareOffset(tester, Square.a3),
+        );
 
         // drawing a circle with another tap
-        final tapGesture =
-            await tester.startGesture(squareOffset(tester, Square.e4));
+        final tapGesture = await tester.startGesture(
+          squareOffset(tester, Square.e4),
+        );
         await tapGesture.up();
 
         await pressGesture.up();
       });
 
-      expect(find.byType(ShapeWidget), findsNothing);
+      expect(find.byType(BoardShapeWidget), findsNothing);
     });
 
     testWidgets('draw a circle by hand', (WidgetTester tester) async {
@@ -1417,12 +1429,14 @@ void main() {
 
       await TestAsyncUtils.guard<void>(() async {
         // keep pressing an empty square to enable drawing shapes
-        final pressGesture =
-            await tester.startGesture(squareOffset(tester, Square.a3));
+        final pressGesture = await tester.startGesture(
+          squareOffset(tester, Square.a3),
+        );
 
         // drawing a circle with another tap
-        final tapGesture =
-            await tester.startGesture(squareOffset(tester, Square.e4));
+        final tapGesture = await tester.startGesture(
+          squareOffset(tester, Square.e4),
+        );
         await tapGesture.up();
 
         await pressGesture.up();
@@ -1432,7 +1446,7 @@ void main() {
       await tester.pump(const Duration(milliseconds: 210));
 
       expect(
-        find.byType(ShapeWidget),
+        find.byType(BoardShapeWidget),
         paints..path(color: const Color(0xFF0000FF)),
       );
     });
@@ -1446,8 +1460,9 @@ void main() {
       );
 
       // keep pressing an empty square to enable drawing shapes
-      final pressGesture =
-          await tester.startGesture(squareOffset(tester, Square.a3));
+      final pressGesture = await tester.startGesture(
+        squareOffset(tester, Square.a3),
+      );
 
       await tester.dragFrom(
         squareOffset(tester, Square.e2),
@@ -1460,15 +1475,16 @@ void main() {
       await tester.pump(const Duration(milliseconds: 210));
 
       expect(
-        find.byType(ShapeWidget),
+        find.byType(BoardShapeWidget),
         paints
           ..line(color: const Color(0xFF0000FF))
           ..path(color: const Color(0xFF0000FF)),
       );
     });
 
-    testWidgets('can draw shapes on an non-interactive board',
-        (WidgetTester tester) async {
+    testWidgets('can draw shapes on an non-interactive board', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         const _TestApp(
           initialPlayerSide: PlayerSide.none,
@@ -1477,8 +1493,9 @@ void main() {
       );
 
       // keep pressing an empty square to enable drawing shapes
-      final pressGesture =
-          await tester.startGesture(squareOffset(tester, Square.a3));
+      final pressGesture = await tester.startGesture(
+        squareOffset(tester, Square.a3),
+      );
 
       await tester.dragFrom(
         squareOffset(tester, Square.e2),
@@ -1491,7 +1508,7 @@ void main() {
       await tester.pump(const Duration(milliseconds: 210));
 
       expect(
-        find.byType(ShapeWidget),
+        find.byType(BoardShapeWidget),
         paints
           ..line(color: const Color(0xFF0000FF))
           ..path(color: const Color(0xFF0000FF)),
@@ -1508,12 +1525,14 @@ void main() {
 
       await TestAsyncUtils.guard<void>(() async {
         // keep pressing an empty square to enable drawing shapes
-        final pressGesture =
-            await tester.startGesture(squareOffset(tester, Square.a3));
+        final pressGesture = await tester.startGesture(
+          squareOffset(tester, Square.a3),
+        );
 
         // drawing a circle with another tap
-        final tapGesture =
-            await tester.startGesture(squareOffset(tester, Square.e4));
+        final tapGesture = await tester.startGesture(
+          squareOffset(tester, Square.e4),
+        );
         await tapGesture.up();
 
         await pressGesture.up();
@@ -1523,8 +1542,9 @@ void main() {
       await tester.pump(const Duration(milliseconds: 210));
 
       // keep pressing an empty square to enable drawing shapes
-      final pressGesture =
-          await tester.startGesture(squareOffset(tester, Square.a3));
+      final pressGesture = await tester.startGesture(
+        squareOffset(tester, Square.a3),
+      );
 
       await tester.dragFrom(
         squareOffset(tester, Square.e2),
@@ -1536,17 +1556,18 @@ void main() {
       // wait for the double tap delay to expire
       await tester.pump(const Duration(milliseconds: 210));
 
-      expect(find.byType(ShapeWidget), findsNWidgets(2));
+      expect(find.byType(BoardShapeWidget), findsNWidgets(2));
 
       await tester.tapAt(squareOffset(tester, Square.a3));
       await tester.tapAt(squareOffset(tester, Square.a3));
       await tester.pump();
 
-      expect(find.byType(ShapeWidget), findsNothing);
+      expect(find.byType(BoardShapeWidget), findsNothing);
     });
 
-    testWidgets('selecting one piece should clear shapes',
-        (WidgetTester tester) async {
+    testWidgets('selecting one piece should clear shapes', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         const _TestApp(
           initialPlayerSide: PlayerSide.both,
@@ -1556,12 +1577,14 @@ void main() {
 
       await TestAsyncUtils.guard<void>(() async {
         // keep pressing an empty square to enable drawing shapes
-        final pressGesture =
-            await tester.startGesture(squareOffset(tester, Square.a3));
+        final pressGesture = await tester.startGesture(
+          squareOffset(tester, Square.a3),
+        );
 
         // drawing a circle with another tap
-        final tapGesture =
-            await tester.startGesture(squareOffset(tester, Square.e4));
+        final tapGesture = await tester.startGesture(
+          squareOffset(tester, Square.e4),
+        );
         await tapGesture.up();
 
         await pressGesture.up();
@@ -1570,12 +1593,12 @@ void main() {
       // wait for the double tap delay to expire
       await tester.pump(const Duration(milliseconds: 210));
 
-      expect(find.byType(ShapeWidget), findsOneWidget);
+      expect(find.byType(BoardShapeWidget), findsOneWidget);
 
       await tester.tapAt(squareOffset(tester, Square.e2));
       await tester.pump();
 
-      expect(find.byType(ShapeWidget), findsNothing);
+      expect(find.byType(BoardShapeWidget), findsNothing);
     });
   });
 
@@ -1585,8 +1608,9 @@ void main() {
       required bool expectWhiteUpsideDown,
       required bool expectBlackUpsideDown,
     }) {
-      final pieceWidgets =
-          tester.widgetList<PieceWidget>(find.byType(PieceWidget));
+      final pieceWidgets = tester.widgetList<PieceWidget>(
+        find.byType(PieceWidget),
+      );
       expect(pieceWidgets, hasLength(32));
       for (final pieceWidget in pieceWidgets) {
         if (pieceWidget.piece.color == Side.white) {
@@ -1761,17 +1785,17 @@ class _TestAppState extends State<_TestApp> {
   StreamSubscription<GameEvent>? _gameEventSub;
 
   ChessboardSettings get defaultSettings => ChessboardSettings(
-        drawShape: DrawShapeOptions(
-          enable: widget.enableDrawingShapes,
-          onCompleteShape: (shape) {
-            setState(() => shapes = shapes.add(shape));
-          },
-          onClearShapes: () {
-            setState(() => shapes = ISet());
-          },
-          newShapeColor: const Color(0xFF0000FF),
-        ),
-      );
+    drawShape: DrawShapeOptions(
+      enable: widget.enableDrawingShapes,
+      onCompleteShape: (shape) {
+        setState(() => shapes = shapes.add(shape));
+      },
+      onClearShapes: () {
+        setState(() => shapes = ISet());
+      },
+      newShapeColor: const Color(0xFF0000FF),
+    ),
+  );
 
   @override
   void initState() {

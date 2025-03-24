@@ -370,13 +370,13 @@ class _BoardState extends State<Chessboard> {
           annotation: entry.value,
         ),
       for (final shape in shapes)
-        ShapeWidget(
+        BoardShapeWidget(
           shape: shape,
           size: widget.size,
           orientation: widget.orientation,
         ),
       if (_shapeAvatar != null)
-        ShapeWidget(
+        BoardShapeWidget(
           shape: _shapeAvatar!,
           size: widget.size,
           orientation: widget.orientation,
