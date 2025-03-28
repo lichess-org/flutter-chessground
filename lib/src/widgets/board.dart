@@ -21,6 +21,12 @@ import '../fen.dart';
 import '../premove.dart';
 import '../board_settings.dart';
 
+typedef SemanticBuilder =
+    String? Function(
+      ({Square square, Piece? piece}) highlighted,
+      ({Square square, Piece? piece})? selected,
+    );
+
 /// Number of logical pixels that have to be dragged before a drag starts.
 const double _kDragDistanceThreshold = 3.0;
 
@@ -49,6 +55,8 @@ class Chessboard extends StatefulWidget with ChessboardGeometry {
     required this.game,
     this.shapes,
     this.annotations,
+    this.squareSemanticValueBuilder,
+    this.squareSemanticHintBuilder,
   }) : _size = size;
 
   /// Creates a new chessboard widget that cannot be interacted with.
@@ -66,6 +74,8 @@ class Chessboard extends StatefulWidget with ChessboardGeometry {
     this.onTouchedSquare,
     this.shapes,
     this.annotations,
+    this.squareSemanticValueBuilder,
+    this.squareSemanticHintBuilder,
   }) : _size = size,
        game = null,
        opponentsPiecesUpsideDown = false;
@@ -111,6 +121,10 @@ class Chessboard extends StatefulWidget with ChessboardGeometry {
 
   /// Move annotations to be displayed on the board.
   final IMap<Square, Annotation>? annotations;
+
+  final SemanticBuilder? squareSemanticValueBuilder;
+
+  final SemanticBuilder? squareSemanticHintBuilder;
 
   /// Whether the pieces can be moved by one side or both.
   bool get interactive => game != null && game!.playerSide != PlayerSide.none;
@@ -227,22 +241,42 @@ class _BoardState extends State<Chessboard> {
 
       for (final square in Square.values)
         PositionedSquare(
-          key: ValueKey('${square.name}-accessibilty'),
+          key: ValueKey('${square.name}-accessibility'),
           size: widget.size,
           orientation: widget.orientation,
           square: square,
           child: Semantics(
-            label: square.name,
-            value: pieces[square]?.toString(),
-            hint: _getSquareHint(square),
-            selected: selected == square,
-            onTap: () {
-              widget.onTouchedSquare?.call(square);
-              _onSquarePointerDown(square);
-              _onSquarePointerUp(square);
-            },
-            child: const SizedBox.shrink(),
-          ),
+              onTap: () {
+                _onSquarePointerDown(square);
+                _onSquarePointerUp(square);
+              },
+              attributedLabel: AttributedString(
+                square.name,
+                attributes: [
+                  SpellOutStringAttribute(
+                    range: TextRange(start: 0, end: square.name.length),
+                  ),
+                  LocaleStringAttribute(
+                    range: TextRange(start: 0, end: square.name.length),
+                    locale: Localizations.localeOf(context),
+                  ),
+                ],
+              ),
+              value: widget.squareSemanticValueBuilder?.call(
+                (square: square, piece: pieces[square]),
+                selected != null
+                    ? (square: selected!, piece: pieces[selected])
+                    : null,
+              ),
+              hint: widget.squareSemanticHintBuilder?.call(
+                (square: square, piece: pieces[square]),
+                selected != null
+                    ? (square: selected!, piece: pieces[selected])
+                    : null,
+              ),
+              selected: selected == square,
+              child: const SizedBox.shrink(),
+            ),
         ),
 
       if (settings.showLastMove && widget.lastMove != null)
@@ -1026,33 +1060,6 @@ class _BoardState extends State<Chessboard> {
       return true;
     }
     return false;
-  }
-  
-  String? _getSquareHint(Square square) {
-    // no selection
-      // my piece --> tap to move
-      // opponent piece --> none
-    // selection
-      // same square
-      // legal move
-        // empty square
-        // capture
-        // promotion
-        // en passant?
-        // castling?
-      // illegal move
-    if (selected == null) {
-      return _isMovable(pieces[square]) ? 'Tap to move' : null;
-    } else {
-      if (square == selected) {
-        return 'Deselect';
-      } else if (_canMoveTo(selected!, square)) {
-        return 'Move ${pieces[selected]!.role.name} to ${square.name}';
-      } else {
-        return null;
-      }
-    }
-
   }
 }
 
