@@ -1,3 +1,7 @@
+## 7.1.1
+
+- Update dartchess to 0.11.0
+
 ## 7.1.0
 
 - Expose 'BoardShapeWidget' class.
