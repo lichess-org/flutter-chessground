@@ -1,3 +1,8 @@
+## 7.1.2
+
+- Fix crash when calling `setState` in pointerUp, pointerMove or pointerCancel
+  callbacks.
+
 ## 7.1.1
 
 - Update dartchess to 0.11.0
