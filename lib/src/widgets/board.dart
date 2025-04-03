@@ -669,6 +669,7 @@ class _BoardState extends State<Chessboard> {
 
   void _onPointerMove(PointerMoveEvent details) {
     if (details.buttons != kPrimaryButton) return;
+    if (!mounted) return;
 
     // draw mode takes priority over play mode when the draw mode lock is set
     if (_shapeAvatar != null &&
@@ -711,6 +712,8 @@ class _BoardState extends State<Chessboard> {
   }
 
   void _onPointerUp(PointerUpEvent details) {
+    if (!mounted) return;
+
     if (_drawModeLockOrigin != null &&
         _drawModeLockOrigin!.pointer == details.pointer) {
       _drawModeLockOrigin = null;
@@ -787,6 +790,8 @@ class _BoardState extends State<Chessboard> {
   }
 
   void _onPointerCancel(PointerCancelEvent details) {
+    if (!mounted) return;
+
     if (_drawModeLockOrigin != null &&
         _drawModeLockOrigin!.pointer == details.pointer) {
       _drawModeLockOrigin = null;
