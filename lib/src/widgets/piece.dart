@@ -28,7 +28,7 @@ class PieceWidget extends StatelessWidget {
   /// Pieces are hidden in blindfold mode.
   final bool blindfoldMode;
 
-  /// If `true` the piece is displayed rotated by 180 degrees.
+  /// If `true` the piece is displayed fliped on Y axis.
   final bool upsideDown;
 
   /// This value is used to animate the opacity of the piece.
@@ -61,6 +61,6 @@ class PieceWidget extends StatelessWidget {
               opacity: opacity,
             );
 
-    return upsideDown ? Transform.rotate(angle: math.pi, child: image) : image;
+    return upsideDown ? Transform.flip(flipY: true, child: image) : image;
   }
 }
