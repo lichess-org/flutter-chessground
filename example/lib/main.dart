@@ -300,7 +300,6 @@ class _HomePageState extends State<HomePage> {
         ],
       )),
       body: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           Chessboard(
             size: screenWidth,
@@ -358,10 +357,18 @@ class _HomePageState extends State<HomePage> {
             ),
             shapes: shapes.isNotEmpty ? shapes : null,
           ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children:
-                playMode == Mode.inputMove ? inputMoveWidgets : settingsWidgets,
+          Expanded(
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: ListView(
+                  shrinkWrap: true,
+                  children: playMode == Mode.inputMove
+                      ? inputMoveWidgets
+                      : settingsWidgets,
+                ),
+              ),
+            ),
           ),
         ],
       ),
