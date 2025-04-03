@@ -2,6 +2,7 @@
 
 - Fix crash when calling `setState` in pointerUp, pointerMove or pointerCancel
   callbacks.
+- flip pieces instead of rotating to keep the shadows in the same direction.
 
 ## 7.1.1
 
