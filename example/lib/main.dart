@@ -94,8 +94,6 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final double screenWidth = MediaQuery.of(context).size.width;
-
     Widget _buildNewRoundButton() => FilledButton.icon(
         icon: const Icon(Icons.refresh_rounded),
         label: const Text('New Round'),
@@ -301,60 +299,69 @@ class _HomePageState extends State<HomePage> {
       },
     );
 
-    Widget _buildChessBoardWidget({required double width}) => Chessboard(
-          size: width,
-          settings: ChessboardSettings(
-            pieceAssets: pieceSet.assets,
-            colorScheme: boardTheme.colors,
-            border: showBorder
-                ? BoardBorder(
-                    width: 16.0,
-                    color: _darken(boardTheme.colors.darkSquare, 0.2),
-                  )
-                : null,
-            enableCoordinates: true,
-            animationDuration: pieceAnimation
-                ? const Duration(milliseconds: 200)
-                : Duration.zero,
-            dragFeedbackScale: dragMagnify ? 2.0 : 1.0,
-            dragTargetKind: dragTargetKind,
-            drawShape: DrawShapeOptions(
-              enable: drawMode,
-              onCompleteShape: _onCompleteShape,
-              onClearShapes: () {
-                setState(() {
-                  shapes = ISet();
-                });
-              },
-            ),
-            pieceShiftMethod: pieceShiftMethod,
-            autoQueenPromotionOnPremove: false,
-            pieceOrientationBehavior: playMode == Mode.freePlay
-                ? PieceOrientationBehavior.opponentUpsideDown
-                : PieceOrientationBehavior.facingUser,
+    Widget _buildChessBoardWidget() => Center(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              return Chessboard(
+                size: min(constraints.maxWidth, constraints.maxHeight),
+                settings: ChessboardSettings(
+                  pieceAssets: pieceSet.assets,
+                  colorScheme: boardTheme.colors,
+                  border: showBorder
+                      ? BoardBorder(
+                          width: 16.0,
+                          color: _darken(boardTheme.colors.darkSquare, 0.2),
+                        )
+                      : null,
+                  enableCoordinates: true,
+                  animationDuration: pieceAnimation
+                      ? const Duration(milliseconds: 200)
+                      : Duration.zero,
+                  dragFeedbackScale: dragMagnify ? 2.0 : 1.0,
+                  dragTargetKind: dragTargetKind,
+                  drawShape: DrawShapeOptions(
+                    enable: drawMode,
+                    onCompleteShape: _onCompleteShape,
+                    onClearShapes: () {
+                      setState(() {
+                        shapes = ISet();
+                      });
+                    },
+                  ),
+                  pieceShiftMethod: pieceShiftMethod,
+                  autoQueenPromotionOnPremove: false,
+                  pieceOrientationBehavior: playMode == Mode.freePlay
+                      ? PieceOrientationBehavior.opponentUpsideDown
+                      : PieceOrientationBehavior.facingUser,
+                ),
+                orientation: orientation,
+                fen: fen,
+                lastMove: lastMove,
+                game: GameData(
+                  playerSide:
+                      (playMode == Mode.botPlay || playMode == Mode.inputMove)
+                          ? PlayerSide.white
+                          : (position.turn == Side.white
+                              ? PlayerSide.white
+                              : PlayerSide.black),
+                  validMoves: validMoves,
+                  sideToMove:
+                      position.turn == Side.white ? Side.white : Side.black,
+                  isCheck: position.isCheck,
+                  promotionMove: promotionMove,
+                  onMove: playMode == Mode.botPlay
+                      ? _onUserMoveAgainstBot
+                      : _playMove,
+                  onPromotionSelection: _onPromotionSelection,
+                  premovable: (
+                    onSetPremove: _onSetPremove,
+                    premove: premove,
+                  ),
+                ),
+                shapes: shapes.isNotEmpty ? shapes : null,
+              );
+            },
           ),
-          orientation: orientation,
-          fen: fen,
-          lastMove: lastMove,
-          game: GameData(
-            playerSide: (playMode == Mode.botPlay || playMode == Mode.inputMove)
-                ? PlayerSide.white
-                : (position.turn == Side.white
-                    ? PlayerSide.white
-                    : PlayerSide.black),
-            validMoves: validMoves,
-            sideToMove: position.turn == Side.white ? Side.white : Side.black,
-            isCheck: position.isCheck,
-            promotionMove: promotionMove,
-            onMove:
-                playMode == Mode.botPlay ? _onUserMoveAgainstBot : _playMove,
-            onPromotionSelection: _onPromotionSelection,
-            premovable: (
-              onSetPremove: _onSetPremove,
-              premove: premove,
-            ),
-          ),
-          shapes: shapes.isNotEmpty ? shapes : null,
         );
 
     Widget _buildPortrait() => Padding(
@@ -364,7 +371,7 @@ class _HomePageState extends State<HomePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _buildChessBoardWidget(width: screenWidth),
+              _buildChessBoardWidget(),
               if (playMode == Mode.inputMove)
                 const SizedBox(height: screenPortraitSplitter),
               Expanded(
@@ -395,18 +402,7 @@ class _HomePageState extends State<HomePage> {
           child: Row(
             children: [
               Expanded(
-                child: Center(
-                  child: LayoutBuilder(
-                    builder: (context, constraints) {
-                      return _buildChessBoardWidget(
-                        width: min(
-                          constraints.maxWidth,
-                          constraints.maxHeight,
-                        ),
-                      );
-                    },
-                  ),
-                ),
+                child: _buildChessBoardWidget(),
               ),
               const SizedBox(width: screenLandscapeSplitter),
               Expanded(
