@@ -22,8 +22,16 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Chessground Demo',
       theme: ThemeData(
-        brightness: Brightness.light,
-        primaryColor: Colors.blueGrey,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.indigo,
+          brightness: Brightness.light,
+        ),
+      ),
+      darkTheme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.indigo,
+          brightness: Brightness.dark,
+        ),
       ),
       home: const HomePage(title: 'Chessground Demo'),
     );
@@ -46,6 +54,13 @@ enum Mode {
   inputMove,
   freePlay,
 }
+
+const screenPadding = 16.0;
+const screenPortraitSplitter = screenPadding / 2;
+const screenLandscapeSplitter = screenPadding;
+const buttonHeight = 50.0;
+const buttonsSplitter = screenPadding;
+const smallButtonsSplitter = screenPadding / 2;
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key, required this.title}) : super(key: key);
@@ -79,163 +94,338 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final double screenWidth = MediaQuery.of(context).size.width;
+    Widget _buildNewRoundButton() => FilledButton.icon(
+        icon: const Icon(Icons.refresh_rounded),
+        label: const Text('New Round'),
+        onPressed: () {
+          setState(() {
+            position = Chess.initial;
+            fen = position.fen;
+            validMoves = makeLegalMoves(position);
+            lastMove = null;
+            lastPos = null;
+          });
+        });
 
-    final settingsWidgets = [
-      Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        mainAxisSize: MainAxisSize.max,
-        children: [
-          ElevatedButton(
-            child: Text("Magnify drag: ${dragMagnify ? 'ON' : 'OFF'}"),
-            onPressed: () {
-              setState(() {
-                dragMagnify = !dragMagnify;
-              });
-            },
-          ),
-          const SizedBox(width: 8),
-          ElevatedButton(
-            child: Text('Drag target: ${dragTargetKind.name}'),
-            onPressed: () => _showChoicesPicker<DragTargetKind>(
-              context,
-              choices: DragTargetKind.values,
-              selectedItem: dragTargetKind,
-              labelBuilder: (t) => Text(t.name),
-              onSelectedItemChanged: (DragTargetKind value) {
-                setState(() {
-                  dragTargetKind = value;
-                });
-              },
-            ),
-          ),
-        ],
-      ),
-      Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        mainAxisSize: MainAxisSize.max,
-        children: [
-          ElevatedButton(
-            child: Text('Orientation: ${orientation.name}'),
-            onPressed: () {
-              setState(() {
-                orientation = orientation.opposite;
-              });
-            },
-          ),
-          const SizedBox(width: 8),
-          ElevatedButton(
-            child: Text("Piece animation: ${pieceAnimation ? 'ON' : 'OFF'}"),
-            onPressed: () {
-              setState(() {
-                pieceAnimation = !pieceAnimation;
-              });
-            },
-          ),
-        ],
-      ),
-      Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        mainAxisSize: MainAxisSize.max,
-        children: [
-          ElevatedButton(
-            child: Text('Piece set: ${pieceSet.label}'),
-            onPressed: () => _showChoicesPicker<PieceSet>(
-              context,
-              choices: PieceSet.values,
-              selectedItem: pieceSet,
-              labelBuilder: (t) => Text(t.label),
-              onSelectedItemChanged: (PieceSet? value) {
-                setState(() {
-                  if (value != null) {
-                    pieceSet = value;
-                  }
-                });
-              },
-            ),
-          ),
-          const SizedBox(width: 8),
-          ElevatedButton(
-            child: Text('Board theme: ${boardTheme.label}'),
-            onPressed: () => _showChoicesPicker<BoardTheme>(
-              context,
-              choices: BoardTheme.values,
-              selectedItem: boardTheme,
-              labelBuilder: (t) => Text(t.label),
-              onSelectedItemChanged: (BoardTheme? value) {
-                setState(() {
-                  if (value != null) {
-                    boardTheme = value;
-                  }
-                });
-              },
-            ),
-          ),
-        ],
-      ),
-      Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        mainAxisSize: MainAxisSize.max,
-        children: [
-          ElevatedButton(
-            child:
-                Text('Piece Shift: ${pieceShiftMethodLabel(pieceShiftMethod)}'),
-            onPressed: () => _showChoicesPicker<PieceShiftMethod>(
-              context,
-              choices: PieceShiftMethod.values,
-              selectedItem: pieceShiftMethod,
-              labelBuilder: (t) => Text(pieceShiftMethodLabel(t)),
-              onSelectedItemChanged: (PieceShiftMethod? value) {
-                setState(() {
-                  if (value != null) {
-                    pieceShiftMethod = value;
-                  }
-                });
-              },
-            ),
-          ),
-          const SizedBox(width: 8),
-          ElevatedButton(
-            child: Text("Show border: ${showBorder ? 'ON' : 'OFF'}"),
-            onPressed: () {
-              setState(() {
-                showBorder = !showBorder;
-              });
-            },
-          ),
-        ],
-      ),
-      if (playMode == Mode.freePlay)
-        Center(
-            child: IconButton(
-                onPressed: lastPos != null
-                    ? () => setState(() {
-                          position = lastPos!;
-                          fen = position.fen;
-                          validMoves = makeLegalMoves(position);
-                          lastPos = null;
-                        })
-                    : null,
-                icon: const Icon(Icons.chevron_left_sharp))),
-    ];
+    Widget _buildUndoButton() => FilledButton.icon(
+          icon: const Icon(Icons.undo_rounded),
+          label: const Text('Undo'),
+          onPressed: lastPos != null
+              ? () => setState(() {
+                    position = lastPos!;
+                    fen = position.fen;
+                    validMoves = makeLegalMoves(position);
+                    lastPos = null;
+                  })
+              : null,
+        );
 
-    final inputMoveWidgets = [
-      Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: TextField(
-          decoration: const InputDecoration(
-            labelText: 'Enter move in UCI format',
+    Widget _buildControlButtons() => SizedBox(
+          height: buttonHeight,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(
+                child: _buildNewRoundButton(),
+              ),
+              if (playMode == Mode.freePlay)
+                const SizedBox(width: buttonsSplitter),
+              if (playMode == Mode.freePlay)
+                Expanded(
+                  child: _buildUndoButton(),
+                ),
+            ],
           ),
-          onSubmitted: (String value) {
-            final move = NormalMove.fromUci(value);
-            _playMove(move);
-            _tryPlayPremove();
-          },
+        );
+
+    Widget _buildSettingsButton({
+      required String label,
+      required String value,
+      required VoidCallback onPressed,
+    }) =>
+        ElevatedButton(
+          child: Column(
+            children: [
+              Text(label,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey,
+                  )),
+              Text(value,
+                  style: const TextStyle(
+                    fontSize: 12,
+                  )),
+            ],
+          ),
+          style: ElevatedButton.styleFrom(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 18.0,
+              vertical: 4,
+            ),
+          ),
+          onPressed: onPressed,
+        );
+
+    final settingsWidgets = ListView(
+      children: [
+        ExpansionTile(
+          title: const Text('Settings'),
+          initiallyExpanded: true,
+          shape: const RoundedRectangleBorder(),
+          minTileHeight: 0,
+          children: [
+            Wrap(
+              spacing: smallButtonsSplitter,
+              runSpacing: smallButtonsSplitter,
+              alignment: WrapAlignment.spaceBetween,
+              children: [
+                _buildSettingsButton(
+                    label: 'Magnify drag',
+                    value: dragMagnify ? 'ON' : 'OFF',
+                    onPressed: () {
+                      setState(() {
+                        dragMagnify = !dragMagnify;
+                      });
+                    }),
+                _buildSettingsButton(
+                  label: 'Drag target',
+                  value: dragTargetKind.name,
+                  onPressed: () => _showChoicesPicker<DragTargetKind>(
+                    context,
+                    choices: DragTargetKind.values,
+                    selectedItem: dragTargetKind,
+                    labelBuilder: (t) => Text(t.name),
+                    onSelectedItemChanged: (DragTargetKind value) {
+                      setState(() {
+                        dragTargetKind = value;
+                      });
+                    },
+                  ),
+                ),
+                _buildSettingsButton(
+                  label: 'Orientation',
+                  value: orientation.name,
+                  onPressed: () {
+                    setState(() {
+                      orientation = orientation.opposite;
+                    });
+                  },
+                ),
+                _buildSettingsButton(
+                  label: 'Show border',
+                  value: showBorder ? 'ON' : 'OFF',
+                  onPressed: () {
+                    setState(() {
+                      showBorder = !showBorder;
+                    });
+                  },
+                ),
+                _buildSettingsButton(
+                  label: 'Piece set',
+                  value: pieceSet.label,
+                  onPressed: () => _showChoicesPicker<PieceSet>(
+                    context,
+                    choices: PieceSet.values,
+                    selectedItem: pieceSet,
+                    labelBuilder: (t) => Text(t.label),
+                    onSelectedItemChanged: (PieceSet? value) {
+                      setState(() {
+                        if (value != null) {
+                          pieceSet = value;
+                        }
+                      });
+                    },
+                  ),
+                ),
+                _buildSettingsButton(
+                  label: 'Board theme',
+                  value: boardTheme.label,
+                  onPressed: () => _showChoicesPicker<BoardTheme>(
+                    context,
+                    choices: BoardTheme.values,
+                    selectedItem: boardTheme,
+                    labelBuilder: (t) => Text(t.label),
+                    onSelectedItemChanged: (BoardTheme? value) {
+                      setState(() {
+                        if (value != null) {
+                          boardTheme = value;
+                        }
+                      });
+                    },
+                  ),
+                ),
+                _buildSettingsButton(
+                  label: 'Piece animation',
+                  value: pieceAnimation ? 'ON' : 'OFF',
+                  onPressed: () {
+                    setState(() {
+                      pieceAnimation = !pieceAnimation;
+                    });
+                  },
+                ),
+                _buildSettingsButton(
+                  label: 'Piece Shift',
+                  value: pieceShiftMethodLabel(pieceShiftMethod),
+                  onPressed: () => _showChoicesPicker<PieceShiftMethod>(
+                    context,
+                    choices: PieceShiftMethod.values,
+                    selectedItem: pieceShiftMethod,
+                    labelBuilder: (t) => Text(pieceShiftMethodLabel(t)),
+                    onSelectedItemChanged: (PieceShiftMethod? value) {
+                      setState(() {
+                        if (value != null) {
+                          pieceShiftMethod = value;
+                        }
+                      });
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
+      ],
+    );
+
+    final inputMoveWidgets = TextField(
+      decoration: const InputDecoration(
+        labelText: 'Enter move in UCI format',
+        border: OutlineInputBorder(),
       ),
-    ];
+      onSubmitted: (String value) {
+        final move = NormalMove.fromUci(value);
+        _playMove(move);
+        _tryPlayPremove();
+      },
+    );
+
+    Widget _buildChessBoardWidget() => Center(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              return Chessboard(
+                size: min(constraints.maxWidth, constraints.maxHeight),
+                settings: ChessboardSettings(
+                  pieceAssets: pieceSet.assets,
+                  colorScheme: boardTheme.colors,
+                  border: showBorder
+                      ? BoardBorder(
+                          width: 16.0,
+                          color: _darken(boardTheme.colors.darkSquare, 0.2),
+                        )
+                      : null,
+                  enableCoordinates: true,
+                  animationDuration: pieceAnimation
+                      ? const Duration(milliseconds: 200)
+                      : Duration.zero,
+                  dragFeedbackScale: dragMagnify ? 2.0 : 1.0,
+                  dragTargetKind: dragTargetKind,
+                  drawShape: DrawShapeOptions(
+                    enable: drawMode,
+                    onCompleteShape: _onCompleteShape,
+                    onClearShapes: () {
+                      setState(() {
+                        shapes = ISet();
+                      });
+                    },
+                  ),
+                  pieceShiftMethod: pieceShiftMethod,
+                  autoQueenPromotionOnPremove: false,
+                  pieceOrientationBehavior: playMode == Mode.freePlay
+                      ? PieceOrientationBehavior.opponentUpsideDown
+                      : PieceOrientationBehavior.facingUser,
+                ),
+                orientation: orientation,
+                fen: fen,
+                lastMove: lastMove,
+                game: GameData(
+                  playerSide:
+                      (playMode == Mode.botPlay || playMode == Mode.inputMove)
+                          ? PlayerSide.white
+                          : (position.turn == Side.white
+                              ? PlayerSide.white
+                              : PlayerSide.black),
+                  validMoves: validMoves,
+                  sideToMove:
+                      position.turn == Side.white ? Side.white : Side.black,
+                  isCheck: position.isCheck,
+                  promotionMove: promotionMove,
+                  onMove: playMode == Mode.botPlay
+                      ? _onUserMoveAgainstBot
+                      : _playMove,
+                  onPromotionSelection: _onPromotionSelection,
+                  premovable: (
+                    onSetPremove: _onSetPremove,
+                    premove: premove,
+                  ),
+                ),
+                shapes: shapes.isNotEmpty ? shapes : null,
+              );
+            },
+          ),
+        );
+
+    Widget _buildPortrait() => Padding(
+          padding: const EdgeInsets.only(
+            bottom: screenPadding,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _buildChessBoardWidget(),
+              if (playMode == Mode.inputMove)
+                const SizedBox(height: screenPortraitSplitter),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: screenPadding,
+                  ),
+                  child: playMode == Mode.inputMove
+                      ? inputMoveWidgets
+                      : settingsWidgets,
+                ),
+              ),
+              if (playMode != Mode.inputMove)
+                const SizedBox(height: screenPortraitSplitter),
+              if (playMode != Mode.inputMove)
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: screenPadding,
+                  ),
+                  child: _buildControlButtons(),
+                ),
+            ],
+          ),
+        );
+
+    Widget _buildLandscape() => Padding(
+          padding: const EdgeInsets.all(screenPadding),
+          child: Row(
+            children: [
+              Expanded(
+                child: _buildChessBoardWidget(),
+              ),
+              const SizedBox(width: screenLandscapeSplitter),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Expanded(
+                      child: playMode == Mode.inputMove
+                          ? inputMoveWidgets
+                          : settingsWidgets,
+                    ),
+                    if (playMode != Mode.inputMove)
+                      const SizedBox(height: screenPortraitSplitter),
+                    if (playMode != Mode.inputMove) _buildControlButtons(),
+                  ],
+                ),
+              )
+            ],
+          ),
+        );
 
     return Scaffold(
+      primary: MediaQuery.of(context).orientation == Orientation.portrait,
       appBar: AppBar(
           title: switch (playMode) {
         Mode.botPlay => const Text('Random Bot'),
@@ -299,78 +489,10 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       )),
-      body: Column(
-        children: [
-          Chessboard(
-            size: screenWidth,
-            settings: ChessboardSettings(
-              pieceAssets: pieceSet.assets,
-              colorScheme: boardTheme.colors,
-              border: showBorder
-                  ? BoardBorder(
-                      width: 16.0,
-                      color: _darken(boardTheme.colors.darkSquare, 0.2),
-                    )
-                  : null,
-              enableCoordinates: true,
-              animationDuration: pieceAnimation
-                  ? const Duration(milliseconds: 200)
-                  : Duration.zero,
-              dragFeedbackScale: dragMagnify ? 2.0 : 1.0,
-              dragTargetKind: dragTargetKind,
-              drawShape: DrawShapeOptions(
-                enable: drawMode,
-                onCompleteShape: _onCompleteShape,
-                onClearShapes: () {
-                  setState(() {
-                    shapes = ISet();
-                  });
-                },
-              ),
-              pieceShiftMethod: pieceShiftMethod,
-              autoQueenPromotionOnPremove: false,
-              pieceOrientationBehavior: playMode == Mode.freePlay
-                  ? PieceOrientationBehavior.opponentUpsideDown
-                  : PieceOrientationBehavior.facingUser,
-            ),
-            orientation: orientation,
-            fen: fen,
-            lastMove: lastMove,
-            game: GameData(
-              playerSide:
-                  (playMode == Mode.botPlay || playMode == Mode.inputMove)
-                      ? PlayerSide.white
-                      : (position.turn == Side.white
-                          ? PlayerSide.white
-                          : PlayerSide.black),
-              validMoves: validMoves,
-              sideToMove: position.turn == Side.white ? Side.white : Side.black,
-              isCheck: position.isCheck,
-              promotionMove: promotionMove,
-              onMove:
-                  playMode == Mode.botPlay ? _onUserMoveAgainstBot : _playMove,
-              onPromotionSelection: _onPromotionSelection,
-              premovable: (
-                onSetPremove: _onSetPremove,
-                premove: premove,
-              ),
-            ),
-            shapes: shapes.isNotEmpty ? shapes : null,
-          ),
-          Expanded(
-            child: Center(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: ListView(
-                  shrinkWrap: true,
-                  children: playMode == Mode.inputMove
-                      ? inputMoveWidgets
-                      : settingsWidgets,
-                ),
-              ),
-            ),
-          ),
-        ],
+      body: OrientationBuilder(
+        builder: (context, orientation) => orientation == Orientation.portrait
+            ? _buildPortrait()
+            : _buildLandscape(),
       ),
     );
   }
