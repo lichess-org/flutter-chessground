@@ -98,7 +98,7 @@ class _HomePageState extends State<HomePage> {
 
     Widget _buildNewRoundButton() => FilledButton.icon(
         icon: const Icon(Icons.refresh_rounded),
-        label: const Text('New round'),
+        label: const Text('New Round'),
         onPressed: () {
           setState(() {
             position = Chess.initial;
