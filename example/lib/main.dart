@@ -301,8 +301,8 @@ class _HomePageState extends State<HomePage> {
       },
     );
 
-    Widget _buildChessBoardWidget() => Chessboard(
-          size: screenWidth,
+    Widget _buildChessBoardWidget({required double width}) => Chessboard(
+          size: width,
           settings: ChessboardSettings(
             pieceAssets: pieceSet.assets,
             colorScheme: boardTheme.colors,
@@ -364,7 +364,7 @@ class _HomePageState extends State<HomePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _buildChessBoardWidget(),
+              _buildChessBoardWidget(width: screenWidth),
               if (playMode == Mode.inputMove)
                 const SizedBox(height: screenPortraitSplitter),
               Expanded(
@@ -396,7 +396,16 @@ class _HomePageState extends State<HomePage> {
             children: [
               Expanded(
                 child: Center(
-                  child: _buildChessBoardWidget(),
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      return _buildChessBoardWidget(
+                        width: min(
+                          constraints.maxWidth,
+                          constraints.maxHeight,
+                        ),
+                      );
+                    },
+                  ),
                 ),
               ),
               const SizedBox(width: screenLandscapeSplitter),
