@@ -159,7 +159,7 @@ class _HomePageState extends State<HomePage> {
                   )),
             ],
           ),
-          style: OutlinedButton.styleFrom(
+          style: ElevatedButton.styleFrom(
             padding: const EdgeInsets.symmetric(
               horizontal: 18.0,
               vertical: 4,
