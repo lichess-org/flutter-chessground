@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:chessground/src/widgets/geometry.dart';
 import 'package:dartchess/dartchess.dart';
 import 'package:flutter/gestures.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter/widgets.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 
@@ -19,6 +20,12 @@ import '../models.dart';
 import '../fen.dart';
 import '../premove.dart';
 import '../board_settings.dart';
+
+typedef SemanticBuilder =
+    String? Function(
+      ({Square square, Piece? piece}) highlighted,
+      ({Square square, Piece? piece})? selected,
+    );
 
 /// Number of logical pixels that have to be dragged before a drag starts.
 const double _kDragDistanceThreshold = 3.0;
@@ -48,6 +55,8 @@ class Chessboard extends StatefulWidget with ChessboardGeometry {
     required this.game,
     this.shapes,
     this.annotations,
+    this.squareSemanticValueBuilder,
+    this.squareSemanticHintBuilder,
   }) : _size = size;
 
   /// Creates a new chessboard widget that cannot be interacted with.
@@ -65,6 +74,8 @@ class Chessboard extends StatefulWidget with ChessboardGeometry {
     this.onTouchedSquare,
     this.shapes,
     this.annotations,
+    this.squareSemanticValueBuilder,
+    this.squareSemanticHintBuilder,
   }) : _size = size,
        game = null,
        opponentsPiecesUpsideDown = false;
@@ -110,6 +121,10 @@ class Chessboard extends StatefulWidget with ChessboardGeometry {
 
   /// Move annotations to be displayed on the board.
   final IMap<Square, Annotation>? annotations;
+
+  final SemanticBuilder? squareSemanticValueBuilder;
+
+  final SemanticBuilder? squareSemanticHintBuilder;
 
   /// Whether the pieces can be moved by one side or both.
   bool get interactive => game != null && game!.playerSide != PlayerSide.none;
@@ -223,6 +238,47 @@ class _BoardState extends State<Chessboard> {
         dimension: widget.size,
         child: background,
       ),
+
+      for (final square in Square.values)
+        PositionedSquare(
+          key: ValueKey('${square.name}-accessibility'),
+          size: widget.size,
+          orientation: widget.orientation,
+          square: square,
+          child: Semantics(
+              onTap: () {
+                _onSquarePointerDown(square);
+                _onSquarePointerUp(square);
+              },
+              attributedLabel: AttributedString(
+                square.name,
+                attributes: [
+                  SpellOutStringAttribute(
+                    range: TextRange(start: 0, end: square.name.length),
+                  ),
+                  LocaleStringAttribute(
+                    range: TextRange(start: 0, end: square.name.length),
+                    locale: Localizations.localeOf(context),
+                  ),
+                ],
+              ),
+              value: widget.squareSemanticValueBuilder?.call(
+                (square: square, piece: pieces[square]),
+                selected != null
+                    ? (square: selected!, piece: pieces[selected])
+                    : null,
+              ),
+              hint: widget.squareSemanticHintBuilder?.call(
+                (square: square, piece: pieces[square]),
+                selected != null
+                    ? (square: selected!, piece: pieces[selected])
+                    : null,
+              ),
+              selected: selected == square,
+              child: const SizedBox.shrink(),
+            ),
+        ),
+
       if (settings.showLastMove && widget.lastMove != null)
         for (final square in widget.lastMove!.squares)
           if (premove == null || !premove.hasSquare(square))
@@ -600,10 +656,15 @@ class _BoardState extends State<Chessboard> {
     // pointer events
     _currentPointerDownEvent = details;
 
+    _onSquarePointerDown(square);
+  }
+
+  void _onSquarePointerDown(Square square) {
     // a piece was selected and the user taps on a different square:
     // - try to move the piece to the target square
     // - if the move was not possible but there is a movable piece under the
     // target square, select it
+    final piece = pieces[square];
     if (selected != null && square != selected) {
       final couldMove = _tryMoveOrPremoveTo(square);
       if (!couldMove && _isMovable(piece)) {
@@ -737,6 +798,10 @@ class _BoardState extends State<Chessboard> {
 
     final square = widget.offsetSquare(details.localPosition);
 
+    _onSquarePointerUp(square);
+  }
+
+  void _onSquarePointerUp(Square? square) {
     // handle pointer up while dragging a piece
     if (_dragAvatar != null) {
       bool shouldDeselect = true;
