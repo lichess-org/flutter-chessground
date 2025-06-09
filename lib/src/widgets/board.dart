@@ -359,16 +359,6 @@ class _BoardState extends State<Chessboard> {
             ),
           ),
         ),
-      for (final entry in annotations.entries)
-        BoardAnnotation(
-          key: ValueKey(
-            '${entry.key.name}-${entry.value.symbol}-${entry.value.color}',
-          ),
-          size: widget.size,
-          orientation: widget.orientation,
-          square: entry.key,
-          annotation: entry.value,
-        ),
       for (final shape in shapes)
         BoardShapeWidget(
           shape: shape,
@@ -380,6 +370,16 @@ class _BoardState extends State<Chessboard> {
           shape: _shapeAvatar!,
           size: widget.size,
           orientation: widget.orientation,
+        ),
+      for (final entry in annotations.entries)
+        BoardAnnotation(
+          key: ValueKey(
+            '${entry.key.name}-${entry.value.symbol}-${entry.value.color}',
+          ),
+          size: widget.size,
+          orientation: widget.orientation,
+          square: entry.key,
+          annotation: entry.value,
         ),
     ];
 

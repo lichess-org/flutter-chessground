@@ -1,3 +1,7 @@
+## 7.1.3
+
+- Make board annotations always on top of shapes.
+
 ## 7.1.2
 
 - Fix crash when calling `setState` in pointerUp, pointerMove or pointerCancel
