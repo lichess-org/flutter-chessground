@@ -333,6 +333,30 @@ void main() {
       }
     });
 
+    testWidgets(
+      'Square is always deselected after drag if piece shift method is drag',
+      (WidgetTester tester) async {
+        await tester.pumpWidget(
+          const _TestApp(
+            initialPlayerSide: PlayerSide.both,
+            settings: ChessboardSettings(
+              pieceShiftMethod: PieceShiftMethod.drag,
+            ),
+          ),
+        );
+        await tester.tap(find.byKey(const Key('e2-whitepawn')));
+        await tester.pump();
+
+        // simluate a drag that leaves the piece on the same square
+        await tester.dragFrom(
+          squareOffset(tester, Square.e2),
+          const Offset(0, -(squareSize / 2)),
+        );
+        await tester.pumpAndSettle();
+        expect(find.byKey(const Key('e2-selected')), findsNothing);
+      },
+    );
+
     testWidgets('castling by selecting king then rook is possible', (
       WidgetTester tester,
     ) async {

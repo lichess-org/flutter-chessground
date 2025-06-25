@@ -749,7 +749,9 @@ class _BoardState extends State<Chessboard> {
             widget.game?.premovable?.onSetPremove.call(null);
           }
         } else {
-          shouldDeselect = false;
+          // if piece shift method is drag only we always deselect the piece after a drag
+          shouldDeselect =
+              widget.settings.pieceShiftMethod == PieceShiftMethod.drag;
         }
       }
       // if the user drags a piece outside the board, cancel the premove
