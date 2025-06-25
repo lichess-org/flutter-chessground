@@ -43,8 +43,7 @@ enum PieceSet {
   letter('Letter', PieceSet.letterAssets),
   disguised('Disguised', PieceSet.disguisedAssets),
   symmetric('Symmetric', PieceSet.symmetricAssets),
-  rhosgfx('RhosGFX', PieceSet.rhosgfxAssets),
-  rhosgfxWood('RhosGFX Wood', PieceSet.rhosgfxWoodAssets);
+  rhosgfx('RhosGFX', PieceSet.rhosgfxAssets);
 
   const PieceSet(this.label, this.assets);
 
@@ -1974,58 +1973,6 @@ enum PieceSet {
     ),
     PieceKind.whiteKing: AssetImage(
       '$_pieceSetsPath/rhosgfx/wK.png',
-      package: 'chessground',
-    ),
-  });
-
-  /// The [PieceAssets] for the 'RhosGFX Wood' piece set.
-  static const PieceAssets rhosgfxWoodAssets = IMapConst({
-    PieceKind.blackRook: AssetImage(
-      '$_pieceSetsPath/rhosgfx-wood/bR.png',
-      package: 'chessground',
-    ),
-    PieceKind.blackPawn: AssetImage(
-      '$_pieceSetsPath/rhosgfx-wood/bP.png',
-      package: 'chessground',
-    ),
-    PieceKind.blackKnight: AssetImage(
-      '$_pieceSetsPath/rhosgfx-wood/bN.png',
-      package: 'chessground',
-    ),
-    PieceKind.blackBishop: AssetImage(
-      '$_pieceSetsPath/rhosgfx-wood/bB.png',
-      package: 'chessground',
-    ),
-    PieceKind.blackQueen: AssetImage(
-      '$_pieceSetsPath/rhosgfx-wood/bQ.png',
-      package: 'chessground',
-    ),
-    PieceKind.blackKing: AssetImage(
-      '$_pieceSetsPath/rhosgfx-wood/bK.png',
-      package: 'chessground',
-    ),
-    PieceKind.whiteRook: AssetImage(
-      '$_pieceSetsPath/rhosgfx-wood/wR.png',
-      package: 'chessground',
-    ),
-    PieceKind.whitePawn: AssetImage(
-      '$_pieceSetsPath/rhosgfx-wood/wP.png',
-      package: 'chessground',
-    ),
-    PieceKind.whiteKnight: AssetImage(
-      '$_pieceSetsPath/rhosgfx-wood/wN.png',
-      package: 'chessground',
-    ),
-    PieceKind.whiteBishop: AssetImage(
-      '$_pieceSetsPath/rhosgfx-wood/wB.png',
-      package: 'chessground',
-    ),
-    PieceKind.whiteQueen: AssetImage(
-      '$_pieceSetsPath/rhosgfx-wood/wQ.png',
-      package: 'chessground',
-    ),
-    PieceKind.whiteKing: AssetImage(
-      '$_pieceSetsPath/rhosgfx-wood/wK.png',
       package: 'chessground',
     ),
   });
