@@ -142,10 +142,11 @@ class ImageChessboardBackground extends ChessboardBackground {
   Widget build(BuildContext context) {
     if (coordinates) {
       return Stack(
+        fit: StackFit.expand,
         alignment: Alignment.topLeft,
         clipBehavior: Clip.none,
         children: [
-          Image(image: image),
+          Image(image: image, fit: BoxFit.cover),
           CustomPaint(
             size: Size.infinite,
             painter: _ImageBackgroundCoordinatePainter(
@@ -157,7 +158,7 @@ class ImageChessboardBackground extends ChessboardBackground {
         ],
       );
     } else {
-      return Image(image: image);
+      return Image(image: image, fit: BoxFit.cover);
     }
   }
 }
