@@ -1,3 +1,8 @@
+## 7.1.4
+
+- When piece shift method is set to `drag`, the piece will awlays be deselected
+  when the pointer is released, even if the piece is dropped on the same square.
+
 ## 7.1.3
 
 - Make board annotations always on top of shapes.
