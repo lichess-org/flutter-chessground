@@ -1,3 +1,7 @@
+## 7.1.5
+
+- Fix board image background not aligned with pieces on tablets.
+
 ## 7.1.4
 
 - When piece shift method is set to `drag`, the piece will awlays be deselected
