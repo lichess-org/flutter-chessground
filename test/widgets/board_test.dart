@@ -832,6 +832,32 @@ void main() {
       expect(find.byKey(const Key('f8-whiteknight')), findsOneWidget);
       expect(find.byKey(const Key('f7-whitepawn')), findsNothing);
     });
+    testWidgets('Player on top promotes a bishop', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        const _TestApp(
+          initialPlayerSide: PlayerSide.both,
+          initialFen: 'K7/8/k7/8/8/8/p7/1Q4n1 b - - 0 1',
+        ),
+      );
+
+      await tester.tap(find.byKey(const Key('a2-blackpawn')));
+      await tester.pump();
+      await tester.tapAt(squareOffset(tester, Square.b1));
+      await tester.pump();
+
+      // wait for promotion selector to show
+      await tester.pump();
+      expect(find.byType(PromotionSelector), findsOneWidget);
+
+      // promotion pawn is not visible
+      expect(find.byKey(const Key('a2-blackpawn')), findsNothing);
+
+      // tap on the bishop
+      await tester.tapAt(squareOffset(tester, Square.b4));
+      await tester.pump();
+      expect(find.byKey(const Key('b1-blackbishop')), findsOneWidget);
+      expect(find.byKey(const Key('a2-blackpawn')), findsNothing);
+    });
 
     testWidgets('cancels promotion', (WidgetTester tester) async {
       await tester.pumpWidget(
