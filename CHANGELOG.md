@@ -1,3 +1,7 @@
+## 7.1.6
+
+Fix promotion selection order if player on top promotes
+
 ## 7.1.5
 
 - Fix board image background not aligned with pieces on tablets.
