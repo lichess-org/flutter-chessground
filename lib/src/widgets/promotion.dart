@@ -52,14 +52,30 @@ class PromotionSelector extends StatelessWidget with ChessboardGeometry {
 
   @override
   Widget build(BuildContext context) {
+    final isPromotionSquareAtTop =
+        orientation == Side.white && square.rank == Rank.eighth ||
+        orientation == Side.black && square.rank == Rank.first;
     final anchorSquare =
-        (orientation == Side.white && square.rank == Rank.eighth ||
-                orientation == Side.black && square.rank == Rank.first)
+        isPromotionSquareAtTop
             ? square
             : Square.fromCoords(
               square.file,
               orientation == Side.white ? Rank.fourth : Rank.fifth,
             );
+    final pieces =
+        isPromotionSquareAtTop
+            ? [
+              Piece(color: color, role: Role.queen, promoted: true),
+              Piece(color: color, role: Role.knight, promoted: true),
+              Piece(color: color, role: Role.rook, promoted: true),
+              Piece(color: color, role: Role.bishop, promoted: true),
+            ]
+            : [
+              Piece(color: color, role: Role.bishop, promoted: true),
+              Piece(color: color, role: Role.rook, promoted: true),
+              Piece(color: color, role: Role.knight, promoted: true),
+              Piece(color: color, role: Role.queen, promoted: true),
+            ];
 
     final offset = squareOffset(anchorSquare);
 
@@ -78,12 +94,7 @@ class PromotionSelector extends StatelessWidget with ChessboardGeometry {
               left: offset.dx,
               top: offset.dy,
               child: Column(
-                children: [
-                      Piece(color: color, role: Role.queen, promoted: true),
-                      Piece(color: color, role: Role.knight, promoted: true),
-                      Piece(color: color, role: Role.rook, promoted: true),
-                      Piece(color: color, role: Role.bishop, promoted: true),
-                    ]
+                children: pieces
                     .map((Piece piece) {
                       return GestureDetector(
                         onTap: () => onSelect(piece.role),
