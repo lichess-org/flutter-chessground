@@ -212,7 +212,8 @@ class _BoardEditorState extends State<ChessboardEditor> {
         onTapDown: (details) => _onTapEvent(details.localPosition),
         onPanStart: (details) => _onPanStart(details.localPosition),
         onPanUpdate: (details) => _onPanUpdate(details.localPosition),
-        onPanEnd: (details) => _onPanEnd(),
+        onPanEnd: (details) => _onPanEndOrCancel(),
+        onPanCancel: _onPanEndOrCancel,
         child: Stack(
           alignment: Alignment.topLeft,
           clipBehavior: Clip.none,
@@ -286,7 +287,7 @@ class _BoardEditorState extends State<ChessboardEditor> {
     }
   }
 
-  void _onPanEnd() {
+  void _onPanEndOrCancel() {
     _isPanning = false;
     _lastEditedSquare = null;
   }
