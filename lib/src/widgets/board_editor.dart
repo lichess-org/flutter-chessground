@@ -107,6 +107,8 @@ class ChessboardEditor extends StatefulWidget with ChessboardGeometry {
 
 class _BoardEditorState extends State<ChessboardEditor> {
   Square? draggedPieceOrigin;
+  bool _isPanning = false;
+  Square? _lastEditedSquare;
 
   @override
   Widget build(BuildContext context) {
@@ -207,9 +209,11 @@ class _BoardEditorState extends State<ChessboardEditor> {
     final board = SizedBox.square(
       dimension: widget.size,
       child: GestureDetector(
-        onTapDown: (details) => _onTouchedEvent(details.localPosition),
-        onPanStart: (details) => _onTouchedEvent(details.localPosition),
-        onPanUpdate: (details) => _onTouchedEvent(details.localPosition),
+        onTapDown: (details) => _onTapEvent(details.localPosition),
+        onPanStart: (details) => _onPanStart(details.localPosition),
+        onPanUpdate: (details) => _onPanUpdate(details.localPosition),
+        onPanEnd: (details) => _onPanEndOrCancel(),
+        onPanCancel: _onPanEndOrCancel,
         child: Stack(
           alignment: Alignment.topLeft,
           clipBehavior: Clip.none,
@@ -253,7 +257,7 @@ class _BoardEditorState extends State<ChessboardEditor> {
     );
   }
 
-  void _onTouchedEvent(Offset localPosition) {
+  void _onTapEvent(Offset localPosition) {
     if (widget.pointerMode == EditorPointerMode.drag) {
       return;
     }
@@ -261,6 +265,31 @@ class _BoardEditorState extends State<ChessboardEditor> {
     if (square != null) {
       widget.onEditedSquare?.call(square);
     }
+  }
+
+  void _onPanStart(Offset localPosition) {
+    if (widget.pointerMode == EditorPointerMode.drag) {
+      return;
+    }
+    _isPanning = true;
+    _lastEditedSquare = null;
+    _onPanUpdate(localPosition);
+  }
+
+  void _onPanUpdate(Offset localPosition) {
+    if (widget.pointerMode == EditorPointerMode.drag || !_isPanning) {
+      return;
+    }
+    final square = widget.offsetSquare(localPosition);
+    if (square != null && square != _lastEditedSquare) {
+      widget.onEditedSquare?.call(square);
+      _lastEditedSquare = square;
+    }
+  }
+
+  void _onPanEndOrCancel() {
+    _isPanning = false;
+    _lastEditedSquare = null;
   }
 }
 
