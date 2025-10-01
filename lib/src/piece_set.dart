@@ -42,7 +42,8 @@ enum PieceSet {
   anarcandy('Anarcandy', PieceSet.anarcandyAssets),
   letter('Letter', PieceSet.letterAssets),
   disguised('Disguised', PieceSet.disguisedAssets),
-  symmetric('Symmetric', PieceSet.symmetricAssets);
+  symmetric('Symmetric', PieceSet.symmetricAssets),
+  rhosgfx('RhosGFX', PieceSet.rhosgfxAssets);
 
   const PieceSet(this.label, this.assets);
 
@@ -1920,6 +1921,58 @@ enum PieceSet {
     ),
     PieceKind.whiteKing: AssetImage(
       '$_pieceSetsPath/symmetric/wK.png',
+      package: 'chessground',
+    ),
+  });
+
+  /// The [PieceAssets] for the 'RhosGFX' piece set.
+  static const PieceAssets rhosgfxAssets = IMapConst({
+    PieceKind.blackRook: AssetImage(
+      '$_pieceSetsPath/rhosgfx/bR.png',
+      package: 'chessground',
+    ),
+    PieceKind.blackPawn: AssetImage(
+      '$_pieceSetsPath/rhosgfx/bP.png',
+      package: 'chessground',
+    ),
+    PieceKind.blackKnight: AssetImage(
+      '$_pieceSetsPath/rhosgfx/bN.png',
+      package: 'chessground',
+    ),
+    PieceKind.blackBishop: AssetImage(
+      '$_pieceSetsPath/rhosgfx/bB.png',
+      package: 'chessground',
+    ),
+    PieceKind.blackQueen: AssetImage(
+      '$_pieceSetsPath/rhosgfx/bQ.png',
+      package: 'chessground',
+    ),
+    PieceKind.blackKing: AssetImage(
+      '$_pieceSetsPath/rhosgfx/bK.png',
+      package: 'chessground',
+    ),
+    PieceKind.whiteRook: AssetImage(
+      '$_pieceSetsPath/rhosgfx/wR.png',
+      package: 'chessground',
+    ),
+    PieceKind.whitePawn: AssetImage(
+      '$_pieceSetsPath/rhosgfx/wP.png',
+      package: 'chessground',
+    ),
+    PieceKind.whiteKnight: AssetImage(
+      '$_pieceSetsPath/rhosgfx/wN.png',
+      package: 'chessground',
+    ),
+    PieceKind.whiteBishop: AssetImage(
+      '$_pieceSetsPath/rhosgfx/wB.png',
+      package: 'chessground',
+    ),
+    PieceKind.whiteQueen: AssetImage(
+      '$_pieceSetsPath/rhosgfx/wQ.png',
+      package: 'chessground',
+    ),
+    PieceKind.whiteKing: AssetImage(
+      '$_pieceSetsPath/rhosgfx/wK.png',
       package: 'chessground',
     ),
   });
