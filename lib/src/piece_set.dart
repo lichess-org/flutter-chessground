@@ -24,6 +24,7 @@ enum PieceSet {
   california('California', PieceSet.californiaAssets),
   caliente('Caliente', PieceSet.calienteAssets),
   pixel('Pixel', PieceSet.pixelAssets),
+  rhosgfx('RhosGFX', PieceSet.rhosgfxAssets),
   maestro('Maestro', PieceSet.maestroAssets),
   fresca('Fresca', PieceSet.frescaAssets),
   cardinal('Cardinal', PieceSet.cardinalAssets),
@@ -42,8 +43,7 @@ enum PieceSet {
   anarcandy('Anarcandy', PieceSet.anarcandyAssets),
   letter('Letter', PieceSet.letterAssets),
   disguised('Disguised', PieceSet.disguisedAssets),
-  symmetric('Symmetric', PieceSet.symmetricAssets),
-  rhosgfx('RhosGFX', PieceSet.rhosgfxAssets);
+  symmetric('Symmetric', PieceSet.symmetricAssets);
 
   const PieceSet(this.label, this.assets);
 
