@@ -1,3 +1,8 @@
+## 7.2.0
+
+- Add RhosGFX piece set.
+- Do not update the square all the time while panning in board editor.
+
 ## 7.1.6
 
 Fix promotion selection order if player on top promotes
