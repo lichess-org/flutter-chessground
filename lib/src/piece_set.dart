@@ -24,6 +24,7 @@ enum PieceSet {
   california('California', PieceSet.californiaAssets),
   caliente('Caliente', PieceSet.calienteAssets),
   pixel('Pixel', PieceSet.pixelAssets),
+  firi('Firi', PieceSet.firiAssets),
   rhosgfx('RhosGFX', PieceSet.rhosgfxAssets),
   maestro('Maestro', PieceSet.maestroAssets),
   fresca('Fresca', PieceSet.frescaAssets),
@@ -41,6 +42,7 @@ enum PieceSet {
   kiwenSuwi('Kiwen-suwi', PieceSet.kiwenSuwiAssets),
   horsey('Horsey', PieceSet.horseyAssets),
   anarcandy('Anarcandy', PieceSet.anarcandyAssets),
+  xkcd('xkcd', PieceSet.xkcdAssets),
   letter('Letter', PieceSet.letterAssets),
   disguised('Disguised', PieceSet.disguisedAssets),
   symmetric('Symmetric', PieceSet.symmetricAssets);
@@ -1561,6 +1563,58 @@ enum PieceSet {
     ),
   });
 
+  /// The [PieceAssets] for the 'Firi' piece set.
+  static const PieceAssets firiAssets = IMapConst({
+    PieceKind.blackRook: AssetImage(
+      '$_pieceSetsPath/firi/bR.png',
+      package: 'chessground',
+    ),
+    PieceKind.blackPawn: AssetImage(
+      '$_pieceSetsPath/firi/bP.png',
+      package: 'chessground',
+    ),
+    PieceKind.blackKnight: AssetImage(
+      '$_pieceSetsPath/firi/bN.png',
+      package: 'chessground',
+    ),
+    PieceKind.blackBishop: AssetImage(
+      '$_pieceSetsPath/firi/bB.png',
+      package: 'chessground',
+    ),
+    PieceKind.blackQueen: AssetImage(
+      '$_pieceSetsPath/firi/bQ.png',
+      package: 'chessground',
+    ),
+    PieceKind.blackKing: AssetImage(
+      '$_pieceSetsPath/firi/bK.png',
+      package: 'chessground',
+    ),
+    PieceKind.whiteRook: AssetImage(
+      '$_pieceSetsPath/firi/wR.png',
+      package: 'chessground',
+    ),
+    PieceKind.whitePawn: AssetImage(
+      '$_pieceSetsPath/firi/wP.png',
+      package: 'chessground',
+    ),
+    PieceKind.whiteKnight: AssetImage(
+      '$_pieceSetsPath/firi/wN.png',
+      package: 'chessground',
+    ),
+    PieceKind.whiteBishop: AssetImage(
+      '$_pieceSetsPath/firi/wB.png',
+      package: 'chessground',
+    ),
+    PieceKind.whiteQueen: AssetImage(
+      '$_pieceSetsPath/firi/wQ.png',
+      package: 'chessground',
+    ),
+    PieceKind.whiteKing: AssetImage(
+      '$_pieceSetsPath/firi/wK.png',
+      package: 'chessground',
+    ),
+  });
+
   /// The [PieceAssets] for the 'Reillycraig' piece set.
   static const PieceAssets reillycraigAssets = IMapConst({
     PieceKind.blackRook: AssetImage(
@@ -1661,6 +1715,58 @@ enum PieceSet {
     ),
     PieceKind.whiteKing: AssetImage(
       '$_pieceSetsPath/riohacha/wK.png',
+      package: 'chessground',
+    ),
+  });
+
+  /// The [PieceAssets] for the 'xkcd' piece set.
+  static const PieceAssets xkcdAssets = IMapConst({
+    PieceKind.blackRook: AssetImage(
+      '$_pieceSetsPath/xkcd/bR.png',
+      package: 'chessground',
+    ),
+    PieceKind.blackPawn: AssetImage(
+      '$_pieceSetsPath/xkcd/bP.png',
+      package: 'chessground',
+    ),
+    PieceKind.blackKnight: AssetImage(
+      '$_pieceSetsPath/xkcd/bN.png',
+      package: 'chessground',
+    ),
+    PieceKind.blackBishop: AssetImage(
+      '$_pieceSetsPath/xkcd/bB.png',
+      package: 'chessground',
+    ),
+    PieceKind.blackQueen: AssetImage(
+      '$_pieceSetsPath/xkcd/bQ.png',
+      package: 'chessground',
+    ),
+    PieceKind.blackKing: AssetImage(
+      '$_pieceSetsPath/xkcd/bK.png',
+      package: 'chessground',
+    ),
+    PieceKind.whiteRook: AssetImage(
+      '$_pieceSetsPath/xkcd/wR.png',
+      package: 'chessground',
+    ),
+    PieceKind.whitePawn: AssetImage(
+      '$_pieceSetsPath/xkcd/wP.png',
+      package: 'chessground',
+    ),
+    PieceKind.whiteKnight: AssetImage(
+      '$_pieceSetsPath/xkcd/wN.png',
+      package: 'chessground',
+    ),
+    PieceKind.whiteBishop: AssetImage(
+      '$_pieceSetsPath/xkcd/wB.png',
+      package: 'chessground',
+    ),
+    PieceKind.whiteQueen: AssetImage(
+      '$_pieceSetsPath/xkcd/wQ.png',
+      package: 'chessground',
+    ),
+    PieceKind.whiteKing: AssetImage(
+      '$_pieceSetsPath/xkcd/wK.png',
       package: 'chessground',
     ),
   });
