@@ -37,6 +37,7 @@ flutter:
     - assets/piece_sets/disguised/
     - assets/piece_sets/dubrovny/
     - assets/piece_sets/fantasy/
+    - assets/piece_sets/firi/
     - assets/piece_sets/fresca/
     - assets/piece_sets/gioco/
     - assets/piece_sets/governor/
@@ -61,4 +62,5 @@ flutter:
     - assets/piece_sets/staunty/
     - assets/piece_sets/symmetric/
     - assets/piece_sets/tatiana/
+    - assets/piece_sets/xkcd/
     - assets/boards/

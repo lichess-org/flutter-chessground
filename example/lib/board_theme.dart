@@ -23,6 +23,7 @@ enum BoardTheme {
   metal('Metal', ChessboardColorScheme.metal),
   olive('Olive', ChessboardColorScheme.olive),
   newspaper('Newspaper', ChessboardColorScheme.newspaper),
+  purple('Purple', ChessboardColorScheme.purple),
   purpleDiag('Purple-Diag', ChessboardColorScheme.purpleDiag),
   pinkPyramid('Pink', ChessboardColorScheme.pinkPyramid),
   horsey('Horsey', ChessboardColorScheme.horsey);

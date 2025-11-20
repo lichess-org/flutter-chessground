@@ -611,6 +611,33 @@ class ChessboardColorScheme {
     validPremoves: Color(0x40203085),
   );
 
+  static const purple = ChessboardColorScheme(
+    lightSquare: Color(0xff9f90b0),
+    darkSquare: Color(0xff7d4a8d),
+    background: ImageChessboardBackground(
+      lightSquare: Color(0xff9f90b0),
+      darkSquare: Color(0xff7d4a8d),
+      image: AssetImage('$_boardsPath/purple.png', package: 'chessground'),
+    ),
+    whiteCoordBackground: ImageChessboardBackground(
+      lightSquare: Color(0xff9f90b0),
+      darkSquare: Color(0xff7d4a8d),
+      image: AssetImage('$_boardsPath/purple.png', package: 'chessground'),
+      coordinates: true,
+    ),
+    blackCoordBackground: ImageChessboardBackground(
+      lightSquare: Color(0xff9f90b0),
+      darkSquare: Color(0xff7d4a8d),
+      image: AssetImage('$_boardsPath/purple.png', package: 'chessground'),
+      coordinates: true,
+      orientation: Side.black,
+    ),
+    lastMove: HighlightDetails(solidColor: Color(0x809cc700)),
+    selected: HighlightDetails(solidColor: Color(0x6014551e)),
+    validMoves: Color(0x4014551e),
+    validPremoves: Color(0x40203085),
+  );
+
   static const purpleDiag = ChessboardColorScheme(
     lightSquare: Color(0xffe5daf0),
     darkSquare: Color(0xff957ab0),
