@@ -1,3 +1,9 @@
+## 7.3.0
+
+- New piece sets: firi and xkcd,
+- New board: purple,
+- Fixed Staunty knights that were not correctly centered.
+
 ## 7.2.0
 
 - Add RhosGFX piece set.
