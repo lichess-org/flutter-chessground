@@ -531,19 +531,21 @@ class _HomePageState extends State<HomePage> {
         return AlertDialog(
           contentPadding: const EdgeInsets.only(top: 12),
           scrollable: true,
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: choices.map((value) {
-              return RadioListTile<T>(
-                title: labelBuilder(value),
-                value: value,
-                groupValue: selectedItem,
-                onChanged: (value) {
-                  if (value != null) onSelectedItemChanged(value);
-                  Navigator.of(context).pop();
-                },
-              );
-            }).toList(growable: false),
+          content: RadioGroup<T>(
+            groupValue: selectedItem,
+            onChanged: (value) {
+              if (value != null) onSelectedItemChanged(value);
+              Navigator.of(context).pop();
+            },
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: choices.map((value) {
+                return RadioListTile<T>(
+                  title: labelBuilder(value),
+                  value: value,
+                );
+              }).toList(growable: false),
+            ),
           ),
           actions: [
             TextButton(
