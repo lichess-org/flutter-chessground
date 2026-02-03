@@ -75,9 +75,9 @@ class _HomePageState extends State<HomePage> {
   Position position = Chess.initial;
   Side orientation = Side.white;
   String fen = kInitialBoardFEN;
-  NormalMove? lastMove;
+  Move? lastMove;
   NormalMove? promotionMove;
-  NormalMove? premove;
+  Move? premove;
   ValidMoves validMoves = IMap(const {});
   Side sideToMove = Side.white;
   PieceSet pieceSet = PieceSet.gioco;
@@ -87,10 +87,22 @@ class _HomePageState extends State<HomePage> {
   bool drawMode = true;
   bool pieceAnimation = true;
   bool dragMagnify = true;
+  bool testDropMoves = false;
   Mode playMode = Mode.botPlay;
   Position? lastPos;
   ISet<Shape> shapes = ISet();
   bool showBorder = false;
+
+  Position get initialPosition => testDropMoves
+      ? Crazyhouse.initial.copyWith(
+          // Fill initial pockets for easier testing
+          pockets: Pockets.empty
+              .increment(Side.white, Role.pawn)
+              .increment(Side.white, Role.knight)
+              .increment(Side.white, Role.bishop)
+              .increment(Side.white, Role.rook)
+              .increment(Side.white, Role.queen))
+      : Chess.initial;
 
   @override
   Widget build(BuildContext context) {
@@ -99,7 +111,7 @@ class _HomePageState extends State<HomePage> {
         label: const Text('New Round'),
         onPressed: () {
           setState(() {
-            position = Chess.initial;
+            position = initialPosition;
             fen = position.fen;
             validMoves = makeLegalMoves(position);
             lastMove = null;
@@ -280,6 +292,15 @@ class _HomePageState extends State<HomePage> {
                     },
                   ),
                 ),
+                _buildSettingsButton(
+                    label: 'Test Drop Moves',
+                    value: testDropMoves ? 'ON' : 'OFF',
+                    onPressed: () {
+                      setState(() {
+                        testDropMoves = !testDropMoves;
+                        position = initialPosition;
+                      });
+                    }),
               ],
             ),
           ],
@@ -299,41 +320,42 @@ class _HomePageState extends State<HomePage> {
       },
     );
 
+    final settings = ChessboardSettings(
+      pieceAssets: pieceSet.assets,
+      colorScheme: boardTheme.colors,
+      border: showBorder
+          ? BoardBorder(
+              width: 16.0,
+              color: _darken(boardTheme.colors.darkSquare, 0.2),
+            )
+          : null,
+      enableCoordinates: true,
+      animationDuration:
+          pieceAnimation ? const Duration(milliseconds: 200) : Duration.zero,
+      dragFeedbackScale: dragMagnify ? 2.0 : 1.0,
+      dragTargetKind: dragTargetKind,
+      drawShape: DrawShapeOptions(
+        enable: drawMode,
+        onCompleteShape: _onCompleteShape,
+        onClearShapes: () {
+          setState(() {
+            shapes = ISet();
+          });
+        },
+      ),
+      pieceShiftMethod: pieceShiftMethod,
+      autoQueenPromotionOnPremove: false,
+      pieceOrientationBehavior: playMode == Mode.freePlay
+          ? PieceOrientationBehavior.opponentUpsideDown
+          : PieceOrientationBehavior.facingUser,
+      enableDropMoves: testDropMoves,
+    );
     Widget _buildChessBoardWidget() => Center(
           child: LayoutBuilder(
             builder: (context, constraints) {
-              return Chessboard(
+              final chessboard = Chessboard(
                 size: min(constraints.maxWidth, constraints.maxHeight),
-                settings: ChessboardSettings(
-                  pieceAssets: pieceSet.assets,
-                  colorScheme: boardTheme.colors,
-                  border: showBorder
-                      ? BoardBorder(
-                          width: 16.0,
-                          color: _darken(boardTheme.colors.darkSquare, 0.2),
-                        )
-                      : null,
-                  enableCoordinates: true,
-                  animationDuration: pieceAnimation
-                      ? const Duration(milliseconds: 200)
-                      : Duration.zero,
-                  dragFeedbackScale: dragMagnify ? 2.0 : 1.0,
-                  dragTargetKind: dragTargetKind,
-                  drawShape: DrawShapeOptions(
-                    enable: drawMode,
-                    onCompleteShape: _onCompleteShape,
-                    onClearShapes: () {
-                      setState(() {
-                        shapes = ISet();
-                      });
-                    },
-                  ),
-                  pieceShiftMethod: pieceShiftMethod,
-                  autoQueenPromotionOnPremove: false,
-                  pieceOrientationBehavior: playMode == Mode.freePlay
-                      ? PieceOrientationBehavior.opponentUpsideDown
-                      : PieceOrientationBehavior.facingUser,
-                ),
+                settings: settings,
                 orientation: orientation,
                 fen: fen,
                 lastMove: lastMove,
@@ -359,6 +381,29 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
                 shapes: shapes.isNotEmpty ? shapes : null,
+              );
+
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  if (testDropMoves)
+                    CrazyhouseMenu(
+                      position: position,
+                      side: Side.black,
+                      pieceSet: pieceSet,
+                      squareSize: chessboard.squareSize,
+                      settings: settings,
+                    ),
+                  chessboard,
+                  if (testDropMoves)
+                    CrazyhouseMenu(
+                      position: position,
+                      side: Side.white,
+                      pieceSet: pieceSet,
+                      squareSize: chessboard.squareSize,
+                      settings: settings,
+                    ),
+                ],
               );
             },
           ),
@@ -564,7 +609,7 @@ class _HomePageState extends State<HomePage> {
     super.initState();
   }
 
-  void _onSetPremove(NormalMove? move) {
+  void _onSetPremove(Move? move) {
     setState(() {
       premove = move;
     });
@@ -588,9 +633,9 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  void _playMove(NormalMove move, {bool? isDrop, bool? isPremove}) {
+  void _playMove(Move move, {bool? isDrop, bool? isPremove}) {
     lastPos = position;
-    if (isPromotionPawnMove(move)) {
+    if (move is NormalMove && isPromotionPawnMove(move)) {
       setState(() {
         promotionMove = move;
       });
@@ -608,9 +653,9 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  void _onUserMoveAgainstBot(NormalMove move, {isDrop}) async {
+  void _onUserMoveAgainstBot(Move move, {isDrop}) async {
     lastPos = position;
-    if (isPromotionPawnMove(move)) {
+    if (move is NormalMove && isPromotionPawnMove(move)) {
       setState(() {
         promotionMove = move;
       });
@@ -672,4 +717,62 @@ class _HomePageState extends State<HomePage> {
 Color _darken(Color c, [double amount = .1]) {
   assert(amount >= 0 && amount <= 1);
   return Color.lerp(c, const Color(0xFF000000), amount) ?? c;
+}
+
+class CrazyhouseMenu extends StatelessWidget {
+  const CrazyhouseMenu({
+    super.key,
+    required this.side,
+    required this.pieceSet,
+    required this.squareSize,
+    required this.settings,
+    required this.position,
+  });
+
+  final Side side;
+  final PieceSet pieceSet;
+  final double squareSize;
+  final Position position;
+
+  final ChessboardSettings settings;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: Colors.grey,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: Role.values.where((role) => role != Role.king).map(
+          (role) {
+            final piece = Piece(role: role, color: side);
+
+            final hasPieceInPocket =
+                (position.pockets?.of(side, role) ?? 0) > 0;
+
+            return IgnorePointer(
+              ignoring: !hasPieceInPocket,
+              child: Draggable(
+                data: piece,
+                feedback: PieceDragFeedback(
+                  scale: settings.dragFeedbackScale,
+                  squareSize: squareSize,
+                  piece: piece,
+                  pieceAssets: pieceSet.assets,
+                ),
+                child: PieceWidget(
+                  piece: piece,
+                  size: squareSize,
+                  pieceAssets: pieceSet.assets,
+                  opacity: hasPieceInPocket
+                      ? null
+                      : const AlwaysStoppedAnimation(0.3),
+                ),
+              ),
+            );
+          },
+        ).toList(),
+      ),
+    );
+  }
 }

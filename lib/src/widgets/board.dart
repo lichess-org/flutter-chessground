@@ -136,7 +136,7 @@ class _BoardState extends State<Chessboard> {
   Square? selected;
 
   /// Last move that was played using drag and drop.
-  NormalMove? _lastDrop;
+  Move? _lastDrop;
 
   /// Squares that the selected piece can premove to.
   Set<Square>? _premoveDests;
@@ -381,6 +381,45 @@ class _BoardState extends State<Chessboard> {
           square: entry.key,
           annotation: entry.value,
         ),
+      if (settings.enableDropMoves)
+        ...Square.values.map((square) {
+          return PositionedSquare(
+            key: ValueKey('${square.name}-drag-target'),
+            size: widget.size,
+            orientation: widget.orientation,
+            square: square,
+            child: DragTarget<Piece>(
+              hitTestBehavior: HitTestBehavior.opaque,
+              builder:
+                  (context, candidateData, _) =>
+                      candidateData.isNotEmpty
+                          ? Transform.scale(
+                            scale: 2,
+                            child: Container(
+                              decoration: const BoxDecoration(
+                                color: Color(0x33000000),
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                          )
+                          : const SizedBox.shrink(),
+
+              onAcceptWithDetails: (details) {
+                final game = widget.game;
+                if (game == null) return;
+
+                final piece = details.data;
+                final move = DropMove(to: square, role: details.data.role);
+                if (game.sideToMove == piece.color) {
+                  game.onMove(move, isDrop: true);
+                  _lastDrop = move;
+                } else if (game.premovable != null) {
+                  game.premovable?.onSetPremove.call(move);
+                }
+              },
+            ),
+          );
+        }),
     ];
 
     final board = Listener(
@@ -656,8 +695,9 @@ class _BoardState extends State<Chessboard> {
 
     // there is a premove set from the touched square:
     // - cancel the premove on the next tap up event
-    if (widget.game?.premovable?.premove != null &&
-        widget.game?.premovable?.premove!.from == square) {
+    if (widget.game?.premovable?.premove case NormalMove(
+      :final from,
+    ) when from == square) {
       _shouldCancelPremoveOnTapUp = true;
     }
 
@@ -779,11 +819,13 @@ class _BoardState extends State<Chessboard> {
     }
 
     // cancel premove if the user taps on the origin square of the premove
-    if (_shouldCancelPremoveOnTapUp &&
-        widget.game?.premovable?.premove != null &&
-        widget.game?.premovable?.premove!.from == square) {
-      _shouldCancelPremoveOnTapUp = false;
-      widget.game?.premovable?.onSetPremove.call(null);
+    if (_shouldCancelPremoveOnTapUp) {
+      if (widget.game?.premovable?.premove case NormalMove(
+        :final from,
+      ) when from == square) {
+        _shouldCancelPremoveOnTapUp = false;
+        widget.game?.premovable?.onSetPremove.call(null);
+      }
     }
 
     _shouldDeselectOnTapUp = false;
