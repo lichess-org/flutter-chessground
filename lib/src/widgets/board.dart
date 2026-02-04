@@ -409,8 +409,14 @@ class _BoardState extends State<Chessboard> {
                 if (game == null) return;
 
                 final piece = details.data;
+                final backRankPawnDrop =
+                    piece.role == Role.pawn &&
+                    (square.rank == Rank.first || square.rank == Rank.eighth);
+                if (backRankPawnDrop) return;
+
                 final move = DropMove(to: square, role: details.data.role);
-                if (game.sideToMove == piece.color) {
+                if (game.sideToMove == piece.color &&
+                    !pieces.containsKey(square)) {
                   game.onMove(move, isDrop: true);
                   _lastDrop = move;
                 } else if (game.premovable != null) {
