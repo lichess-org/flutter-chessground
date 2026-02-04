@@ -517,6 +517,71 @@ void main() {
       expect(find.byKey(const Key('e5-blackknight')), findsOneWidget);
     });
 
+    testWidgets('Cannot move pawns onto the back rank', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        _TestApp(
+          initialPlayerSide: PlayerSide.both,
+          initialFen: '8/7K/8/8/8/8/7k/8[PN] w - - 0 1',
+          rule: Rule.crazyhouse,
+          settings: const ChessboardSettings(enableDropMoves: true),
+          bottomWidget: Column(
+            children: [
+              Draggable(
+                key: const Key('whitePawn'),
+                data: Piece.whitePawn,
+                feedback: const SizedBox.shrink(),
+                child: PieceWidget(
+                  piece: Piece.whitePawn,
+                  size: squareSize,
+                  pieceAssets: PieceSet.merida.assets,
+                ),
+              ),
+              Draggable(
+                key: const Key('whiteKnight'),
+                data: Piece.whiteKnight,
+                feedback: const SizedBox.shrink(),
+                child: PieceWidget(
+                  piece: Piece.whiteKnight,
+                  size: squareSize,
+                  pieceAssets: PieceSet.merida.assets,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+
+      final whitePawnDraggable = find.byKey(const Key('whitePawn'));
+
+      await tester.drag(
+        whitePawnDraggable,
+        tester.getCenter(find.byKey(const Key('a1-drag-target'))) -
+            tester.getCenter(whitePawnDraggable),
+      );
+      await tester.drag(
+        whitePawnDraggable,
+        tester.getCenter(find.byKey(const Key('a8-drag-target'))) -
+            tester.getCenter(whitePawnDraggable),
+      );
+
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('a8-whitepawn')), findsNothing);
+      expect(find.byKey(const Key('a1-whitepawn')), findsNothing);
+
+      // Dragging other pieces onto the back rank should work though
+      final whiteKnightDraggable = find.byKey(const Key('whiteKnight'));
+      await tester.drag(
+        whiteKnightDraggable,
+        tester.getCenter(find.byKey(const Key('a8-drag-target'))) -
+            tester.getCenter(whiteKnightDraggable),
+      );
+
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('a8-whiteknight')), findsOneWidget);
+    });
+
     testWidgets('no drag targets if drop moves not explicitly enabled', (
       WidgetTester tester,
     ) async {
