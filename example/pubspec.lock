@@ -31,7 +31,7 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "7.3.0"
+    version: "7.4.0"
   clock:
     dependency: transitive
     description:
@@ -60,10 +60,10 @@ packages:
     dependency: "direct main"
     description:
       name: dartchess
-      sha256: ebb1265721d6094d1d3107d85d57c09b68efcd07a7095b3cd036252701104514
+      sha256: a41fa4bb8d949599c17927c444c63feb88330cc103dde35c4303ac4b1a351707
       url: "https://pub.dev"
     source: hosted
-    version: "0.11.0"
+    version: "0.12.0"
   fake_async:
     dependency: transitive
     description:

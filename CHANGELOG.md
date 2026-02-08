@@ -1,3 +1,7 @@
+## 7.4.0
+
+- Update dartchess to 0.12.0
+
 ## 7.3.0
 
 - New piece sets: firi and xkcd,
