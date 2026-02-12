@@ -654,6 +654,40 @@ void main() {
     });
 
     testWidgets(
+      'piece is deselected when fen changes externally',
+      (WidgetTester tester) async {
+        final controller = StreamController<GameEvent>.broadcast();
+
+        addTearDown(() {
+          controller.close();
+        });
+
+        await tester.pumpWidget(
+          _TestApp(
+            initialFen:
+                'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
+            initialPlayerSide: PlayerSide.white,
+            gameEventStream: controller.stream,
+          ),
+        );
+
+        // Select a white piece (premove selection since it's black's turn)
+        await tester.tapAt(squareOffset(tester, Square.d2));
+        await tester.pump();
+        expect(find.byKey(const Key('d2-selected')), findsOneWidget);
+        expect(find.byType(ValidMoveHighlight), findsNWidgets(4));
+
+        // Simulate external FEN change (opponent plays a move)
+        controller.add(GameEvent.externalMove);
+        await tester.pump(const Duration(milliseconds: 1));
+
+        // Selection should be cleared
+        expect(find.byKey(const Key('d2-selected')), findsNothing);
+        expect(find.byType(ValidMoveHighlight), findsNothing);
+      },
+    );
+
+    testWidgets(
       'cancel piece selection if board is made non interactive again',
       (WidgetTester tester) async {
         final controller = StreamController<GameEvent>.broadcast();
@@ -1786,6 +1820,9 @@ enum GameEvent {
 
   /// Simulates an event that would make the board interactive again
   interactiveBoardEvent,
+
+  /// Simulates an external move (e.g. opponent move from server)
+  externalMove,
 }
 
 class _TestApp extends StatefulWidget {
@@ -1873,6 +1910,18 @@ class _TestAppState extends State<_TestApp> {
       case GameEvent.interactiveBoardEvent:
         setState(() {
           interactiveSide = widget.initialPlayerSide;
+        });
+      case GameEvent.externalMove:
+        setState(() {
+          final allMoves = [
+            for (final entry in position.legalMoves.entries)
+              for (final dest in entry.value.squares)
+                NormalMove(from: entry.key, to: dest),
+          ];
+          if (allMoves.isNotEmpty) {
+            position = position.playUnchecked(allMoves.first);
+            lastMove = allMoves.first;
+          }
         });
     }
   }
