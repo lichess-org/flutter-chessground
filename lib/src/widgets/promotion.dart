@@ -58,10 +58,7 @@ class PromotionSelector extends StatelessWidget with ChessboardGeometry {
     final anchorSquare =
         isPromotionSquareAtTop
             ? square
-            : Square.fromCoords(
-              square.file,
-              orientation == Side.white ? Rank.fourth : Rank.fifth,
-            );
+            : Square.fromCoords(square.file, orientation == Side.white ? Rank.fourth : Rank.fifth);
     final pieces =
         isPromotionSquareAtTop
             ? [

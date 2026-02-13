@@ -91,9 +91,7 @@ class ChessgroundImages {
   /// The [devicePixelRatio] can be specified to load the image at a different
   /// resolution than the default.
   Future<ui.Image> load(AssetImage asset, {double? devicePixelRatio}) async {
-    final key = await asset.obtainKey(
-      ImageConfiguration(devicePixelRatio: devicePixelRatio),
-    );
+    final key = await asset.obtainKey(ImageConfiguration(devicePixelRatio: devicePixelRatio));
     return (_assets[asset] ??= _ImageEntry.future(
           _fetchToMemory(asset.bundle ?? rootBundle, key.name),
         ))
@@ -102,8 +100,7 @@ class ChessgroundImages {
 
   /// Loads the specified [base64] image into the cache.
   Future<ui.Image> loadBase64(AssetImage asset, String base64) {
-    return (_assets[asset] ??= _ImageEntry.future(_fetchFromBase64(base64)))
-        .retrieveAsync();
+    return (_assets[asset] ??= _ImageEntry.future(_fetchFromBase64(base64))).retrieveAsync();
   }
 
   /// Whether the cache contains the specified [key] or not.
@@ -113,9 +110,7 @@ class ChessgroundImages {
   List<AssetImage> get keys => _assets.keys.toList();
 
   AssetImage? findKeyForImage(ui.Image image) {
-    return _assets.keys.firstWhere(
-      (k) => _assets[k]?.image?.isCloneOf(image) ?? false,
-    );
+    return _assets.keys.firstWhere((k) => _assets[k]?.image?.isCloneOf(image) ?? false);
   }
 
   /// Waits until all currently pending image loading operations complete.

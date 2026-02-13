@@ -22,11 +22,7 @@ Set<Square> premovesOf(Square square, Pieces pieces, {bool canCastle = false}) {
           case Role.queen:
             return _queen;
           case Role.king:
-            return _king(
-              piece.color,
-              _rookFilesOf(pieces, piece.color),
-              canCastle,
-            );
+            return _king(piece.color, _rookFilesOf(pieces, piece.color), canCastle);
         }
       })();
 
@@ -77,8 +73,7 @@ _Mobility _king(Side color, List<File> rookFiles, bool canCastle) {
           y1 == y2 &&
           y1 == (color == Side.white ? 0 : 7) &&
           ((x1 == 4 &&
-                  ((x2 == 2 && rookFiles.contains(0)) ||
-                      (x2 == 6 && rookFiles.contains(7)))) ||
+                  ((x2 == 2 && rookFiles.contains(0)) || (x2 == 6 && rookFiles.contains(7)))) ||
               rookFiles.contains(x2)));
 }
 
@@ -86,9 +81,7 @@ List<File> _rookFilesOf(Pieces pieces, Side color) {
   final backrank = color == Side.white ? Rank.first : Rank.eighth;
   final List<File> files = [];
   for (final entry in pieces.entries) {
-    if (entry.key.rank == backrank &&
-        entry.value.color == color &&
-        entry.value.role == Role.rook) {
+    if (entry.key.rank == backrank && entry.value.color == color && entry.value.role == Role.rook) {
       files.add(entry.key.file);
     }
   }

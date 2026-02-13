@@ -32,12 +32,7 @@ class BoardShapeWidget extends StatelessWidget with ChessboardGeometry {
   @override
   Widget build(BuildContext context) {
     switch (shape) {
-      case Arrow(
-        color: final color,
-        orig: final orig,
-        dest: final dest,
-        scale: final scale,
-      ):
+      case Arrow(color: final color, orig: final orig, dest: final dest, scale: final scale):
         return SizedBox.square(
           dimension: size,
           child: CustomPaint(
@@ -54,12 +49,7 @@ class BoardShapeWidget extends StatelessWidget with ChessboardGeometry {
         return SizedBox.square(
           dimension: size,
           child: CustomPaint(
-            painter: _CirclePainter(
-              color,
-              orientation,
-              squareOffset(orig),
-              scale,
-            ),
+            painter: _CirclePainter(color, orientation, squareOffset(orig), scale),
           ),
         );
       case PieceShape(
@@ -92,13 +82,7 @@ class BoardShapeWidget extends StatelessWidget with ChessboardGeometry {
 }
 
 class _ArrowPainter extends CustomPainter {
-  _ArrowPainter(
-    this.color,
-    this.orientation,
-    this.fromOffset,
-    this.toOffset,
-    this.scale,
-  );
+  _ArrowPainter(this.color, this.orientation, this.fromOffset, this.toOffset, this.scale);
 
   final Color color;
   final Side orientation;
@@ -119,14 +103,8 @@ class _ArrowPainter extends CustomPainter {
     final shift = Offset(squareSize / 2, squareSize / 2);
     final margin = squareSize / 3;
 
-    final angle = math.atan2(
-      toOffset.dy - fromOffset.dy,
-      toOffset.dx - fromOffset.dx,
-    );
-    final fromMarginOffset = Offset(
-      margin * math.cos(angle),
-      margin * math.sin(angle),
-    );
+    final angle = math.atan2(toOffset.dy - fromOffset.dy, toOffset.dx - fromOffset.dx);
+    final fromMarginOffset = Offset(margin * math.cos(angle), margin * math.sin(angle));
     final arrowSize = scale * squareSize * 0.48;
     const arrowAngle = math.pi / 5;
 
@@ -146,10 +124,7 @@ class _ArrowPainter extends CustomPainter {
     path.close();
 
     final arrowHeight = arrowSize * math.sin((math.pi - (arrowAngle * 2)) / 2);
-    final arrowOffset = Offset(
-      arrowHeight * math.cos(angle),
-      arrowHeight * math.sin(angle),
-    );
+    final arrowOffset = Offset(arrowHeight * math.cos(angle), arrowHeight * math.sin(angle));
 
     canvas.drawLine(from, to - arrowOffset, paint);
 

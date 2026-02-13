@@ -19,8 +19,7 @@ void main() {
       }
     });
 
-    testWidgets('displays pieces on the correct squares',
-        (WidgetTester tester) async {
+    testWidgets('displays pieces on the correct squares', (WidgetTester tester) async {
       await tester.pumpWidget(
         buildBoard(
           pieces: {
@@ -61,32 +60,22 @@ void main() {
         size: boardSize,
         orientation: Side.white,
         pieces: {},
-        settings: ChessboardSettings(
-          border: BoardBorder(
-            width: 16.0,
-            color: Color(0xFF000000),
-          ),
-        ),
+        settings: ChessboardSettings(border: BoardBorder(width: 16.0, color: Color(0xFF000000))),
       );
 
       await tester.pumpWidget(board);
 
-      final size = tester.getSize(
-        find.byType(SolidColorChessboardBackground),
-      );
+      final size = tester.getSize(find.byType(SolidColorChessboardBackground));
       expect(size.width, boardSize - 32.0);
       expect(size.height, boardSize - 32.0);
     });
 
-    testWidgets('change in hue will use a color filter',
-        (WidgetTester tester) async {
+    testWidgets('change in hue will use a color filter', (WidgetTester tester) async {
       const board = ChessboardEditor(
         size: boardSize,
         orientation: Side.white,
         pieces: {},
-        settings: ChessboardSettings(
-          hue: 100.0,
-        ),
+        settings: ChessboardSettings(hue: 100.0),
       );
 
       await tester.pumpWidget(board);
@@ -94,15 +83,12 @@ void main() {
       expect(find.byType(ColorFiltered), findsOneWidget);
     });
 
-    testWidgets('change in brightness will use a color filter',
-        (WidgetTester tester) async {
+    testWidgets('change in brightness will use a color filter', (WidgetTester tester) async {
       const board = ChessboardEditor(
         size: boardSize,
         orientation: Side.white,
         pieces: {},
-        settings: ChessboardSettings(
-          brightness: 0.9,
-        ),
+        settings: ChessboardSettings(brightness: 0.9),
       );
 
       await tester.pumpWidget(board);
@@ -111,51 +97,45 @@ void main() {
     });
 
     testWidgets(
-        'touching a square triggers the onEditedSquare callback when the board pointer tool mode is `edit`',
-        (WidgetTester tester) async {
-      for (final orientation in Side.values) {
+      'touching a square triggers the onEditedSquare callback when the board pointer tool mode is `edit`',
+      (WidgetTester tester) async {
+        for (final orientation in Side.values) {
+          Square? tappedSquare;
+          await tester.pumpWidget(
+            buildBoard(
+              pieces: {},
+              pointerMode: EditorPointerMode.edit,
+              onEditedSquare: (square) => tappedSquare = square,
+              orientation: orientation,
+            ),
+          );
+
+          await tester.tapAt(squareOffset(Square.a1, orientation: orientation));
+          expect(tappedSquare, Square.a1);
+
+          await tester.tapAt(squareOffset(Square.g8, orientation: orientation));
+          expect(tappedSquare, Square.g8);
+        }
+      },
+    );
+
+    testWidgets(
+      'touching a square does not trigger the onEditedSquare callback when the board pointer tool mode is `drag`',
+      (WidgetTester tester) async {
         Square? tappedSquare;
         await tester.pumpWidget(
-          buildBoard(
-            pieces: {},
-            pointerMode: EditorPointerMode.edit,
-            onEditedSquare: (square) => tappedSquare = square,
-            orientation: orientation,
-          ),
+          buildBoard(pieces: {}, onEditedSquare: (square) => tappedSquare = square),
         );
 
-        await tester.tapAt(
-          squareOffset(Square.a1, orientation: orientation),
-        );
-        expect(tappedSquare, Square.a1);
+        await tester.tapAt(squareOffset(Square.a1));
+        expect(tappedSquare, null);
 
-        await tester.tapAt(
-          squareOffset(Square.g8, orientation: orientation),
-        );
-        expect(tappedSquare, Square.g8);
-      }
-    });
+        await tester.tapAt(squareOffset(Square.g8));
+        expect(tappedSquare, null);
+      },
+    );
 
-    testWidgets(
-        'touching a square does not trigger the onEditedSquare callback when the board pointer tool mode is `drag`',
-        (WidgetTester tester) async {
-      Square? tappedSquare;
-      await tester.pumpWidget(
-        buildBoard(
-          pieces: {},
-          onEditedSquare: (square) => tappedSquare = square,
-        ),
-      );
-
-      await tester.tapAt(squareOffset(Square.a1));
-      expect(tappedSquare, null);
-
-      await tester.tapAt(squareOffset(Square.g8));
-      expect(tappedSquare, null);
-    });
-
-    testWidgets('pan movements trigger the onEditedSquare callback',
-        (WidgetTester tester) async {
+    testWidgets('pan movements trigger the onEditedSquare callback', (WidgetTester tester) async {
       final Set<Square> touchedSquares = {};
       await tester.pumpWidget(
         buildBoard(
@@ -201,10 +181,10 @@ void main() {
       });
     });
 
-    testWidgets('dragging pieces to a new square calls onDroppedPiece',
-        (WidgetTester tester) async {
-      (Square? origin, Square? destination, Piece? piece) callbackParams =
-          (null, null, null);
+    testWidgets('dragging pieces to a new square calls onDroppedPiece', (
+      WidgetTester tester,
+    ) async {
+      (Square? origin, Square? destination, Piece? piece) callbackParams = (null, null, null);
 
       await tester.pumpWidget(
         buildBoard(
@@ -214,33 +194,24 @@ void main() {
       );
 
       // Drag an empty square => nothing happens
-      await tester.dragFrom(
-        squareOffset(Square.e4),
-        const Offset(0, -(squareSize * 2)),
-      );
+      await tester.dragFrom(squareOffset(Square.e4), const Offset(0, -(squareSize * 2)));
       await tester.pumpAndSettle();
       expect(callbackParams, (null, null, null));
 
       // Play e2-e4 (legal move)
-      await tester.dragFrom(
-        squareOffset(Square.e2),
-        const Offset(0, -(squareSize * 2)),
-      );
+      await tester.dragFrom(squareOffset(Square.e2), const Offset(0, -(squareSize * 2)));
       await tester.pumpAndSettle();
       expect(callbackParams, (Square.e2, Square.e4, Piece.whitePawn));
 
       // Capture our own piece (illegal move)
-      await tester.dragFrom(
-        squareOffset(Square.a1),
-        const Offset(squareSize, 0),
-      );
+      await tester.dragFrom(squareOffset(Square.a1), const Offset(squareSize, 0));
       expect(callbackParams, (Square.a1, Square.b1, Piece.whiteRook));
     });
 
-    testWidgets('dragging a piece onto the board calls onDroppedPiece',
-        (WidgetTester tester) async {
-      (Square? origin, Square? destination, Piece? piece) callbackParams =
-          (null, null, null);
+    testWidgets('dragging a piece onto the board calls onDroppedPiece', (
+      WidgetTester tester,
+    ) async {
+      (Square? origin, Square? destination, Piece? piece) callbackParams = (null, null, null);
 
       await tester.pumpWidget(
         MaterialApp(
@@ -273,18 +244,15 @@ void main() {
       final pieceDraggable = find.byKey(const Key('new piece'));
       final pieceCenter = tester.getCenter(pieceDraggable);
 
-      final newSquareCenter =
-          tester.getCenter(find.byKey(const Key('e2-empty')));
+      final newSquareCenter = tester.getCenter(find.byKey(const Key('e2-empty')));
 
-      await tester.drag(
-        pieceDraggable,
-        newSquareCenter - pieceCenter,
-      );
+      await tester.drag(pieceDraggable, newSquareCenter - pieceCenter);
       expect(callbackParams, (null, Square.e2, Piece.whitePawn));
     });
 
-    testWidgets('dragging a piece off the board calls onDiscardedPiece',
-        (WidgetTester tester) async {
+    testWidgets('dragging a piece off the board calls onDiscardedPiece', (
+      WidgetTester tester,
+    ) async {
       Square? discardedSquare;
       await tester.pumpWidget(
         buildBoard(
@@ -293,10 +261,7 @@ void main() {
         ),
       );
 
-      await tester.dragFrom(
-        squareOffset(Square.e1),
-        const Offset(0, squareSize),
-      );
+      await tester.dragFrom(squareOffset(Square.e1), const Offset(0, squareSize));
       await tester.pumpAndSettle();
       expect(discardedSquare, Square.e1);
     });
@@ -308,8 +273,7 @@ Widget buildBoard({
   Side orientation = Side.white,
   EditorPointerMode pointerMode = EditorPointerMode.drag,
   void Function(Square square)? onEditedSquare,
-  void Function(Square? origin, Square destination, Piece piece)?
-      onDroppedPiece,
+  void Function(Square? origin, Square destination, Piece piece)? onDroppedPiece,
   void Function(Square square)? onDiscardedPiece,
 }) {
   return MaterialApp(

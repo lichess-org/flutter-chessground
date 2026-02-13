@@ -7,11 +7,7 @@ import 'package:chessground/chessground.dart';
 const boardSize = 200.0;
 
 void main() {
-  const board = StaticChessboard(
-    size: boardSize,
-    orientation: Side.white,
-    fen: kInitialFEN,
-  );
+  const board = StaticChessboard(size: boardSize, orientation: Side.white, fen: kInitialFEN);
 
   testWidgets('initial position display', (WidgetTester tester) async {
     await tester.pumpWidget(board);
@@ -20,9 +16,7 @@ void main() {
     expect(find.byType(PieceWidget), findsNWidgets(32));
   });
 
-  testWidgets('background is constrained to the size of the board', (
-    WidgetTester tester,
-  ) async {
+  testWidgets('background is constrained to the size of the board', (WidgetTester tester) async {
     await tester.pumpWidget(board);
 
     final size = tester.getSize(find.byType(SolidColorChessboardBackground));
@@ -30,8 +24,7 @@ void main() {
     expect(size.height, boardSize);
   });
 
-  testWidgets('change in hue will use a color filter',
-      (WidgetTester tester) async {
+  testWidgets('change in hue will use a color filter', (WidgetTester tester) async {
     const board = StaticChessboard(
       size: boardSize,
       orientation: Side.white,
@@ -44,8 +37,7 @@ void main() {
     expect(find.byType(ColorFiltered), findsOneWidget);
   });
 
-  testWidgets('change in brightness will use a color filter',
-      (WidgetTester tester) async {
+  testWidgets('change in brightness will use a color filter', (WidgetTester tester) async {
     const board = StaticChessboard(
       size: boardSize,
       orientation: Side.white,
@@ -58,13 +50,8 @@ void main() {
     expect(find.byType(ColorFiltered), findsOneWidget);
   });
 
-  testWidgets('moved piece is animated when the position change',
-      (WidgetTester tester) async {
-    const board = StaticChessboard(
-      size: boardSize,
-      orientation: Side.white,
-      fen: kInitialFEN,
-    );
+  testWidgets('moved piece is animated when the position change', (WidgetTester tester) async {
+    const board = StaticChessboard(size: boardSize, orientation: Side.white, fen: kInitialFEN);
 
     await tester.pumpWidget(board);
 
@@ -82,8 +69,7 @@ void main() {
     expect(find.byType(PieceWidget), findsNWidgets(32));
     expect(find.byType(AnimatedPieceTranslation), findsOneWidget);
     final translation =
-        tester.firstWidget(find.byType(AnimatedPieceTranslation))
-            as AnimatedPieceTranslation;
+        tester.firstWidget(find.byType(AnimatedPieceTranslation)) as AnimatedPieceTranslation;
     expect(translation.fromSquare, Square.e2);
     expect(translation.toSquare, Square.e4);
     expect(translation.orientation, Side.white);
@@ -94,8 +80,9 @@ void main() {
     expect(find.byType(AnimatedPieceTranslation), findsNothing);
   });
 
-  testWidgets('several pieces can be animated when the position change',
-      (WidgetTester tester) async {
+  testWidgets('several pieces can be animated when the position change', (
+    WidgetTester tester,
+  ) async {
     const board = Chessboard.fixed(
       size: boardSize,
       orientation: Side.white,

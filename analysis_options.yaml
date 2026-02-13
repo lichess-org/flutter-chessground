@@ -6,6 +6,8 @@ analyzer:
     strict-inference: true
     strict-raw-types: true
 
+formatter:
+  page_width: 100
 
 linter:
   rules:

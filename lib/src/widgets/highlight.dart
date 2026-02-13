@@ -16,9 +16,7 @@ class SquareHighlight extends StatelessWidget {
   Widget build(BuildContext context) {
     if (details.image != null) {
       return Container(
-        decoration: BoxDecoration(
-          image: DecorationImage(image: details.image!, fit: BoxFit.cover),
-        ),
+        decoration: BoxDecoration(image: DecorationImage(image: details.image!, fit: BoxFit.cover)),
         color: details.solidColor,
       );
     }
@@ -85,9 +83,7 @@ class ValidMoveHighlight extends StatelessWidget {
           dimension: size,
           child: Padding(
             padding: EdgeInsets.all(size / 3),
-            child: Container(
-              decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-            ),
+            child: Container(decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
           ),
         );
   }
@@ -98,11 +94,7 @@ class ValidMoveHighlight extends StatelessWidget {
 /// Occupied move destinations are used to indicate where a piece can move to
 /// on a square that is already occupied by a piece.
 class OccupiedValidMoveHighlight extends StatelessWidget {
-  const OccupiedValidMoveHighlight({
-    super.key,
-    required this.color,
-    required this.size,
-  });
+  const OccupiedValidMoveHighlight({super.key, required this.color, required this.size});
 
   final Color color;
   final double size;

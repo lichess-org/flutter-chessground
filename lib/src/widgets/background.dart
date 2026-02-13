@@ -61,14 +61,8 @@ class _SolidColorChessboardPainter extends CustomPainter {
     final squareSize = size.shortestSide / 8;
     for (var rank = 0; rank < 8; rank++) {
       for (var file = 0; file < 8; file++) {
-        final square = Rect.fromLTWH(
-          file * squareSize,
-          rank * squareSize,
-          squareSize,
-          squareSize,
-        );
-        final paint =
-            Paint()..color = (rank + file).isEven ? lightSquare : darkSquare;
+        final square = Rect.fromLTWH(file * squareSize, rank * squareSize, squareSize, squareSize);
+        final paint = Paint()..color = (rank + file).isEven ? lightSquare : darkSquare;
         canvas.drawRect(square, paint);
         if (coordinates && (file == 7 || rank == 7)) {
           final coordStyle = TextStyle(

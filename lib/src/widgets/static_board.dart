@@ -116,10 +116,7 @@ class _StaticChessboardState extends State<StaticChessboard> {
     final newPieces = readFen(widget.fen);
 
     if (widget.animationDuration > Duration.zero) {
-      final (translatingPieces, fadingPieces) = preparePieceAnimations(
-        pieces,
-        newPieces,
-      );
+      final (translatingPieces, fadingPieces) = preparePieceAnimations(pieces, newPieces);
       this.translatingPieces = translatingPieces;
       this.fadingPieces = fadingPieces;
     }
@@ -175,18 +172,14 @@ class _StaticChessboardState extends State<StaticChessboard> {
         alignment: Alignment.topLeft,
         clipBehavior: Clip.none,
         children: [
-          if (widget.boxShadow.isNotEmpty ||
-              widget.borderRadius != BorderRadius.zero)
+          if (widget.boxShadow.isNotEmpty || widget.borderRadius != BorderRadius.zero)
             Container(
               clipBehavior: Clip.hardEdge,
               decoration: BoxDecoration(
                 borderRadius: widget.borderRadius,
                 boxShadow: widget.boxShadow,
               ),
-              child: Stack(
-                alignment: Alignment.topLeft,
-                children: highlightedBackground,
-              ),
+              child: Stack(alignment: Alignment.topLeft, children: highlightedBackground),
             )
           else
             ...highlightedBackground,

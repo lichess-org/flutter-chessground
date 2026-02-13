@@ -68,9 +68,7 @@ class _BoardAnnotationState extends State<BoardAnnotation> {
             ? widget.square.file == File.h
             : widget.square.file == File.a;
     final offset = squareOffset.translate(
-      onRightEdge
-          ? widget.squareSize - (size * 0.9)
-          : widget.squareSize - (size * 0.7),
+      onRightEdge ? widget.squareSize - (size * 0.9) : widget.squareSize - (size * 0.7),
       -(size * 0.3),
     );
     return Positioned(
@@ -100,10 +98,7 @@ class _BoardAnnotationState extends State<BoardAnnotation> {
               child: Center(
                 child: Text(
                   widget.annotation.symbol,
-                  style: const TextStyle(
-                    color: Color(0xFFFFFFFF),
-                    fontWeight: FontWeight.w800,
-                  ),
+                  style: const TextStyle(color: Color(0xFFFFFFFF), fontWeight: FontWeight.w800),
                 ),
               ),
             ),

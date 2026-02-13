@@ -54,11 +54,7 @@ String writeFen(Pieces pieces) {
           buffer.write(empty.toString());
           empty = 0;
         }
-        buffer.write(
-          piece.color == Side.white
-              ? piece.role.uppercaseLetter
-              : piece.role.letter,
-        );
+        buffer.write(piece.color == Side.white ? piece.role.uppercaseLetter : piece.role.letter);
       }
 
       if (file == 7) {

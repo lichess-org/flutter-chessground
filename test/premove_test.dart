@@ -8,38 +8,18 @@ void main() {
   test('pawn premoves', () {
     expect(
       premovesOf(Square.e2, readFen(initialFen)),
-      equals({
-        Square.d3,
-        Square.e3,
-        Square.e4,
-        Square.f3,
-      }),
+      equals({Square.d3, Square.e3, Square.e4, Square.f3}),
     );
   });
 
   test('knight premoves', () {
-    expect(
-      premovesOf(Square.b1, readFen(initialFen)),
-      equals({
-        Square.a3,
-        Square.c3,
-        Square.d2,
-      }),
-    );
+    expect(premovesOf(Square.b1, readFen(initialFen)), equals({Square.a3, Square.c3, Square.d2}));
   });
 
   test('bishop premoves', () {
     expect(
       premovesOf(Square.c1, readFen(initialFen)),
-      equals({
-        Square.a3,
-        Square.b2,
-        Square.d2,
-        Square.e3,
-        Square.f4,
-        Square.g5,
-        Square.h6,
-      }),
+      equals({Square.a3, Square.b2, Square.d2, Square.e3, Square.f4, Square.g5, Square.h6}),
     );
   });
 
@@ -112,13 +92,7 @@ void main() {
 
     expect(
       premovesOf(Square.e1, readFen(initialFen)),
-      equals({
-        Square.d1,
-        Square.d2,
-        Square.e2,
-        Square.f2,
-        Square.f1,
-      }),
+      equals({Square.d1, Square.d2, Square.e2, Square.f2, Square.f1}),
     );
   });
 }
