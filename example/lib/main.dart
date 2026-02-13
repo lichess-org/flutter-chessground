@@ -633,7 +633,7 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  void _playMove(Move move, {bool? isDrop, bool? isPremove}) {
+  void _playMove(Move move, {bool? viaDragAndDrop, bool? isPremove}) {
     lastPos = position;
     if (move is NormalMove && isPromotionPawnMove(move)) {
       setState(() {
@@ -653,7 +653,7 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  void _onUserMoveAgainstBot(Move move, {isDrop}) async {
+  void _onUserMoveAgainstBot(Move move, {viaDragAndDrop}) async {
     lastPos = position;
     if (move is NormalMove && isPromotionPawnMove(move)) {
       setState(() {

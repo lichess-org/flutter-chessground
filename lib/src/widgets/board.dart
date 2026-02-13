@@ -417,7 +417,7 @@ class _BoardState extends State<Chessboard> {
                 final move = DropMove(to: square, role: details.data.role);
                 if (game.sideToMove == piece.color &&
                     !pieces.containsKey(square)) {
-                  game.onMove(move, isDrop: true);
+                  game.onMove(move, viaDragAndDrop: true);
                   _lastDrop = move;
                 } else if (game.premovable != null) {
                   game.premovable?.onSetPremove.call(move);
@@ -1033,13 +1033,13 @@ class _BoardState extends State<Chessboard> {
         if (widget.settings.autoQueenPromotion) {
           widget.game?.onMove.call(
             move.withPromotion(Role.queen),
-            isDrop: drop,
+            viaDragAndDrop: drop,
           );
         } else {
-          widget.game?.onMove.call(move, isDrop: drop);
+          widget.game?.onMove.call(move, viaDragAndDrop: drop);
         }
       } else {
-        widget.game?.onMove.call(move, isDrop: drop);
+        widget.game?.onMove.call(move, viaDragAndDrop: drop);
       }
       return true;
     } else if (_isPremovable(selectedPiece) &&

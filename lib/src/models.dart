@@ -55,8 +55,8 @@ class GameData {
 
   /// Callback called after a move has been made.
   ///
-  /// If the move has been made with drag and drop, `isDrop` will be true.
-  final void Function(Move, {bool? isDrop}) onMove;
+  /// If the move has been made with drag and drop, `viaDragAndDrop` will be true.
+  final void Function(Move, {bool? viaDragAndDrop}) onMove;
 
   /// Callback called after a piece has been selected for promotion.
   ///
