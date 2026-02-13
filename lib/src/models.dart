@@ -56,7 +56,7 @@ class GameData {
   /// Callback called after a move has been made.
   ///
   /// If the move has been made with drag and drop, `isDrop` will be true.
-  final void Function(NormalMove, {bool? isDrop}) onMove;
+  final void Function(Move, {bool? isDrop}) onMove;
 
   /// Callback called after a piece has been selected for promotion.
   ///
@@ -77,12 +77,12 @@ typedef Premovable =
       /// Will be shown on the board as a preview move.
       ///
       /// Chessground will not play the premove automatically, it is up to the library user to play it.
-      NormalMove? premove,
+      Move? premove,
 
       /// Callback called after a premove has been set/unset.
       ///
       /// If `null`, the premove will be unset.
-      void Function(NormalMove?) onSetPremove,
+      void Function(Move?) onSetPremove,
     });
 
 /// Describes a set of piece assets.

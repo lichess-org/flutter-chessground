@@ -17,7 +17,7 @@ typedef FadingPieces = Map<Square, Piece>;
 (TranslatingPieces, FadingPieces) preparePieceAnimations(
   Pieces oldPosition,
   Pieces newPosition, {
-  NormalMove? lastDrop,
+  Move? lastDrop,
 }) {
   final Map<Square, ({Piece piece, Square from})> translatingPieces = {};
   final Map<Square, Piece> fadingPieces = {};
@@ -25,7 +25,7 @@ typedef FadingPieces = Map<Square, Piece>;
   final List<(Piece, Square)> missingOnSquare = [];
   final Set<Square> animatedOrigins = {};
   for (final s in Square.values) {
-    if (s == lastDrop?.from || s == lastDrop?.to) {
+    if ((lastDrop is NormalMove && s == lastDrop.from) || s == lastDrop?.to) {
       continue;
     }
     final oldP = oldPosition[s];

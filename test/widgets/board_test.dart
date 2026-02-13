@@ -458,6 +458,140 @@ void main() {
       }
     });
 
+    testWidgets('dragging a piece onto the board triggers DropMove', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        _TestApp(
+          initialPlayerSide: PlayerSide.both,
+          settings: const ChessboardSettings(enableDropMoves: true),
+          bottomWidget: Column(
+            children: [
+              Draggable(
+                key: const Key('whitePawn'),
+                data: Piece.whitePawn,
+                feedback: const SizedBox.shrink(),
+                child: PieceWidget(
+                  piece: Piece.whitePawn,
+                  size: squareSize,
+                  pieceAssets: PieceSet.merida.assets,
+                ),
+              ),
+              Draggable(
+                key: const Key('blackKnight'),
+                data: Piece.blackKnight,
+                feedback: const SizedBox.shrink(),
+                child: PieceWidget(
+                  piece: Piece.blackKnight,
+                  size: squareSize,
+                  pieceAssets: PieceSet.merida.assets,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+
+      final whitePawnDraggable = find.byKey(const Key('whitePawn'));
+
+      await tester.drag(
+        whitePawnDraggable,
+        tester.getCenter(find.byKey(const Key('e4-drag-target'))) -
+            tester.getCenter(whitePawnDraggable),
+      );
+
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('e4-whitepawn')), findsOneWidget);
+      // Just to make sure we didn't play a normal move
+      expect(find.byKey(const Key('e2-whitepawn')), findsOneWidget);
+
+      final blackKnightDraggable = find.byKey(const Key('blackKnight'));
+      await tester.drag(
+        blackKnightDraggable,
+        tester.getCenter(find.byKey(const Key('e5-drag-target'))) -
+            tester.getCenter(blackKnightDraggable),
+      );
+
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('e4-whitepawn')), findsOneWidget);
+      expect(find.byKey(const Key('e5-blackknight')), findsOneWidget);
+    });
+
+    testWidgets('Cannot move pawns onto the back rank', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        _TestApp(
+          initialPlayerSide: PlayerSide.both,
+          initialFen: '8/7K/8/8/8/8/7k/8[PN] w - - 0 1',
+          rule: Rule.crazyhouse,
+          settings: const ChessboardSettings(enableDropMoves: true),
+          bottomWidget: Column(
+            children: [
+              Draggable(
+                key: const Key('whitePawn'),
+                data: Piece.whitePawn,
+                feedback: const SizedBox.shrink(),
+                child: PieceWidget(
+                  piece: Piece.whitePawn,
+                  size: squareSize,
+                  pieceAssets: PieceSet.merida.assets,
+                ),
+              ),
+              Draggable(
+                key: const Key('whiteKnight'),
+                data: Piece.whiteKnight,
+                feedback: const SizedBox.shrink(),
+                child: PieceWidget(
+                  piece: Piece.whiteKnight,
+                  size: squareSize,
+                  pieceAssets: PieceSet.merida.assets,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+
+      final whitePawnDraggable = find.byKey(const Key('whitePawn'));
+
+      await tester.drag(
+        whitePawnDraggable,
+        tester.getCenter(find.byKey(const Key('a1-drag-target'))) -
+            tester.getCenter(whitePawnDraggable),
+      );
+      await tester.drag(
+        whitePawnDraggable,
+        tester.getCenter(find.byKey(const Key('a8-drag-target'))) -
+            tester.getCenter(whitePawnDraggable),
+      );
+
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('a8-whitepawn')), findsNothing);
+      expect(find.byKey(const Key('a1-whitepawn')), findsNothing);
+
+      // Dragging other pieces onto the back rank should work though
+      final whiteKnightDraggable = find.byKey(const Key('whiteKnight'));
+      await tester.drag(
+        whiteKnightDraggable,
+        tester.getCenter(find.byKey(const Key('a8-drag-target'))) -
+            tester.getCenter(whiteKnightDraggable),
+      );
+
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('a8-whiteknight')), findsOneWidget);
+    });
+
+    testWidgets('no drag targets if drop moves not explicitly enabled', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        const _TestApp(initialPlayerSide: PlayerSide.both),
+      );
+
+      expect(find.byKey(const Key('e4-drag-target')), findsNothing);
+    });
+
     testWidgets('Cannot move by drag if piece shift method is tapTwoSquares', (
       WidgetTester tester,
     ) async {
@@ -1303,6 +1437,61 @@ void main() {
       expect(find.byKey(const Key('f3-whitequeen')), findsOneWidget);
     });
 
+    testWidgets('play drop premove', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        _TestApp(
+          rule: Rule.crazyhouse,
+          initialFen:
+              Crazyhouse.initial
+                  .copyWith(
+                    pockets: Pockets.empty.increment(Side.white, Role.rook),
+                  )
+                  .fen,
+          settings: const ChessboardSettings(
+            animationDuration: Duration.zero,
+            enableDropMoves: true,
+          ),
+          initialPlayerSide: PlayerSide.white,
+          shouldPlayOpponentMove: true,
+          bottomWidget: Draggable(
+            key: const Key('whiteRook'),
+            data: Piece.whiteRook,
+            feedback: const SizedBox.shrink(),
+            child: PieceWidget(
+              piece: Piece.whiteRook,
+              size: squareSize,
+              pieceAssets: PieceSet.merida.assets,
+            ),
+          ),
+        ),
+      );
+
+      await makeMove(tester, Square.e2, Square.e4);
+
+      final whiteRookDraggable = find.byKey(const Key('whiteRook'));
+      await tester.drag(
+        whiteRookDraggable,
+        tester.getCenter(find.byKey(const Key('f3-drag-target'))) -
+            tester.getCenter(whiteRookDraggable),
+      );
+      await tester.pump(); // Wait for piece to drop and board to redraw
+      expect(find.byKey(const Key('f3-premove')), findsOneWidget);
+
+      // wait for opponent move to be played
+      await tester.pump(const Duration(milliseconds: 200));
+
+      // opponent move is played
+      expect(find.byKey(const Key('a5-blackpawn')), findsOneWidget);
+
+      // wait for the premove to be played
+      await tester.pump();
+
+      expect(find.byKey(const Key('f3-premove')), findsNothing);
+
+      // premove has been played
+      expect(find.byKey(const Key('f3-whiterook')), findsOneWidget);
+    });
+
     testWidgets('play a premove with promotion', (WidgetTester tester) async {
       await tester.pumpWidget(
         const _TestApp(
@@ -1829,6 +2018,7 @@ class _TestApp extends StatefulWidget {
   const _TestApp({
     required this.initialPlayerSide,
     this.initialFen = kInitialFEN,
+    this.rule = Rule.chess,
     this.orientation = Side.white,
     this.settings,
     this.initialPromotionMove,
@@ -1837,11 +2027,13 @@ class _TestApp extends StatefulWidget {
     this.shouldPlayOpponentMove = false,
     this.gameEventStream,
     this.onTouchedSquare,
+    this.bottomWidget,
     super.key,
   });
 
   final PlayerSide initialPlayerSide;
   final String initialFen;
+  final Rule rule;
   final ChessboardSettings? settings;
   final Side orientation;
 
@@ -1857,6 +2049,8 @@ class _TestApp extends StatefulWidget {
 
   final void Function(Square)? onTouchedSquare;
 
+  final Widget? bottomWidget;
+
   @override
   State<_TestApp> createState() => _TestAppState();
 }
@@ -1866,8 +2060,8 @@ class _TestAppState extends State<_TestApp> {
   late NormalMove? promotionMove;
   late ISet<Shape> shapes;
   late Position position;
-  NormalMove? lastMove;
-  NormalMove? premoveData;
+  Move? lastMove;
+  Move? premoveData;
 
   StreamSubscription<GameEvent>? _gameEventSub;
 
@@ -1888,7 +2082,10 @@ class _TestAppState extends State<_TestApp> {
   void initState() {
     super.initState();
     interactiveSide = widget.initialPlayerSide;
-    position = Chess.fromSetup(Setup.parseFen(widget.initialFen));
+    position = Position.setupPosition(
+      widget.rule,
+      Setup.parseFen(widget.initialFen),
+    );
     promotionMove = widget.initialPromotionMove;
     shapes = widget.initialShapes ?? ISet();
 
@@ -1926,7 +2123,7 @@ class _TestAppState extends State<_TestApp> {
     }
   }
 
-  void _playMove(NormalMove move) {
+  void _playMove(Move move) {
     position = position.playUnchecked(move);
     if (position.isGameOver) {
       interactiveSide = PlayerSide.none;
@@ -1934,16 +2131,17 @@ class _TestAppState extends State<_TestApp> {
     lastMove = move;
   }
 
-  bool isPromotionPawnMove(NormalMove move) {
-    return move.promotion == null &&
+  bool isPromotionPawnMove(Move move) {
+    return move is NormalMove &&
+        move.promotion == null &&
         position.board.roleAt(move.from) == Role.pawn &&
         ((move.to.rank == Rank.first && position.turn == Side.black) ||
             (move.to.rank == Rank.eighth && position.turn == Side.white));
   }
 
-  void _onMove(NormalMove move, {bool? isDrop}) {
+  void _onMove(Move move, {bool? isDrop}) {
     setState(() {
-      if (isPromotionPawnMove(move)) {
+      if (move is NormalMove && isPromotionPawnMove(move)) {
         promotionMove = move;
       } else {
         _playMove(move);
@@ -1979,7 +2177,7 @@ class _TestAppState extends State<_TestApp> {
             } else {
               scheduleMicrotask(() {
                 setState(() {
-                  promotionMove = premoveData;
+                  promotionMove = premoveData as NormalMove?;
                   premoveData = null;
                 });
               });
@@ -1995,38 +2193,44 @@ class _TestAppState extends State<_TestApp> {
     return MaterialApp(
       home: Align(
         alignment: Alignment.topLeft,
-        child: Chessboard(
-          size: boardSize,
-          settings: widget.settings ?? defaultSettings,
-          orientation: widget.orientation,
-          fen: position.fen,
-          lastMove: lastMove,
-          game: GameData(
-            playerSide: interactiveSide,
-            isCheck: position.isCheck,
-            sideToMove: position.turn == Side.white ? Side.white : Side.black,
-            validMoves: makeLegalMoves(position),
-            promotionMove: promotionMove,
-            onMove: _onMove,
-            onPromotionSelection: (Role? role) {
-              setState(() {
-                if (role != null) {
-                  _playMove(promotionMove!.withPromotion(role));
-                }
-                promotionMove = null;
-              });
-            },
-            premovable: (
-              premove: premoveData,
-              onSetPremove: (NormalMove? move) {
-                setState(() {
-                  premoveData = move;
-                });
-              },
+        child: Column(
+          children: [
+            Chessboard(
+              size: boardSize,
+              settings: widget.settings ?? defaultSettings,
+              orientation: widget.orientation,
+              fen: position.fen,
+              lastMove: lastMove,
+              game: GameData(
+                playerSide: interactiveSide,
+                isCheck: position.isCheck,
+                sideToMove:
+                    position.turn == Side.white ? Side.white : Side.black,
+                validMoves: makeLegalMoves(position),
+                promotionMove: promotionMove,
+                onMove: _onMove,
+                onPromotionSelection: (Role? role) {
+                  setState(() {
+                    if (role != null) {
+                      _playMove(promotionMove!.withPromotion(role));
+                    }
+                    promotionMove = null;
+                  });
+                },
+                premovable: (
+                  premove: premoveData,
+                  onSetPremove: (Move? move) {
+                    setState(() {
+                      premoveData = move;
+                    });
+                  },
+                ),
+              ),
+              onTouchedSquare: widget.onTouchedSquare,
+              shapes: shapes,
             ),
-          ),
-          onTouchedSquare: widget.onTouchedSquare,
-          shapes: shapes,
+            if (widget.bottomWidget != null) widget.bottomWidget!,
+          ],
         ),
       ),
     );
