@@ -1,3 +1,12 @@
+## 8.0.0
+
+- Add support for drop moves for crazyhouse chess variant.
+
+### BREAKING CHANGES
+
+- `{bool? isDrop}` parameter of the `onMove` callback has been renamed to `viaDragAndDrop` to be more
+  explicit.
+
 ## 7.4.1
 
 - Ensure any piece is deselected when the board is updated from the parent
