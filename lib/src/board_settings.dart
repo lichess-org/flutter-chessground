@@ -106,6 +106,7 @@ class ChessboardSettings {
     this.autoQueenPromotion = false,
     this.autoQueenPromotionOnPremove = true,
     this.pieceShiftMethod = PieceShiftMethod.either,
+    this.enableDropMoves = false,
   });
 
   /// Theme of the board
@@ -175,6 +176,9 @@ class ChessboardSettings {
   /// Controls how moves are made.
   final PieceShiftMethod pieceShiftMethod;
 
+  /// Whether dragging a [Draggable<Piece>] onto the board triggers a [DropMove].
+  final bool enableDropMoves;
+
   /// Shape drawing options object containing data about how new shapes can be drawn.
   final DrawShapeOptions drawShape;
 
@@ -205,7 +209,8 @@ class ChessboardSettings {
         other.autoQueenPromotion == autoQueenPromotion &&
         other.autoQueenPromotionOnPremove == autoQueenPromotionOnPremove &&
         other.pieceShiftMethod == pieceShiftMethod &&
-        other.drawShape == drawShape;
+        other.drawShape == drawShape &&
+        other.enableDropMoves == enableDropMoves;
   }
 
   @override
@@ -229,6 +234,7 @@ class ChessboardSettings {
     autoQueenPromotionOnPremove,
     pieceShiftMethod,
     drawShape,
+    enableDropMoves,
   );
 
   ChessboardSettings copyWith({
@@ -252,6 +258,7 @@ class ChessboardSettings {
     bool? autoQueenPromotionOnPremove,
     PieceShiftMethod? pieceShiftMethod,
     DrawShapeOptions? drawShape,
+    bool? enableDropMoves,
   }) {
     return ChessboardSettings(
       colorScheme: colorScheme ?? this.colorScheme,
@@ -278,6 +285,7 @@ class ChessboardSettings {
       autoQueenPromotion: autoQueenPromotion ?? this.autoQueenPromotion,
       pieceShiftMethod: pieceShiftMethod ?? this.pieceShiftMethod,
       drawShape: drawShape ?? this.drawShape,
+      enableDropMoves: enableDropMoves ?? this.enableDropMoves,
     );
   }
 }
