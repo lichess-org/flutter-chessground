@@ -487,9 +487,6 @@ class _BoardState extends State<Chessboard> {
       return;
     }
 
-    selected = null;
-    _premoveDests = null;
-
     translatingPieces = {};
     fadingPieces = {};
 
