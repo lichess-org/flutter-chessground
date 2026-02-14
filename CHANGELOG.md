@@ -1,3 +1,7 @@
+## 8.0.1
+
+- Revert piece is deselected when the board is updated from the parent widget.
+
 ## 8.0.0
 
 - Add support for drop moves for crazyhouse chess variant.
@@ -6,6 +10,10 @@
 
 - `{bool? isDrop}` parameter of the `onMove` callback has been renamed to `viaDragAndDrop` to be more
   explicit.
+
+## 7.4.2
+
+- Revert piece is deselected when the board is updated from the parent widget.
 
 ## 7.4.1
 
