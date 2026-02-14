@@ -1,3 +1,7 @@
+## 7.4.2
+
+- Revert piece is deselected when the board is updated from the parent widget.
+
 ## 7.4.1
 
 - Ensure any piece is deselected when the board is updated from the parent
