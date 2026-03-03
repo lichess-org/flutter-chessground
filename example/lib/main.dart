@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:math';
+import 'package:board_example/atomic_game_page.dart';
 import 'package:board_example/board_editor_page.dart';
 import 'package:flutter/material.dart';
 import 'package:chessground/chessground.dart';
@@ -508,6 +509,17 @@ class _HomePageState extends State<HomePage> {
                 playMode = Mode.freePlay;
               });
               Navigator.pop(context);
+            },
+          ),
+          ListTile(
+            title: const Text('Atomic Chess'),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const AtomicGamePage(),
+                ),
+              );
             },
           ),
           ListTile(

@@ -1,3 +1,8 @@
+## 8.1.0
+
+- Add `explosionSquares` to `Chessboard` to show explosion effect on specific
+  squares, useful for variants like atomic chess.
+
 ## 8.0.1
 
 - Revert piece is deselected when the board is updated from the parent widget.
