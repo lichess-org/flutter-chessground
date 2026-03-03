@@ -11,6 +11,7 @@ import 'piece.dart';
 import 'highlight.dart';
 import 'positioned_square.dart';
 import 'animation.dart';
+import 'explosion.dart';
 import 'promotion.dart';
 import 'shape.dart';
 import 'board_annotation.dart';
@@ -48,6 +49,7 @@ class Chessboard extends StatefulWidget with ChessboardGeometry {
     required this.game,
     this.shapes,
     this.annotations,
+    this.explosionSquares,
   }) : _size = size;
 
   /// Creates a new chessboard widget that cannot be interacted with.
@@ -65,6 +67,7 @@ class Chessboard extends StatefulWidget with ChessboardGeometry {
     this.onTouchedSquare,
     this.shapes,
     this.annotations,
+    this.explosionSquares,
   }) : _size = size,
        game = null,
        opponentsPiecesUpsideDown = false;
@@ -111,6 +114,16 @@ class Chessboard extends StatefulWidget with ChessboardGeometry {
   /// Move annotations to be displayed on the board.
   final IMap<Square, Annotation>? annotations;
 
+  /// Squares on which an atomic chess explosion should be shown.
+  ///
+  /// Whenever this value changes to a new non-null set the board will play a
+  /// one-shot explosion animation on each listed square.  Typically this is the
+  /// set of squares returned by the dartchess atomic-explosion computation
+  /// (capture square + all adjacent non-pawn pieces).
+  ///
+  /// Set to `null` or to the same value to suppress re-triggering.
+  final ISet<Square>? explosionSquares;
+
   /// Whether the pieces can be moved by one side or both.
   bool get interactive => game != null && game!.playerSide != PlayerSide.none;
 
@@ -131,6 +144,9 @@ class _BoardState extends State<Chessboard> {
 
   /// Pieces that are currently fading out.
   FadingPieces fadingPieces = {};
+
+  /// Squares that currently have an active explosion animation.
+  final Set<Square> _activeExplosions = {};
 
   /// Currently selected square.
   Square? selected;
@@ -366,6 +382,27 @@ class _BoardState extends State<Chessboard> {
           square: entry.key,
           annotation: entry.value,
         ),
+      for (final square in _activeExplosions)
+        PositionedSquare(
+          key: ValueKey('${square.name}-explosion'),
+          size: widget.size,
+          orientation: widget.orientation,
+          square: square,
+          child: IgnorePointer(
+            child: OverflowBox(
+              maxWidth: widget.squareSize * 1.5,
+              maxHeight: widget.squareSize * 1.5,
+              child: ExplosionWidget(
+                size: widget.squareSize * 1.5,
+                onComplete: () {
+                  setState(() {
+                    _activeExplosions.remove(square);
+                  });
+                },
+              ),
+            ),
+          ),
+        ),
       if (settings.enableDropMoves)
         ...Square.values.map((square) {
           return PositionedSquare(
@@ -502,6 +539,12 @@ class _BoardState extends State<Chessboard> {
     if (oldBoard.game?.sideToMove != widget.game?.sideToMove) {
       _premoveDests = null;
     }
+
+    // Trigger explosion animations when the set of explosion squares changes.
+    if (widget.explosionSquares != null && widget.explosionSquares != oldBoard.explosionSquares) {
+      _activeExplosions.addAll(widget.explosionSquares!);
+    }
+
     if (oldBoard.fen == widget.fen) {
       _lastDrop = null;
       // as long as the fen is the same as before let's keep animations

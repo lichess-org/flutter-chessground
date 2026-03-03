@@ -1763,6 +1763,92 @@ void main() {
       }
     });
   });
+
+  group('Atomic explosion animations', () {
+    Chessboard fixedBoard({ISet<Square>? explosionSquares}) => Chessboard.fixed(
+      size: boardSize,
+      orientation: Side.white,
+      fen: kInitialFEN,
+      explosionSquares: explosionSquares,
+    );
+
+    testWidgets('no explosion on initial render even when explosionSquares is set', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(fixedBoard(explosionSquares: ISet(const {Square.e4})));
+
+      expect(find.byType(ExplosionWidget), findsNothing);
+    });
+
+    testWidgets('explosion widget appears when explosionSquares changes', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(fixedBoard());
+      await tester.pumpWidget(fixedBoard(explosionSquares: ISet(const {Square.e4})));
+
+      expect(find.byType(ExplosionWidget), findsOneWidget);
+    });
+
+    testWidgets('one explosion widget per square in the set', (WidgetTester tester) async {
+      await tester.pumpWidget(fixedBoard());
+      await tester.pumpWidget(
+        fixedBoard(explosionSquares: ISet(const {Square.e4, Square.d5, Square.f6})),
+      );
+
+      expect(find.byType(ExplosionWidget), findsNWidgets(3));
+    });
+
+    testWidgets('explosion widgets are removed after animation completes', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(fixedBoard());
+      await tester.pumpWidget(fixedBoard(explosionSquares: ISet(const {Square.e4})));
+
+      expect(find.byType(ExplosionWidget), findsOneWidget);
+
+      await tester.pumpAndSettle();
+
+      expect(find.byType(ExplosionWidget), findsNothing);
+    });
+
+    testWidgets('same ISet value does not re-trigger explosions', (WidgetTester tester) async {
+      final squares = ISet(const {Square.e4});
+
+      await tester.pumpWidget(fixedBoard());
+      await tester.pumpWidget(fixedBoard(explosionSquares: squares));
+      expect(find.byType(ExplosionWidget), findsOneWidget);
+
+      // Advance past animation end so the widget removes itself.
+      await tester.pumpAndSettle();
+      expect(find.byType(ExplosionWidget), findsNothing);
+
+      // Providing the same ISet instance again should not re-trigger.
+      await tester.pumpWidget(fixedBoard(explosionSquares: squares));
+      expect(find.byType(ExplosionWidget), findsNothing);
+    });
+
+    testWidgets('new explosion set adds to currently animating explosions', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(fixedBoard());
+
+      // Trigger first explosion on e4.
+      await tester.pumpWidget(fixedBoard(explosionSquares: ISet(const {Square.e4})));
+      expect(find.byType(ExplosionWidget), findsOneWidget);
+
+      // Advance partway through the animation (less than 600 ms default duration).
+      await tester.pump(const Duration(milliseconds: 200));
+
+      // Trigger a second explosion on d5 while the first is still running.
+      await tester.pumpWidget(fixedBoard(explosionSquares: ISet(const {Square.d5})));
+
+      expect(find.byType(ExplosionWidget), findsNWidgets(2));
+
+      // After settling, all explosions should be gone.
+      await tester.pumpAndSettle();
+      expect(find.byType(ExplosionWidget), findsNothing);
+    });
+  });
 }
 
 Future<void> makeMove(WidgetTester tester, Square from, Square to) async {
