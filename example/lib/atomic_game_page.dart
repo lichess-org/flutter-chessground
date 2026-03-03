@@ -20,7 +20,7 @@ class AtomicGamePage extends StatefulWidget {
 }
 
 class _AtomicGamePageState extends State<AtomicGamePage> {
-  Position position = Atomic.initial;
+  Atomic position = Atomic.initial;
   String fen = kInitialBoardFEN;
   Move? lastMove;
   NormalMove? promotionMove;
@@ -58,7 +58,8 @@ class _AtomicGamePageState extends State<AtomicGamePage> {
                 child: Center(
                   child: LayoutBuilder(
                     builder: (context, constraints) {
-                      final size = min(constraints.maxWidth, constraints.maxHeight);
+                      final size =
+                          min(constraints.maxWidth, constraints.maxHeight);
                       return Chessboard(
                         size: size,
                         settings: ChessboardSettings(
@@ -71,7 +72,9 @@ class _AtomicGamePageState extends State<AtomicGamePage> {
                         lastMove: lastMove,
                         explosionSquares: explosionSquares,
                         game: GameData(
-                          playerSide: position.isGameOver ? PlayerSide.none : PlayerSide.white,
+                          playerSide: position.isGameOver
+                              ? PlayerSide.none
+                              : PlayerSide.white,
                           validMoves: validMoves,
                           sideToMove: position.turn,
                           isCheck: position.isCheck,
@@ -117,36 +120,6 @@ class _AtomicGamePageState extends State<AtomicGamePage> {
     });
   }
 
-  /// Returns which squares should explode after [move] is played on [pos],
-  /// or `null` if the move is not a capture.
-  ///
-  /// In atomic chess the capture square and all adjacent squares that contain
-  /// a non-pawn piece explode.
-  ISet<Square>? _computeExplosions(Position pos, NormalMove move) {
-    final isCapture = pos.board.occupied.has(move.to);
-    final isEnPassant =
-        pos.board.roleAt(move.from) == Role.pawn && move.to == pos.epSquare;
-    if (!isCapture && !isEnPassant) return null;
-
-    final center = move.to;
-    final squares = <Square>{center};
-
-    for (var df = -1; df <= 1; df++) {
-      for (var dr = -1; dr <= 1; dr++) {
-        if (df == 0 && dr == 0) continue;
-        final adjFile = center.file + df;
-        final adjRank = center.rank + dr;
-        if (adjFile < 0 || adjFile > 7 || adjRank < 0 || adjRank > 7) continue;
-        final adj = Square.fromCoords(File(adjFile), Rank(adjRank));
-        if (pos.board.occupied.has(adj) && pos.board.roleAt(adj) != Role.pawn) {
-          squares.add(adj);
-        }
-      }
-    }
-
-    return ISet(squares);
-  }
-
   void _onUserMove(Move move, {bool? viaDragAndDrop}) {
     if (move is NormalMove && _isPromotionPawnMove(move)) {
       setState(() => promotionMove = move);
@@ -173,11 +146,10 @@ class _AtomicGamePageState extends State<AtomicGamePage> {
   void _applyMove(Move move, {bool scheduleBotAfter = false}) {
     if (!position.isLegal(move)) return;
 
-    final newExplosions =
-        move is NormalMove ? _computeExplosions(position, move) : null;
+    final newExplosions = ISet(position.explosionSquares(move).squares);
 
     setState(() {
-      position = position.playUnchecked(move);
+      position = position.playUnchecked(move) as Atomic;
       fen = position.fen;
       lastMove = move;
       validMoves = makeLegalMoves(position);
@@ -193,7 +165,9 @@ class _AtomicGamePageState extends State<AtomicGamePage> {
   void _scheduleBotMove() {
     final delay = Duration(milliseconds: Random().nextInt(600) + 400);
     Future.delayed(delay, () {
-      if (!mounted || position.isGameOver || position.turn != Side.black) return;
+      if (!mounted || position.isGameOver || position.turn != Side.black) {
+        return;
+      }
       _playBotMove();
     });
   }
@@ -210,10 +184,9 @@ class _AtomicGamePageState extends State<AtomicGamePage> {
     // Prefer captures so explosions are demonstrated more often.
     final captures =
         allMoves.where((m) => position.board.occupied.has(m.to)).toList();
-    NormalMove mv =
-        (captures.isNotEmpty && random.nextDouble() < 0.65
-            ? (captures..shuffle(random)).first
-            : (allMoves..shuffle(random)).first);
+    NormalMove mv = (captures.isNotEmpty && random.nextDouble() < 0.65
+        ? (captures..shuffle(random)).first
+        : (allMoves..shuffle(random)).first);
 
     if (_isPromotionPawnMove(mv)) {
       mv = mv.withPromotion(Role.queen);
@@ -239,7 +212,9 @@ class _StatusBar extends StatelessWidget {
         null => "It's a draw!",
       };
     } else {
-      text = position.turn == Side.white ? 'Your turn (White)' : 'Black is thinking…';
+      text = position.turn == Side.white
+          ? 'Your turn (White)'
+          : 'Black is thinking…';
     }
 
     return Text(
@@ -305,37 +280,36 @@ class _SettingsRow extends StatelessWidget {
   }) {
     showDialog<void>(
       context: context,
-      builder:
-          (ctx) => AlertDialog(
-            contentPadding: const EdgeInsets.only(top: 12),
-            scrollable: true,
-            content: RadioGroup<T>(
-              groupValue: selected,
-              onChanged: (v) {
-                if (v != null) onChanged(v);
-                Navigator.of(ctx).pop();
-              },
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children:
-                    choices
-                        .map((c) => RadioListTile<T>(title: Text(labelOf(c)), value: c))
-                        .toList(growable: false),
-              ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(ctx).pop(),
-                child: const Text('Cancel'),
-              ),
-            ],
+      builder: (ctx) => AlertDialog(
+        contentPadding: const EdgeInsets.only(top: 12),
+        scrollable: true,
+        content: RadioGroup<T>(
+          groupValue: selected,
+          onChanged: (v) {
+            if (v != null) onChanged(v);
+            Navigator.of(ctx).pop();
+          },
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: choices
+                .map((c) => RadioListTile<T>(title: Text(labelOf(c)), value: c))
+                .toList(growable: false),
           ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('Cancel'),
+          ),
+        ],
+      ),
     );
   }
 }
 
 class _PickerChip extends StatelessWidget {
-  const _PickerChip({required this.label, required this.value, required this.onTap});
+  const _PickerChip(
+      {required this.label, required this.value, required this.onTap});
 
   final String label;
   final String value;
