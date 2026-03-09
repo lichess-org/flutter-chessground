@@ -8,7 +8,7 @@ import 'piece.dart';
 ///
 /// This widget should be displayed when a pawn reaches the last rank and must be
 /// promoted. The user can select a piece to promote to by tapping on one of
-/// the four pieces displayed.
+/// the pieces displayed in the widget. Normally there are 4 pieces to choose from (queen, rook, bishop and knight), but a king can also be included as an option if `canPromoteToKing` is true (for example in Antichess).
 /// Promotion can be canceled by tapping outside the promotion widget.
 class PromotionSelector extends StatelessWidget with ChessboardGeometry {
   const PromotionSelector({
@@ -21,6 +21,7 @@ class PromotionSelector extends StatelessWidget with ChessboardGeometry {
     required this.onSelect,
     required this.onCancel,
     required this.pieceAssets,
+    required this.canPromoteToKing,
   });
 
   /// The move that is being promoted.
@@ -31,6 +32,9 @@ class PromotionSelector extends StatelessWidget with ChessboardGeometry {
 
   /// The piece assets to use.
   final PieceAssets pieceAssets;
+
+  /// Whether the pawn can be promoted to a king (possible for example in Antichess).
+  final bool canPromoteToKing;
 
   @override
   final double size;
@@ -59,20 +63,18 @@ class PromotionSelector extends StatelessWidget with ChessboardGeometry {
         isPromotionSquareAtTop
             ? square
             : Square.fromCoords(square.file, orientation == Side.white ? Rank.fourth : Rank.fifth);
-    final pieces =
-        isPromotionSquareAtTop
-            ? [
-              Piece(color: color, role: Role.queen, promoted: true),
-              Piece(color: color, role: Role.knight, promoted: true),
-              Piece(color: color, role: Role.rook, promoted: true),
-              Piece(color: color, role: Role.bishop, promoted: true),
-            ]
-            : [
-              Piece(color: color, role: Role.bishop, promoted: true),
-              Piece(color: color, role: Role.rook, promoted: true),
-              Piece(color: color, role: Role.knight, promoted: true),
-              Piece(color: color, role: Role.queen, promoted: true),
-            ];
+
+    final topRoles = [
+      Role.queen,
+      Role.knight,
+      Role.rook,
+      Role.bishop,
+      if (canPromoteToKing) Role.king,
+    ];
+    final roles = isPromotionSquareAtTop ? topRoles : topRoles.reversed.toList(growable: false);
+    final pieces = roles
+        .map((role) => Piece(color: color, role: role, promoted: true))
+        .toList(growable: false);
 
     final offset = squareOffset(anchorSquare);
 
@@ -87,7 +89,7 @@ class PromotionSelector extends StatelessWidget with ChessboardGeometry {
           children: [
             Positioned(
               width: squareSize,
-              height: squareSize * 4,
+              height: squareSize * pieces.length,
               left: offset.dx,
               top: offset.dy,
               child: Column(
