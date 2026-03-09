@@ -1,3 +1,8 @@
+## 8.2.0
+
+- Add `canPromoteToKing` in `GameData` to allow promotion to king in variants
+  like Antichess.
+
 ## 8.1.0
 
 - Add `explosionSquares` to `Chessboard` to show explosion effect on specific
