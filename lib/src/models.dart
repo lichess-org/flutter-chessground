@@ -34,6 +34,7 @@ class GameData {
     required this.onPromotionSelection,
     this.isCheck,
     this.premovable,
+    this.canPromoteToKing = false,
   });
 
   /// Side that is allowed to move.
@@ -67,6 +68,9 @@ class GameData {
   ///
   /// If `null`, the board will not allow premoves.
   final Premovable? premovable;
+
+  /// Whether the pawn can be promoted to a king (possible for example in Antichess).
+  final bool canPromoteToKing;
 }
 
 /// State of a premovable chessboard.

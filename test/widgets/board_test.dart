@@ -930,6 +930,100 @@ void main() {
       expect(find.byKey(const Key('a2-blackpawn')), findsNothing);
     });
 
+    testWidgets('default promotion shows 4 pieces without king', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        const _TestApp(
+          initialPlayerSide: PlayerSide.both,
+          initialFen: '8/5P2/2RK2P1/8/4k3/8/8/7r w - - 0 1',
+        ),
+      );
+
+      await tester.tap(find.byKey(const Key('f7-whitepawn')));
+      await tester.pump();
+      await tester.tapAt(squareOffset(tester, Square.f8));
+      await tester.pump();
+
+      // wait for promotion selector to show
+      await tester.pump();
+      expect(find.byType(PromotionSelector), findsOneWidget);
+
+      // Find all PieceWidget instances within the PromotionSelector
+      final promotionSelector = find.byType(PromotionSelector);
+      final piecesInSelector = find.descendant(
+        of: promotionSelector,
+        matching: find.byType(PieceWidget),
+      );
+
+      // Should have exactly 4 pieces (queen, knight, rook, bishop)
+      expect(piecesInSelector, findsNWidgets(4));
+
+      // Verify no king piece is present
+      final pieceWidgets = tester.widgetList<PieceWidget>(piecesInSelector);
+      final hasKing = pieceWidgets.any((widget) => widget.piece.role == Role.king);
+      expect(hasKing, false);
+    });
+    testWidgets('promotion with canPromoteToKing shows 5 pieces including king', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        const _TestApp(
+          initialPlayerSide: PlayerSide.both,
+          initialFen: '8/5P2/2RK2P1/8/4k3/8/8/7r w - - 0 1',
+          canPromoteToKing: true,
+        ),
+      );
+
+      await tester.tap(find.byKey(const Key('f7-whitepawn')));
+      await tester.pump();
+      await tester.tapAt(squareOffset(tester, Square.f8));
+      await tester.pump();
+
+      // wait for promotion selector to show
+      await tester.pump();
+      expect(find.byType(PromotionSelector), findsOneWidget);
+
+      // Find all PieceWidget instances within the PromotionSelector
+      final promotionSelector = find.byType(PromotionSelector);
+      final piecesInSelector = find.descendant(
+        of: promotionSelector,
+        matching: find.byType(PieceWidget),
+      );
+
+      // has exactly 5 pieces (queen, knight, rook, bishop, king)
+      expect(piecesInSelector, findsNWidgets(5));
+
+      // Verify king piece is present
+      final pieceWidgets = tester.widgetList<PieceWidget>(piecesInSelector);
+      final hasKing = pieceWidgets.any((widget) => widget.piece.role == Role.king);
+      expect(hasKing, true);
+    });
+
+    testWidgets('can promote to king when enabled', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        const _TestApp(
+          initialPlayerSide: PlayerSide.both,
+          initialFen: '8/5P2/2RK2P1/8/4k3/8/8/7r w - - 0 1',
+          canPromoteToKing: true,
+        ),
+      );
+
+      await tester.tap(find.byKey(const Key('f7-whitepawn')));
+      await tester.pump();
+      await tester.tapAt(squareOffset(tester, Square.f8));
+      await tester.pump();
+
+      // wait for promotion selector to show
+      await tester.pump();
+      expect(find.byType(PromotionSelector), findsOneWidget);
+
+      // tap on the king is the last option in the promotion selector
+      await tester.tapAt(squareOffset(tester, Square.f4));
+      await tester.pump();
+
+      expect(find.byKey(const Key('f8-whiteking')), findsOneWidget);
+      expect(find.byKey(const Key('f7-whitepawn')), findsNothing);
+    });
+
     testWidgets('cancels promotion', (WidgetTester tester) async {
       await tester.pumpWidget(
         const _TestApp(
@@ -1884,6 +1978,7 @@ class _TestApp extends StatefulWidget {
     this.gameEventStream,
     this.onTouchedSquare,
     this.bottomWidget,
+    this.canPromoteToKing = false,
     super.key,
   });
 
@@ -1906,6 +2001,8 @@ class _TestApp extends StatefulWidget {
   final void Function(Square)? onTouchedSquare;
 
   final Widget? bottomWidget;
+
+  final bool canPromoteToKing;
 
   @override
   State<_TestApp> createState() => _TestAppState();
@@ -2075,6 +2172,7 @@ class _TestAppState extends State<_TestApp> {
                     });
                   },
                 ),
+                canPromoteToKing: widget.canPromoteToKing,
               ),
               onTouchedSquare: widget.onTouchedSquare,
               shapes: shapes,
