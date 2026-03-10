@@ -130,7 +130,11 @@ class AnimatedPieceTranslation extends StatefulWidget {
 class _PieceTranslationState extends State<AnimatedPieceTranslation>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller =
-      AnimationController(duration: widget.duration, vsync: this)
+      AnimationController(
+          animationBehavior: AnimationBehavior.preserve,
+          duration: widget.duration,
+          vsync: this,
+        )
         ..addStatusListener((status) {
           if (status == AnimationStatus.completed) {
             widget.onComplete();
@@ -200,7 +204,11 @@ class AnimatedPieceFadeOut extends StatefulWidget {
 
 class _PieceFadeOutState extends State<AnimatedPieceFadeOut> with TickerProviderStateMixin {
   late final AnimationController _controller =
-      AnimationController(duration: widget.duration, vsync: this)
+      AnimationController(
+          animationBehavior: AnimationBehavior.preserve,
+          duration: widget.duration,
+          vsync: this,
+        )
         ..addStatusListener((status) {
           if (status == AnimationStatus.completed) {
             widget.onComplete();
