@@ -409,6 +409,8 @@ void main() {
       await tester.pumpWidget(
         _TestApp(
           initialPlayerSide: PlayerSide.both,
+          rule: Rule.crazyhouse,
+          initialFen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[Pn] w KQkq - 0 1',
           settings: const ChessboardSettings(enableDropMoves: true),
           bottomWidget: Column(
             children: [
@@ -466,7 +468,7 @@ void main() {
       await tester.pumpWidget(
         _TestApp(
           initialPlayerSide: PlayerSide.both,
-          initialFen: '8/7K/8/8/8/8/7k/8[PN] w - - 0 1',
+          initialFen: '8/8/3K4/8/3k4/8/8/8[PNp] w - - 0 1',
           rule: Rule.crazyhouse,
           settings: const ChessboardSettings(enableDropMoves: true),
           bottomWidget: Column(
@@ -523,6 +525,54 @@ void main() {
 
       await tester.pumpAndSettle();
       expect(find.byKey(const Key('a8-whiteknight')), findsOneWidget);
+    });
+
+    testWidgets('Cannot play illegal drop moves', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        _TestApp(
+          initialPlayerSide: PlayerSide.both,
+          // white is in check, so we can't drag the pawn onto a square that doesn't block the check.
+          initialFen: 'rnb1kbnr/pppp2pp/8/4p3/8/2q2N2/PP2PPPP/1R2KB1R[P] w - - 8 8',
+          rule: Rule.crazyhouse,
+          settings: const ChessboardSettings(enableDropMoves: true),
+          bottomWidget: Column(
+            children: [
+              Draggable(
+                key: const Key('whitePawn'),
+                data: Piece.whitePawn,
+                feedback: const SizedBox.shrink(),
+                child: PieceWidget(
+                  piece: Piece.whitePawn,
+                  size: squareSize,
+                  pieceAssets: PieceSet.merida.assets,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+
+      final whitePawnDraggable = find.byKey(const Key('whitePawn'));
+
+      // This square is empty, but this move wouldn't block the check, so it should not be allowed
+      await tester.drag(
+        whitePawnDraggable,
+        tester.getCenter(find.byKey(const Key('a4-drag-target'))) -
+            tester.getCenter(whitePawnDraggable),
+      );
+
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('a4-whitepawn')), findsNothing);
+
+      // Only square that blocks the check
+      await tester.drag(
+        whitePawnDraggable,
+        tester.getCenter(find.byKey(const Key('d2-drag-target'))) -
+            tester.getCenter(whitePawnDraggable),
+      );
+
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('d2-whitepawn')), findsOneWidget);
     });
 
     testWidgets('no drag targets if drop moves not explicitly enabled', (
@@ -2332,6 +2382,7 @@ class _TestAppState extends State<_TestApp> {
                 isCheck: position.isCheck,
                 sideToMove: position.turn == Side.white ? Side.white : Side.black,
                 validMoves: makeLegalMoves(position),
+                validDropSquares: position.legalDrops.squares.toISet(),
                 promotionMove: promotionMove,
                 onMove: _onMove,
                 onPromotionSelection: (Role? role) {

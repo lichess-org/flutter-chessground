@@ -437,7 +437,7 @@ class _BoardState extends State<Chessboard> {
                 if (backRankPawnDrop) return;
 
                 final move = DropMove(to: square, role: details.data.role);
-                if (game.sideToMove == piece.color && !pieces.containsKey(square)) {
+                if (game.sideToMove == piece.color && game.validDropSquares.contains(square)) {
                   game.onMove(move, viaDragAndDrop: true);
                   _lastDrop = move;
                 } else if (game.premovable != null) {

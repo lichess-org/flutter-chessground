@@ -29,6 +29,7 @@ class GameData {
     required this.playerSide,
     required this.sideToMove,
     required this.validMoves,
+    this.validDropSquares = const ISet.empty(),
     required this.promotionMove,
     required this.onMove,
     required this.onPromotionSelection,
@@ -53,6 +54,9 @@ class GameData {
 
   /// Set of moves allowed to be played by current side to move.
   final ValidMoves validMoves;
+
+  /// Set of squares where the current side to move can drop a piece in variants such as Crazyhouse.
+  final ValidDropSquares validDropSquares;
 
   /// Callback called after a move has been made.
   ///
@@ -99,6 +103,9 @@ typedef Pieces = Map<Square, Piece>;
 
 /// Sets of each valid destinations for an origin square.
 typedef ValidMoves = IMap<Square, ISet<Square>>;
+
+/// Set of squares where a piece can be dropped in variants such as Crazyhouse.
+typedef ValidDropSquares = ISet<Square>;
 
 /// Square highlight color or image on the chessboard.
 @immutable
