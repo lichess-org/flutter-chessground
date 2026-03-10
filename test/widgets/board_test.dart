@@ -1024,6 +1024,184 @@ void main() {
       expect(find.byKey(const Key('f7-whitepawn')), findsNothing);
     });
 
+    testWidgets('Player on top can promote to King', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        const _TestApp(
+          initialPlayerSide: PlayerSide.both,
+          initialFen: 'K7/8/k7/8/8/8/p7/1Q4n1 b - - 0 1',
+          canPromoteToKing: true,
+        ),
+      );
+      await tester.tap(find.byKey(const Key('a2-blackpawn')));
+      await tester.pump();
+      await tester.tapAt(squareOffset(tester, Square.b1));
+      await tester.pump();
+
+      expect(find.byType(PromotionSelector), findsOneWidget);
+      final promotionSelector = find.byType(PromotionSelector);
+      final piecesInSelector = find.descendant(
+        of: promotionSelector,
+        matching: find.byType(PieceWidget),
+      );
+
+      // has exactly 5 pieces (queen, knight, rook, bishop, king)
+      expect(piecesInSelector, findsNWidgets(5));
+
+      // tap on the king is the last option in the promotion selector
+      await tester.tapAt(squareOffset(tester, Square.b5));
+      await tester.pump();
+
+      expect(find.byKey(const Key('b1-blackking')), findsOneWidget);
+      expect(find.byKey(const Key('a2-blackpawn')), findsNothing);
+    });
+    testWidgets('promote a piece on flipped board (orientation black)', (
+      WidgetTester tester,
+    ) async {
+      const orientation = Side.black;
+      await tester.pumpWidget(
+        const _TestApp(
+          initialPlayerSide: PlayerSide.both,
+          initialFen: '8/5P2/2RK2P1/8/4k3/8/8/7r w - - 0 1',
+          orientation: orientation,
+        ),
+      );
+
+      await tester.tap(find.byKey(const Key('f7-whitepawn')));
+      await tester.pump();
+      await tester.tapAt(squareOffset(tester, Square.f8, orientation: orientation));
+      await tester.pump();
+
+      // wait for promotion selector to show
+      await tester.pump();
+      expect(find.byType(PromotionSelector), findsOneWidget);
+      final promotionSelector = find.byType(PromotionSelector);
+      final piecesInSelector = find.descendant(
+        of: promotionSelector,
+        matching: find.byType(PieceWidget),
+      );
+
+      // has exactly 4 pieces (queen, knight, rook, bishop)
+      expect(piecesInSelector, findsNWidgets(4));
+
+      // promotion pawn is not visible
+      expect(find.byKey(const Key('f7-whitepawn')), findsNothing);
+
+      await tester.tapAt(squareOffset(tester, Square.f7, orientation: orientation));
+      await tester.pump();
+      expect(find.byKey(const Key('f8-whiteknight')), findsOneWidget);
+      expect(find.byKey(const Key('f7-whitepawn')), findsNothing);
+    });
+
+    testWidgets('player at bottom promotes a bishop on flipped board (orientation black)', (
+      WidgetTester tester,
+    ) async {
+      const orientation = Side.black;
+      await tester.pumpWidget(
+        const _TestApp(
+          initialPlayerSide: PlayerSide.both,
+          initialFen: 'K7/8/k7/8/8/8/p7/1Q4n1 b - - 0 1',
+          orientation: orientation,
+        ),
+      );
+
+      await tester.tap(find.byKey(const Key('a2-blackpawn')));
+      await tester.pump();
+      await tester.tapAt(squareOffset(tester, Square.b1, orientation: orientation));
+      await tester.pump();
+
+      // wait for promotion selector to show
+      await tester.pump();
+      expect(find.byType(PromotionSelector), findsOneWidget);
+      final promotionSelector = find.byType(PromotionSelector);
+      final piecesInSelector = find.descendant(
+        of: promotionSelector,
+        matching: find.byType(PieceWidget),
+      );
+
+      // has exactly 4 pieces (queen, knight, rook, bishop)
+      expect(piecesInSelector, findsNWidgets(4));
+
+      // promotion pawn is not visible
+      expect(find.byKey(const Key('a2-blackpawn')), findsNothing);
+
+      // selector opens downward from b1 (rank 1 at top); queen, knight, rook, bishop
+      await tester.tapAt(squareOffset(tester, Square.b4, orientation: orientation));
+      await tester.pump();
+      expect(find.byKey(const Key('b1-blackbishop')), findsOneWidget);
+      expect(find.byKey(const Key('a2-blackpawn')), findsNothing);
+    });
+
+    testWidgets('can promote to king on flipped board (orientation black)', (
+      WidgetTester tester,
+    ) async {
+      const orientation = Side.black;
+      await tester.pumpWidget(
+        const _TestApp(
+          initialPlayerSide: PlayerSide.both,
+          initialFen: '8/5P2/2RK2P1/8/4k3/8/8/7r w - - 0 1',
+          orientation: orientation,
+          canPromoteToKing: true,
+        ),
+      );
+
+      await tester.tap(find.byKey(const Key('f7-whitepawn')));
+      await tester.pump();
+      await tester.tapAt(squareOffset(tester, Square.f8, orientation: orientation));
+      await tester.pump();
+
+      // wait for promotion selector to show
+      await tester.pump();
+      expect(find.byType(PromotionSelector), findsOneWidget);
+      final promotionSelector = find.byType(PromotionSelector);
+      final piecesInSelector = find.descendant(
+        of: promotionSelector,
+        matching: find.byType(PieceWidget),
+      );
+
+      // has exactly 5 pieces (queen, knight, rook, bishop,king)
+      expect(piecesInSelector, findsNWidgets(5));
+
+      await tester.tapAt(squareOffset(tester, Square.f4, orientation: orientation));
+      await tester.pump();
+
+      expect(find.byKey(const Key('f8-whiteking')), findsOneWidget);
+      expect(find.byKey(const Key('f7-whitepawn')), findsNothing);
+    });
+
+    testWidgets('player at bottom can promote to King on flipped board (orientation black)', (
+      WidgetTester tester,
+    ) async {
+      const orientation = Side.black;
+      await tester.pumpWidget(
+        const _TestApp(
+          initialPlayerSide: PlayerSide.both,
+          initialFen: 'K7/8/k7/8/8/8/p7/1Q4n1 b - - 0 1',
+          orientation: orientation,
+          canPromoteToKing: true,
+        ),
+      );
+      await tester.tap(find.byKey(const Key('a2-blackpawn')));
+      await tester.pump();
+      await tester.tapAt(squareOffset(tester, Square.b1, orientation: orientation));
+      await tester.pump();
+
+      expect(find.byType(PromotionSelector), findsOneWidget);
+      final promotionSelector = find.byType(PromotionSelector);
+      final piecesInSelector = find.descendant(
+        of: promotionSelector,
+        matching: find.byType(PieceWidget),
+      );
+
+      // has exactly 5 pieces (queen, knight, rook, bishop, king)
+      expect(piecesInSelector, findsNWidgets(5));
+
+      await tester.tapAt(squareOffset(tester, Square.b5, orientation: orientation));
+      await tester.pump();
+
+      expect(find.byKey(const Key('b1-blackking')), findsOneWidget);
+      expect(find.byKey(const Key('a2-blackpawn')), findsNothing);
+    });
+
     testWidgets('cancels promotion', (WidgetTester tester) async {
       await tester.pumpWidget(
         const _TestApp(
