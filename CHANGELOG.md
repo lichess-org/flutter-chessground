@@ -1,3 +1,9 @@
+## 8.2.1
+
+- Fix top player promotion selector when `canPromoteToKing` is true.
+- Preserve the piece animation behaviour even if the system is requesting the
+  animations to be reduced or disabled.
+
 ## 8.2.0
 
 - Add `canPromoteToKing` in `GameData` to allow promotion to king in variants
