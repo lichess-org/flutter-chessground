@@ -1,7 +1,11 @@
-## 8.3.0
+## 9.0.0
 
-- Add `validDropSquares` to `GameData`. For drop moves, `Chessboard` will now only call `onMove` 
-  if and only if `validDropSquares` contains the target square.
+### BREAKING CHANGES
+- `BoardSettings.enableDropMoves` has been removed. Use `GameData.droppable`
+  instead.
+
+- Add `Droppable` to `GameData`. For drop moves, `Chessboard` will now only call `onMove`
+  if and only if `Droppable.validDropSquares` contains the target square.
   This makes the behavior consistent with normal moves.
   Note that dropping a pawn on the back rank does not trigger `onMove`, even if `validDropSquares` would allow it.
 
