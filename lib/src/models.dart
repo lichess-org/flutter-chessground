@@ -34,6 +34,7 @@ class GameData {
     required this.onPromotionSelection,
     this.isCheck,
     this.premovable,
+    this.droppable,
     this.canPromoteToKing = false,
   });
 
@@ -69,6 +70,11 @@ class GameData {
   /// If `null`, the board will not allow premoves.
   final Premovable? premovable;
 
+  /// Optional droppable state of the board for variants such as Crazyhouse.
+  ///
+  /// If `null`, the board will not allow drops.
+  final Droppable? droppable;
+
   /// Whether the pawn can be promoted to a king (possible for example in Antichess).
   final bool canPromoteToKing;
 }
@@ -89,6 +95,13 @@ typedef Premovable =
       void Function(Move?) onSetPremove,
     });
 
+/// State of a droppable chessboard for variants such as Crazyhouse.
+typedef Droppable =
+    ({
+      /// Set of squares where the current side to move can drop a piece in variants such as Crazyhouse.
+      ValidDropSquares validDropSquares,
+    });
+
 /// Describes a set of piece assets.
 ///
 /// The [PieceAssets] must be complete with all the pieces for both sides.
@@ -99,6 +112,9 @@ typedef Pieces = Map<Square, Piece>;
 
 /// Sets of each valid destinations for an origin square.
 typedef ValidMoves = IMap<Square, ISet<Square>>;
+
+/// Set of squares where a piece can be dropped in variants such as Crazyhouse.
+typedef ValidDropSquares = ISet<Square>;
 
 /// Square highlight color or image on the chessboard.
 @immutable

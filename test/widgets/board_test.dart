@@ -406,10 +406,16 @@ void main() {
     });
 
     testWidgets('dragging a piece onto the board triggers DropMove', (WidgetTester tester) async {
+      final pos = Position.setupPosition(
+        Rule.crazyhouse,
+        Setup.parseFen('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[Pn] w KQkq - 0 1'),
+      );
       await tester.pumpWidget(
         _TestApp(
           initialPlayerSide: PlayerSide.both,
-          settings: const ChessboardSettings(enableDropMoves: true),
+          rule: Rule.crazyhouse,
+          initialFen: pos.fen,
+          droppable: (validDropSquares: pos.legalDrops.squares.toISet()),
           bottomWidget: Column(
             children: [
               Draggable(
@@ -463,12 +469,16 @@ void main() {
     });
 
     testWidgets('Cannot move pawns onto the back rank', (WidgetTester tester) async {
+      final pos = Position.setupPosition(
+        Rule.crazyhouse,
+        Setup.parseFen('8/8/3K4/8/3k4/8/8/8[PNp] w - - 0 1'),
+      );
       await tester.pumpWidget(
         _TestApp(
           initialPlayerSide: PlayerSide.both,
-          initialFen: '8/7K/8/8/8/8/7k/8[PN] w - - 0 1',
+          initialFen: pos.fen,
           rule: Rule.crazyhouse,
-          settings: const ChessboardSettings(enableDropMoves: true),
+          droppable: (validDropSquares: pos.legalDrops.squares.toISet()),
           bottomWidget: Column(
             children: [
               Draggable(
@@ -523,6 +533,58 @@ void main() {
 
       await tester.pumpAndSettle();
       expect(find.byKey(const Key('a8-whiteknight')), findsOneWidget);
+    });
+
+    testWidgets('Cannot play illegal drop moves', (WidgetTester tester) async {
+      final pos = Position.setupPosition(
+        Rule.crazyhouse,
+        Setup.parseFen('rnb1kbnr/pppp2pp/8/4p3/8/2q2N2/PP2PPPP/R1B1KB1R[P] w - - 8 8'),
+      );
+      await tester.pumpWidget(
+        _TestApp(
+          initialPlayerSide: PlayerSide.both,
+          // white is in check, so we can't drag the pawn onto a square that doesn't block the check.
+          initialFen: pos.fen,
+          rule: Rule.crazyhouse,
+          droppable: (validDropSquares: pos.legalDrops.squares.toISet()),
+          bottomWidget: Column(
+            children: [
+              Draggable(
+                key: const Key('whitePawn'),
+                data: Piece.whitePawn,
+                feedback: const SizedBox.shrink(),
+                child: PieceWidget(
+                  piece: Piece.whitePawn,
+                  size: squareSize,
+                  pieceAssets: PieceSet.merida.assets,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+
+      final whitePawnDraggable = find.byKey(const Key('whitePawn'));
+
+      // This square is empty, but this move wouldn't block the check, so it should not be allowed
+      await tester.drag(
+        whitePawnDraggable,
+        tester.getCenter(find.byKey(const Key('a4-drag-target'))) -
+            tester.getCenter(whitePawnDraggable),
+      );
+
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('a4-whitepawn')), findsNothing);
+
+      // Only square that blocks the check
+      await tester.drag(
+        whitePawnDraggable,
+        tester.getCenter(find.byKey(const Key('d2-drag-target'))) -
+            tester.getCenter(whitePawnDraggable),
+      );
+
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('d2-whitepawn')), findsOneWidget);
     });
 
     testWidgets('no drag targets if drop moves not explicitly enabled', (
@@ -1576,17 +1638,15 @@ void main() {
     });
 
     testWidgets('play drop premove', (WidgetTester tester) async {
+      final pos = Crazyhouse.initial.copyWith(
+        pockets: Pockets.empty.increment(Side.white, Role.rook),
+      );
       await tester.pumpWidget(
         _TestApp(
           rule: Rule.crazyhouse,
-          initialFen:
-              Crazyhouse.initial
-                  .copyWith(pockets: Pockets.empty.increment(Side.white, Role.rook))
-                  .fen,
-          settings: const ChessboardSettings(
-            animationDuration: Duration.zero,
-            enableDropMoves: true,
-          ),
+          initialFen: pos.fen,
+          settings: const ChessboardSettings(animationDuration: Duration.zero),
+          droppable: (validDropSquares: pos.legalDrops.squares.toISet()),
           initialPlayerSide: PlayerSide.white,
           shouldPlayOpponentMove: true,
           bottomWidget: Draggable(
@@ -2149,6 +2209,7 @@ class _TestApp extends StatefulWidget {
     this.rule = Rule.chess,
     this.orientation = Side.white,
     this.settings,
+    this.droppable,
     this.initialPromotionMove,
     this.initialShapes,
     this.enableDrawingShapes = false,
@@ -2165,6 +2226,7 @@ class _TestApp extends StatefulWidget {
   final Rule rule;
   final ChessboardSettings? settings;
   final Side orientation;
+  final Droppable? droppable;
 
   final NormalMove? initialPromotionMove;
   final ISet<Shape>? initialShapes;
@@ -2333,6 +2395,7 @@ class _TestAppState extends State<_TestApp> {
                 sideToMove: position.turn == Side.white ? Side.white : Side.black,
                 validMoves: makeLegalMoves(position),
                 promotionMove: promotionMove,
+                droppable: widget.droppable,
                 onMove: _onMove,
                 onPromotionSelection: (Role? role) {
                   setState(() {

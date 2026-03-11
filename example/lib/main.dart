@@ -294,7 +294,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
                 _buildSettingsButton(
-                    label: 'Test Drop Moves',
+                    label: 'Test Crazyhouse drop moves',
                     value: testDropMoves ? 'ON' : 'OFF',
                     onPressed: () {
                       setState(() {
@@ -349,7 +349,6 @@ class _HomePageState extends State<HomePage> {
       pieceOrientationBehavior: playMode == Mode.freePlay
           ? PieceOrientationBehavior.opponentUpsideDown
           : PieceOrientationBehavior.facingUser,
-      enableDropMoves: testDropMoves,
     );
     Widget _buildChessBoardWidget() => Center(
           child: LayoutBuilder(
@@ -368,6 +367,9 @@ class _HomePageState extends State<HomePage> {
                               ? PlayerSide.white
                               : PlayerSide.black),
                   validMoves: validMoves,
+                  droppable: testDropMoves
+                      ? (validDropSquares: position.legalDrops.squares.toISet())
+                      : null,
                   sideToMove:
                       position.turn == Side.white ? Side.white : Side.black,
                   isCheck: position.isCheck,

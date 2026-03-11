@@ -1,3 +1,14 @@
+## 9.0.0
+
+### BREAKING CHANGES
+- `BoardSettings.enableDropMoves` has been removed. Use `GameData.droppable`
+  instead.
+
+- Add `Droppable` to `GameData`. For drop moves, `Chessboard` will now only call `onMove`
+  if and only if `Droppable.validDropSquares` contains the target square.
+  This makes the behavior consistent with normal moves.
+  Note that dropping a pawn on the back rank does not trigger `onMove`, even if `validDropSquares` would allow it.
+
 ## 8.2.1
 
 - Fix top player promotion selector when `canPromoteToKing` is true.

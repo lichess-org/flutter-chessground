@@ -403,7 +403,7 @@ class _BoardState extends State<Chessboard> {
             ),
           ),
         ),
-      if (settings.enableDropMoves)
+      if (widget.game?.droppable != null)
         ...Square.values.map((square) {
           return PositionedSquare(
             key: ValueKey('${square.name}-drag-target'),
@@ -437,7 +437,9 @@ class _BoardState extends State<Chessboard> {
                 if (backRankPawnDrop) return;
 
                 final move = DropMove(to: square, role: details.data.role);
-                if (game.sideToMove == piece.color && !pieces.containsKey(square)) {
+                if (game.sideToMove == piece.color &&
+                    game.droppable != null &&
+                    game.droppable!.validDropSquares.contains(square)) {
                   game.onMove(move, viaDragAndDrop: true);
                   _lastDrop = move;
                 } else if (game.premovable != null) {
