@@ -29,12 +29,12 @@ class GameData {
     required this.playerSide,
     required this.sideToMove,
     required this.validMoves,
-    this.validDropSquares = const ISet.empty(),
     required this.promotionMove,
     required this.onMove,
     required this.onPromotionSelection,
     this.isCheck,
     this.premovable,
+    this.droppable,
     this.canPromoteToKing = false,
   });
 
@@ -55,9 +55,6 @@ class GameData {
   /// Set of moves allowed to be played by current side to move.
   final ValidMoves validMoves;
 
-  /// Set of squares where the current side to move can drop a piece in variants such as Crazyhouse.
-  final ValidDropSquares validDropSquares;
-
   /// Callback called after a move has been made.
   ///
   /// If the move has been made with drag and drop, `viaDragAndDrop` will be true.
@@ -72,6 +69,11 @@ class GameData {
   ///
   /// If `null`, the board will not allow premoves.
   final Premovable? premovable;
+
+  /// Optional droppable state of the board for variants such as Crazyhouse.
+  ///
+  /// If `null`, the board will not allow drops.
+  final Droppable? droppable;
 
   /// Whether the pawn can be promoted to a king (possible for example in Antichess).
   final bool canPromoteToKing;
@@ -91,6 +93,13 @@ typedef Premovable =
       ///
       /// If `null`, the premove will be unset.
       void Function(Move?) onSetPremove,
+    });
+
+/// State of a droppable chessboard for variants such as Crazyhouse.
+typedef Droppable =
+    ({
+      /// Set of squares where the current side to move can drop a piece in variants such as Crazyhouse.
+      ValidDropSquares validDropSquares,
     });
 
 /// Describes a set of piece assets.
