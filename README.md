@@ -83,3 +83,77 @@ See the example app for:
 - Draw Shapes: activate the draw shapes feature and draw on the board using 2
 - Board Thumbnails: a demo screen showing over hundred different boards in a grid,
   fingers.
+
+## Swift Package (iOS/macOS)
+
+This repository also ships a Swift package (`ChessgroundAssets`) that exposes the
+same board textures, piece images, and theme colour data as an Xcode asset catalog.
+It is intended for native iOS/macOS targets such as WidgetKit extensions that need
+to render a chessboard matching the Flutter app's appearance.
+
+### Adding the dependency
+
+In Xcode: **File → Add Package Dependencies**, enter the repository URL, and add
+the `ChessgroundAssets` library to your target.
+
+Or in `Package.swift`:
+
+```swift
+.package(url: "https://github.com/lichess-org/flutter-chessground", from: "9.0.0")
+```
+
+### Loading assets
+
+Pass `ChessgroundAssets.bundle` wherever you load a board or piece image:
+
+```swift
+import ChessgroundAssets
+
+// Board texture (image-backed themes)
+Image("board_wood2", bundle: ChessgroundAssets.bundle)
+
+// Piece image
+Image("piece_staunty_wK", bundle: ChessgroundAssets.bundle)
+```
+
+**Asset naming conventions**
+
+| Asset | Name pattern | Example |
+|-------|-------------|---------|
+| Board texture | `board_{name}` | `board_blueMarble`, `board_wood3` |
+| Piece image | `piece_{set}_{color}{kind}` | `piece_staunty_wK`, `piece_california_bQ` |
+
+`name` matches the Dart `ChessboardColorScheme` constant. `set` is the camelCase
+piece-set name matching the Dart `PieceSet` enum `.name` value. `color` is `w`/`b`
+and `kind` is `K`/`Q`/`R`/`B`/`N`/`P`.
+
+### Board theme colours
+
+`ChessboardTheme` maps Dart theme names to light/dark square colours, last-move
+highlight, and board image name:
+
+```swift
+let theme = ChessboardTheme.from(themeName: "wood2", pieceSet: "staunty")
+
+theme.lightSquare       // Color
+theme.darkSquare        // Color
+theme.lastMoveHighlight // Color
+theme.boardImageName    // "board_wood2" — nil for solid-colour themes
+theme.pieceSet          // "staunty"
+```
+
+Theme names and colour values mirror the Dart `ChessboardColorScheme` constants.
+Unrecognised names fall back to the default brown solid-colour theme.
+
+### Maintaining the Swift assets
+
+The asset catalog at `swift/Sources/ChessgroundAssets/Assets.xcassets/` is
+generated from the canonical Flutter assets in `assets/`. After adding, removing,
+or updating board textures or piece sets, regenerate and commit:
+
+```sh
+./scripts/gen-swift-xcassets.sh
+```
+
+The script reads directly from `assets/` — no pub cache or Flutter tooling needed.
+SPM consumers then get the updated assets by bumping to the new release tag.
