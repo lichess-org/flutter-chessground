@@ -1,3 +1,8 @@
+## 9.1.0
+
+- Added a Swift Package exposing Chessground board textures and piece images as an
+Xcode asset catalog.
+
 ## 9.0.0
 
 ### BREAKING CHANGES
