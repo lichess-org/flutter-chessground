@@ -411,7 +411,7 @@ class _BoardState extends State<Chessboard> {
             orientation: widget.orientation,
             square: square,
             child: DragTarget<Piece>(
-              hitTestBehavior: HitTestBehavior.opaque,
+              hitTestBehavior: HitTestBehavior.opaque, // stops hit test traversal immediately
               builder:
                   (context, candidateData, _) =>
                       candidateData.isNotEmpty
@@ -452,6 +452,7 @@ class _BoardState extends State<Chessboard> {
     ];
 
     final board = Listener(
+      behavior: HitTestBehavior.opaque, // stops hit test traversal immediately
       onPointerDown: _onPointerDown,
       onPointerMove: _onPointerMove,
       onPointerUp: _onPointerUp,
