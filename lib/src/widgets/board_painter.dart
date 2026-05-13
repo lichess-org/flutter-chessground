@@ -7,6 +7,25 @@ import 'package:flutter/widgets.dart';
 import '../images.dart';
 import '../models.dart';
 
+/// Holds the board's interactive highlight state and notifies [HighlightsPainter]
+/// to repaint without triggering a widget rebuild.
+class BoardHighlightNotifier extends ChangeNotifier {
+  Square? selected;
+  ISet<Square> moveDests = const ISetConst({});
+  Set<Square> premoveDests = const {};
+
+  void update({
+    required Square? selected,
+    required ISet<Square> moveDests,
+    required Set<Square> premoveDests,
+  }) {
+    this.selected = selected;
+    this.moveDests = moveDests;
+    this.premoveDests = premoveDests;
+    notifyListeners();
+  }
+}
+
 Rect _squareRect(Square square, double squareSize, Side orientation) {
   final x = orientation == Side.black ? 7 - square.file : square.file;
   final y = orientation == Side.black ? square.rank : 7 - square.rank;
@@ -15,6 +34,7 @@ Rect _squareRect(Square square, double squareSize, Side orientation) {
 
 class HighlightsPainter extends CustomPainter {
   HighlightsPainter({
+    required this.interactionNotifier,
     required this.squareSize,
     required this.orientation,
     required this.showLastMove,
@@ -22,16 +42,14 @@ class HighlightsPainter extends CustomPainter {
     required this.premove,
     required this.premoveColor,
     required this.lastMoveColor,
-    required this.selected,
     required this.selectedColor,
-    required this.moveDests,
-    required this.premoveDests,
     required this.validMoveColor,
     required this.occupiedSquares,
     required this.checkSquare,
     required this.squareHighlights,
-  });
+  }) : super(repaint: interactionNotifier);
 
+  final BoardHighlightNotifier interactionNotifier;
   final double squareSize;
   final Side orientation;
   final bool showLastMove;
@@ -39,10 +57,7 @@ class HighlightsPainter extends CustomPainter {
   final Move? premove;
   final Color premoveColor;
   final Color? lastMoveColor;
-  final Square? selected;
   final Color? selectedColor;
-  final ISet<Square> moveDests;
-  final Set<Square> premoveDests;
   final Color validMoveColor;
   final Set<Square> occupiedSquares;
   final Square? checkSquare;
@@ -50,6 +65,10 @@ class HighlightsPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
+    final selected = interactionNotifier.selected;
+    final moveDests = interactionNotifier.moveDests;
+    final premoveDests = interactionNotifier.premoveDests;
+
     if (showLastMove && lastMove != null && lastMoveColor != null) {
       final paint = Paint()..color = lastMoveColor!;
       for (final square in lastMove!.squares) {
@@ -66,9 +85,9 @@ class HighlightsPainter extends CustomPainter {
       }
     }
 
-    if (selected != null && selectedColor != null) {
-      final paint = Paint()..color = selectedColor!;
-      canvas.drawRect(_squareRect(selected!, squareSize, orientation), paint);
+    final sc = selectedColor;
+    if (selected != null && sc != null) {
+      canvas.drawRect(_squareRect(selected, squareSize, orientation), Paint()..color = sc);
     }
 
     for (final MapEntry(key: square, value: color) in squareHighlights.entries) {
@@ -131,10 +150,7 @@ class HighlightsPainter extends CustomPainter {
         premove != oldDelegate.premove ||
         premoveColor != oldDelegate.premoveColor ||
         lastMoveColor != oldDelegate.lastMoveColor ||
-        selected != oldDelegate.selected ||
         selectedColor != oldDelegate.selectedColor ||
-        moveDests != oldDelegate.moveDests ||
-        !_setEquals(premoveDests, oldDelegate.premoveDests) ||
         validMoveColor != oldDelegate.validMoveColor ||
         !_setEquals(occupiedSquares, oldDelegate.occupiedSquares) ||
         checkSquare != oldDelegate.checkSquare ||

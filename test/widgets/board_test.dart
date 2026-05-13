@@ -23,7 +23,7 @@ HighlightsPainter _highlightsPainter(WidgetTester tester) {
 }
 
 bool _isSelected(WidgetTester tester, Square square) {
-  return _highlightsPainter(tester).selected == square;
+  return _highlightsPainter(tester).interactionNotifier.selected == square;
 }
 
 bool _isLastMove(WidgetTester tester, Square square) {
@@ -44,11 +44,11 @@ bool _isCheckSquare(WidgetTester tester, Square square) {
 }
 
 int _moveDestCount(WidgetTester tester) {
-  return _highlightsPainter(tester).moveDests.length;
+  return _highlightsPainter(tester).interactionNotifier.moveDests.length;
 }
 
 int _premoveDestCount(WidgetTester tester) {
-  return _highlightsPainter(tester).premoveDests.length;
+  return _highlightsPainter(tester).interactionNotifier.premoveDests.length;
 }
 
 class OnTappedSquareMock extends Mock {

@@ -208,15 +208,14 @@ class _BoardState extends State<Chessboard> {
   /// Avatar of the shape being drawn.
   Shape? _shapeAvatar;
 
+  /// Drives [HighlightsPainter] repaints for selection/premove changes without
+  /// triggering a full widget rebuild.
+  late final BoardHighlightNotifier _highlightNotifier;
+
   @override
   Widget build(BuildContext context) {
     final settings = widget.settings;
     final colorScheme = settings.colorScheme;
-    final ISet<Square> moveDests =
-        settings.showValidMoves && selected != null && widget.game?.validMoves != null
-            ? widget.game?.validMoves[selected!] ?? _emptyValidMoves
-            : _emptyValidMoves;
-    final Set<Square> premoveDests = settings.showValidMoves ? _premoveDests ?? {} : {};
     final shapes = widget.shapes ?? _emptyShapes;
     final annotations = widget.annotations ?? _emptyAnnotations;
     final checkSquare = widget.game?.isCheck == true ? _getKingSquare() : null;
@@ -256,6 +255,7 @@ class _BoardState extends State<Chessboard> {
     final Set<Square> occupiedSquares = pieces.keys.toSet();
 
     final highlightsPainter = HighlightsPainter(
+      interactionNotifier: _highlightNotifier,
       squareSize: widget.squareSize,
       orientation: widget.orientation,
       showLastMove: settings.showLastMove,
@@ -263,10 +263,7 @@ class _BoardState extends State<Chessboard> {
       premove: premoveVisible ? premove : null,
       premoveColor: colorScheme.validPremoves,
       lastMoveColor: colorScheme.lastMove.solidColor,
-      selected: selected,
       selectedColor: colorScheme.selected.solidColor,
-      moveDests: moveDests,
-      premoveDests: premoveDests,
       validMoveColor: colorScheme.validMoves,
       occupiedSquares: occupiedSquares,
       checkSquare: checkSquare,
@@ -553,13 +550,15 @@ class _BoardState extends State<Chessboard> {
   void initState() {
     super.initState();
     pieces = readFen(widget.fen);
+    _highlightNotifier = BoardHighlightNotifier();
   }
 
   @override
   void dispose() {
-    super.dispose();
+    _highlightNotifier.dispose();
     _dragAvatar?.cancel();
     _cancelShapesDoubleTapTimer?.cancel();
+    super.dispose();
   }
 
   @override
@@ -581,6 +580,7 @@ class _BoardState extends State<Chessboard> {
     if (oldBoard.game?.sideToMove != widget.game?.sideToMove) {
       _premoveDests = null;
     }
+    _syncHighlightNotifier();
 
     // Trigger explosion animations when the set of explosion squares changes.
     if (widget.explosionSquares != null && widget.explosionSquares != oldBoard.explosionSquares) {
@@ -619,6 +619,32 @@ class _BoardState extends State<Chessboard> {
       }
     }
     return null;
+  }
+
+  /// Updates the notifier with the current selection state so [HighlightsPainter]
+  /// repaints without a full widget rebuild.
+  void _syncHighlightNotifier() {
+    final moveDests =
+        widget.settings.showValidMoves && selected != null && widget.game?.validMoves != null
+            ? widget.game!.validMoves[selected!] ?? _emptyValidMoves
+            : _emptyValidMoves;
+    final premoveDests =
+        widget.settings.showValidMoves ? _premoveDests ?? const <Square>{} : const <Square>{};
+    _highlightNotifier.update(selected: selected, moveDests: moveDests, premoveDests: premoveDests);
+  }
+
+  /// Sets interaction state and triggers a highlights repaint via the notifier.
+  ///
+  /// Skips [setState] for themes with solid-color highlights; only calls it
+  /// when the color scheme uses image-based highlights (e.g. horsey) where
+  /// the selected highlight is a separate widget in the tree.
+  void _setSelection(Square? newSelected, {Set<Square>? newPremoveDests}) {
+    selected = newSelected;
+    _premoveDests = newPremoveDests;
+    _syncHighlightNotifier();
+    if (widget.settings.colorScheme.selected.image != null) {
+      setState(() {});
+    }
   }
 
   /// Returns the position of the square target during drag as a global offset.
@@ -709,14 +735,9 @@ class _BoardState extends State<Chessboard> {
     if (selected != null && square != selected) {
       final couldMove = _tryMoveOrPremoveTo(square);
       if (!couldMove && _isMovable(piece)) {
-        setState(() {
-          selected = square;
-        });
+        _setSelection(square);
       } else {
-        setState(() {
-          selected = null;
-          _premoveDests = null;
-        });
+        _setSelection(null);
       }
     }
     // the selected piece is touched again:
@@ -728,32 +749,27 @@ class _BoardState extends State<Chessboard> {
     // no piece was selected yet and a movable piece is touched:
     // - select the piece
     else if (_isMovable(piece)) {
-      setState(() {
-        selected = square;
-      });
+      _setSelection(square);
     }
     // no piece was selected yet and a premovable piece is touched:
     // - select the piece
     // - make the premove destinations
     else if (_isPremovable(piece)) {
-      setState(() {
-        selected = square;
-        _premoveDests = premovesOf(
+      _setSelection(
+        square,
+        newPremoveDests: premovesOf(
           square,
           pieces,
           canCastle: widget.settings.enablePremoveCastling,
-        );
-      });
+        ),
+      );
     }
     // pointer down on empty square:
     // - cancel premove
     // - unselect piece
     else if (widget.game?.premovable?.premove != null) {
       widget.game?.premovable?.onSetPremove.call(null);
-      setState(() {
-        selected = null;
-        _premoveDests = null;
-      });
+      _setSelection(null);
     }
 
     // there is a premove set from the touched square:
@@ -850,11 +866,8 @@ class _BoardState extends State<Chessboard> {
         widget.game?.premovable?.onSetPremove.call(null);
       }
       _onDragEnd();
+      if (shouldDeselect) _setSelection(null);
       setState(() {
-        if (shouldDeselect) {
-          selected = null;
-          _premoveDests = null;
-        }
         _draggedPieceSquare = null;
       });
     }
@@ -862,10 +875,7 @@ class _BoardState extends State<Chessboard> {
     else if (selected != null) {
       if (square == selected && _shouldDeselectOnTapUp) {
         _shouldDeselectOnTapUp = false;
-        setState(() {
-          selected = null;
-          _premoveDests = null;
-        });
+        _setSelection(null);
       }
     }
 
@@ -988,9 +998,9 @@ class _BoardState extends State<Chessboard> {
     _dragAvatar?.end();
     _dragAvatar = null;
     _renderBox = null;
+    _setSelection(null);
     setState(() {
       _draggedPieceSquare = null;
-      selected = null;
     });
     _currentPointerDownEvent = null;
     _shouldDeselectOnTapUp = false;
