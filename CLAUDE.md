@@ -13,6 +13,7 @@ flutter pub get          # Install dependencies
 flutter test             # Run all tests
 flutter test test/fen_test.dart  # Run a single test file
 flutter analyze          # Run static analysis (strict mode: strict-casts, strict-inference, strict-raw-types)
+dart format lib/ test/   # Format all source files
 ```
 
 CI uses Flutter **beta** channel.
@@ -53,3 +54,4 @@ The board is driven by immutable data objects:
 - Immutable data classes with `@immutable`, `copyWith()`, manual `==`/`hashCode`
 - Single quotes for strings (enforced by linter)
 - Linting via `package:lint/package.yaml` with all strict modes enabled
+- All files must be formatted with `dart format` before committing
