@@ -6,6 +6,7 @@ import 'package:flutter/widgets.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 
 import 'board_border.dart';
+import 'board_painter.dart';
 import 'color_filter.dart';
 import 'piece.dart';
 import 'highlight.dart';
@@ -16,6 +17,7 @@ import 'promotion.dart';
 import 'shape.dart';
 import 'board_annotation.dart';
 import 'static_board.dart';
+import '../images.dart';
 import '../models.dart';
 import '../fen.dart';
 import '../premove.dart';
@@ -230,13 +232,54 @@ class _BoardState extends State<Chessboard> {
               : colorScheme.background,
     );
 
+    final bool premoveVisible =
+        premove != null && widget.game?.playerSide.name == widget.game?.sideToMove.opposite.name;
+
+    final Map<Square, Color> solidCustomHighlights = {};
+    final List<Widget> customImageHighlights = [];
+    for (final MapEntry(key: square, value: highlight) in widget.squareHighlights.entries) {
+      if (highlight.details.image != null) {
+        customImageHighlights.add(
+          PositionedSquare(
+            key: ValueKey('${square.name}-highlight'),
+            size: widget.size,
+            orientation: widget.orientation,
+            square: square,
+            child: highlight,
+          ),
+        );
+      } else if (highlight.details.solidColor != null) {
+        solidCustomHighlights[square] = highlight.details.solidColor!;
+      }
+    }
+
+    final Set<Square> occupiedSquares = pieces.keys.toSet();
+
+    final highlightsPainter = HighlightsPainter(
+      squareSize: widget.squareSize,
+      orientation: widget.orientation,
+      showLastMove: settings.showLastMove,
+      lastMove: widget.lastMove,
+      premove: premoveVisible ? premove : null,
+      premoveColor: colorScheme.validPremoves,
+      lastMoveColor: colorScheme.lastMove.solidColor,
+      selected: selected,
+      selectedColor: colorScheme.selected.solidColor,
+      moveDests: moveDests,
+      premoveDests: premoveDests,
+      validMoveColor: colorScheme.validMoves,
+      occupiedSquares: occupiedSquares,
+      checkSquare: checkSquare,
+      squareHighlights: IMap(solidCustomHighlights),
+    );
+
     final List<Widget> highlightedBackground = [
       SizedBox.square(
         key: const ValueKey('board-background'),
         dimension: widget.size,
         child: background,
       ),
-      if (settings.showLastMove && widget.lastMove != null)
+      if (settings.showLastMove && widget.lastMove != null && colorScheme.lastMove.image != null)
         for (final square in widget.lastMove!.squares)
           if (premove == null || !premove.hasSquare(square))
             PositionedSquare(
@@ -246,18 +289,7 @@ class _BoardState extends State<Chessboard> {
               square: square,
               child: SquareHighlight(details: colorScheme.lastMove),
             ),
-      if (premove != null && widget.game?.playerSide.name == widget.game?.sideToMove.opposite.name)
-        for (final square in premove.squares)
-          PositionedSquare(
-            key: ValueKey('${square.name}-premove'),
-            size: widget.size,
-            orientation: widget.orientation,
-            square: square,
-            child: SquareHighlight(
-              details: HighlightDetails(solidColor: colorScheme.validPremoves),
-            ),
-          ),
-      if (selected != null)
+      if (selected != null && colorScheme.selected.image != null)
         PositionedSquare(
           key: ValueKey('${selected!.name}-selected'),
           size: widget.size,
@@ -265,47 +297,60 @@ class _BoardState extends State<Chessboard> {
           square: selected!,
           child: SquareHighlight(details: colorScheme.selected),
         ),
-      for (final dest in moveDests)
-        PositionedSquare(
-          key: ValueKey('${dest.name}-dest'),
-          size: widget.size,
-          orientation: widget.orientation,
-          square: dest,
-          child: ValidMoveHighlight(
-            size: widget.squareSize,
-            color: colorScheme.validMoves,
-            occupied: pieces.containsKey(dest),
-          ),
-        ),
-      for (final dest in premoveDests)
-        PositionedSquare(
-          key: ValueKey('${dest.name}-premove-dest'),
-          size: widget.size,
-          orientation: widget.orientation,
-          square: dest,
-          child: ValidMoveHighlight(
-            size: widget.squareSize,
-            color: colorScheme.validPremoves,
-            occupied: pieces.containsKey(dest),
-          ),
-        ),
-      if (checkSquare != null)
-        PositionedSquare(
-          key: ValueKey('${checkSquare.name}-check'),
-          size: widget.size,
-          orientation: widget.orientation,
-          square: checkSquare,
-          child: CheckHighlight(size: widget.squareSize),
-        ),
-      for (final MapEntry(key: square, value: highlight) in widget.squareHighlights.entries)
-        PositionedSquare(
-          key: ValueKey('${square.name}-highlight'),
-          size: widget.size,
-          orientation: widget.orientation,
-          square: square,
-          child: highlight,
-        ),
+      SizedBox.square(
+        key: const ValueKey('board-highlights'),
+        dimension: widget.size,
+        child: CustomPaint(painter: highlightsPainter),
+      ),
+      ...customImageHighlights,
     ];
+
+    final Set<Square> upsideDownPieceSquares = {};
+    final List<Widget> fallbackPieceWidgets = [];
+    for (final entry in pieces.entries) {
+      final square = entry.key;
+      if (translatingPieces.containsKey(square) ||
+          square == _draggedPieceSquare ||
+          square == widget.game?.promotionMove?.from) {
+        continue;
+      }
+      final piece = entry.value;
+      final upsideDown = _isUpsideDown(piece.color);
+      if (upsideDown) {
+        upsideDownPieceSquares.add(square);
+      }
+      final asset = settings.pieceAssets[piece.kind];
+      final cached = asset != null ? ChessgroundImages.instance.get(asset) : null;
+      if (cached == null && !settings.blindfoldMode) {
+        fallbackPieceWidgets.add(
+          PositionedSquare(
+            key: ValueKey('${square.name}-$piece'),
+            size: widget.size,
+            orientation: widget.orientation,
+            square: square,
+            child: PieceWidget(
+              piece: piece,
+              size: widget.squareSize,
+              pieceAssets: settings.pieceAssets,
+              blindfoldMode: settings.blindfoldMode,
+              upsideDown: upsideDown,
+            ),
+          ),
+        );
+      }
+    }
+
+    final piecesPainter = PiecesPainter(
+      pieces: pieces,
+      pieceAssets: settings.pieceAssets,
+      squareSize: widget.squareSize,
+      orientation: widget.orientation,
+      draggedPieceSquare: _draggedPieceSquare,
+      translatingPieceSquares: translatingPieces.keys.toSet(),
+      promotionMoveFrom: widget.game?.promotionMove?.from,
+      blindfoldMode: settings.blindfoldMode,
+      upsideDownSquares: upsideDownPieceSquares,
+    );
 
     final List<Widget> objects = [
       for (final entry in fadingPieces.entries)
@@ -328,23 +373,12 @@ class _BoardState extends State<Chessboard> {
             },
           ),
         ),
-      for (final entry in pieces.entries)
-        if (!translatingPieces.containsKey(entry.key) &&
-            entry.key != _draggedPieceSquare &&
-            entry.key != widget.game?.promotionMove?.from)
-          PositionedSquare(
-            key: ValueKey('${entry.key.name}-${entry.value}'),
-            size: widget.size,
-            orientation: widget.orientation,
-            square: entry.key,
-            child: PieceWidget(
-              piece: entry.value,
-              size: widget.squareSize,
-              pieceAssets: settings.pieceAssets,
-              blindfoldMode: settings.blindfoldMode,
-              upsideDown: _isUpsideDown(entry.value.color),
-            ),
-          ),
+      SizedBox.square(
+        key: const ValueKey('board-pieces'),
+        dimension: widget.size,
+        child: CustomPaint(painter: piecesPainter),
+      ),
+      ...fallbackPieceWidgets,
       for (final entry in translatingPieces.entries)
         PositionedSquare(
           key: ValueKey('${entry.key.name}-${entry.value.piece}'),

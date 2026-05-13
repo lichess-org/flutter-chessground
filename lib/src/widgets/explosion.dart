@@ -37,13 +37,14 @@ class _ExplosionWidgetState extends State<ExplosionWidget> with SingleTickerProv
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(vsync: this, duration: widget.duration)
-      ..addStatusListener((status) {
-        if (status == AnimationStatus.completed) {
-          widget.onComplete();
-        }
-      })
-      ..forward();
+    _controller =
+        AnimationController(vsync: this, duration: widget.duration)
+          ..addStatusListener((status) {
+            if (status == AnimationStatus.completed) {
+              widget.onComplete();
+            }
+          })
+          ..forward();
   }
 
   @override
@@ -110,11 +111,7 @@ class _ExplosionPainter extends CustomPainter {
       final expandT = Curves.easeOut.transform((t * 1.8).clamp(0.0, 1.0));
       final r = maxR * 0.75 * expandT;
       // Outer fireball body.
-      canvas.drawCircle(
-        center,
-        r,
-        Paint()..color = Color.fromRGBO(255, 70, 0, fireOpacity * 0.88),
-      );
+      canvas.drawCircle(center, r, Paint()..color = Color.fromRGBO(255, 70, 0, fireOpacity * 0.88));
       // Brighter inner core.
       canvas.drawCircle(
         center,
