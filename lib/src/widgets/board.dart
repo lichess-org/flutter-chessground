@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui' as ui;
 import 'package:chessground/src/widgets/geometry.dart';
 import 'package:dartchess/dartchess.dart';
 import 'package:flutter/gestures.dart';
@@ -948,21 +949,20 @@ class _BoardState extends State<Chessboard> {
               ? DragTargetKind.square
               : widget.settings.dragTargetKind;
 
-      final targetWidget = switch (targetKind) {
-        DragTargetKind.circle => Container(
-          key: const ValueKey('drag-target-circle'),
-          width: widget.squareSize * 2,
-          height: widget.squareSize * 2,
-          decoration: const BoxDecoration(color: Color(0x33000000), shape: BoxShape.circle),
-        ),
-        DragTargetKind.square => Container(
-          key: const ValueKey('drag-target-square'),
-          width: widget.squareSize,
-          height: widget.squareSize,
-          decoration: const BoxDecoration(color: Color(0x33000000)),
-        ),
-        DragTargetKind.none => const SizedBox.shrink(),
-      };
+      final asset = widget.settings.pieceAssets[piece.kind]!;
+      final image = ChessgroundImages.instance.get(asset);
+      final upsideDown = _isUpsideDown(piece.color);
+
+      // Fallback widget used when the image is not in the ChessgroundImages cache.
+      final Widget? fallbackPieceWidget =
+          image == null && !widget.settings.blindfoldMode
+              ? PieceWidget(
+                piece: piece,
+                size: feedbackSize,
+                pieceAssets: widget.settings.pieceAssets,
+                upsideDown: upsideDown,
+              )
+              : null;
 
       _dragAvatar = _DragAvatar(
         overlayState: Overlay.of(context, debugRequiredFor: widget),
@@ -972,17 +972,13 @@ class _BoardState extends State<Chessboard> {
           _renderBox!,
           isLargeCircle: targetKind == DragTargetKind.circle,
         ),
-        squareTargetFeedback: targetWidget,
-        pieceFeedback: Transform.translate(
-          offset: feedbackOffset,
-          child: PieceWidget(
-            piece: piece,
-            size: feedbackSize,
-            pieceAssets: widget.settings.pieceAssets,
-            blindfoldMode: widget.settings.blindfoldMode,
-            upsideDown: _isUpsideDown(piece.color),
-          ),
-        ),
+        image: image,
+        feedbackSize: feedbackSize,
+        feedbackOffset: feedbackOffset,
+        upsideDown: upsideDown,
+        targetKind: targetKind,
+        squareSize: widget.squareSize,
+        fallbackPieceWidget: fallbackPieceWidget,
       );
     }
   }
@@ -1087,11 +1083,9 @@ class _BoardState extends State<Chessboard> {
 // and:
 // https://github.com/flutter/flutter/blob/ee4e09cce01d6f2d7f4baebd247fde02e5008851/packages/flutter/lib/src/widgets/overlay.dart#L58
 class _DragAvatar {
-  final Widget pieceFeedback;
-  final Widget squareTargetFeedback;
   final OverlayState overlayState;
-  Offset _position;
-  Offset? _squareTargetPosition;
+  final ValueNotifier<Offset> _positionNotifier;
+  final ValueNotifier<Offset?> _squareTargetNotifier;
   late final OverlayEntry _pieceEntry;
   late final OverlayEntry _squareTargetEntry;
 
@@ -1099,64 +1093,174 @@ class _DragAvatar {
     required this.overlayState,
     required Offset initialPosition,
     Offset? initialTargetPosition,
-    required this.pieceFeedback,
-    required this.squareTargetFeedback,
-  }) : _position = initialPosition,
-       _squareTargetPosition = initialTargetPosition {
-    _pieceEntry = OverlayEntry(builder: _buildPieceFeedback);
-    _squareTargetEntry = OverlayEntry(builder: _buildSquareTargetFeedback);
+    required ui.Image? image,
+    required double feedbackSize,
+    required Offset feedbackOffset,
+    required bool upsideDown,
+    required DragTargetKind targetKind,
+    required double squareSize,
+    Widget? fallbackPieceWidget,
+  }) : _positionNotifier = ValueNotifier<Offset>(initialPosition),
+       _squareTargetNotifier = ValueNotifier<Offset?>(initialTargetPosition) {
+    if (image != null) {
+      // Optimized path: only the paint phase runs on each pointer move.
+      _pieceEntry = OverlayEntry(
+        builder:
+            (_) => Positioned.fill(
+              child: IgnorePointer(
+                child: CustomPaint(
+                  painter: _DragPiecePainter(
+                    image: image,
+                    feedbackSize: feedbackSize,
+                    feedbackOffset: feedbackOffset,
+                    upsideDown: upsideDown,
+                    positionNotifier: _positionNotifier,
+                  ),
+                ),
+              ),
+            ),
+      );
+    } else {
+      // Fallback when the image is not in ChessgroundImages cache: use a widget
+      // wrapped in ValueListenableBuilder so position updates rebuild only the
+      // Positioned wrapper, not the whole OverlayEntry.
+      _pieceEntry = OverlayEntry(
+        builder:
+            (_) => ValueListenableBuilder<Offset>(
+              valueListenable: _positionNotifier,
+              builder:
+                  (_, pos, child) => Positioned(
+                    left: pos.dx + feedbackOffset.dx,
+                    top: pos.dy + feedbackOffset.dy,
+                    child: child!,
+                  ),
+              child: IgnorePointer(child: fallbackPieceWidget ?? const SizedBox.shrink()),
+            ),
+      );
+    }
+    _squareTargetEntry = OverlayEntry(
+      builder:
+          (_) => Positioned.fill(
+            child: IgnorePointer(
+              child: CustomPaint(
+                painter: _DragSquareTargetPainter(
+                  squareSize: squareSize,
+                  targetKind: targetKind,
+                  positionNotifier: _squareTargetNotifier,
+                ),
+              ),
+            ),
+          ),
+    );
     overlayState.insert(_squareTargetEntry);
     overlayState.insert(_pieceEntry);
-    _updateDrag();
   }
 
   void update(PointerEvent details) {
-    _position += details.delta;
-    _updateDrag();
+    _positionNotifier.value = _positionNotifier.value + details.delta;
   }
 
   void updateSquareTarget(Offset? squareTargetOffset) {
-    if (_squareTargetPosition != squareTargetOffset) {
-      _squareTargetPosition = squareTargetOffset;
-      _squareTargetEntry.markNeedsBuild();
+    if (_squareTargetNotifier.value != squareTargetOffset) {
+      _squareTargetNotifier.value = squareTargetOffset;
     }
   }
 
   void end() {
-    finishDrag();
+    _finishDrag();
   }
 
   void cancel() {
-    finishDrag();
+    _finishDrag();
   }
 
-  void _updateDrag() {
-    _pieceEntry.markNeedsBuild();
-  }
-
-  void finishDrag() {
+  void _finishDrag() {
     _pieceEntry.remove();
     _squareTargetEntry.remove();
+    _positionNotifier.dispose();
+    _squareTargetNotifier.dispose();
   }
+}
 
-  Widget _buildPieceFeedback(BuildContext context) {
-    return Positioned(
-      left: _position.dx,
-      top: _position.dy,
-      child: IgnorePointer(child: pieceFeedback),
+class _DragPiecePainter extends CustomPainter {
+  _DragPiecePainter({
+    required this.image,
+    required this.feedbackSize,
+    required this.feedbackOffset,
+    required this.upsideDown,
+    required this.positionNotifier,
+  }) : super(repaint: positionNotifier);
+
+  final ui.Image? image;
+  final double feedbackSize;
+  final Offset feedbackOffset;
+  final bool upsideDown;
+  final ValueNotifier<Offset> positionNotifier;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final img = image;
+    if (img == null) return;
+    final pos = positionNotifier.value;
+    final dst = Rect.fromLTWH(
+      pos.dx + feedbackOffset.dx,
+      pos.dy + feedbackOffset.dy,
+      feedbackSize,
+      feedbackSize,
     );
+    final src = Rect.fromLTWH(0, 0, img.width.toDouble(), img.height.toDouble());
+    final paint = Paint()..filterQuality = FilterQuality.medium;
+    if (upsideDown) {
+      canvas.save();
+      canvas.translate(dst.center.dx, dst.center.dy);
+      canvas.rotate(3.141592653589793);
+      canvas.translate(-dst.center.dx, -dst.center.dy);
+      canvas.drawImageRect(img, src, dst, paint);
+      canvas.restore();
+    } else {
+      canvas.drawImageRect(img, src, dst, paint);
+    }
   }
 
-  Widget _buildSquareTargetFeedback(BuildContext context) {
-    if (_squareTargetPosition != null) {
-      return Positioned(
-        left: _squareTargetPosition!.dx,
-        top: _squareTargetPosition!.dy,
-        child: IgnorePointer(child: squareTargetFeedback),
-      );
+  @override
+  bool shouldRepaint(_DragPiecePainter oldDelegate) {
+    return image != oldDelegate.image ||
+        feedbackSize != oldDelegate.feedbackSize ||
+        feedbackOffset != oldDelegate.feedbackOffset ||
+        upsideDown != oldDelegate.upsideDown;
+  }
+}
+
+class _DragSquareTargetPainter extends CustomPainter {
+  _DragSquareTargetPainter({
+    required this.squareSize,
+    required this.targetKind,
+    required this.positionNotifier,
+  }) : super(repaint: positionNotifier);
+
+  final double squareSize;
+  final DragTargetKind targetKind;
+  final ValueNotifier<Offset?> positionNotifier;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final pos = positionNotifier.value;
+    if (pos == null || targetKind == DragTargetKind.none) return;
+    final paint =
+        Paint()
+          ..color = const Color(0x33000000)
+          ..style = PaintingStyle.fill;
+    if (targetKind == DragTargetKind.circle) {
+      // pos is already offset by -squareSize/2 so the circle is centered on the square
+      canvas.drawCircle(Offset(pos.dx + squareSize, pos.dy + squareSize), squareSize, paint);
     } else {
-      return const SizedBox.shrink();
+      canvas.drawRect(Rect.fromLTWH(pos.dx, pos.dy, squareSize, squareSize), paint);
     }
+  }
+
+  @override
+  bool shouldRepaint(_DragSquareTargetPainter oldDelegate) {
+    return squareSize != oldDelegate.squareSize || targetKind != oldDelegate.targetKind;
   }
 }
 

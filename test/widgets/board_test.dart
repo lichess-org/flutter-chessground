@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui' as ui;
 import 'package:chessground/src/widgets/animation.dart';
 import 'package:chessground/src/widgets/board_painter.dart';
 import 'package:chessground/src/widgets/promotion.dart';
@@ -2221,6 +2222,112 @@ void main() {
       expect(find.byType(ExplosionWidget), findsNothing);
     });
   });
+
+  group('board piece rendering', () {
+    testWidgets('all pieces use PieceWidget when cache is empty', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        const Chessboard.fixed(size: boardSize, orientation: Side.white, fen: kInitialFEN),
+      );
+
+      expect(find.byType(PieceWidget), findsNWidgets(32));
+    });
+
+    testWidgets('no fallback PieceWidget when all images are cached', (WidgetTester tester) async {
+      final pieceAssets = const ChessboardSettings().pieceAssets;
+      for (final asset in pieceAssets.values.toSet()) {
+        ChessgroundImages.instance.add(asset, await _createFakeImage(45, 45));
+      }
+      addTearDown(() {
+        for (final asset in pieceAssets.values.toSet()) {
+          ChessgroundImages.instance.evict(asset);
+        }
+      });
+
+      await tester.pumpWidget(
+        const Chessboard.fixed(size: boardSize, orientation: Side.white, fen: kInitialFEN),
+      );
+
+      // All pieces drawn by PiecesPainter — no fallback widgets in the tree.
+      expect(find.byType(PieceWidget), findsNothing);
+    });
+
+    testWidgets('only uncached pieces use PieceWidget', (WidgetTester tester) async {
+      // Cache only the white pawn kind; covers all 8 white pawns.
+      final asset = const ChessboardSettings().pieceAssets[Piece.whitePawn.kind]!;
+      ChessgroundImages.instance.add(asset, await _createFakeImage(45, 45));
+      addTearDown(() => ChessgroundImages.instance.evict(asset));
+
+      await tester.pumpWidget(
+        const Chessboard.fixed(size: boardSize, orientation: Side.white, fen: kInitialFEN),
+      );
+
+      // 32 total pieces − 8 white pawns drawn by PiecesPainter = 24 PieceWidgets.
+      expect(find.byType(PieceWidget), findsNWidgets(24));
+    });
+  });
+
+  group('drag avatar rendering', () {
+    // The fallback PieceWidget used when an image is not cached is created with
+    // feedbackSize = squareSize * dragFeedbackScale (default 2.0), which makes it
+    // distinguishable from the board PieceWidgets that all use squareSize.
+    const feedbackSize = squareSize * 2.0; // dragFeedbackScale default
+
+    Iterable<PieceWidget> dragFeedbackPieceWidgets(WidgetTester tester) => tester
+        .widgetList<PieceWidget>(find.byType(PieceWidget))
+        .where((w) => w.size == feedbackSize);
+
+    testWidgets(
+      'uses CustomPaint fast path when dragged piece image is in ChessgroundImages cache',
+      (WidgetTester tester) async {
+        final asset = const ChessboardSettings().pieceAssets[Piece.whitePawn.kind]!;
+        final fakeImage = await _createFakeImage(45, 45);
+        ChessgroundImages.instance.add(asset, fakeImage);
+        addTearDown(() => ChessgroundImages.instance.evict(asset));
+
+        await tester.pumpWidget(const _TestApp(initialPlayerSide: PlayerSide.both));
+
+        // All 8 white pawns are now drawn by PiecesPainter, not PieceWidget.
+        expect(tester.widgetList<PieceWidget>(find.byType(PieceWidget)).length, 24);
+
+        await TestAsyncUtils.guard<void>(() async {
+          final gesture = await tester.startGesture(squareOffset(tester, Square.e2));
+          await tester.pump();
+          // Exceed the _kDragDistanceThreshold of 3.0 px to start a drag.
+          await gesture.moveBy(const Offset(0, -4));
+          await tester.pump();
+
+          // Fast path: piece drawn by _DragPiecePainter on canvas — no fallback PieceWidget.
+          expect(dragFeedbackPieceWidgets(tester), isEmpty);
+
+          await gesture.up();
+        });
+        await tester.pump();
+      },
+    );
+
+    testWidgets(
+      'uses PieceWidget fallback when dragged piece image is not in ChessgroundImages cache',
+      (WidgetTester tester) async {
+        // ChessgroundImages cache is empty by default in tests.
+        await tester.pumpWidget(const _TestApp(initialPlayerSide: PlayerSide.both));
+
+        expect(find.byType(PieceWidget), findsNWidgets(32));
+
+        await TestAsyncUtils.guard<void>(() async {
+          final gesture = await tester.startGesture(squareOffset(tester, Square.e2));
+          await tester.pump();
+          await gesture.moveBy(const Offset(0, -4));
+          await tester.pump();
+
+          // Fallback path: one PieceWidget with feedbackSize in the overlay.
+          expect(dragFeedbackPieceWidgets(tester), hasLength(1));
+
+          await gesture.up();
+        });
+        await tester.pump();
+      },
+    );
+  });
 }
 
 Future<void> makeMove(WidgetTester tester, Square from, Square to) async {
@@ -2473,4 +2580,11 @@ Offset squareOffset(WidgetTester tester, Square id, {Side orientation = Side.whi
   final y = orientation == Side.black ? id.rank : 7 - id.rank;
   final o = Offset(rect.left + x * sq, rect.top + y * sq);
   return Offset(o.dx + sq / 2, o.dy + sq / 2);
+}
+
+/// Creates a minimal in-memory [ui.Image] for tests that need a cached piece image.
+Future<ui.Image> _createFakeImage(int width, int height) async {
+  final recorder = ui.PictureRecorder();
+  Canvas(recorder).drawPaint(Paint()..color = const Color(0xFF0000FF));
+  return recorder.endRecording().toImage(width, height);
 }
