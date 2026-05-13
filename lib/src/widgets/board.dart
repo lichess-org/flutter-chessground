@@ -297,10 +297,12 @@ class _BoardState extends State<Chessboard> {
           square: selected!,
           child: SquareHighlight(details: colorScheme.selected),
         ),
-      SizedBox.square(
-        key: const ValueKey('board-highlights'),
-        dimension: widget.size,
-        child: CustomPaint(painter: highlightsPainter),
+      RepaintBoundary(
+        child: SizedBox.square(
+          key: const ValueKey('board-highlights'),
+          dimension: widget.size,
+          child: CustomPaint(painter: highlightsPainter),
+        ),
       ),
       ...customImageHighlights,
     ];
@@ -373,10 +375,12 @@ class _BoardState extends State<Chessboard> {
             },
           ),
         ),
-      SizedBox.square(
-        key: const ValueKey('board-pieces'),
-        dimension: widget.size,
-        child: CustomPaint(painter: piecesPainter),
+      RepaintBoundary(
+        child: SizedBox.square(
+          key: const ValueKey('board-pieces'),
+          dimension: widget.size,
+          child: CustomPaint(painter: piecesPainter),
+        ),
       ),
       ...fallbackPieceWidgets,
       for (final entry in translatingPieces.entries)
