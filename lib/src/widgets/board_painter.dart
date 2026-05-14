@@ -235,6 +235,75 @@ class PiecesPainter extends CustomPainter {
   }
 }
 
+/// Paints all fading-out pieces for the current animation frame.
+///
+/// Driven by [animation] as the repaint listenable — only [paint] runs per
+/// frame, no widget rebuild.
+class FadingPiecesPainter extends CustomPainter {
+  FadingPiecesPainter({
+    required this.fadingPieces,
+    required this.squareSize,
+    required this.orientation,
+    required this.pieceAssets,
+    required this.blindfoldMode,
+    required this.upsideDownSquares,
+    required Animation<double> animation,
+  }) : _animation = animation,
+       super(repaint: animation);
+
+  final FadingPieces fadingPieces;
+  final double squareSize;
+  final Side orientation;
+  final PieceAssets pieceAssets;
+  final bool blindfoldMode;
+  final Set<Square> upsideDownSquares;
+  final Animation<double> _animation;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (blindfoldMode || fadingPieces.isEmpty) return;
+
+    final alpha = (255 * (1.0 - _animation.value)).round().clamp(0, 255);
+    final paint = Paint()
+      ..filterQuality = FilterQuality.medium
+      ..color = Color.fromARGB(alpha, 255, 255, 255);
+
+    for (final entry in fadingPieces.entries) {
+      final square = entry.key;
+      final piece = entry.value;
+
+      final asset = pieceAssets[piece.kind];
+      if (asset == null) continue;
+      final image = ChessgroundImages.instance.get(asset);
+      if (image == null) continue;
+
+      final dst = _squareRect(square, squareSize, orientation);
+      final src = Rect.fromLTWH(0, 0, image.width.toDouble(), image.height.toDouble());
+
+      if (upsideDownSquares.contains(square)) {
+        canvas.save();
+        canvas.translate(dst.center.dx, dst.center.dy);
+        canvas.rotate(3.141592653589793);
+        canvas.translate(-dst.center.dx, -dst.center.dy);
+        canvas.drawImageRect(image, src, dst, paint);
+        canvas.restore();
+      } else {
+        canvas.drawImageRect(image, src, dst, paint);
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(FadingPiecesPainter oldDelegate) {
+    return squareSize != oldDelegate.squareSize ||
+        orientation != oldDelegate.orientation ||
+        blindfoldMode != oldDelegate.blindfoldMode ||
+        pieceAssets != oldDelegate.pieceAssets ||
+        !_mapEquals(fadingPieces, oldDelegate.fadingPieces) ||
+        !_setEquals(upsideDownSquares, oldDelegate.upsideDownSquares);
+  }
+}
+
 /// Paints all translating pieces for the current animation frame.
 ///
 /// Driven by [animation] as the repaint listenable — only [paint] runs per
