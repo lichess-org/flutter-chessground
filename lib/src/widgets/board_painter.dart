@@ -43,12 +43,13 @@ class HighlightsPainter extends CustomPainter {
     required this.lastMove,
     required this.premove,
     required this.premoveColor,
-    required this.lastMoveColor,
-    required this.selectedColor,
+    required this.lastMoveDetails,
+    required this.selectedDetails,
     required this.validMoveColor,
     required this.occupiedSquares,
     required this.checkSquare,
     required this.squareHighlights,
+    required this.highlightImagesLoaded,
   }) : super(repaint: interactionNotifier);
 
   final BoardHighlightNotifier interactionNotifier;
@@ -58,12 +59,13 @@ class HighlightsPainter extends CustomPainter {
   final Move? lastMove;
   final Move? premove;
   final Color premoveColor;
-  final Color? lastMoveColor;
-  final Color? selectedColor;
+  final HighlightDetails? lastMoveDetails;
+  final HighlightDetails? selectedDetails;
   final Color validMoveColor;
   final Set<Square> occupiedSquares;
   final Square? checkSquare;
-  final IMap<Square, Color> squareHighlights;
+  final IMap<Square, HighlightDetails> squareHighlights;
+  final bool highlightImagesLoaded;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -71,11 +73,10 @@ class HighlightsPainter extends CustomPainter {
     final moveDests = interactionNotifier.moveDests;
     final premoveDests = interactionNotifier.premoveDests;
 
-    if (showLastMove && lastMove != null && lastMoveColor != null) {
-      final paint = Paint()..color = lastMoveColor!;
+    if (showLastMove && lastMove != null) {
       for (final square in lastMove!.squares) {
         if (premove == null || !premove!.hasSquare(square)) {
-          canvas.drawRect(_squareRect(square, squareSize, orientation), paint);
+          _drawHighlight(canvas, _squareRect(square, squareSize, orientation), lastMoveDetails);
         }
       }
     }
@@ -87,13 +88,12 @@ class HighlightsPainter extends CustomPainter {
       }
     }
 
-    final sc = selectedColor;
-    if (selected != null && sc != null) {
-      canvas.drawRect(_squareRect(selected, squareSize, orientation), Paint()..color = sc);
+    if (selected != null) {
+      _drawHighlight(canvas, _squareRect(selected, squareSize, orientation), selectedDetails);
     }
 
-    for (final MapEntry(key: square, value: color) in squareHighlights.entries) {
-      canvas.drawRect(_squareRect(square, squareSize, orientation), Paint()..color = color);
+    for (final MapEntry(key: square, value: details) in squareHighlights.entries) {
+      _drawHighlight(canvas, _squareRect(square, squareSize, orientation), details);
     }
 
     if (moveDests.isNotEmpty) {
@@ -105,6 +105,20 @@ class HighlightsPainter extends CustomPainter {
 
     if (checkSquare != null) {
       _drawCheck(canvas, checkSquare!);
+    }
+  }
+
+  void _drawHighlight(Canvas canvas, Rect rect, HighlightDetails? details) {
+    if (details == null) return;
+    if (details.solidColor != null) {
+      canvas.drawRect(rect, Paint()..color = details.solidColor!);
+    }
+    if (details.image != null) {
+      final image = ChessgroundImages.instance.get(details.image!);
+      if (image != null) {
+        final src = Rect.fromLTWH(0, 0, image.width.toDouble(), image.height.toDouble());
+        canvas.drawImageRect(image, src, rect, Paint()..filterQuality = FilterQuality.medium);
+      }
     }
   }
 
@@ -145,14 +159,15 @@ class HighlightsPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(HighlightsPainter oldDelegate) {
-    return squareSize != oldDelegate.squareSize ||
+    return highlightImagesLoaded != oldDelegate.highlightImagesLoaded ||
+        squareSize != oldDelegate.squareSize ||
         orientation != oldDelegate.orientation ||
         showLastMove != oldDelegate.showLastMove ||
         lastMove != oldDelegate.lastMove ||
         premove != oldDelegate.premove ||
         premoveColor != oldDelegate.premoveColor ||
-        lastMoveColor != oldDelegate.lastMoveColor ||
-        selectedColor != oldDelegate.selectedColor ||
+        lastMoveDetails != oldDelegate.lastMoveDetails ||
+        selectedDetails != oldDelegate.selectedDetails ||
         validMoveColor != oldDelegate.validMoveColor ||
         !_setEquals(occupiedSquares, oldDelegate.occupiedSquares) ||
         checkSquare != oldDelegate.checkSquare ||
@@ -265,9 +280,10 @@ class FadingPiecesPainter extends CustomPainter {
     if (blindfoldMode || fadingPieces.isEmpty) return;
 
     final alpha = (255 * (1.0 - _animation.value)).round().clamp(0, 255);
-    final paint = Paint()
-      ..filterQuality = FilterQuality.medium
-      ..color = Color.fromARGB(alpha, 255, 255, 255);
+    final paint =
+        Paint()
+          ..filterQuality = FilterQuality.medium
+          ..color = Color.fromARGB(alpha, 255, 255, 255);
 
     for (final entry in fadingPieces.entries) {
       final square = entry.key;

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:dartchess/dartchess.dart';
+import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 import '../board_color_scheme.dart';
@@ -12,8 +13,6 @@ import 'animation.dart';
 import 'board_painter.dart';
 import 'color_filter.dart';
 import 'geometry.dart';
-import 'highlight.dart';
-import 'positioned_square.dart';
 
 /// A chessboard widget that cannot be interacted with.
 ///
@@ -86,6 +85,8 @@ class StaticChessboard extends StatefulWidget with ChessboardGeometry {
 class _StaticChessboardState extends State<StaticChessboard> with SingleTickerProviderStateMixin {
   bool _deferImagesLoading = false;
   bool _imagesLoaded = false;
+  bool _highlightImagesLoaded = false;
+  late final BoardHighlightNotifier _highlightNotifier;
 
   /// Pieces on the board.
   Pieces pieces = {};
@@ -116,8 +117,11 @@ class _StaticChessboardState extends State<StaticChessboard> with SingleTickerPr
       curve: Curves.easeInOutCubic,
     );
     _fadeAnimation = CurvedAnimation(parent: _pieceAnimationController, curve: Curves.easeInQuad);
+    _highlightNotifier = BoardHighlightNotifier();
     _imagesLoaded = ChessgroundImages.instance.isAllLoaded(widget.pieceAssets);
     if (!_imagesLoaded) _loadImages(widget.pieceAssets);
+    _highlightImagesLoaded = _areHighlightImagesLoaded();
+    if (!_highlightImagesLoaded) _loadHighlightImages();
   }
 
   Future<void> _loadImages(PieceAssets assets) async {
@@ -126,8 +130,22 @@ class _StaticChessboardState extends State<StaticChessboard> with SingleTickerPr
     if (mounted) setState(() => _imagesLoaded = true);
   }
 
+  bool _areHighlightImagesLoaded() {
+    final image = widget.colorScheme.lastMove.image;
+    return image == null || ChessgroundImages.instance.get(image) != null;
+  }
+
+  Future<void> _loadHighlightImages() async {
+    final image = widget.colorScheme.lastMove.image;
+    if (image == null) return;
+    final dpr = WidgetsBinding.instance.platformDispatcher.implicitView?.devicePixelRatio;
+    await ChessgroundImages.instance.load(image, devicePixelRatio: dpr);
+    if (mounted) setState(() => _highlightImagesLoaded = true);
+  }
+
   @override
   void dispose() {
+    _highlightNotifier.dispose();
     _fadeAnimation.dispose();
     _translationAnimation.dispose();
     _pieceAnimationController.dispose();
@@ -141,6 +159,11 @@ class _StaticChessboardState extends State<StaticChessboard> with SingleTickerPr
     if (oldWidget.pieceAssets != widget.pieceAssets) {
       _imagesLoaded = ChessgroundImages.instance.isAllLoaded(widget.pieceAssets);
       if (!_imagesLoaded) _loadImages(widget.pieceAssets);
+    }
+
+    if (oldWidget.colorScheme != widget.colorScheme) {
+      _highlightImagesLoaded = _areHighlightImagesLoaded();
+      if (!_highlightImagesLoaded) _loadHighlightImages();
     }
 
     if (oldWidget.animationDuration != widget.animationDuration) {
@@ -234,19 +257,29 @@ class _StaticChessboardState extends State<StaticChessboard> with SingleTickerPr
       animation: _translationAnimation,
     );
 
+    final highlightsPainter = HighlightsPainter(
+      interactionNotifier: _highlightNotifier,
+      squareSize: widget.squareSize,
+      orientation: widget.orientation,
+      showLastMove: true,
+      lastMove: widget.lastMove,
+      premove: null,
+      premoveColor: widget.colorScheme.validPremoves,
+      lastMoveDetails: widget.colorScheme.lastMove,
+      selectedDetails: widget.colorScheme.selected,
+      validMoveColor: widget.colorScheme.validMoves,
+      occupiedSquares: const {},
+      checkSquare: null,
+      squareHighlights: const IMapConst({}),
+      highlightImagesLoaded: _highlightImagesLoaded,
+    );
+
     final List<Widget> highlightedBackground = [
       BrightnessHueFilter(
         hue: widget.hue,
         child: SizedBox.square(dimension: widget.size, child: background),
       ),
-      if (widget.lastMove != null)
-        for (final square in widget.lastMove!.squares)
-          PositionedSquare(
-            size: widget.size,
-            orientation: widget.orientation,
-            square: square,
-            child: SquareHighlight(details: widget.colorScheme.lastMove),
-          ),
+      CustomPaint(size: Size.square(widget.size), painter: highlightsPainter),
     ];
 
     final board = SizedBox.square(

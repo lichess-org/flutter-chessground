@@ -127,6 +127,18 @@ class HighlightDetails {
 
   final Color? solidColor;
   final AssetImage? image;
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        other is HighlightDetails &&
+            other.runtimeType == runtimeType &&
+            other.solidColor == solidColor &&
+            other.image == image;
+  }
+
+  @override
+  int get hashCode => Object.hash(solidColor, image);
 }
 
 /// A chess move annotation represented by a symbol and a color.

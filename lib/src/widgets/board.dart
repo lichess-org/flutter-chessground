@@ -212,6 +212,9 @@ class _BoardState extends State<Chessboard> with SingleTickerProviderStateMixin 
   /// Whether all piece images are available in the cache.
   bool _imagesLoaded = false;
 
+  /// Whether all highlight images are available in the cache.
+  bool _highlightImagesLoaded = false;
+
   /// Drives [HighlightsPainter] repaints for selection/premove changes without
   /// triggering a full widget rebuild.
   late final BoardHighlightNotifier _highlightNotifier;
@@ -244,23 +247,10 @@ class _BoardState extends State<Chessboard> with SingleTickerProviderStateMixin 
     final bool premoveVisible =
         premove != null && widget.game?.playerSide.name == widget.game?.sideToMove.opposite.name;
 
-    final Map<Square, Color> solidCustomHighlights = {};
-    final List<Widget> customImageHighlights = [];
-    for (final MapEntry(key: square, value: highlight) in widget.squareHighlights.entries) {
-      if (highlight.details.image != null) {
-        customImageHighlights.add(
-          PositionedSquare(
-            key: ValueKey('${square.name}-highlight'),
-            size: widget.size,
-            orientation: widget.orientation,
-            square: square,
-            child: highlight,
-          ),
-        );
-      } else if (highlight.details.solidColor != null) {
-        solidCustomHighlights[square] = highlight.details.solidColor!;
-      }
-    }
+    final Map<Square, HighlightDetails> customHighlights = {
+      for (final MapEntry(key: square, value: highlight) in widget.squareHighlights.entries)
+        square: highlight.details,
+    };
 
     final Set<Square> occupiedSquares = pieces.keys.toSet();
 
@@ -272,12 +262,13 @@ class _BoardState extends State<Chessboard> with SingleTickerProviderStateMixin 
       lastMove: widget.lastMove,
       premove: premoveVisible ? premove : null,
       premoveColor: colorScheme.validPremoves,
-      lastMoveColor: colorScheme.lastMove.solidColor,
-      selectedColor: colorScheme.selected.solidColor,
+      lastMoveDetails: colorScheme.lastMove,
+      selectedDetails: colorScheme.selected,
       validMoveColor: colorScheme.validMoves,
       occupiedSquares: occupiedSquares,
       checkSquare: checkSquare,
-      squareHighlights: IMap(solidCustomHighlights),
+      squareHighlights: IMap(customHighlights),
+      highlightImagesLoaded: _highlightImagesLoaded,
     );
 
     final List<Widget> highlightedBackground = [
@@ -286,30 +277,11 @@ class _BoardState extends State<Chessboard> with SingleTickerProviderStateMixin 
         dimension: widget.size,
         child: background,
       ),
-      if (settings.showLastMove && widget.lastMove != null && colorScheme.lastMove.image != null)
-        for (final square in widget.lastMove!.squares)
-          if (premove == null || !premove.hasSquare(square))
-            PositionedSquare(
-              key: ValueKey('${square.name}-lastMove'),
-              size: widget.size,
-              orientation: widget.orientation,
-              square: square,
-              child: SquareHighlight(details: colorScheme.lastMove),
-            ),
-      if (selected != null && colorScheme.selected.image != null)
-        PositionedSquare(
-          key: ValueKey('${selected!.name}-selected'),
-          size: widget.size,
-          orientation: widget.orientation,
-          square: selected!,
-          child: SquareHighlight(details: colorScheme.selected),
-        ),
-      SizedBox.square(
+      CustomPaint(
         key: const ValueKey('board-highlights'),
-        dimension: widget.size,
-        child: CustomPaint(painter: highlightsPainter),
+        size: Size.square(widget.size),
+        painter: highlightsPainter,
       ),
-      ...customImageHighlights,
     ];
 
     final Set<Square> upsideDownFadingSquares = {};
@@ -532,12 +504,49 @@ class _BoardState extends State<Chessboard> with SingleTickerProviderStateMixin 
     _fadeAnimation = CurvedAnimation(parent: _pieceAnimationController, curve: Curves.easeInQuad);
     _imagesLoaded = ChessgroundImages.instance.isAllLoaded(widget.settings.pieceAssets);
     if (!_imagesLoaded) _loadImages(widget.settings.pieceAssets);
+    _highlightImagesLoaded = _areHighlightImagesLoaded();
+    if (!_highlightImagesLoaded) _loadHighlightImages();
   }
 
   Future<void> _loadImages(PieceAssets assets) async {
     final dpr = WidgetsBinding.instance.platformDispatcher.implicitView?.devicePixelRatio;
     await ChessgroundImages.instance.loadAll(assets, devicePixelRatio: dpr);
     if (mounted) setState(() => _imagesLoaded = true);
+  }
+
+  bool _areHighlightImagesLoaded() {
+    final colorScheme = widget.settings.colorScheme;
+    if (colorScheme.lastMove.image != null &&
+        ChessgroundImages.instance.get(colorScheme.lastMove.image!) == null) {
+      return false;
+    }
+    if (colorScheme.selected.image != null &&
+        ChessgroundImages.instance.get(colorScheme.selected.image!) == null) {
+      return false;
+    }
+    for (final highlight in widget.squareHighlights.values) {
+      if (highlight.details.image != null &&
+          ChessgroundImages.instance.get(highlight.details.image!) == null) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  Future<void> _loadHighlightImages() async {
+    final dpr = WidgetsBinding.instance.platformDispatcher.implicitView?.devicePixelRatio;
+    final colorScheme = widget.settings.colorScheme;
+    final images = <AssetImage>[];
+    if (colorScheme.lastMove.image != null) images.add(colorScheme.lastMove.image!);
+    if (colorScheme.selected.image != null) images.add(colorScheme.selected.image!);
+    for (final highlight in widget.squareHighlights.values) {
+      if (highlight.details.image != null) images.add(highlight.details.image!);
+    }
+    if (images.isEmpty) return;
+    await Future.wait([
+      for (final img in images) ChessgroundImages.instance.load(img, devicePixelRatio: dpr),
+    ]);
+    if (mounted) setState(() => _highlightImagesLoaded = true);
   }
 
   @override
@@ -575,6 +584,12 @@ class _BoardState extends State<Chessboard> with SingleTickerProviderStateMixin 
     if (oldBoard.settings.pieceAssets != widget.settings.pieceAssets) {
       _imagesLoaded = ChessgroundImages.instance.isAllLoaded(widget.settings.pieceAssets);
       if (!_imagesLoaded) _loadImages(widget.settings.pieceAssets);
+    }
+
+    if (oldBoard.settings.colorScheme != widget.settings.colorScheme ||
+        oldBoard.squareHighlights != widget.squareHighlights) {
+      _highlightImagesLoaded = _areHighlightImagesLoaded();
+      if (!_highlightImagesLoaded) _loadHighlightImages();
     }
 
     if (oldBoard.settings.animationDuration != widget.settings.animationDuration) {
@@ -639,17 +654,10 @@ class _BoardState extends State<Chessboard> with SingleTickerProviderStateMixin 
   }
 
   /// Sets interaction state and triggers a highlights repaint via the notifier.
-  ///
-  /// Skips [setState] for themes with solid-color highlights; only calls it
-  /// when the color scheme uses image-based highlights (e.g. horsey) where
-  /// the selected highlight is a separate widget in the tree.
   void _setSelection(Square? newSelected, {Set<Square>? newPremoveDests}) {
     selected = newSelected;
     _premoveDests = newPremoveDests;
     _syncHighlightNotifier();
-    if (widget.settings.colorScheme.selected.image != null) {
-      setState(() {});
-    }
   }
 
   /// Returns the position of the square target during drag as a global offset.
