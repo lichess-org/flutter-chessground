@@ -281,10 +281,12 @@ class _BoardState extends State<Chessboard> with SingleTickerProviderStateMixin 
     );
 
     final List<Widget> highlightedBackground = [
-      SizedBox.square(
-        key: const ValueKey('board-background'),
-        dimension: widget.size,
-        child: background,
+      RepaintBoundary(
+        child: SizedBox.square(
+          key: const ValueKey('board-background'),
+          dimension: widget.size,
+          child: background,
+        ),
       ),
       if (settings.showLastMove && widget.lastMove != null && colorScheme.lastMove.image != null)
         for (final square in widget.lastMove!.squares)
@@ -532,7 +534,9 @@ class _BoardState extends State<Chessboard> with SingleTickerProviderStateMixin 
             )
             : board;
 
-    return BrightnessHueFilter(brightness: widget.settings.brightness, child: borderedChessboard);
+    return RepaintBoundary(
+      child: BrightnessHueFilter(brightness: widget.settings.brightness, child: borderedChessboard),
+    );
   }
 
   @override
