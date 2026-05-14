@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:chessground/src/widgets/animation.dart';
 import 'package:dartchess/dartchess.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
@@ -9,10 +8,11 @@ import '../fen.dart';
 import '../images.dart';
 import '../models.dart';
 import '../piece_set.dart';
+import 'animation.dart';
+import 'board_painter.dart';
 import 'color_filter.dart';
 import 'geometry.dart';
 import 'highlight.dart';
-import 'piece.dart';
 import 'positioned_square.dart';
 
 /// A chessboard widget that cannot be interacted with.
@@ -83,8 +83,10 @@ class StaticChessboard extends StatefulWidget with ChessboardGeometry {
   State<StaticChessboard> createState() => _StaticChessboardState();
 }
 
-class _StaticChessboardState extends State<StaticChessboard> {
-  bool deferImagesLoading = false;
+class _StaticChessboardState extends State<StaticChessboard>
+    with SingleTickerProviderStateMixin {
+  bool _deferImagesLoading = false;
+  bool _imagesLoaded = false;
 
   /// Pieces on the board.
   Pieces pieces = {};
@@ -97,28 +99,56 @@ class _StaticChessboardState extends State<StaticChessboard> {
   /// Pieces that are currently fading out.
   FadingPieces fadingPieces = {};
 
+  late final AnimationController _pieceAnimationController;
+  late final CurvedAnimation _translationAnimation;
+  late final CurvedAnimation _fadeAnimation;
+
   @override
   void initState() {
     super.initState();
     pieces = readFen(widget.fen);
-    if (!ChessgroundImages.instance.isAllLoaded(widget.pieceAssets)) {
-      _loadImages(widget.pieceAssets);
-    }
+    _pieceAnimationController = AnimationController(
+      animationBehavior: AnimationBehavior.preserve,
+      duration: widget.animationDuration,
+      vsync: this,
+    );
+    _translationAnimation = CurvedAnimation(
+      parent: _pieceAnimationController,
+      curve: Curves.easeInOutCubic,
+    );
+    _fadeAnimation = CurvedAnimation(
+      parent: _pieceAnimationController,
+      curve: Curves.easeInQuad,
+    );
+    _imagesLoaded = ChessgroundImages.instance.isAllLoaded(widget.pieceAssets);
+    if (!_imagesLoaded) _loadImages(widget.pieceAssets);
   }
 
   Future<void> _loadImages(PieceAssets assets) async {
     final dpr = WidgetsBinding.instance.platformDispatcher.implicitView?.devicePixelRatio;
     await ChessgroundImages.instance.loadAll(assets, devicePixelRatio: dpr);
-    if (mounted) setState(() {});
+    if (mounted) setState(() => _imagesLoaded = true);
+  }
+
+  @override
+  void dispose() {
+    _fadeAnimation.dispose();
+    _translationAnimation.dispose();
+    _pieceAnimationController.dispose();
+    super.dispose();
   }
 
   @override
   void didUpdateWidget(covariant StaticChessboard oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    if (oldWidget.pieceAssets != widget.pieceAssets &&
-        !ChessgroundImages.instance.isAllLoaded(widget.pieceAssets)) {
-      _loadImages(widget.pieceAssets);
+    if (oldWidget.pieceAssets != widget.pieceAssets) {
+      _imagesLoaded = ChessgroundImages.instance.isAllLoaded(widget.pieceAssets);
+      if (!_imagesLoaded) _loadImages(widget.pieceAssets);
+    }
+
+    if (oldWidget.animationDuration != widget.animationDuration) {
+      _pieceAnimationController.duration = widget.animationDuration;
     }
 
     if (oldWidget.fen == widget.fen) {
@@ -136,6 +166,12 @@ class _StaticChessboardState extends State<StaticChessboard> {
       this.fadingPieces = fadingPieces;
     }
 
+    if (translatingPieces.isNotEmpty || fadingPieces.isNotEmpty) {
+      _pieceAnimationController.forward(from: 0.0);
+    } else {
+      _pieceAnimationController.stop();
+    }
+
     pieces = newPieces;
   }
 
@@ -149,23 +185,58 @@ class _StaticChessboardState extends State<StaticChessboard> {
     if (!mounted) return;
 
     if (Scrollable.recommendDeferredLoadingForContext(context)) {
-      deferImagesLoading = true;
+      _deferImagesLoading = true;
       SchedulerBinding.instance.scheduleFrameCallback((_) {
         scheduleMicrotask(() => verifyRecommendedDeferredLoading());
       });
     } else {
-      setState(() => deferImagesLoading = false);
+      setState(() => _deferImagesLoading = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final imagesLoaded = _imagesLoaded && !_deferImagesLoading;
+
     final background =
         widget.enableCoordinates
             ? widget.orientation == Side.white
                 ? widget.colorScheme.whiteCoordBackground
                 : widget.colorScheme.blackCoordBackground
             : widget.colorScheme.background;
+
+    final piecesPainter = PiecesPainter(
+      pieces: pieces,
+      pieceAssets: widget.pieceAssets,
+      squareSize: widget.squareSize,
+      orientation: widget.orientation,
+      draggedPieceSquare: null,
+      translatingPieceSquares: translatingPieces.keys.toSet(),
+      promotionMoveFrom: null,
+      blindfoldMode: false,
+      upsideDownSquares: const {},
+      imagesLoaded: imagesLoaded,
+    );
+
+    final fadingPiecesPainter = FadingPiecesPainter(
+      fadingPieces: fadingPieces,
+      squareSize: widget.squareSize,
+      orientation: widget.orientation,
+      pieceAssets: widget.pieceAssets,
+      blindfoldMode: false,
+      upsideDownSquares: const {},
+      animation: _fadeAnimation,
+    );
+
+    final translatingPiecesPainter = TranslatingPiecesPainter(
+      translatingPieces: translatingPieces,
+      squareSize: widget.squareSize,
+      orientation: widget.orientation,
+      pieceAssets: widget.pieceAssets,
+      blindfoldMode: false,
+      upsideDownSquares: const {},
+      animation: _translationAnimation,
+    );
 
     final List<Widget> highlightedBackground = [
       BrightnessHueFilter(
@@ -181,6 +252,7 @@ class _StaticChessboardState extends State<StaticChessboard> {
             child: SquareHighlight(details: widget.colorScheme.lastMove),
           ),
     ];
+
     final board = SizedBox.square(
       dimension: widget.size,
       child: Stack(
@@ -198,60 +270,27 @@ class _StaticChessboardState extends State<StaticChessboard> {
             )
           else
             ...highlightedBackground,
-          if (!deferImagesLoading)
-            for (final entry in fadingPieces.entries)
-              PositionedSquare(
-                size: widget.size,
-                orientation: widget.orientation,
-                square: entry.key,
-                child: AnimatedPieceFadeOut(
-                  duration: widget.animationDuration,
-                  piece: entry.value,
-                  size: widget.squareSize,
-                  pieceAssets: widget.pieceAssets,
-                  onComplete: () {
-                    setState(() {
-                      fadingPieces.remove(entry.key);
-                    });
-                  },
-                ),
-              ),
-          if (!deferImagesLoading)
-            for (final entry in pieces.entries)
-              if (!translatingPieces.containsKey(entry.key))
-                PositionedSquare(
-                  size: widget.size,
-                  orientation: widget.orientation,
-                  square: entry.key,
-                  child: PieceWidget(
-                    piece: entry.value,
-                    size: widget.squareSize,
-                    pieceAssets: widget.pieceAssets,
-                  ),
-                ),
-          if (!deferImagesLoading)
-            for (final entry in translatingPieces.entries)
-              PositionedSquare(
-                size: widget.size,
-                orientation: widget.orientation,
-                square: entry.key,
-                child: AnimatedPieceTranslation(
-                  fromSquare: entry.value.from,
-                  toSquare: entry.key,
-                  orientation: widget.orientation,
-                  duration: widget.animationDuration,
-                  onComplete: () {
-                    setState(() {
-                      translatingPieces.remove(entry.key);
-                    });
-                  },
-                  child: PieceWidget(
-                    piece: entry.value.piece,
-                    size: widget.squareSize,
-                    pieceAssets: widget.pieceAssets,
-                  ),
-                ),
-              ),
+          RepaintBoundary(
+            child: SizedBox.square(
+              key: const ValueKey('board-fading-pieces'),
+              dimension: widget.size,
+              child: CustomPaint(painter: fadingPiecesPainter),
+            ),
+          ),
+          RepaintBoundary(
+            child: SizedBox.square(
+              key: const ValueKey('board-pieces'),
+              dimension: widget.size,
+              child: CustomPaint(painter: piecesPainter),
+            ),
+          ),
+          RepaintBoundary(
+            child: SizedBox.square(
+              key: const ValueKey('board-translating-pieces'),
+              dimension: widget.size,
+              child: CustomPaint(painter: translatingPiecesPainter),
+            ),
+          ),
         ],
       ),
     );
