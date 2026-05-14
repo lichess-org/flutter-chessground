@@ -381,14 +381,13 @@ class _BoardState extends State<Chessboard> with SingleTickerProviderStateMixin 
           child: CustomPaint(painter: piecesPainter),
         ),
       ),
-      if (translatingPieces.isNotEmpty)
-        RepaintBoundary(
-          child: SizedBox.square(
-            key: const ValueKey('board-translating-pieces'),
-            dimension: widget.size,
-            child: CustomPaint(painter: translatingPiecesPainter),
-          ),
+      RepaintBoundary(
+        child: SizedBox.square(
+          key: const ValueKey('board-translating-pieces'),
+          dimension: widget.size,
+          child: CustomPaint(painter: translatingPiecesPainter),
         ),
+      ),
       for (final shape in shapes)
         BoardShapeWidget(shape: shape, size: widget.size, orientation: widget.orientation),
       if (_shapeAvatar != null)
@@ -539,13 +538,7 @@ class _BoardState extends State<Chessboard> with SingleTickerProviderStateMixin 
       animationBehavior: AnimationBehavior.preserve,
       duration: widget.settings.animationDuration,
       vsync: this,
-    )..addStatusListener((status) {
-      if (status == AnimationStatus.completed) {
-        setState(() {
-          translatingPieces = {};
-        });
-      }
-    });
+    );
     _translationAnimation = CurvedAnimation(
       parent: _translationController,
       curve: Curves.easeInOutCubic,

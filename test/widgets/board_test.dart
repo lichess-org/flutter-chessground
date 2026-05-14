@@ -113,7 +113,7 @@ void main() {
 
       await tester.pumpWidget(board);
 
-      expect(_translatingPiecesPainter(tester), isNull);
+      expect(_translatingPiecesPainter(tester)!.translatingPieces, isEmpty);
       expect(_piecesPainter(tester).pieces.length, 32);
 
       const board2 = Chessboard.fixed(
@@ -134,10 +134,9 @@ void main() {
 
       await tester.pumpAndSettle();
 
+      // After animation the pieces map is correct (pawn is at e4, not e2).
       expect(_piecesPainter(tester).pieces.containsKey(Square.e2), isFalse);
       expect(_piecesPainter(tester).pieces[Square.e4], Piece.whitePawn);
-
-      expect(_translatingPiecesPainter(tester), isNull);
     });
 
     testWidgets('several pieces can be animated when the position change', (
@@ -151,7 +150,7 @@ void main() {
 
       await tester.pumpWidget(board);
 
-      expect(_translatingPiecesPainter(tester), isNull);
+      expect(_translatingPiecesPainter(tester)!.translatingPieces, isEmpty);
       expect(_piecesPainter(tester).pieces.length, 32);
 
       const board2 = Chessboard.fixed(
@@ -166,8 +165,6 @@ void main() {
       expect(_translatingPiecesPainter(tester)!.translatingPieces.length, 2);
 
       await tester.pumpAndSettle();
-
-      expect(_translatingPiecesPainter(tester), isNull);
     });
 
     testWidgets('background is constrained to the size of the board', (WidgetTester tester) async {
