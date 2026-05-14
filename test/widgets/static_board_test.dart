@@ -83,7 +83,7 @@ void main() {
   testWidgets('several pieces can be animated when the position change', (
     WidgetTester tester,
   ) async {
-    const board = Chessboard.fixed(
+    const board = StaticChessboard(
       size: boardSize,
       orientation: Side.white,
       fen: 'rnbqk2r/pppp1ppp/5n2/2b1p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4',
@@ -94,7 +94,7 @@ void main() {
     expect(find.byType(AnimatedPieceTranslation), findsNothing);
     expect(find.byType(PieceWidget), findsNWidgets(32));
 
-    const board2 = Chessboard.fixed(
+    const board2 = StaticChessboard(
       size: boardSize,
       orientation: Side.white,
       fen: 'rnbqk2r/pppp1ppp/5n2/2b1p3/2B1P3/5N2/PPPP1PPP/RNBQ1RK1 b kq - 5 4',

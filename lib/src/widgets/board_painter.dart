@@ -169,6 +169,7 @@ class PiecesPainter extends CustomPainter {
     required this.promotionMoveFrom,
     required this.blindfoldMode,
     required this.upsideDownSquares,
+    required this.imagesLoaded,
   });
 
   final Pieces pieces;
@@ -180,6 +181,11 @@ class PiecesPainter extends CustomPainter {
   final Square? promotionMoveFrom;
   final bool blindfoldMode;
   final Set<Square> upsideDownSquares;
+
+  /// Whether all piece images are available in the cache.
+  ///
+  /// Included in [shouldRepaint] so the painter redraws when images finish loading.
+  final bool imagesLoaded;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -215,7 +221,8 @@ class PiecesPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(PiecesPainter oldDelegate) {
-    return squareSize != oldDelegate.squareSize ||
+    return imagesLoaded != oldDelegate.imagesLoaded ||
+        squareSize != oldDelegate.squareSize ||
         orientation != oldDelegate.orientation ||
         draggedPieceSquare != oldDelegate.draggedPieceSquare ||
         promotionMoveFrom != oldDelegate.promotionMoveFrom ||

@@ -4,6 +4,7 @@ import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/widgets.dart';
 
 import '../board_settings.dart';
+import '../images.dart';
 import '../models.dart';
 import '../fen.dart';
 import 'board_border.dart';
@@ -108,6 +109,29 @@ class _BoardEditorState extends State<ChessboardEditor> {
   Square? draggedPieceOrigin;
   bool _isPanning = false;
   Square? _lastEditedSquare;
+
+  @override
+  void initState() {
+    super.initState();
+    if (!ChessgroundImages.instance.isAllLoaded(widget.settings.pieceAssets)) {
+      _loadImages(widget.settings.pieceAssets);
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant ChessboardEditor oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.settings.pieceAssets != widget.settings.pieceAssets &&
+        !ChessgroundImages.instance.isAllLoaded(widget.settings.pieceAssets)) {
+      _loadImages(widget.settings.pieceAssets);
+    }
+  }
+
+  Future<void> _loadImages(PieceAssets assets) async {
+    final dpr = WidgetsBinding.instance.platformDispatcher.implicitView?.devicePixelRatio;
+    await ChessgroundImages.instance.loadAll(assets, devicePixelRatio: dpr);
+    if (mounted) setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {

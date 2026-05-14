@@ -13,6 +13,16 @@ import 'package:mocktail/mocktail.dart';
 const boardSize = 200.0;
 const squareSize = boardSize / 8;
 
+PiecesPainter _piecesPainter(WidgetTester tester) {
+  for (final element in find.byType(CustomPaint).evaluate()) {
+    final widget = element.widget as CustomPaint;
+    if (widget.painter is PiecesPainter) {
+      return widget.painter! as PiecesPainter;
+    }
+  }
+  throw StateError('PiecesPainter not found');
+}
+
 HighlightsPainter _highlightsPainter(WidgetTester tester) {
   for (final element in find.byType(CustomPaint).evaluate()) {
     final widget = element.widget as CustomPaint;
@@ -75,12 +85,12 @@ void main() {
       await tester.pumpWidget(viewOnlyBoard);
 
       expect(find.byType(Chessboard), findsOneWidget);
-      expect(find.byType(PieceWidget), findsNWidgets(32));
+      expect(_piecesPainter(tester).pieces.length, 32);
     });
 
     testWidgets('cannot select piece', (WidgetTester tester) async {
       await tester.pumpWidget(viewOnlyBoard);
-      await tester.tap(find.byKey(const Key('e2-whitepawn')));
+      await tester.tapAt(squareOffset(tester, Square.e2));
       await tester.pump();
 
       expect(_isSelected(tester, Square.e2), isFalse);
@@ -95,7 +105,7 @@ void main() {
       await tester.pumpWidget(board);
 
       expect(find.byType(AnimatedPieceTranslation), findsNothing);
-      expect(find.byType(PieceWidget), findsNWidgets(32));
+      expect(_piecesPainter(tester).pieces.length, 32);
 
       const board2 = Chessboard.fixed(
         size: boardSize,
@@ -105,7 +115,7 @@ void main() {
 
       await tester.pumpWidget(board2);
 
-      expect(find.byType(PieceWidget), findsNWidgets(32));
+      expect(_piecesPainter(tester).pieces.length, 32);
       expect(find.byType(AnimatedPieceTranslation), findsOneWidget);
 
       final translation =
@@ -117,8 +127,8 @@ void main() {
 
       await tester.pumpAndSettle();
 
-      expect(find.byKey(const Key('e2-whitepawn')), findsNothing);
-      expect(find.byKey(const Key('e4-whitepawn')), findsOneWidget);
+      expect(_piecesPainter(tester).pieces.containsKey(Square.e2), isFalse);
+      expect(_piecesPainter(tester).pieces[Square.e4], Piece.whitePawn);
 
       expect(find.byType(AnimatedPieceTranslation), findsNothing);
     });
@@ -135,7 +145,7 @@ void main() {
       await tester.pumpWidget(board);
 
       expect(find.byType(AnimatedPieceTranslation), findsNothing);
-      expect(find.byType(PieceWidget), findsNWidgets(32));
+      expect(_piecesPainter(tester).pieces.length, 32);
 
       const board2 = Chessboard.fixed(
         size: boardSize,
@@ -145,7 +155,7 @@ void main() {
 
       await tester.pumpWidget(board2);
 
-      expect(find.byType(PieceWidget), findsNWidgets(32));
+      expect(_piecesPainter(tester).pieces.length, 32);
       expect(find.byType(AnimatedPieceTranslation), findsNWidgets(2));
 
       await tester.pumpAndSettle();
@@ -221,32 +231,32 @@ void main() {
             onTouchedSquare: onTouchedSquare.call,
           ),
         );
-        await tester.tap(find.byKey(const Key('a2-whitepawn')));
+        await tester.tapAt(squareOffset(tester, Square.a2));
         await tester.pump();
 
         expect(_isSelected(tester, Square.a2), isTrue);
         expect(_moveDestCount(tester) + _premoveDestCount(tester), 2);
 
         // selecting same deselects
-        await tester.tap(find.byKey(const Key('a2-whitepawn')));
+        await tester.tapAt(squareOffset(tester, Square.a2));
         await tester.pump();
         expect(_isSelected(tester, Square.a2), isFalse);
         expect(_moveDestCount(tester) + _premoveDestCount(tester), 0);
 
         // selecting another square
-        await tester.tap(find.byKey(const Key('a1-whiterook')));
+        await tester.tapAt(squareOffset(tester, Square.a1));
         await tester.pump();
         expect(_isSelected(tester, Square.a1), isTrue);
         expect(_moveDestCount(tester) + _premoveDestCount(tester), 0);
 
         // selecting an opposite piece deselects
-        await tester.tap(find.byKey(const Key('e7-blackpawn')));
+        await tester.tapAt(squareOffset(tester, Square.e7));
         await tester.pump();
         expect(_isSelected(tester, Square.a1), isFalse);
         expect(_moveDestCount(tester) + _premoveDestCount(tester), 0);
 
         // selecting an empty square deselects
-        await tester.tap(find.byKey(const Key('a1-whiterook')));
+        await tester.tapAt(squareOffset(tester, Square.a1));
         await tester.pump();
         expect(_isSelected(tester, Square.a1), isTrue);
         await tester.tapAt(squareOffset(tester, Square.c4));
@@ -254,7 +264,7 @@ void main() {
         expect(_isSelected(tester, Square.a1), isFalse);
 
         // cannot select a piece whose side is not the turn to move
-        await tester.tap(find.byKey(const Key('e7-blackpawn')));
+        await tester.tapAt(squareOffset(tester, Square.e7));
         await tester.pump();
         expect(_isSelected(tester, Square.e7), isFalse);
 
@@ -283,7 +293,7 @@ void main() {
             key: ValueKey(settings.hashCode),
           ),
         );
-        await tester.tap(find.byKey(const Key('e2-whitepawn')));
+        await tester.tapAt(squareOffset(tester, Square.e2));
         await tester.pump();
 
         expect(_isSelected(tester, Square.e2), isTrue);
@@ -292,15 +302,15 @@ void main() {
         await tester.tapAt(squareOffset(tester, Square.e4));
         await tester.pump();
 
-        expect(find.byKey(const Key('e4-whitepawn')), findsOneWidget);
+        expect(_piecesPainter(tester).pieces[Square.e4], Piece.whitePawn);
         expect(_isSelected(tester, Square.e2), isFalse);
         expect(_moveDestCount(tester) + _premoveDestCount(tester), 0);
 
         // wait for the animations to finish
         await tester.pumpAndSettle();
 
-        expect(find.byKey(const Key('e4-whitepawn')), findsOneWidget);
-        expect(find.byKey(const Key('e2-whitepawn')), findsNothing);
+        expect(_piecesPainter(tester).pieces[Square.e4], Piece.whitePawn);
+        expect(_piecesPainter(tester).pieces.containsKey(Square.e2), isFalse);
         expect(_isLastMove(tester, Square.e2), isTrue);
         expect(_isLastMove(tester, Square.e4), isTrue);
       }
@@ -323,7 +333,7 @@ void main() {
             onTouchedSquare: onTouchedSquare.call,
           ),
         );
-        await tester.tap(find.byKey(const Key('e2-whitepawn')));
+        await tester.tapAt(squareOffset(tester, Square.e2));
         await tester.pump();
 
         // Tapping a square should have no effect...
@@ -333,8 +343,8 @@ void main() {
         // ... but move by drag should work
         await tester.dragFrom(squareOffset(tester, Square.e2), const Offset(0, -(squareSize * 2)));
         await tester.pumpAndSettle();
-        expect(find.byKey(const Key('e4-whitepawn')), findsOneWidget);
-        expect(find.byKey(const Key('e2-whitepawn')), findsNothing);
+        expect(_piecesPainter(tester).pieces[Square.e4], Piece.whitePawn);
+        expect(_piecesPainter(tester).pieces.containsKey(Square.e2), isFalse);
         expect(_isLastMove(tester, Square.e2), isTrue);
         expect(_isLastMove(tester, Square.e4), isTrue);
 
@@ -355,7 +365,7 @@ void main() {
           settings: ChessboardSettings(pieceShiftMethod: PieceShiftMethod.drag),
         ),
       );
-      await tester.tap(find.byKey(const Key('e2-whitepawn')));
+      await tester.tapAt(squareOffset(tester, Square.e2));
       await tester.pump();
 
       // simluate a drag that leaves the piece on the same square
@@ -371,18 +381,18 @@ void main() {
           initialPlayerSide: PlayerSide.both,
         ),
       );
-      await tester.tap(find.byKey(const Key('e1-whiteking')));
+      await tester.tapAt(squareOffset(tester, Square.e1));
       await tester.pump();
-      await tester.tap(find.byKey(const Key('h1-whiterook')));
+      await tester.tapAt(squareOffset(tester, Square.h1));
       await tester.pump();
 
       // wait for the animations to finish
       await tester.pumpAndSettle();
 
-      expect(find.byKey(const Key('e1-whiteking')), findsNothing);
-      expect(find.byKey(const Key('h1-whiterook')), findsNothing);
-      expect(find.byKey(const Key('g1-whiteking')), findsOneWidget);
-      expect(find.byKey(const Key('f1-whiterook')), findsOneWidget);
+      expect(_piecesPainter(tester).pieces.containsKey(Square.e1), isFalse);
+      expect(_piecesPainter(tester).pieces.containsKey(Square.h1), isFalse);
+      expect(_piecesPainter(tester).pieces[Square.g1], Piece.whiteKing);
+      expect(_piecesPainter(tester).pieces[Square.f1], Piece.whiteRook);
       expect(_isLastMove(tester, Square.e1), isTrue);
       expect(_isLastMove(tester, Square.h1), isTrue);
     });
@@ -403,7 +413,7 @@ void main() {
         final e2 = squareOffset(tester, Square.e2);
         await tester.dragFrom(e2, const Offset(0, -(squareSize * 4)));
         await tester.pumpAndSettle();
-        expect(find.byKey(const Key('e2-whitepawn')), findsOneWidget);
+        expect(_piecesPainter(tester).pieces[Square.e2], Piece.whitePawn);
         expect(_isSelected(tester, Square.e2), isFalse);
         expect(_moveDestCount(tester) + _premoveDestCount(tester), 0);
       }
@@ -423,7 +433,7 @@ void main() {
           squareOffset(tester, Square.e2) + const Offset(0, -boardSize + squareSize),
         );
         await tester.pumpAndSettle();
-        expect(find.byKey(const Key('e2-whitepawn')), findsOneWidget);
+        expect(_piecesPainter(tester).pieces[Square.e2], Piece.whitePawn);
         expect(_isSelected(tester, Square.e2), isFalse);
         expect(_moveDestCount(tester) + _premoveDestCount(tester), 0);
       }
@@ -439,8 +449,8 @@ void main() {
         );
         await tester.dragFrom(squareOffset(tester, Square.e2), const Offset(0, -(squareSize * 2)));
         await tester.pumpAndSettle();
-        expect(find.byKey(const Key('e4-whitepawn')), findsOneWidget);
-        expect(find.byKey(const Key('e2-whitepawn')), findsNothing);
+        expect(_piecesPainter(tester).pieces[Square.e4], Piece.whitePawn);
+        expect(_piecesPainter(tester).pieces.containsKey(Square.e2), isFalse);
         expect(_isLastMove(tester, Square.e2), isTrue);
         expect(_isLastMove(tester, Square.e4), isTrue);
       }
@@ -493,9 +503,9 @@ void main() {
       );
 
       await tester.pumpAndSettle();
-      expect(find.byKey(const Key('e4-whitepawn')), findsOneWidget);
+      expect(_piecesPainter(tester).pieces[Square.e4], Piece.whitePawn);
       // Just to make sure we didn't play a normal move
-      expect(find.byKey(const Key('e2-whitepawn')), findsOneWidget);
+      expect(_piecesPainter(tester).pieces[Square.e2], Piece.whitePawn);
 
       final blackKnightDraggable = find.byKey(const Key('blackKnight'));
       await tester.drag(
@@ -505,8 +515,8 @@ void main() {
       );
 
       await tester.pumpAndSettle();
-      expect(find.byKey(const Key('e4-whitepawn')), findsOneWidget);
-      expect(find.byKey(const Key('e5-blackknight')), findsOneWidget);
+      expect(_piecesPainter(tester).pieces[Square.e4], Piece.whitePawn);
+      expect(_piecesPainter(tester).pieces[Square.e5], Piece.blackKnight);
     });
 
     testWidgets('Cannot move pawns onto the back rank', (WidgetTester tester) async {
@@ -561,8 +571,8 @@ void main() {
       );
 
       await tester.pumpAndSettle();
-      expect(find.byKey(const Key('a8-whitepawn')), findsNothing);
-      expect(find.byKey(const Key('a1-whitepawn')), findsNothing);
+      expect(_piecesPainter(tester).pieces.containsKey(Square.a8), isFalse);
+      expect(_piecesPainter(tester).pieces.containsKey(Square.a1), isFalse);
 
       // Dragging other pieces onto the back rank should work though
       final whiteKnightDraggable = find.byKey(const Key('whiteKnight'));
@@ -573,7 +583,7 @@ void main() {
       );
 
       await tester.pumpAndSettle();
-      expect(find.byKey(const Key('a8-whiteknight')), findsOneWidget);
+      expect(_piecesPainter(tester).pieces[Square.a8], Piece.whiteKnight);
     });
 
     testWidgets('Cannot play illegal drop moves', (WidgetTester tester) async {
@@ -615,7 +625,7 @@ void main() {
       );
 
       await tester.pumpAndSettle();
-      expect(find.byKey(const Key('a4-whitepawn')), findsNothing);
+      expect(_piecesPainter(tester).pieces.containsKey(Square.a4), isFalse);
 
       // Only square that blocks the check
       await tester.drag(
@@ -625,7 +635,7 @@ void main() {
       );
 
       await tester.pumpAndSettle();
-      expect(find.byKey(const Key('d2-whitepawn')), findsOneWidget);
+      expect(_piecesPainter(tester).pieces[Square.d2], Piece.whitePawn);
     });
 
     testWidgets('no drag targets if drop moves not explicitly enabled', (
@@ -650,8 +660,8 @@ void main() {
       );
       await tester.dragFrom(squareOffset(tester, Square.e2), const Offset(0, -(squareSize * 2)));
       await tester.pumpAndSettle();
-      expect(find.byKey(const Key('e4-whitepawn')), findsNothing);
-      expect(find.byKey(const Key('e2-whitepawn')), findsOneWidget);
+      expect(_piecesPainter(tester).pieces.containsKey(Square.e4), isFalse);
+      expect(_piecesPainter(tester).pieces[Square.e2], Piece.whitePawn);
       expect(_isLastMove(tester, Square.e2), isFalse);
       expect(_isLastMove(tester, Square.e4), isFalse);
 
@@ -664,8 +674,8 @@ void main() {
       await tester.pump();
       expect(_isSelected(tester, Square.e2), isFalse);
       expect(_moveDestCount(tester) + _premoveDestCount(tester), 0);
-      expect(find.byKey(const Key('e4-whitepawn')), findsOneWidget);
-      expect(find.byKey(const Key('e2-whitepawn')), findsNothing);
+      expect(_piecesPainter(tester).pieces[Square.e4], Piece.whitePawn);
+      expect(_piecesPainter(tester).pieces.containsKey(Square.e2), isFalse);
       expect(_isLastMove(tester, Square.e2), isTrue);
       expect(_isLastMove(tester, Square.e4), isTrue);
     });
@@ -686,8 +696,8 @@ void main() {
         await tester.pump();
 
         // move is cancelled
-        expect(find.byKey(const Key('e4-whitepawn')), findsNothing);
-        expect(find.byKey(const Key('e2-whitepawn')), findsOneWidget);
+        expect(_piecesPainter(tester).pieces.containsKey(Square.e4), isFalse);
+        expect(_piecesPainter(tester).pieces[Square.e2], Piece.whitePawn);
         // selection is cancelled
         expect(_isSelected(tester, Square.e2), isFalse);
       });
@@ -711,7 +721,7 @@ void main() {
 
         expect(_isSelected(tester, Square.e2), isTrue);
 
-        await tester.tap(find.byKey(const Key('d2-whitepawn')));
+        await tester.tapAt(squareOffset(tester, Square.d2));
 
         // finish the move as to release the piece
         await dragGesture.moveTo(squareOffset(tester, Square.e4));
@@ -721,8 +731,8 @@ void main() {
       await tester.pump();
 
       // the piece should not have moved
-      expect(find.byKey(const Key('e4-whitepawn')), findsNothing);
-      expect(find.byKey(const Key('e2-whitepawn')), findsOneWidget);
+      expect(_piecesPainter(tester).pieces.containsKey(Square.e4), isFalse);
+      expect(_piecesPainter(tester).pieces[Square.e2], Piece.whitePawn);
       // the piece should not be selected
       expect(_isSelected(tester, Square.e2), isFalse);
 
@@ -750,8 +760,8 @@ void main() {
       await tester.pump();
 
       // the piece should not have moved
-      expect(find.byKey(const Key('d4-whitepawn')), findsNothing);
-      expect(find.byKey(const Key('d2-whitepawn')), findsOneWidget);
+      expect(_piecesPainter(tester).pieces.containsKey(Square.d4), isFalse);
+      expect(_piecesPainter(tester).pieces[Square.d2], Piece.whitePawn);
       // the piece should not be selected
       expect(_isSelected(tester, Square.d2), isFalse);
     });
@@ -764,7 +774,7 @@ void main() {
       await tester.dragFrom(e2, const Offset(0, -(squareSize / 3)));
       await tester.pumpAndSettle();
 
-      expect(find.byKey(const Key('e2-whitepawn')), findsOneWidget);
+      expect(_piecesPainter(tester).pieces[Square.e2], Piece.whitePawn);
       expect(_isSelected(tester, Square.e2), isTrue);
     });
 
@@ -781,7 +791,7 @@ void main() {
         const Duration(milliseconds: 200),
       );
 
-      expectSync(find.byKey(const Key('e2-whitepawn')), findsOneWidget);
+      expectSync(_piecesPainter(tester).pieces[Square.e2], Piece.whitePawn);
       expectSync(_isSelected(tester, Square.e2), isTrue);
 
       await dragFuture;
@@ -988,7 +998,7 @@ void main() {
         ),
       );
 
-      await tester.tap(find.byKey(const Key('f7-whitepawn')));
+      await tester.tapAt(squareOffset(tester, Square.f7));
       await tester.pump();
       await tester.tapAt(squareOffset(tester, Square.f8));
       await tester.pump();
@@ -997,14 +1007,14 @@ void main() {
       await tester.pump();
       expect(find.byType(PromotionSelector), findsOneWidget);
 
-      // promotion pawn is not visible
-      expect(find.byKey(const Key('f7-whitepawn')), findsNothing);
+      // promotion pawn is hidden by painter (still in pieces map but skipped due to promotionMoveFrom)
+      expect(_piecesPainter(tester).promotionMoveFrom, Square.f7);
 
       // tap on the knight
       await tester.tapAt(squareOffset(tester, Square.f7));
       await tester.pump();
-      expect(find.byKey(const Key('f8-whiteknight')), findsOneWidget);
-      expect(find.byKey(const Key('f7-whitepawn')), findsNothing);
+      expect(_piecesPainter(tester).pieces[Square.f8], Piece.whiteKnight);
+      expect(_piecesPainter(tester).pieces.containsKey(Square.f7), isFalse);
     });
     testWidgets('Player on top promotes a bishop', (WidgetTester tester) async {
       await tester.pumpWidget(
@@ -1014,7 +1024,7 @@ void main() {
         ),
       );
 
-      await tester.tap(find.byKey(const Key('a2-blackpawn')));
+      await tester.tapAt(squareOffset(tester, Square.a2));
       await tester.pump();
       await tester.tapAt(squareOffset(tester, Square.b1));
       await tester.pump();
@@ -1023,14 +1033,14 @@ void main() {
       await tester.pump();
       expect(find.byType(PromotionSelector), findsOneWidget);
 
-      // promotion pawn is not visible
-      expect(find.byKey(const Key('a2-blackpawn')), findsNothing);
+      // promotion pawn is hidden by painter (still in pieces map but skipped due to promotionMoveFrom)
+      expect(_piecesPainter(tester).promotionMoveFrom, Square.a2);
 
       // tap on the bishop
       await tester.tapAt(squareOffset(tester, Square.b4));
       await tester.pump();
-      expect(find.byKey(const Key('b1-blackbishop')), findsOneWidget);
-      expect(find.byKey(const Key('a2-blackpawn')), findsNothing);
+      expect(_piecesPainter(tester).pieces[Square.b1], Piece.blackBishop);
+      expect(_piecesPainter(tester).pieces.containsKey(Square.a2), isFalse);
     });
 
     testWidgets('default promotion shows 4 pieces without king', (WidgetTester tester) async {
@@ -1041,7 +1051,7 @@ void main() {
         ),
       );
 
-      await tester.tap(find.byKey(const Key('f7-whitepawn')));
+      await tester.tapAt(squareOffset(tester, Square.f7));
       await tester.pump();
       await tester.tapAt(squareOffset(tester, Square.f8));
       await tester.pump();
@@ -1076,7 +1086,7 @@ void main() {
         ),
       );
 
-      await tester.tap(find.byKey(const Key('f7-whitepawn')));
+      await tester.tapAt(squareOffset(tester, Square.f7));
       await tester.pump();
       await tester.tapAt(squareOffset(tester, Square.f8));
       await tester.pump();
@@ -1110,7 +1120,7 @@ void main() {
         ),
       );
 
-      await tester.tap(find.byKey(const Key('f7-whitepawn')));
+      await tester.tapAt(squareOffset(tester, Square.f7));
       await tester.pump();
       await tester.tapAt(squareOffset(tester, Square.f8));
       await tester.pump();
@@ -1123,8 +1133,8 @@ void main() {
       await tester.tapAt(squareOffset(tester, Square.f4));
       await tester.pump();
 
-      expect(find.byKey(const Key('f8-whiteking')), findsOneWidget);
-      expect(find.byKey(const Key('f7-whitepawn')), findsNothing);
+      expect(_piecesPainter(tester).pieces[Square.f8], Piece.whiteKing);
+      expect(_piecesPainter(tester).pieces.containsKey(Square.f7), isFalse);
     });
 
     testWidgets('Player on top can promote to King', (WidgetTester tester) async {
@@ -1135,7 +1145,7 @@ void main() {
           canPromoteToKing: true,
         ),
       );
-      await tester.tap(find.byKey(const Key('a2-blackpawn')));
+      await tester.tapAt(squareOffset(tester, Square.a2));
       await tester.pump();
       await tester.tapAt(squareOffset(tester, Square.b1));
       await tester.pump();
@@ -1154,8 +1164,8 @@ void main() {
       await tester.tapAt(squareOffset(tester, Square.b5));
       await tester.pump();
 
-      expect(find.byKey(const Key('b1-blackking')), findsOneWidget);
-      expect(find.byKey(const Key('a2-blackpawn')), findsNothing);
+      expect(_piecesPainter(tester).pieces[Square.b1], Piece.blackKing);
+      expect(_piecesPainter(tester).pieces.containsKey(Square.a2), isFalse);
     });
     testWidgets('promote a piece on flipped board (orientation black)', (
       WidgetTester tester,
@@ -1169,7 +1179,7 @@ void main() {
         ),
       );
 
-      await tester.tap(find.byKey(const Key('f7-whitepawn')));
+      await tester.tapAt(squareOffset(tester, Square.f7, orientation: orientation));
       await tester.pump();
       await tester.tapAt(squareOffset(tester, Square.f8, orientation: orientation));
       await tester.pump();
@@ -1186,13 +1196,13 @@ void main() {
       // has exactly 4 pieces (queen, knight, rook, bishop)
       expect(piecesInSelector, findsNWidgets(4));
 
-      // promotion pawn is not visible
-      expect(find.byKey(const Key('f7-whitepawn')), findsNothing);
+      // promotion pawn is hidden by painter (still in pieces map but skipped due to promotionMoveFrom)
+      expect(_piecesPainter(tester).promotionMoveFrom, Square.f7);
 
       await tester.tapAt(squareOffset(tester, Square.f7, orientation: orientation));
       await tester.pump();
-      expect(find.byKey(const Key('f8-whiteknight')), findsOneWidget);
-      expect(find.byKey(const Key('f7-whitepawn')), findsNothing);
+      expect(_piecesPainter(tester).pieces[Square.f8], Piece.whiteKnight);
+      expect(_piecesPainter(tester).pieces.containsKey(Square.f7), isFalse);
     });
 
     testWidgets('player at bottom promotes a bishop on flipped board (orientation black)', (
@@ -1207,7 +1217,7 @@ void main() {
         ),
       );
 
-      await tester.tap(find.byKey(const Key('a2-blackpawn')));
+      await tester.tapAt(squareOffset(tester, Square.a2, orientation: orientation));
       await tester.pump();
       await tester.tapAt(squareOffset(tester, Square.b1, orientation: orientation));
       await tester.pump();
@@ -1224,14 +1234,14 @@ void main() {
       // has exactly 4 pieces (queen, knight, rook, bishop)
       expect(piecesInSelector, findsNWidgets(4));
 
-      // promotion pawn is not visible
-      expect(find.byKey(const Key('a2-blackpawn')), findsNothing);
+      // promotion pawn is hidden by painter (still in pieces map but skipped due to promotionMoveFrom)
+      expect(_piecesPainter(tester).promotionMoveFrom, Square.a2);
 
       // selector opens downward from b1 (rank 1 at top); queen, knight, rook, bishop
       await tester.tapAt(squareOffset(tester, Square.b4, orientation: orientation));
       await tester.pump();
-      expect(find.byKey(const Key('b1-blackbishop')), findsOneWidget);
-      expect(find.byKey(const Key('a2-blackpawn')), findsNothing);
+      expect(_piecesPainter(tester).pieces[Square.b1], Piece.blackBishop);
+      expect(_piecesPainter(tester).pieces.containsKey(Square.a2), isFalse);
     });
 
     testWidgets('can promote to king on flipped board (orientation black)', (
@@ -1247,7 +1257,7 @@ void main() {
         ),
       );
 
-      await tester.tap(find.byKey(const Key('f7-whitepawn')));
+      await tester.tapAt(squareOffset(tester, Square.f7, orientation: orientation));
       await tester.pump();
       await tester.tapAt(squareOffset(tester, Square.f8, orientation: orientation));
       await tester.pump();
@@ -1267,8 +1277,8 @@ void main() {
       await tester.tapAt(squareOffset(tester, Square.f4, orientation: orientation));
       await tester.pump();
 
-      expect(find.byKey(const Key('f8-whiteking')), findsOneWidget);
-      expect(find.byKey(const Key('f7-whitepawn')), findsNothing);
+      expect(_piecesPainter(tester).pieces[Square.f8], Piece.whiteKing);
+      expect(_piecesPainter(tester).pieces.containsKey(Square.f7), isFalse);
     });
 
     testWidgets('player at bottom can promote to King on flipped board (orientation black)', (
@@ -1283,7 +1293,7 @@ void main() {
           canPromoteToKing: true,
         ),
       );
-      await tester.tap(find.byKey(const Key('a2-blackpawn')));
+      await tester.tapAt(squareOffset(tester, Square.a2, orientation: orientation));
       await tester.pump();
       await tester.tapAt(squareOffset(tester, Square.b1, orientation: orientation));
       await tester.pump();
@@ -1301,8 +1311,8 @@ void main() {
       await tester.tapAt(squareOffset(tester, Square.b5, orientation: orientation));
       await tester.pump();
 
-      expect(find.byKey(const Key('b1-blackking')), findsOneWidget);
-      expect(find.byKey(const Key('a2-blackpawn')), findsNothing);
+      expect(_piecesPainter(tester).pieces[Square.b1], Piece.blackKing);
+      expect(_piecesPainter(tester).pieces.containsKey(Square.a2), isFalse);
     });
 
     testWidgets('cancels promotion', (WidgetTester tester) async {
@@ -1313,7 +1323,7 @@ void main() {
         ),
       );
 
-      await tester.tap(find.byKey(const Key('f7-whitepawn')));
+      await tester.tapAt(squareOffset(tester, Square.f7));
       await tester.pump();
       await tester.tapAt(squareOffset(tester, Square.f8));
       await tester.pump();
@@ -1329,7 +1339,7 @@ void main() {
 
       // promotion dialog is closed, move is cancelled
       expect(find.byType(PromotionSelector), findsNothing);
-      expect(find.byKey(const Key('f7-whitepawn')), findsOneWidget);
+      expect(_piecesPainter(tester).pieces[Square.f7], Piece.whitePawn);
     });
 
     testWidgets('promotion, auto queen enabled', (WidgetTester tester) async {
@@ -1341,12 +1351,12 @@ void main() {
         ),
       );
 
-      await tester.tap(find.byKey(const Key('f7-whitepawn')));
+      await tester.tapAt(squareOffset(tester, Square.f7));
       await tester.pump();
       await tester.tapAt(squareOffset(tester, Square.f8));
       await tester.pump();
-      expect(find.byKey(const Key('f8-whitequeen')), findsOneWidget);
-      expect(find.byKey(const Key('f7-whitepawn')), findsNothing);
+      expect(_piecesPainter(tester).pieces[Square.f8], Piece.whiteQueen);
+      expect(_piecesPainter(tester).pieces.containsKey(Square.f7), isFalse);
     });
   });
 
@@ -1665,7 +1675,7 @@ void main() {
       await tester.pump(const Duration(milliseconds: 200));
 
       // opponent move is played
-      expect(find.byKey(const Key('a5-blackpawn')), findsOneWidget);
+      expect(_piecesPainter(tester).pieces[Square.a5], Piece.blackPawn);
 
       // wait for the premove to be played
       await tester.pump();
@@ -1674,8 +1684,8 @@ void main() {
       expect(_isPremove(tester, Square.f3), isFalse);
 
       // premove has been played
-      expect(find.byKey(const Key('d1-whitequeen')), findsNothing);
-      expect(find.byKey(const Key('f3-whitequeen')), findsOneWidget);
+      expect(_piecesPainter(tester).pieces.containsKey(Square.d1), isFalse);
+      expect(_piecesPainter(tester).pieces[Square.f3], Piece.whiteQueen);
     });
 
     testWidgets('play drop premove', (WidgetTester tester) async {
@@ -1718,7 +1728,7 @@ void main() {
       await tester.pump(const Duration(milliseconds: 200));
 
       // opponent move is played
-      expect(find.byKey(const Key('a5-blackpawn')), findsOneWidget);
+      expect(_piecesPainter(tester).pieces[Square.a5], Piece.blackPawn);
 
       // wait for the premove to be played
       await tester.pump();
@@ -1726,7 +1736,7 @@ void main() {
       expect(_isPremove(tester, Square.f3), isFalse);
 
       // premove has been played
-      expect(find.byKey(const Key('f3-whiterook')), findsOneWidget);
+      expect(_piecesPainter(tester).pieces[Square.f3], Piece.whiteRook);
     });
 
     testWidgets('play a premove with promotion', (WidgetTester tester) async {
@@ -1748,13 +1758,13 @@ void main() {
       await tester.pump(const Duration(milliseconds: 200));
 
       // opponent move is played
-      expect(find.byKey(const Key('d3-blackking')), findsOneWidget);
+      expect(_piecesPainter(tester).pieces[Square.d3], Piece.blackKing);
 
       // pawn was promoted to queen
       expect(_isPremove(tester, Square.g7), isFalse);
       expect(_isPremove(tester, Square.g8), isFalse);
-      expect(find.byKey(const Key('g7-whitepawn')), findsNothing);
-      expect(find.byKey(const Key('g8-whitequeen')), findsOneWidget);
+      expect(_piecesPainter(tester).pieces.containsKey(Square.g7), isFalse);
+      expect(_piecesPainter(tester).pieces[Square.g8], Piece.whiteQueen);
     });
 
     testWidgets('play a premove with promotion, autoqueen disabled', (WidgetTester tester) async {
@@ -1785,15 +1795,15 @@ void main() {
       expect(_isPremove(tester, Square.g7), isFalse);
       expect(_isPremove(tester, Square.g8), isFalse);
 
-      // promotion pawn is not visible
-      expect(find.byKey(const Key('g7-whitepawn')), findsNothing);
+      // promotion pawn is hidden by painter (still in pieces map but skipped due to promotionMoveFrom)
+      expect(_piecesPainter(tester).promotionMoveFrom, Square.g7);
 
       // select knight
       await tester.tapAt(squareOffset(tester, Square.g7));
       await tester.pump();
 
-      expect(find.byKey(const Key('g8-whiteknight')), findsOneWidget);
-      expect(find.byKey(const Key('g7-whitepawn')), findsNothing);
+      expect(_piecesPainter(tester).pieces[Square.g8], Piece.whiteKnight);
+      expect(_piecesPainter(tester).pieces.containsKey(Square.g7), isFalse);
 
       // wait for other opponent move to be played
       await tester.pump(const Duration(milliseconds: 200));
@@ -1834,7 +1844,7 @@ void main() {
       // promotion dialog is closed
       expect(find.byType(PromotionSelector), findsNothing);
 
-      expect(find.byKey(const Key('g7-whitepawn')), findsOneWidget);
+      expect(_piecesPainter(tester).pieces[Square.g7], Piece.whitePawn);
     });
   });
 
@@ -2046,13 +2056,13 @@ void main() {
       required bool expectWhiteUpsideDown,
       required bool expectBlackUpsideDown,
     }) {
-      final pieceWidgets = tester.widgetList<PieceWidget>(find.byType(PieceWidget));
-      expect(pieceWidgets, hasLength(32));
-      for (final pieceWidget in pieceWidgets) {
-        if (pieceWidget.piece.color == Side.white) {
-          expect(pieceWidget.upsideDown, expectWhiteUpsideDown, reason: 'white is upside down');
+      final painter = _piecesPainter(tester);
+      for (final entry in painter.pieces.entries) {
+        final isUpsideDown = painter.upsideDownSquares.contains(entry.key);
+        if (entry.value.color == Side.white) {
+          expect(isUpsideDown, expectWhiteUpsideDown, reason: 'white is upside down');
         } else {
-          expect(pieceWidget.upsideDown, expectBlackUpsideDown, reason: 'black is upside down');
+          expect(isUpsideDown, expectBlackUpsideDown, reason: 'black is upside down');
         }
       }
     }
@@ -2224,15 +2234,22 @@ void main() {
   });
 
   group('board piece rendering', () {
-    testWidgets('all pieces use PieceWidget when cache is empty', (WidgetTester tester) async {
+    testWidgets('all pieces are rendered by PiecesPainter regardless of cache state', (
+      WidgetTester tester,
+    ) async {
+      // Cache is empty — pieces should still be tracked in PiecesPainter.
       await tester.pumpWidget(
         const Chessboard.fixed(size: boardSize, orientation: Side.white, fen: kInitialFEN),
       );
 
-      expect(find.byType(PieceWidget), findsNWidgets(32));
+      expect(_piecesPainter(tester).pieces.length, 32);
+      // No fallback PieceWidget in the tree for static board pieces.
+      expect(find.byType(PieceWidget), findsNothing);
     });
 
-    testWidgets('no fallback PieceWidget when all images are cached', (WidgetTester tester) async {
+    testWidgets('PiecesPainter renders pieces when all images are pre-cached', (
+      WidgetTester tester,
+    ) async {
       final pieceAssets = const ChessboardSettings().pieceAssets;
       for (final asset in pieceAssets.values.toSet()) {
         ChessgroundImages.instance.add(asset, await _createFakeImage(45, 45));
@@ -2247,86 +2264,39 @@ void main() {
         const Chessboard.fixed(size: boardSize, orientation: Side.white, fen: kInitialFEN),
       );
 
-      // All pieces drawn by PiecesPainter — no fallback widgets in the tree.
+      expect(_piecesPainter(tester).pieces.length, 32);
       expect(find.byType(PieceWidget), findsNothing);
-    });
-
-    testWidgets('only uncached pieces use PieceWidget', (WidgetTester tester) async {
-      // Cache only the white pawn kind; covers all 8 white pawns.
-      final asset = const ChessboardSettings().pieceAssets[Piece.whitePawn.kind]!;
-      ChessgroundImages.instance.add(asset, await _createFakeImage(45, 45));
-      addTearDown(() => ChessgroundImages.instance.evict(asset));
-
-      await tester.pumpWidget(
-        const Chessboard.fixed(size: boardSize, orientation: Side.white, fen: kInitialFEN),
-      );
-
-      // 32 total pieces − 8 white pawns drawn by PiecesPainter = 24 PieceWidgets.
-      expect(find.byType(PieceWidget), findsNWidgets(24));
     });
   });
 
   group('drag avatar rendering', () {
-    // The fallback PieceWidget used when an image is not cached is created with
-    // feedbackSize = squareSize * dragFeedbackScale (default 2.0), which makes it
-    // distinguishable from the board PieceWidgets that all use squareSize.
-    const feedbackSize = squareSize * 2.0; // dragFeedbackScale default
+    testWidgets('drag piece is drawn by _DragPiecePainter on canvas (no PieceWidget overlay)', (
+      WidgetTester tester,
+    ) async {
+      final asset = const ChessboardSettings().pieceAssets[Piece.whitePawn.kind]!;
+      final fakeImage = await _createFakeImage(45, 45);
+      ChessgroundImages.instance.add(asset, fakeImage);
+      addTearDown(() => ChessgroundImages.instance.evict(asset));
 
-    Iterable<PieceWidget> dragFeedbackPieceWidgets(WidgetTester tester) => tester
-        .widgetList<PieceWidget>(find.byType(PieceWidget))
-        .where((w) => w.size == feedbackSize);
+      await tester.pumpWidget(const _TestApp(initialPlayerSide: PlayerSide.both));
 
-    testWidgets(
-      'uses CustomPaint fast path when dragged piece image is in ChessgroundImages cache',
-      (WidgetTester tester) async {
-        final asset = const ChessboardSettings().pieceAssets[Piece.whitePawn.kind]!;
-        final fakeImage = await _createFakeImage(45, 45);
-        ChessgroundImages.instance.add(asset, fakeImage);
-        addTearDown(() => ChessgroundImages.instance.evict(asset));
+      // No PieceWidget in tree — all static pieces rendered by PiecesPainter.
+      expect(find.byType(PieceWidget), findsNothing);
 
-        await tester.pumpWidget(const _TestApp(initialPlayerSide: PlayerSide.both));
-
-        // All 8 white pawns are now drawn by PiecesPainter, not PieceWidget.
-        expect(tester.widgetList<PieceWidget>(find.byType(PieceWidget)).length, 24);
-
-        await TestAsyncUtils.guard<void>(() async {
-          final gesture = await tester.startGesture(squareOffset(tester, Square.e2));
-          await tester.pump();
-          // Exceed the _kDragDistanceThreshold of 3.0 px to start a drag.
-          await gesture.moveBy(const Offset(0, -4));
-          await tester.pump();
-
-          // Fast path: piece drawn by _DragPiecePainter on canvas — no fallback PieceWidget.
-          expect(dragFeedbackPieceWidgets(tester), isEmpty);
-
-          await gesture.up();
-        });
+      await TestAsyncUtils.guard<void>(() async {
+        final gesture = await tester.startGesture(squareOffset(tester, Square.e2));
         await tester.pump();
-      },
-    );
-
-    testWidgets(
-      'uses PieceWidget fallback when dragged piece image is not in ChessgroundImages cache',
-      (WidgetTester tester) async {
-        // ChessgroundImages cache is empty by default in tests.
-        await tester.pumpWidget(const _TestApp(initialPlayerSide: PlayerSide.both));
-
-        expect(find.byType(PieceWidget), findsNWidgets(32));
-
-        await TestAsyncUtils.guard<void>(() async {
-          final gesture = await tester.startGesture(squareOffset(tester, Square.e2));
-          await tester.pump();
-          await gesture.moveBy(const Offset(0, -4));
-          await tester.pump();
-
-          // Fallback path: one PieceWidget with feedbackSize in the overlay.
-          expect(dragFeedbackPieceWidgets(tester), hasLength(1));
-
-          await gesture.up();
-        });
+        // Exceed the _kDragDistanceThreshold of 3.0 px to start a drag.
+        await gesture.moveBy(const Offset(0, -4));
         await tester.pump();
-      },
-    );
+
+        // Drag avatar uses _DragPiecePainter — still no PieceWidget in tree.
+        expect(find.byType(PieceWidget), findsNothing);
+
+        await gesture.up();
+      });
+      await tester.pump();
+    });
   });
 }
 
@@ -2574,16 +2544,20 @@ class _TestAppState extends State<_TestApp> {
 }
 
 Offset squareOffset(WidgetTester tester, Square id, {Side orientation = Side.white}) {
-  final rect = tester.getRect(find.byKey(const ValueKey('board-container')));
-  final sq = rect.width / 8;
+  // Use boardWidget.squareSize (based on widget.size) rather than the rendered
+  // rect width — rect is unreliable when the board is pumped without a parent
+  // that provides loose constraints (e.g. direct pumpWidget without MaterialApp
+  // causes RenderView tight constraints to expand board-container to fill screen).
+  final boardWidget = tester.widget<Chessboard>(find.byType(Chessboard));
+  final sq = boardWidget.squareSize;
+  final topLeft = tester.getTopLeft(find.byKey(const ValueKey('board-container')));
   final x = orientation == Side.black ? 7 - id.file : id.file;
   final y = orientation == Side.black ? id.rank : 7 - id.rank;
-  final o = Offset(rect.left + x * sq, rect.top + y * sq);
-  return Offset(o.dx + sq / 2, o.dy + sq / 2);
+  return topLeft + Offset(x * sq + sq / 2, y * sq + sq / 2);
 }
 
 /// Creates a minimal in-memory [ui.Image] for tests that need a cached piece image.
-Future<ui.Image> _createFakeImage(int width, int height) async {
+Future<ui.Image> _createFakeImage(int width, int height) {
   final recorder = ui.PictureRecorder();
   Canvas(recorder).drawPaint(Paint()..color = const Color(0xFF0000FF));
   return recorder.endRecording().toImage(width, height);

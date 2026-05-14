@@ -6,6 +6,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 import '../board_color_scheme.dart';
 import '../fen.dart';
+import '../images.dart';
 import '../models.dart';
 import '../piece_set.dart';
 import 'color_filter.dart';
@@ -100,11 +101,25 @@ class _StaticChessboardState extends State<StaticChessboard> {
   void initState() {
     super.initState();
     pieces = readFen(widget.fen);
+    if (!ChessgroundImages.instance.isAllLoaded(widget.pieceAssets)) {
+      _loadImages(widget.pieceAssets);
+    }
+  }
+
+  Future<void> _loadImages(PieceAssets assets) async {
+    final dpr = WidgetsBinding.instance.platformDispatcher.implicitView?.devicePixelRatio;
+    await ChessgroundImages.instance.loadAll(assets, devicePixelRatio: dpr);
+    if (mounted) setState(() {});
   }
 
   @override
   void didUpdateWidget(covariant StaticChessboard oldWidget) {
     super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.pieceAssets != widget.pieceAssets &&
+        !ChessgroundImages.instance.isAllLoaded(widget.pieceAssets)) {
+      _loadImages(widget.pieceAssets);
+    }
 
     if (oldWidget.fen == widget.fen) {
       return;

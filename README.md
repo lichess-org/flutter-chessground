@@ -36,6 +36,30 @@ callback functions to handle user interactions.
 All chess logic must be handled outside of this package. Any change in the state
 of the game needs to be transferred to the board by creating a new `GameData` object.
 
+## Piece image cache
+
+Piece images are managed by `ChessgroundImages`, a singleton cache that holds decoded `ui.Image` objects. Board widgets automatically load images on first render if the cache is empty — pieces are invisible for the duration of that load (typically one async frame).
+
+To guarantee pieces are visible on the very first frame, pre-populate the cache before the board is displayed:
+
+```dart
+// in main() or your app startup, before showing any board
+await ChessgroundImages.instance.loadAll(
+  PieceSet.stauntyAssets,
+  devicePixelRatio: WidgetsBinding
+      .instance.platformDispatcher.implicitView?.devicePixelRatio,
+);
+```
+
+When switching piece sets at runtime, clear the old images first:
+
+```dart
+ChessgroundImages.instance.clear();
+await ChessgroundImages.instance.loadAll(newPieceAssets);
+```
+
+If you only need to evict a single image, use `ChessgroundImages.instance.evict(asset)`.
+
 ## Usage
 
 This will display a non-interactable board from the starting position, using the

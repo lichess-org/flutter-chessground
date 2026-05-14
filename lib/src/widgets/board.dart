@@ -209,6 +209,9 @@ class _BoardState extends State<Chessboard> {
   /// Avatar of the shape being drawn.
   Shape? _shapeAvatar;
 
+  /// Whether all piece images are available in the cache.
+  bool _imagesLoaded = false;
+
   /// Drives [HighlightsPainter] repaints for selection/premove changes without
   /// triggering a full widget rebuild.
   late final BoardHighlightNotifier _highlightNotifier;
@@ -306,7 +309,6 @@ class _BoardState extends State<Chessboard> {
     ];
 
     final Set<Square> upsideDownPieceSquares = {};
-    final List<Widget> fallbackPieceWidgets = [];
     for (final entry in pieces.entries) {
       final square = entry.key;
       if (translatingPieces.containsKey(square) ||
@@ -314,29 +316,8 @@ class _BoardState extends State<Chessboard> {
           square == widget.game?.promotionMove?.from) {
         continue;
       }
-      final piece = entry.value;
-      final upsideDown = _isUpsideDown(piece.color);
-      if (upsideDown) {
+      if (_isUpsideDown(entry.value.color)) {
         upsideDownPieceSquares.add(square);
-      }
-      final asset = settings.pieceAssets[piece.kind];
-      final cached = asset != null ? ChessgroundImages.instance.get(asset) : null;
-      if (cached == null && !settings.blindfoldMode) {
-        fallbackPieceWidgets.add(
-          PositionedSquare(
-            key: ValueKey('${square.name}-$piece'),
-            size: widget.size,
-            orientation: widget.orientation,
-            square: square,
-            child: PieceWidget(
-              piece: piece,
-              size: widget.squareSize,
-              pieceAssets: settings.pieceAssets,
-              blindfoldMode: settings.blindfoldMode,
-              upsideDown: upsideDown,
-            ),
-          ),
-        );
       }
     }
 
@@ -350,6 +331,7 @@ class _BoardState extends State<Chessboard> {
       promotionMoveFrom: widget.game?.promotionMove?.from,
       blindfoldMode: settings.blindfoldMode,
       upsideDownSquares: upsideDownPieceSquares,
+      imagesLoaded: _imagesLoaded,
     );
 
     final List<Widget> objects = [
@@ -380,7 +362,6 @@ class _BoardState extends State<Chessboard> {
           child: CustomPaint(painter: piecesPainter),
         ),
       ),
-      ...fallbackPieceWidgets,
       for (final entry in translatingPieces.entries)
         PositionedSquare(
           key: ValueKey('${entry.key.name}-${entry.value.piece}'),
@@ -552,6 +533,14 @@ class _BoardState extends State<Chessboard> {
     super.initState();
     pieces = readFen(widget.fen);
     _highlightNotifier = BoardHighlightNotifier();
+    _imagesLoaded = ChessgroundImages.instance.isAllLoaded(widget.settings.pieceAssets);
+    if (!_imagesLoaded) _loadImages(widget.settings.pieceAssets);
+  }
+
+  Future<void> _loadImages(PieceAssets assets) async {
+    final dpr = WidgetsBinding.instance.platformDispatcher.implicitView?.devicePixelRatio;
+    await ChessgroundImages.instance.loadAll(assets, devicePixelRatio: dpr);
+    if (mounted) setState(() => _imagesLoaded = true);
   }
 
   @override
@@ -582,6 +571,11 @@ class _BoardState extends State<Chessboard> {
       _premoveDests = null;
     }
     _syncHighlightNotifier();
+
+    if (oldBoard.settings.pieceAssets != widget.settings.pieceAssets) {
+      _imagesLoaded = ChessgroundImages.instance.isAllLoaded(widget.settings.pieceAssets);
+      if (!_imagesLoaded) _loadImages(widget.settings.pieceAssets);
+    }
 
     // Trigger explosion animations when the set of explosion squares changes.
     if (widget.explosionSquares != null && widget.explosionSquares != oldBoard.explosionSquares) {
@@ -953,17 +947,6 @@ class _BoardState extends State<Chessboard> {
       final image = ChessgroundImages.instance.get(asset);
       final upsideDown = _isUpsideDown(piece.color);
 
-      // Fallback widget used when the image is not in the ChessgroundImages cache.
-      final Widget? fallbackPieceWidget =
-          image == null && !widget.settings.blindfoldMode
-              ? PieceWidget(
-                piece: piece,
-                size: feedbackSize,
-                pieceAssets: widget.settings.pieceAssets,
-                upsideDown: upsideDown,
-              )
-              : null;
-
       _dragAvatar = _DragAvatar(
         overlayState: Overlay.of(context, debugRequiredFor: widget),
         initialPosition: origin.position,
@@ -978,7 +961,6 @@ class _BoardState extends State<Chessboard> {
         upsideDown: upsideDown,
         targetKind: targetKind,
         squareSize: widget.squareSize,
-        fallbackPieceWidget: fallbackPieceWidget,
       );
     }
   }
@@ -1099,45 +1081,25 @@ class _DragAvatar {
     required bool upsideDown,
     required DragTargetKind targetKind,
     required double squareSize,
-    Widget? fallbackPieceWidget,
   }) : _positionNotifier = ValueNotifier<Offset>(initialPosition),
        _squareTargetNotifier = ValueNotifier<Offset?>(initialTargetPosition) {
-    if (image != null) {
-      // Optimized path: only the paint phase runs on each pointer move.
-      _pieceEntry = OverlayEntry(
-        builder:
-            (_) => Positioned.fill(
-              child: IgnorePointer(
-                child: CustomPaint(
-                  painter: _DragPiecePainter(
-                    image: image,
-                    feedbackSize: feedbackSize,
-                    feedbackOffset: feedbackOffset,
-                    upsideDown: upsideDown,
-                    positionNotifier: _positionNotifier,
-                  ),
+    // Only the paint phase runs on each pointer move.
+    _pieceEntry = OverlayEntry(
+      builder:
+          (_) => Positioned.fill(
+            child: IgnorePointer(
+              child: CustomPaint(
+                painter: _DragPiecePainter(
+                  image: image,
+                  feedbackSize: feedbackSize,
+                  feedbackOffset: feedbackOffset,
+                  upsideDown: upsideDown,
+                  positionNotifier: _positionNotifier,
                 ),
               ),
             ),
-      );
-    } else {
-      // Fallback when the image is not in ChessgroundImages cache: use a widget
-      // wrapped in ValueListenableBuilder so position updates rebuild only the
-      // Positioned wrapper, not the whole OverlayEntry.
-      _pieceEntry = OverlayEntry(
-        builder:
-            (_) => ValueListenableBuilder<Offset>(
-              valueListenable: _positionNotifier,
-              builder:
-                  (_, pos, child) => Positioned(
-                    left: pos.dx + feedbackOffset.dx,
-                    top: pos.dy + feedbackOffset.dy,
-                    child: child!,
-                  ),
-              child: IgnorePointer(child: fallbackPieceWidget ?? const SizedBox.shrink()),
-            ),
-      );
-    }
+          ),
+    );
     _squareTargetEntry = OverlayEntry(
       builder:
           (_) => Positioned.fill(
