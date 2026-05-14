@@ -107,7 +107,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    Widget _buildNewRoundButton() => FilledButton.icon(
+    final newRoundButton = FilledButton.icon(
         icon: const Icon(Icons.refresh_rounded),
         label: const Text('New Round'),
         onPressed: () {
@@ -120,64 +120,30 @@ class _HomePageState extends State<HomePage> {
           });
         });
 
-    Widget _buildUndoButton() => FilledButton.icon(
-          icon: const Icon(Icons.undo_rounded),
-          label: const Text('Undo'),
-          onPressed: lastPos != null
-              ? () => setState(() {
-                    position = lastPos!;
-                    fen = position.fen;
-                    validMoves = makeLegalMoves(position);
-                    lastPos = null;
-                  })
-              : null,
-        );
+    final undoButton = FilledButton.icon(
+      icon: const Icon(Icons.undo_rounded),
+      label: const Text('Undo'),
+      onPressed: lastPos != null
+          ? () => setState(() {
+                position = lastPos!;
+                fen = position.fen;
+                validMoves = makeLegalMoves(position);
+                lastPos = null;
+              })
+          : null,
+    );
 
-    Widget _buildControlButtons() => SizedBox(
-          height: buttonHeight,
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Expanded(
-                child: _buildNewRoundButton(),
-              ),
-              if (playMode == Mode.freePlay)
-                const SizedBox(width: buttonsSplitter),
-              if (playMode == Mode.freePlay)
-                Expanded(
-                  child: _buildUndoButton(),
-                ),
-            ],
-          ),
-        );
-
-    Widget _buildSettingsButton({
-      required String label,
-      required String value,
-      required VoidCallback onPressed,
-    }) =>
-        ElevatedButton(
-          child: Column(
-            children: [
-              Text(label,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey,
-                  )),
-              Text(value,
-                  style: const TextStyle(
-                    fontSize: 12,
-                  )),
-            ],
-          ),
-          style: ElevatedButton.styleFrom(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 18.0,
-              vertical: 4,
-            ),
-          ),
-          onPressed: onPressed,
-        );
+    final controlButtons = SizedBox(
+      height: buttonHeight,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(child: newRoundButton),
+          if (playMode == Mode.freePlay) const SizedBox(width: buttonsSplitter),
+          if (playMode == Mode.freePlay) Expanded(child: undoButton),
+        ],
+      ),
+    );
 
     final settingsWidgets = ListView(
       children: [
@@ -192,7 +158,7 @@ class _HomePageState extends State<HomePage> {
               runSpacing: smallButtonsSplitter,
               alignment: WrapAlignment.spaceBetween,
               children: [
-                _buildSettingsButton(
+                SettingsButton(
                     label: 'Magnify drag',
                     value: dragMagnify ? 'ON' : 'OFF',
                     onPressed: () {
@@ -200,7 +166,7 @@ class _HomePageState extends State<HomePage> {
                         dragMagnify = !dragMagnify;
                       });
                     }),
-                _buildSettingsButton(
+                SettingsButton(
                   label: 'Drag target',
                   value: dragTargetKind.name,
                   onPressed: () => _showChoicesPicker<DragTargetKind>(
@@ -215,7 +181,7 @@ class _HomePageState extends State<HomePage> {
                     },
                   ),
                 ),
-                _buildSettingsButton(
+                SettingsButton(
                   label: 'Orientation',
                   value: orientation.name,
                   onPressed: () {
@@ -224,7 +190,7 @@ class _HomePageState extends State<HomePage> {
                     });
                   },
                 ),
-                _buildSettingsButton(
+                SettingsButton(
                   label: 'Show border',
                   value: showBorder ? 'ON' : 'OFF',
                   onPressed: () {
@@ -233,7 +199,7 @@ class _HomePageState extends State<HomePage> {
                     });
                   },
                 ),
-                _buildSettingsButton(
+                SettingsButton(
                   label: 'Piece set',
                   value: pieceSet.label,
                   onPressed: () => _showChoicesPicker<PieceSet>(
@@ -250,7 +216,7 @@ class _HomePageState extends State<HomePage> {
                     },
                   ),
                 ),
-                _buildSettingsButton(
+                SettingsButton(
                   label: 'Board theme',
                   value: boardTheme.label,
                   onPressed: () => _showChoicesPicker<BoardTheme>(
@@ -267,7 +233,7 @@ class _HomePageState extends State<HomePage> {
                     },
                   ),
                 ),
-                _buildSettingsButton(
+                SettingsButton(
                   label: 'Piece animation',
                   value: pieceAnimation ? 'ON' : 'OFF',
                   onPressed: () {
@@ -276,7 +242,7 @@ class _HomePageState extends State<HomePage> {
                     });
                   },
                 ),
-                _buildSettingsButton(
+                SettingsButton(
                   label: 'Piece Shift',
                   value: pieceShiftMethodLabel(pieceShiftMethod),
                   onPressed: () => _showChoicesPicker<PieceShiftMethod>(
@@ -293,7 +259,7 @@ class _HomePageState extends State<HomePage> {
                     },
                   ),
                 ),
-                _buildSettingsButton(
+                SettingsButton(
                     label: 'Test Crazyhouse drop moves',
                     value: testDropMoves ? 'ON' : 'OFF',
                     onPressed: () {
@@ -350,127 +316,66 @@ class _HomePageState extends State<HomePage> {
           ? PieceOrientationBehavior.opponentUpsideDown
           : PieceOrientationBehavior.facingUser,
     );
-    Widget _buildChessBoardWidget() => Center(
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              final chessboard = Chessboard(
-                size: min(constraints.maxWidth, constraints.maxHeight),
-                settings: settings,
-                orientation: orientation,
-                fen: fen,
-                lastMove: lastMove,
-                game: GameData(
-                  playerSide:
-                      (playMode == Mode.botPlay || playMode == Mode.inputMove)
+
+    final Widget chessboardWidget = Center(
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final chessboard = Chessboard(
+            size: min(constraints.maxWidth, constraints.maxHeight),
+            settings: settings,
+            orientation: orientation,
+            fen: fen,
+            lastMove: lastMove,
+            game: GameData(
+              playerSide:
+                  (playMode == Mode.botPlay || playMode == Mode.inputMove)
+                      ? PlayerSide.white
+                      : (position.turn == Side.white
                           ? PlayerSide.white
-                          : (position.turn == Side.white
-                              ? PlayerSide.white
-                              : PlayerSide.black),
-                  validMoves: validMoves,
-                  droppable: testDropMoves
-                      ? (validDropSquares: position.legalDrops.squares.toISet())
-                      : null,
-                  sideToMove:
-                      position.turn == Side.white ? Side.white : Side.black,
-                  isCheck: position.isCheck,
-                  promotionMove: promotionMove,
-                  onMove: playMode == Mode.botPlay
-                      ? _onUserMoveAgainstBot
-                      : _playMove,
-                  onPromotionSelection: _onPromotionSelection,
-                  premovable: (
-                    onSetPremove: _onSetPremove,
-                    premove: premove,
-                  ),
-                ),
-                shapes: shapes.isNotEmpty ? shapes : null,
-              );
+                          : PlayerSide.black),
+              validMoves: validMoves,
+              droppable: testDropMoves
+                  ? (validDropSquares: position.legalDrops.squares.toISet())
+                  : null,
+              sideToMove: position.turn == Side.white ? Side.white : Side.black,
+              isCheck: position.isCheck,
+              promotionMove: promotionMove,
+              onMove:
+                  playMode == Mode.botPlay ? _onUserMoveAgainstBot : _playMove,
+              onPromotionSelection: _onPromotionSelection,
+              premovable: (
+                onSetPremove: _onSetPremove,
+                premove: premove,
+              ),
+            ),
+            shapes: shapes.isNotEmpty ? shapes : null,
+          );
 
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  if (testDropMoves)
-                    CrazyhouseMenu(
-                      position: position,
-                      side: Side.black,
-                      pieceSet: pieceSet,
-                      squareSize: chessboard.squareSize,
-                      settings: settings,
-                    ),
-                  chessboard,
-                  if (testDropMoves)
-                    CrazyhouseMenu(
-                      position: position,
-                      side: Side.white,
-                      pieceSet: pieceSet,
-                      squareSize: chessboard.squareSize,
-                      settings: settings,
-                    ),
-                ],
-              );
-            },
-          ),
-        );
-
-    Widget _buildPortrait() => Padding(
-          padding: const EdgeInsets.only(
-            bottom: screenPadding,
-          ),
-          child: Column(
+          return Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _buildChessBoardWidget(),
-              if (playMode == Mode.inputMove)
-                const SizedBox(height: screenPortraitSplitter),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: screenPadding,
-                  ),
-                  child: playMode == Mode.inputMove
-                      ? inputMoveWidgets
-                      : settingsWidgets,
+              if (testDropMoves)
+                CrazyhouseMenu(
+                  position: position,
+                  side: Side.black,
+                  pieceSet: pieceSet,
+                  squareSize: chessboard.squareSize,
+                  settings: settings,
                 ),
-              ),
-              if (playMode != Mode.inputMove)
-                const SizedBox(height: screenPortraitSplitter),
-              if (playMode != Mode.inputMove)
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: screenPadding,
-                  ),
-                  child: _buildControlButtons(),
+              chessboard,
+              if (testDropMoves)
+                CrazyhouseMenu(
+                  position: position,
+                  side: Side.white,
+                  pieceSet: pieceSet,
+                  squareSize: chessboard.squareSize,
+                  settings: settings,
                 ),
             ],
-          ),
-        );
-
-    Widget _buildLandscape() => Padding(
-          padding: const EdgeInsets.all(screenPadding),
-          child: Row(
-            children: [
-              Expanded(
-                child: _buildChessBoardWidget(),
-              ),
-              const SizedBox(width: screenLandscapeSplitter),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Expanded(
-                      child: playMode == Mode.inputMove
-                          ? inputMoveWidgets
-                          : settingsWidgets,
-                    ),
-                    if (playMode != Mode.inputMove)
-                      const SizedBox(height: screenPortraitSplitter),
-                    if (playMode != Mode.inputMove) _buildControlButtons(),
-                  ],
-                ),
-              )
-            ],
-          ),
-        );
+          );
+        },
+      ),
+    );
 
     return Scaffold(
       primary: MediaQuery.of(context).orientation == Orientation.portrait,
@@ -549,10 +454,65 @@ class _HomePageState extends State<HomePage> {
         ],
       )),
       body: OrientationBuilder(
-        builder: (context, orientation) => orientation == Orientation.portrait
-            ? _buildPortrait()
-            : _buildLandscape(),
-      ),
+          builder: (context, orientation) => orientation == Orientation.portrait
+              ? Padding(
+                  padding: const EdgeInsets.only(
+                    bottom: screenPadding,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      chessboardWidget,
+                      if (playMode == Mode.inputMove)
+                        const SizedBox(height: screenPortraitSplitter),
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: screenPadding,
+                          ),
+                          child: playMode == Mode.inputMove
+                              ? inputMoveWidgets
+                              : settingsWidgets,
+                        ),
+                      ),
+                      if (playMode != Mode.inputMove)
+                        const SizedBox(height: screenPortraitSplitter),
+                      if (playMode != Mode.inputMove)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: screenPadding,
+                          ),
+                          child: controlButtons,
+                        ),
+                    ],
+                  ),
+                )
+              : Padding(
+                  padding: const EdgeInsets.all(screenPadding),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: chessboardWidget,
+                      ),
+                      const SizedBox(width: screenLandscapeSplitter),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Expanded(
+                              child: playMode == Mode.inputMove
+                                  ? inputMoveWidgets
+                                  : settingsWidgets,
+                            ),
+                            if (playMode != Mode.inputMove)
+                              const SizedBox(height: screenPortraitSplitter),
+                            if (playMode != Mode.inputMove) controlButtons,
+                          ],
+                        ),
+                      )
+                    ],
+                  ),
+                )),
     );
   }
 
@@ -731,6 +691,45 @@ class _HomePageState extends State<HomePage> {
 Color _darken(Color c, [double amount = .1]) {
   assert(amount >= 0 && amount <= 1);
   return Color.lerp(c, const Color(0xFF000000), amount) ?? c;
+}
+
+class SettingsButton extends StatelessWidget {
+  const SettingsButton({
+    super.key,
+    required this.label,
+    required this.value,
+    required this.onPressed,
+  });
+
+  final String label;
+  final String value;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      child: Column(
+        children: [
+          Text(label,
+              style: const TextStyle(
+                fontSize: 12,
+                color: Colors.grey,
+              )),
+          Text(value,
+              style: const TextStyle(
+                fontSize: 12,
+              )),
+        ],
+      ),
+      style: ElevatedButton.styleFrom(
+        padding: const EdgeInsets.symmetric(
+          horizontal: 18.0,
+          vertical: 4,
+        ),
+      ),
+      onPressed: onPressed,
+    );
+  }
 }
 
 class CrazyhouseMenu extends StatelessWidget {
