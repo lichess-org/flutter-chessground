@@ -6,6 +6,7 @@ import 'package:flutter/widgets.dart';
 
 import '../images.dart';
 import '../models.dart';
+import 'animation.dart';
 
 /// Holds the board's interactive highlight state and notifies [HighlightsPainter]
 /// to repaint without triggering a widget rebuild.
@@ -230,6 +231,84 @@ class PiecesPainter extends CustomPainter {
         pieceAssets != oldDelegate.pieceAssets ||
         !_mapEquals(pieces, oldDelegate.pieces) ||
         !_setEquals(translatingPieceSquares, oldDelegate.translatingPieceSquares) ||
+        !_setEquals(upsideDownSquares, oldDelegate.upsideDownSquares);
+  }
+}
+
+/// Paints all translating pieces for the current animation frame.
+///
+/// Driven by [animation] as the repaint listenable — only [paint] runs per
+/// frame, no widget rebuild.
+class TranslatingPiecesPainter extends CustomPainter {
+  TranslatingPiecesPainter({
+    required this.translatingPieces,
+    required this.squareSize,
+    required this.orientation,
+    required this.pieceAssets,
+    required this.blindfoldMode,
+    required this.upsideDownSquares,
+    required Animation<double> animation,
+  }) : _animation = animation,
+       super(repaint: animation);
+
+  final TranslatingPieces translatingPieces;
+  final double squareSize;
+  final Side orientation;
+  final PieceAssets pieceAssets;
+  final bool blindfoldMode;
+  final Set<Square> upsideDownSquares;
+  final Animation<double> _animation;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (blindfoldMode || translatingPieces.isEmpty) return;
+
+    final t = _animation.value;
+    final paint = Paint()..filterQuality = FilterQuality.medium;
+
+    for (final entry in translatingPieces.entries) {
+      final toSquare = entry.key;
+      final fromSquare = entry.value.from;
+      final piece = entry.value.piece;
+
+      final asset = pieceAssets[piece.kind];
+      if (asset == null) continue;
+      final image = ChessgroundImages.instance.get(asset);
+      if (image == null) continue;
+
+      final orientationFactor = orientation == Side.white ? 1 : -1;
+      final dx = -(toSquare.file - fromSquare.file).toDouble() * orientationFactor;
+      final dy = (toSquare.rank - fromSquare.rank).toDouble() * orientationFactor;
+
+      final toRect = _squareRect(toSquare, squareSize, orientation);
+      final dst = Rect.fromLTWH(
+        toRect.left + dx * squareSize * (1.0 - t),
+        toRect.top + dy * squareSize * (1.0 - t),
+        squareSize,
+        squareSize,
+      );
+      final src = Rect.fromLTWH(0, 0, image.width.toDouble(), image.height.toDouble());
+
+      if (upsideDownSquares.contains(toSquare)) {
+        canvas.save();
+        canvas.translate(dst.center.dx, dst.center.dy);
+        canvas.rotate(3.141592653589793);
+        canvas.translate(-dst.center.dx, -dst.center.dy);
+        canvas.drawImageRect(image, src, dst, paint);
+        canvas.restore();
+      } else {
+        canvas.drawImageRect(image, src, dst, paint);
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(TranslatingPiecesPainter oldDelegate) {
+    return squareSize != oldDelegate.squareSize ||
+        orientation != oldDelegate.orientation ||
+        blindfoldMode != oldDelegate.blindfoldMode ||
+        pieceAssets != oldDelegate.pieceAssets ||
+        !_mapEquals(translatingPieces, oldDelegate.translatingPieces) ||
         !_setEquals(upsideDownSquares, oldDelegate.upsideDownSquares);
   }
 }

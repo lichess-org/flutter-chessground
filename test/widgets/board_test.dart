@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:ui' as ui;
-import 'package:chessground/src/widgets/animation.dart';
 import 'package:chessground/src/widgets/board_painter.dart';
 import 'package:chessground/src/widgets/promotion.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
@@ -31,6 +30,16 @@ HighlightsPainter _highlightsPainter(WidgetTester tester) {
     }
   }
   throw StateError('HighlightsPainter not found');
+}
+
+TranslatingPiecesPainter? _translatingPiecesPainter(WidgetTester tester) {
+  for (final element in find.byType(CustomPaint).evaluate()) {
+    final widget = element.widget as CustomPaint;
+    if (widget.painter is TranslatingPiecesPainter) {
+      return widget.painter! as TranslatingPiecesPainter;
+    }
+  }
+  return null;
 }
 
 bool _isSelected(WidgetTester tester, Square square) {
@@ -104,7 +113,7 @@ void main() {
 
       await tester.pumpWidget(board);
 
-      expect(find.byType(AnimatedPieceTranslation), findsNothing);
+      expect(_translatingPiecesPainter(tester), isNull);
       expect(_piecesPainter(tester).pieces.length, 32);
 
       const board2 = Chessboard.fixed(
@@ -116,21 +125,19 @@ void main() {
       await tester.pumpWidget(board2);
 
       expect(_piecesPainter(tester).pieces.length, 32);
-      expect(find.byType(AnimatedPieceTranslation), findsOneWidget);
-
-      final translation =
-          tester.firstWidget(find.byType(AnimatedPieceTranslation)) as AnimatedPieceTranslation;
-      expect(translation.fromSquare, Square.e2);
-      expect(translation.toSquare, Square.e4);
-      expect(translation.orientation, Side.white);
-      expect(translation.duration, const Duration(milliseconds: 250));
+      final painter = _translatingPiecesPainter(tester);
+      expect(painter, isNotNull);
+      expect(painter!.translatingPieces.length, 1);
+      expect(painter.translatingPieces[Square.e4]?.from, Square.e2);
+      expect(painter.translatingPieces[Square.e4]?.piece, Piece.whitePawn);
+      expect(painter.orientation, Side.white);
 
       await tester.pumpAndSettle();
 
       expect(_piecesPainter(tester).pieces.containsKey(Square.e2), isFalse);
       expect(_piecesPainter(tester).pieces[Square.e4], Piece.whitePawn);
 
-      expect(find.byType(AnimatedPieceTranslation), findsNothing);
+      expect(_translatingPiecesPainter(tester), isNull);
     });
 
     testWidgets('several pieces can be animated when the position change', (
@@ -144,7 +151,7 @@ void main() {
 
       await tester.pumpWidget(board);
 
-      expect(find.byType(AnimatedPieceTranslation), findsNothing);
+      expect(_translatingPiecesPainter(tester), isNull);
       expect(_piecesPainter(tester).pieces.length, 32);
 
       const board2 = Chessboard.fixed(
@@ -156,11 +163,11 @@ void main() {
       await tester.pumpWidget(board2);
 
       expect(_piecesPainter(tester).pieces.length, 32);
-      expect(find.byType(AnimatedPieceTranslation), findsNWidgets(2));
+      expect(_translatingPiecesPainter(tester)!.translatingPieces.length, 2);
 
       await tester.pumpAndSettle();
 
-      expect(find.byType(AnimatedPieceTranslation), findsNothing);
+      expect(_translatingPiecesPainter(tester), isNull);
     });
 
     testWidgets('background is constrained to the size of the board', (WidgetTester tester) async {

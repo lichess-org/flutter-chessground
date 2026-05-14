@@ -9,7 +9,6 @@ import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'board_border.dart';
 import 'board_painter.dart';
 import 'color_filter.dart';
-import 'piece.dart';
 import 'highlight.dart';
 import 'positioned_square.dart';
 import 'animation.dart';
@@ -136,7 +135,7 @@ class Chessboard extends StatefulWidget with ChessboardGeometry {
   _BoardState createState() => _BoardState();
 }
 
-class _BoardState extends State<Chessboard> {
+class _BoardState extends State<Chessboard> with SingleTickerProviderStateMixin {
   /// Pieces on the board.
   Pieces pieces = {};
 
@@ -215,6 +214,11 @@ class _BoardState extends State<Chessboard> {
   /// Drives [HighlightsPainter] repaints for selection/premove changes without
   /// triggering a full widget rebuild.
   late final BoardHighlightNotifier _highlightNotifier;
+
+  /// Single controller shared by all translating pieces; drives
+  /// [TranslatingPiecesPainter] repaints without a widget rebuild per frame.
+  late final AnimationController _translationController;
+  late final CurvedAnimation _translationAnimation;
 
   @override
   Widget build(BuildContext context) {
@@ -309,11 +313,16 @@ class _BoardState extends State<Chessboard> {
     ];
 
     final Set<Square> upsideDownPieceSquares = {};
+    final Set<Square> upsideDownTranslatingSquares = {};
     for (final entry in pieces.entries) {
       final square = entry.key;
-      if (translatingPieces.containsKey(square) ||
-          square == _draggedPieceSquare ||
-          square == widget.game?.promotionMove?.from) {
+      if (translatingPieces.containsKey(square)) {
+        if (_isUpsideDown(entry.value.color)) {
+          upsideDownTranslatingSquares.add(square);
+        }
+        continue;
+      }
+      if (square == _draggedPieceSquare || square == widget.game?.promotionMove?.from) {
         continue;
       }
       if (_isUpsideDown(entry.value.color)) {
@@ -332,6 +341,16 @@ class _BoardState extends State<Chessboard> {
       blindfoldMode: settings.blindfoldMode,
       upsideDownSquares: upsideDownPieceSquares,
       imagesLoaded: _imagesLoaded,
+    );
+
+    final translatingPiecesPainter = TranslatingPiecesPainter(
+      translatingPieces: translatingPieces,
+      squareSize: widget.squareSize,
+      orientation: widget.orientation,
+      pieceAssets: settings.pieceAssets,
+      blindfoldMode: settings.blindfoldMode,
+      upsideDownSquares: upsideDownTranslatingSquares,
+      animation: _translationAnimation,
     );
 
     final List<Widget> objects = [
@@ -362,29 +381,12 @@ class _BoardState extends State<Chessboard> {
           child: CustomPaint(painter: piecesPainter),
         ),
       ),
-      for (final entry in translatingPieces.entries)
-        PositionedSquare(
-          key: ValueKey('${entry.key.name}-${entry.value.piece}'),
-          size: widget.size,
-          orientation: widget.orientation,
-          square: entry.key,
-          child: AnimatedPieceTranslation(
-            fromSquare: entry.value.from,
-            toSquare: entry.key,
-            orientation: widget.orientation,
-            duration: settings.animationDuration,
-            onComplete: () {
-              setState(() {
-                translatingPieces.remove(entry.key);
-              });
-            },
-            child: PieceWidget(
-              piece: entry.value.piece,
-              size: widget.squareSize,
-              pieceAssets: settings.pieceAssets,
-              blindfoldMode: settings.blindfoldMode,
-              upsideDown: _isUpsideDown(entry.value.piece.color),
-            ),
+      if (translatingPieces.isNotEmpty)
+        RepaintBoundary(
+          child: SizedBox.square(
+            key: const ValueKey('board-translating-pieces'),
+            dimension: widget.size,
+            child: CustomPaint(painter: translatingPiecesPainter),
           ),
         ),
       for (final shape in shapes)
@@ -533,6 +535,21 @@ class _BoardState extends State<Chessboard> {
     super.initState();
     pieces = readFen(widget.fen);
     _highlightNotifier = BoardHighlightNotifier();
+    _translationController = AnimationController(
+      animationBehavior: AnimationBehavior.preserve,
+      duration: widget.settings.animationDuration,
+      vsync: this,
+    )..addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        setState(() {
+          translatingPieces = {};
+        });
+      }
+    });
+    _translationAnimation = CurvedAnimation(
+      parent: _translationController,
+      curve: Curves.easeInOutCubic,
+    );
     _imagesLoaded = ChessgroundImages.instance.isAllLoaded(widget.settings.pieceAssets);
     if (!_imagesLoaded) _loadImages(widget.settings.pieceAssets);
   }
@@ -546,6 +563,8 @@ class _BoardState extends State<Chessboard> {
   @override
   void dispose() {
     _highlightNotifier.dispose();
+    _translationAnimation.dispose();
+    _translationController.dispose();
     _dragAvatar?.cancel();
     _cancelShapesDoubleTapTimer?.cancel();
     super.dispose();
@@ -577,6 +596,10 @@ class _BoardState extends State<Chessboard> {
       if (!_imagesLoaded) _loadImages(widget.settings.pieceAssets);
     }
 
+    if (oldBoard.settings.animationDuration != widget.settings.animationDuration) {
+      _translationController.duration = widget.settings.animationDuration;
+    }
+
     // Trigger explosion animations when the set of explosion squares changes.
     if (widget.explosionSquares != null && widget.explosionSquares != oldBoard.explosionSquares) {
       _activeExplosions.addAll(widget.explosionSquares!);
@@ -601,6 +624,12 @@ class _BoardState extends State<Chessboard> {
       );
       this.translatingPieces = translatingPieces;
       this.fadingPieces = fadingPieces;
+    }
+
+    if (translatingPieces.isNotEmpty) {
+      _translationController.forward(from: 0.0);
+    } else {
+      _translationController.stop();
     }
 
     _lastDrop = null;
