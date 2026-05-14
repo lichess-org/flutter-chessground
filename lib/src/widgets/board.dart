@@ -272,16 +272,8 @@ class _BoardState extends State<Chessboard> with SingleTickerProviderStateMixin 
     );
 
     final List<Widget> highlightedBackground = [
-      SizedBox.square(
-        key: const ValueKey('board-background'),
-        dimension: widget.size,
-        child: background,
-      ),
-      CustomPaint(
-        key: const ValueKey('board-highlights'),
-        size: Size.square(widget.size),
-        painter: highlightsPainter,
-      ),
+      SizedBox.square(dimension: widget.size, child: background),
+      CustomPaint(size: Size.square(widget.size), painter: highlightsPainter),
     ];
 
     final Set<Square> upsideDownFadingSquares = {};
@@ -343,9 +335,23 @@ class _BoardState extends State<Chessboard> with SingleTickerProviderStateMixin 
     );
 
     final List<Widget> objects = [
-      CustomPaint(size: Size.square(widget.size), painter: fadingPiecesPainter),
-      CustomPaint(size: Size.square(widget.size), painter: piecesPainter),
-      CustomPaint(size: Size.square(widget.size), painter: translatingPiecesPainter),
+      CustomPaint(size: Size.square(widget.size), painter: fadingPiecesPainter, willChange: true),
+      // RepaintBoundary isolates this layer so that animation ticks from the
+      // fading/translating painters and highlight changes do not cause the
+      // static pieces to be re-rasterized. isComplex hints to the raster cache
+      // that this picture (up to 32 drawImageRect calls) is worth keeping.
+      RepaintBoundary(
+        child: CustomPaint(
+          size: Size.square(widget.size),
+          isComplex: true,
+          painter: piecesPainter,
+        ),
+      ),
+      CustomPaint(
+        size: Size.square(widget.size),
+        painter: translatingPiecesPainter,
+        willChange: true,
+      ),
       for (final shape in shapes)
         BoardShapeWidget(shape: shape, size: widget.size, orientation: widget.orientation),
       if (_shapeAvatar != null)
@@ -443,7 +449,6 @@ class _BoardState extends State<Chessboard> with SingleTickerProviderStateMixin 
             if (settings.border == null &&
                 (settings.boxShadow.isNotEmpty || settings.borderRadius != BorderRadius.zero))
               Container(
-                key: const ValueKey('background-container'),
                 clipBehavior: Clip.hardEdge,
                 decoration: BoxDecoration(
                   borderRadius: settings.borderRadius,
@@ -484,7 +489,13 @@ class _BoardState extends State<Chessboard> with SingleTickerProviderStateMixin 
             )
             : board;
 
-    return BrightnessHueFilter(brightness: widget.settings.brightness, child: borderedChessboard);
+    // RepaintBoundary stops board repaints from propagating to the app's widget
+    // tree. Without it, every animation tick or piece selection would dirty the
+    // nearest ancestor compositing layer outside the board.
+    return BrightnessHueFilter(
+      brightness: widget.settings.brightness,
+      child: RepaintBoundary(child: borderedChessboard),
+    );
   }
 
   @override
