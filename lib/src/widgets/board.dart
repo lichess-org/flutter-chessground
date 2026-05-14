@@ -281,12 +281,10 @@ class _BoardState extends State<Chessboard> with SingleTickerProviderStateMixin 
     );
 
     final List<Widget> highlightedBackground = [
-      RepaintBoundary(
-        child: SizedBox.square(
-          key: const ValueKey('board-background'),
-          dimension: widget.size,
-          child: background,
-        ),
+      SizedBox.square(
+        key: const ValueKey('board-background'),
+        dimension: widget.size,
+        child: background,
       ),
       if (settings.showLastMove && widget.lastMove != null && colorScheme.lastMove.image != null)
         for (final square in widget.lastMove!.squares)
@@ -306,12 +304,10 @@ class _BoardState extends State<Chessboard> with SingleTickerProviderStateMixin 
           square: selected!,
           child: SquareHighlight(details: colorScheme.selected),
         ),
-      RepaintBoundary(
-        child: SizedBox.square(
-          key: const ValueKey('board-highlights'),
-          dimension: widget.size,
-          child: CustomPaint(painter: highlightsPainter),
-        ),
+      SizedBox.square(
+        key: const ValueKey('board-highlights'),
+        dimension: widget.size,
+        child: CustomPaint(painter: highlightsPainter),
       ),
       ...customImageHighlights,
     ];
@@ -375,27 +371,9 @@ class _BoardState extends State<Chessboard> with SingleTickerProviderStateMixin 
     );
 
     final List<Widget> objects = [
-      RepaintBoundary(
-        child: SizedBox.square(
-          key: const ValueKey('board-fading-pieces'),
-          dimension: widget.size,
-          child: CustomPaint(painter: fadingPiecesPainter),
-        ),
-      ),
-      RepaintBoundary(
-        child: SizedBox.square(
-          key: const ValueKey('board-pieces'),
-          dimension: widget.size,
-          child: CustomPaint(painter: piecesPainter),
-        ),
-      ),
-      RepaintBoundary(
-        child: SizedBox.square(
-          key: const ValueKey('board-translating-pieces'),
-          dimension: widget.size,
-          child: CustomPaint(painter: translatingPiecesPainter),
-        ),
-      ),
+      CustomPaint(size: Size.square(widget.size), painter: fadingPiecesPainter),
+      CustomPaint(size: Size.square(widget.size), painter: piecesPainter),
+      CustomPaint(size: Size.square(widget.size), painter: translatingPiecesPainter),
       for (final shape in shapes)
         BoardShapeWidget(shape: shape, size: widget.size, orientation: widget.orientation),
       if (_shapeAvatar != null)
@@ -534,9 +512,7 @@ class _BoardState extends State<Chessboard> with SingleTickerProviderStateMixin 
             )
             : board;
 
-    return RepaintBoundary(
-      child: BrightnessHueFilter(brightness: widget.settings.brightness, child: borderedChessboard),
-    );
+    return BrightnessHueFilter(brightness: widget.settings.brightness, child: borderedChessboard);
   }
 
   @override
@@ -553,10 +529,7 @@ class _BoardState extends State<Chessboard> with SingleTickerProviderStateMixin 
       parent: _pieceAnimationController,
       curve: Curves.easeInOutCubic,
     );
-    _fadeAnimation = CurvedAnimation(
-      parent: _pieceAnimationController,
-      curve: Curves.easeInQuad,
-    );
+    _fadeAnimation = CurvedAnimation(parent: _pieceAnimationController, curve: Curves.easeInQuad);
     _imagesLoaded = ChessgroundImages.instance.isAllLoaded(widget.settings.pieceAssets);
     if (!_imagesLoaded) _loadImages(widget.settings.pieceAssets);
   }

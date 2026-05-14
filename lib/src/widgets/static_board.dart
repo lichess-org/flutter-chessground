@@ -83,8 +83,7 @@ class StaticChessboard extends StatefulWidget with ChessboardGeometry {
   State<StaticChessboard> createState() => _StaticChessboardState();
 }
 
-class _StaticChessboardState extends State<StaticChessboard>
-    with SingleTickerProviderStateMixin {
+class _StaticChessboardState extends State<StaticChessboard> with SingleTickerProviderStateMixin {
   bool _deferImagesLoading = false;
   bool _imagesLoaded = false;
 
@@ -116,10 +115,7 @@ class _StaticChessboardState extends State<StaticChessboard>
       parent: _pieceAnimationController,
       curve: Curves.easeInOutCubic,
     );
-    _fadeAnimation = CurvedAnimation(
-      parent: _pieceAnimationController,
-      curve: Curves.easeInQuad,
-    );
+    _fadeAnimation = CurvedAnimation(parent: _pieceAnimationController, curve: Curves.easeInQuad);
     _imagesLoaded = ChessgroundImages.instance.isAllLoaded(widget.pieceAssets);
     if (!_imagesLoaded) _loadImages(widget.pieceAssets);
   }
@@ -239,11 +235,9 @@ class _StaticChessboardState extends State<StaticChessboard>
     );
 
     final List<Widget> highlightedBackground = [
-      RepaintBoundary(
-        child: BrightnessHueFilter(
-          hue: widget.hue,
-          child: SizedBox.square(dimension: widget.size, child: background),
-        ),
+      BrightnessHueFilter(
+        hue: widget.hue,
+        child: SizedBox.square(dimension: widget.size, child: background),
       ),
       if (widget.lastMove != null)
         for (final square in widget.lastMove!.squares)
@@ -272,33 +266,13 @@ class _StaticChessboardState extends State<StaticChessboard>
             )
           else
             ...highlightedBackground,
-          RepaintBoundary(
-            child: SizedBox.square(
-              key: const ValueKey('board-fading-pieces'),
-              dimension: widget.size,
-              child: CustomPaint(painter: fadingPiecesPainter),
-            ),
-          ),
-          RepaintBoundary(
-            child: SizedBox.square(
-              key: const ValueKey('board-pieces'),
-              dimension: widget.size,
-              child: CustomPaint(painter: piecesPainter),
-            ),
-          ),
-          RepaintBoundary(
-            child: SizedBox.square(
-              key: const ValueKey('board-translating-pieces'),
-              dimension: widget.size,
-              child: CustomPaint(painter: translatingPiecesPainter),
-            ),
-          ),
+          CustomPaint(size: Size.square(widget.size), painter: fadingPiecesPainter),
+          CustomPaint(size: Size.square(widget.size), painter: piecesPainter),
+          CustomPaint(size: Size.square(widget.size), painter: translatingPiecesPainter),
         ],
       ),
     );
 
-    return RepaintBoundary(
-      child: BrightnessHueFilter(brightness: widget.brightness, child: board),
-    );
+    return BrightnessHueFilter(brightness: widget.brightness, child: board);
   }
 }
