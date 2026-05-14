@@ -1,3 +1,4 @@
+import 'dart:math' show pi;
 import 'dart:ui' as ui;
 
 import 'package:dartchess/dartchess.dart';
@@ -210,7 +211,7 @@ class PiecesPainter extends CustomPainter {
       if (upsideDownSquares.contains(square)) {
         canvas.save();
         canvas.translate(dst.center.dx, dst.center.dy);
-        canvas.rotate(3.141592653589793);
+        canvas.rotate(pi);
         canvas.translate(-dst.center.dx, -dst.center.dy);
         canvas.drawImageRect(image, src, dst, paint);
         canvas.restore();
@@ -283,7 +284,7 @@ class FadingPiecesPainter extends CustomPainter {
       if (upsideDownSquares.contains(square)) {
         canvas.save();
         canvas.translate(dst.center.dx, dst.center.dy);
-        canvas.rotate(3.141592653589793);
+        canvas.rotate(pi);
         canvas.translate(-dst.center.dx, -dst.center.dy);
         canvas.drawImageRect(image, src, dst, paint);
         canvas.restore();
@@ -361,7 +362,7 @@ class TranslatingPiecesPainter extends CustomPainter {
       if (upsideDownSquares.contains(toSquare)) {
         canvas.save();
         canvas.translate(dst.center.dx, dst.center.dy);
-        canvas.rotate(3.141592653589793);
+        canvas.rotate(pi);
         canvas.translate(-dst.center.dx, -dst.center.dy);
         canvas.drawImageRect(image, src, dst, paint);
         canvas.restore();

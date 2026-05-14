@@ -76,4 +76,3 @@ int _distanceSq(Square pos1, Square pos2) {
   final dy = pos1.rank - pos2.rank;
   return dx * dx + dy * dy;
 }
-

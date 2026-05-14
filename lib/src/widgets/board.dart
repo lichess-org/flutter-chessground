@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' show pi;
 import 'dart:ui' as ui;
 import 'package:chessground/src/widgets/geometry.dart';
 import 'package:dartchess/dartchess.dart';
@@ -1207,7 +1208,7 @@ class _DragPiecePainter extends CustomPainter {
     if (upsideDown) {
       canvas.save();
       canvas.translate(dst.center.dx, dst.center.dy);
-      canvas.rotate(3.141592653589793);
+      canvas.rotate(pi);
       canvas.translate(-dst.center.dx, -dst.center.dy);
       canvas.drawImageRect(img, src, dst, paint);
       canvas.restore();
