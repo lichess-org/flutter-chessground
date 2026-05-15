@@ -178,25 +178,28 @@ class HighlightsPainter extends CustomPainter {
 
 class PiecesPainter extends CustomPainter {
   PiecesPainter({
-    required this.pieces,
+    required this.piecesNotifier,
+    required this.translatingPiecesNotifier,
     required this.pieceAssets,
     required this.squareSize,
     required this.orientation,
     required ValueNotifier<Square?>? draggedPieceSquareNotifier,
-    required this.translatingPieceSquares,
     required this.promotionMoveFrom,
     required this.blindfoldMode,
     required this.upsideDownSquares,
     required this.imagesLoaded,
   }) : _draggedPieceSquareNotifier = draggedPieceSquareNotifier,
-       super(repaint: draggedPieceSquareNotifier);
+       super(repaint: Listenable.merge([piecesNotifier, draggedPieceSquareNotifier]));
 
-  final Pieces pieces;
+  final ValueNotifier<Pieces> piecesNotifier;
+  final ValueNotifier<TranslatingPieces> translatingPiecesNotifier;
+
+  Pieces get pieces => piecesNotifier.value;
+
   final PieceAssets pieceAssets;
   final double squareSize;
   final Side orientation;
   final ValueNotifier<Square?>? _draggedPieceSquareNotifier;
-  final Set<Square> translatingPieceSquares;
   final Square? promotionMoveFrom;
   final bool blindfoldMode;
   final Set<Square> upsideDownSquares;
@@ -210,6 +213,8 @@ class PiecesPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     if (blindfoldMode) return;
 
+    final pieces = piecesNotifier.value;
+    final translatingPieceSquares = translatingPiecesNotifier.value.keys.toSet();
     final draggedPieceSquare = _draggedPieceSquareNotifier?.value;
     final paint = Paint()..filterQuality = FilterQuality.medium;
     for (final entry in pieces.entries) {
@@ -247,8 +252,6 @@ class PiecesPainter extends CustomPainter {
         promotionMoveFrom != oldDelegate.promotionMoveFrom ||
         blindfoldMode != oldDelegate.blindfoldMode ||
         pieceAssets != oldDelegate.pieceAssets ||
-        !_mapEquals(pieces, oldDelegate.pieces) ||
-        !_setEquals(translatingPieceSquares, oldDelegate.translatingPieceSquares) ||
         !_setEquals(upsideDownSquares, oldDelegate.upsideDownSquares);
   }
 }
@@ -259,7 +262,7 @@ class PiecesPainter extends CustomPainter {
 /// frame, no widget rebuild.
 class FadingPiecesPainter extends CustomPainter {
   FadingPiecesPainter({
-    required this.fadingPieces,
+    required this.fadingPiecesNotifier,
     required this.squareSize,
     required this.orientation,
     required this.pieceAssets,
@@ -269,7 +272,10 @@ class FadingPiecesPainter extends CustomPainter {
   }) : _animation = animation,
        super(repaint: animation);
 
-  final FadingPieces fadingPieces;
+  final ValueNotifier<FadingPieces> fadingPiecesNotifier;
+
+  FadingPieces get fadingPieces => fadingPiecesNotifier.value;
+
   final double squareSize;
   final Side orientation;
   final PieceAssets pieceAssets;
@@ -279,6 +285,7 @@ class FadingPiecesPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
+    final fadingPieces = fadingPiecesNotifier.value;
     if (blindfoldMode || fadingPieces.isEmpty) return;
 
     final alpha = (255 * (1.0 - _animation.value)).round().clamp(0, 255);
@@ -318,7 +325,6 @@ class FadingPiecesPainter extends CustomPainter {
         orientation != oldDelegate.orientation ||
         blindfoldMode != oldDelegate.blindfoldMode ||
         pieceAssets != oldDelegate.pieceAssets ||
-        !_mapEquals(fadingPieces, oldDelegate.fadingPieces) ||
         !_setEquals(upsideDownSquares, oldDelegate.upsideDownSquares);
   }
 }
@@ -329,7 +335,7 @@ class FadingPiecesPainter extends CustomPainter {
 /// frame, no widget rebuild.
 class TranslatingPiecesPainter extends CustomPainter {
   TranslatingPiecesPainter({
-    required this.translatingPieces,
+    required this.translatingPiecesNotifier,
     required this.squareSize,
     required this.orientation,
     required this.pieceAssets,
@@ -339,7 +345,10 @@ class TranslatingPiecesPainter extends CustomPainter {
   }) : _animation = animation,
        super(repaint: animation);
 
-  final TranslatingPieces translatingPieces;
+  final ValueNotifier<TranslatingPieces> translatingPiecesNotifier;
+
+  TranslatingPieces get translatingPieces => translatingPiecesNotifier.value;
+
   final double squareSize;
   final Side orientation;
   final PieceAssets pieceAssets;
@@ -349,6 +358,7 @@ class TranslatingPiecesPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
+    final translatingPieces = translatingPiecesNotifier.value;
     if (blindfoldMode || translatingPieces.isEmpty) return;
 
     final t = _animation.value;
@@ -396,7 +406,6 @@ class TranslatingPiecesPainter extends CustomPainter {
         orientation != oldDelegate.orientation ||
         blindfoldMode != oldDelegate.blindfoldMode ||
         pieceAssets != oldDelegate.pieceAssets ||
-        !_mapEquals(translatingPieces, oldDelegate.translatingPieces) ||
         !_setEquals(upsideDownSquares, oldDelegate.upsideDownSquares);
   }
 }
@@ -488,15 +497,6 @@ bool _setEquals<T>(Set<T> a, Set<T> b) {
   if (a.length != b.length) return false;
   for (final v in a) {
     if (!b.contains(v)) return false;
-  }
-  return true;
-}
-
-bool _mapEquals<K, V>(Map<K, V> a, Map<K, V> b) {
-  if (identical(a, b)) return true;
-  if (a.length != b.length) return false;
-  for (final entry in a.entries) {
-    if (!b.containsKey(entry.key) || b[entry.key] != entry.value) return false;
   }
   return true;
 }

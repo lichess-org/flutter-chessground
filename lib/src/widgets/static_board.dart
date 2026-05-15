@@ -88,16 +88,13 @@ class _StaticChessboardState extends State<StaticChessboard> with SingleTickerPr
   bool _highlightImagesLoaded = false;
   late final BoardHighlightNotifier _highlightNotifier;
 
-  /// Pieces on the board.
-  Pieces pieces = {};
+  late final ValueNotifier<Pieces> _piecesNotifier;
+  late final ValueNotifier<TranslatingPieces> _translatingPiecesNotifier;
+  late final ValueNotifier<FadingPieces> _fadingPiecesNotifier;
 
-  /// Pieces that are currently being translated from one square to another.
-  ///
-  /// The key is the target square of the piece.
-  TranslatingPieces translatingPieces = {};
-
-  /// Pieces that are currently fading out.
-  FadingPieces fadingPieces = {};
+  Pieces get pieces => _piecesNotifier.value;
+  TranslatingPieces get translatingPieces => _translatingPiecesNotifier.value;
+  FadingPieces get fadingPieces => _fadingPiecesNotifier.value;
 
   late final AnimationController _pieceAnimationController;
   late final CurvedAnimation _translationAnimation;
@@ -106,7 +103,9 @@ class _StaticChessboardState extends State<StaticChessboard> with SingleTickerPr
   @override
   void initState() {
     super.initState();
-    pieces = readFen(widget.fen);
+    _piecesNotifier = ValueNotifier(readFen(widget.fen));
+    _translatingPiecesNotifier = ValueNotifier({});
+    _fadingPiecesNotifier = ValueNotifier({});
     _pieceAnimationController = AnimationController(
       animationBehavior: AnimationBehavior.preserve,
       duration: widget.animationDuration,
@@ -145,6 +144,9 @@ class _StaticChessboardState extends State<StaticChessboard> with SingleTickerPr
 
   @override
   void dispose() {
+    _piecesNotifier.dispose();
+    _translatingPiecesNotifier.dispose();
+    _fadingPiecesNotifier.dispose();
     _highlightNotifier.dispose();
     _fadeAnimation.dispose();
     _translationAnimation.dispose();
@@ -174,15 +176,15 @@ class _StaticChessboardState extends State<StaticChessboard> with SingleTickerPr
       return;
     }
 
-    translatingPieces = {};
-    fadingPieces = {};
+    _translatingPiecesNotifier.value = {};
+    _fadingPiecesNotifier.value = {};
 
     final newPieces = readFen(widget.fen);
 
     if (widget.animationDuration > Duration.zero) {
-      final (translatingPieces, fadingPieces) = preparePieceAnimations(pieces, newPieces);
-      this.translatingPieces = translatingPieces;
-      this.fadingPieces = fadingPieces;
+      final (tp, fp) = preparePieceAnimations(pieces, newPieces);
+      _translatingPiecesNotifier.value = tp;
+      _fadingPiecesNotifier.value = fp;
     }
 
     if (translatingPieces.isNotEmpty || fadingPieces.isNotEmpty) {
@@ -191,7 +193,7 @@ class _StaticChessboardState extends State<StaticChessboard> with SingleTickerPr
       _pieceAnimationController.stop();
     }
 
-    pieces = newPieces;
+    _piecesNotifier.value = newPieces;
   }
 
   @override
@@ -225,12 +227,12 @@ class _StaticChessboardState extends State<StaticChessboard> with SingleTickerPr
             : widget.colorScheme.background;
 
     final piecesPainter = PiecesPainter(
-      pieces: pieces,
+      piecesNotifier: _piecesNotifier,
+      translatingPiecesNotifier: _translatingPiecesNotifier,
       pieceAssets: widget.pieceAssets,
       squareSize: widget.squareSize,
       orientation: widget.orientation,
       draggedPieceSquareNotifier: null,
-      translatingPieceSquares: translatingPieces.keys.toSet(),
       promotionMoveFrom: null,
       blindfoldMode: false,
       upsideDownSquares: const {},
@@ -238,7 +240,7 @@ class _StaticChessboardState extends State<StaticChessboard> with SingleTickerPr
     );
 
     final fadingPiecesPainter = FadingPiecesPainter(
-      fadingPieces: fadingPieces,
+      fadingPiecesNotifier: _fadingPiecesNotifier,
       squareSize: widget.squareSize,
       orientation: widget.orientation,
       pieceAssets: widget.pieceAssets,
@@ -248,7 +250,7 @@ class _StaticChessboardState extends State<StaticChessboard> with SingleTickerPr
     );
 
     final translatingPiecesPainter = TranslatingPiecesPainter(
-      translatingPieces: translatingPieces,
+      translatingPiecesNotifier: _translatingPiecesNotifier,
       squareSize: widget.squareSize,
       orientation: widget.orientation,
       pieceAssets: widget.pieceAssets,

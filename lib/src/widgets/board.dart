@@ -136,16 +136,13 @@ class Chessboard extends StatefulWidget with ChessboardGeometry {
 }
 
 class _BoardState extends State<Chessboard> with SingleTickerProviderStateMixin {
-  /// Pieces on the board.
-  Pieces pieces = {};
+  late final ValueNotifier<Pieces> _piecesNotifier;
+  late final ValueNotifier<TranslatingPieces> _translatingPiecesNotifier;
+  late final ValueNotifier<FadingPieces> _fadingPiecesNotifier;
 
-  /// Pieces that are currently being translated from one square to another.
-  ///
-  /// The key is the target square of the piece.
-  TranslatingPieces translatingPieces = {};
-
-  /// Pieces that are currently fading out.
-  FadingPieces fadingPieces = {};
+  Pieces get pieces => _piecesNotifier.value;
+  TranslatingPieces get translatingPieces => _translatingPiecesNotifier.value;
+  FadingPieces get fadingPieces => _fadingPiecesNotifier.value;
 
   /// Squares that currently have an active explosion animation.
   final Set<Square> _activeExplosions = {};
@@ -301,12 +298,12 @@ class _BoardState extends State<Chessboard> with SingleTickerProviderStateMixin 
     }
 
     final piecesPainter = PiecesPainter(
-      pieces: pieces,
+      piecesNotifier: _piecesNotifier,
+      translatingPiecesNotifier: _translatingPiecesNotifier,
       pieceAssets: settings.pieceAssets,
       squareSize: widget.squareSize,
       orientation: widget.orientation,
       draggedPieceSquareNotifier: _draggedPieceSquareNotifier,
-      translatingPieceSquares: translatingPieces.keys.toSet(),
       promotionMoveFrom: widget.game?.promotionMove?.from,
       blindfoldMode: settings.blindfoldMode,
       upsideDownSquares: upsideDownPieceSquares,
@@ -314,7 +311,7 @@ class _BoardState extends State<Chessboard> with SingleTickerProviderStateMixin 
     );
 
     final fadingPiecesPainter = FadingPiecesPainter(
-      fadingPieces: fadingPieces,
+      fadingPiecesNotifier: _fadingPiecesNotifier,
       squareSize: widget.squareSize,
       orientation: widget.orientation,
       pieceAssets: settings.pieceAssets,
@@ -324,7 +321,7 @@ class _BoardState extends State<Chessboard> with SingleTickerProviderStateMixin 
     );
 
     final translatingPiecesPainter = TranslatingPiecesPainter(
-      translatingPieces: translatingPieces,
+      translatingPiecesNotifier: _translatingPiecesNotifier,
       squareSize: widget.squareSize,
       orientation: widget.orientation,
       pieceAssets: settings.pieceAssets,
@@ -496,7 +493,9 @@ class _BoardState extends State<Chessboard> with SingleTickerProviderStateMixin 
   @override
   void initState() {
     super.initState();
-    pieces = readFen(widget.fen);
+    _piecesNotifier = ValueNotifier(readFen(widget.fen));
+    _translatingPiecesNotifier = ValueNotifier({});
+    _fadingPiecesNotifier = ValueNotifier({});
     _draggedPieceSquareNotifier = ValueNotifier<Square?>(null);
     _highlightNotifier = BoardHighlightNotifier();
     _pieceAnimationController = AnimationController(
@@ -558,6 +557,9 @@ class _BoardState extends State<Chessboard> with SingleTickerProviderStateMixin 
 
   @override
   void dispose() {
+    _piecesNotifier.dispose();
+    _translatingPiecesNotifier.dispose();
+    _fadingPiecesNotifier.dispose();
     _draggedPieceSquareNotifier.dispose();
     _highlightNotifier.dispose();
     _fadeAnimation.dispose();
@@ -615,19 +617,15 @@ class _BoardState extends State<Chessboard> with SingleTickerProviderStateMixin 
       return;
     }
 
-    translatingPieces = {};
-    fadingPieces = {};
+    _translatingPiecesNotifier.value = {};
+    _fadingPiecesNotifier.value = {};
 
     final newPieces = readFen(widget.fen);
 
     if (widget.settings.animationDuration > Duration.zero) {
-      final (translatingPieces, fadingPieces) = preparePieceAnimations(
-        pieces,
-        newPieces,
-        lastDrop: _lastDrop,
-      );
-      this.translatingPieces = translatingPieces;
-      this.fadingPieces = fadingPieces;
+      final (tp, fp) = preparePieceAnimations(pieces, newPieces, lastDrop: _lastDrop);
+      _translatingPiecesNotifier.value = tp;
+      _fadingPiecesNotifier.value = fp;
     }
 
     if (translatingPieces.isNotEmpty || fadingPieces.isNotEmpty) {
@@ -637,7 +635,7 @@ class _BoardState extends State<Chessboard> with SingleTickerProviderStateMixin 
     }
 
     _lastDrop = null;
-    pieces = newPieces;
+    _piecesNotifier.value = newPieces;
   }
 
   Square? _getKingSquare() {
