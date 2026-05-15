@@ -6,7 +6,6 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 
-import 'animation.dart';
 import 'board_border.dart';
 import 'board_controller.dart';
 import 'board_painter.dart';
@@ -129,8 +128,6 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
   Side? _lastSideToMove;
 
   Pieces get pieces => _controller.pieces;
-  TranslatingPieces get translatingPieces => _controller.translatingPiecesNotifier.value;
-  FadingPieces get fadingPieces => _controller.fadingPiecesNotifier.value;
 
   /// Manages active explosion animations.
   late ExplosionSetNotifier _explosionNotifier;
@@ -251,31 +248,6 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
       CustomPaint(size: Size.square(widget.size), painter: highlightsPainter),
     ];
 
-    final Set<Square> upsideDownFadingSquares = {};
-    for (final entry in fadingPieces.entries) {
-      if (_isUpsideDown(entry.value.color)) {
-        upsideDownFadingSquares.add(entry.key);
-      }
-    }
-
-    final Set<Square> upsideDownPieceSquares = {};
-    final Set<Square> upsideDownTranslatingSquares = {};
-    for (final entry in pieces.entries) {
-      final square = entry.key;
-      if (translatingPieces.containsKey(square)) {
-        if (_isUpsideDown(entry.value.color)) {
-          upsideDownTranslatingSquares.add(square);
-        }
-        continue;
-      }
-      if (square == game?.promotionMove?.from) {
-        continue;
-      }
-      if (_isUpsideDown(entry.value.color)) {
-        upsideDownPieceSquares.add(square);
-      }
-    }
-
     final piecesPainter = PiecesPainter(
       piecesNotifier: _controller.piecesNotifier,
       translatingPiecesNotifier: _controller.translatingPiecesNotifier,
@@ -285,7 +257,8 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
       draggedPieceSquareNotifier: _draggedPieceSquareNotifier,
       promotionMoveFrom: game?.promotionMove?.from,
       blindfoldMode: settings.blindfoldMode,
-      upsideDownSquares: upsideDownPieceSquares,
+      pieceOrientationBehavior: settings.pieceOrientationBehavior,
+      sideToMove: game?.sideToMove,
       imagesLoaded: _imagesLoaded,
     );
 
@@ -295,7 +268,8 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
       orientation: widget.orientation,
       pieceAssets: settings.pieceAssets,
       blindfoldMode: settings.blindfoldMode,
-      upsideDownSquares: upsideDownFadingSquares,
+      pieceOrientationBehavior: settings.pieceOrientationBehavior,
+      sideToMove: game?.sideToMove,
       animation: _controller.fadeAnimation,
     );
 
@@ -305,7 +279,8 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
       orientation: widget.orientation,
       pieceAssets: settings.pieceAssets,
       blindfoldMode: settings.blindfoldMode,
-      upsideDownSquares: upsideDownTranslatingSquares,
+      pieceOrientationBehavior: settings.pieceOrientationBehavior,
+      sideToMove: game?.sideToMove,
       animation: _controller.translationAnimation,
     );
 

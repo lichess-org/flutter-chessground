@@ -2073,7 +2073,12 @@ void main() {
     }) {
       final painter = _piecesPainter(tester);
       for (final entry in painter.pieces.entries) {
-        final isUpsideDown = painter.upsideDownSquares.contains(entry.key);
+        final isUpsideDown = switch (painter.pieceOrientationBehavior) {
+          PieceOrientationBehavior.facingUser => false,
+          PieceOrientationBehavior.opponentUpsideDown =>
+            entry.value.color == painter.orientation.opposite,
+          PieceOrientationBehavior.sideToPlay => painter.sideToMove == painter.orientation.opposite,
+        };
         if (entry.value.color == Side.white) {
           expect(isUpsideDown, expectWhiteUpsideDown, reason: 'white is upside down');
         } else {

@@ -5,6 +5,7 @@ import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 import '../board_color_scheme.dart';
+import '../board_settings.dart';
 import '../fen.dart';
 import '../images.dart';
 import '../models.dart';
@@ -235,7 +236,8 @@ class _StaticChessboardState extends State<StaticChessboard> with SingleTickerPr
       draggedPieceSquareNotifier: null,
       promotionMoveFrom: null,
       blindfoldMode: false,
-      upsideDownSquares: const {},
+      pieceOrientationBehavior: PieceOrientationBehavior.facingUser,
+      sideToMove: null,
       imagesLoaded: imagesLoaded,
     );
 
@@ -245,7 +247,8 @@ class _StaticChessboardState extends State<StaticChessboard> with SingleTickerPr
       orientation: widget.orientation,
       pieceAssets: widget.pieceAssets,
       blindfoldMode: false,
-      upsideDownSquares: const {},
+      pieceOrientationBehavior: PieceOrientationBehavior.facingUser,
+      sideToMove: null,
       animation: _fadeAnimation,
     );
 
@@ -255,7 +258,8 @@ class _StaticChessboardState extends State<StaticChessboard> with SingleTickerPr
       orientation: widget.orientation,
       pieceAssets: widget.pieceAssets,
       blindfoldMode: false,
-      upsideDownSquares: const {},
+      pieceOrientationBehavior: PieceOrientationBehavior.facingUser,
+      sideToMove: null,
       animation: _translationAnimation,
     );
 

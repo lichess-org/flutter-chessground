@@ -35,6 +35,17 @@ Rect _squareRect(Square square, double squareSize, Side orientation) {
   return Rect.fromLTWH(x * squareSize, y * squareSize, squareSize, squareSize);
 }
 
+bool _isUpsideDown(
+  Side pieceColor, {
+  required PieceOrientationBehavior behavior,
+  required Side orientation,
+  Side? sideToMove,
+}) => switch (behavior) {
+  PieceOrientationBehavior.facingUser => false,
+  PieceOrientationBehavior.opponentUpsideDown => pieceColor == orientation.opposite,
+  PieceOrientationBehavior.sideToPlay => sideToMove == orientation.opposite,
+};
+
 class HighlightsPainter extends CustomPainter {
   HighlightsPainter({
     required this.interactionNotifier,
@@ -186,7 +197,8 @@ class PiecesPainter extends CustomPainter {
     required ValueNotifier<Square?>? draggedPieceSquareNotifier,
     required this.promotionMoveFrom,
     required this.blindfoldMode,
-    required this.upsideDownSquares,
+    required this.pieceOrientationBehavior,
+    required this.sideToMove,
     required this.imagesLoaded,
   }) : _draggedPieceSquareNotifier = draggedPieceSquareNotifier,
        super(repaint: Listenable.merge([piecesNotifier, draggedPieceSquareNotifier]));
@@ -202,7 +214,8 @@ class PiecesPainter extends CustomPainter {
   final ValueNotifier<Square?>? _draggedPieceSquareNotifier;
   final Square? promotionMoveFrom;
   final bool blindfoldMode;
-  final Set<Square> upsideDownSquares;
+  final PieceOrientationBehavior pieceOrientationBehavior;
+  final Side? sideToMove;
 
   /// Whether all piece images are available in the cache.
   ///
@@ -231,7 +244,12 @@ class PiecesPainter extends CustomPainter {
 
       final dst = _squareRect(square, squareSize, orientation);
       final src = Rect.fromLTWH(0, 0, image.width.toDouble(), image.height.toDouble());
-      if (upsideDownSquares.contains(square)) {
+      if (_isUpsideDown(
+        entry.value.color,
+        behavior: pieceOrientationBehavior,
+        orientation: orientation,
+        sideToMove: sideToMove,
+      )) {
         canvas.save();
         canvas.translate(dst.center.dx, dst.center.dy);
         canvas.rotate(pi);
@@ -252,7 +270,8 @@ class PiecesPainter extends CustomPainter {
         promotionMoveFrom != oldDelegate.promotionMoveFrom ||
         blindfoldMode != oldDelegate.blindfoldMode ||
         pieceAssets != oldDelegate.pieceAssets ||
-        !_setEquals(upsideDownSquares, oldDelegate.upsideDownSquares);
+        pieceOrientationBehavior != oldDelegate.pieceOrientationBehavior ||
+        sideToMove != oldDelegate.sideToMove;
   }
 }
 
@@ -267,7 +286,8 @@ class FadingPiecesPainter extends CustomPainter {
     required this.orientation,
     required this.pieceAssets,
     required this.blindfoldMode,
-    required this.upsideDownSquares,
+    required this.pieceOrientationBehavior,
+    required this.sideToMove,
     required Animation<double> animation,
   }) : _animation = animation,
        super(repaint: animation);
@@ -280,7 +300,8 @@ class FadingPiecesPainter extends CustomPainter {
   final Side orientation;
   final PieceAssets pieceAssets;
   final bool blindfoldMode;
-  final Set<Square> upsideDownSquares;
+  final PieceOrientationBehavior pieceOrientationBehavior;
+  final Side? sideToMove;
   final Animation<double> _animation;
 
   @override
@@ -306,7 +327,12 @@ class FadingPiecesPainter extends CustomPainter {
       final dst = _squareRect(square, squareSize, orientation);
       final src = Rect.fromLTWH(0, 0, image.width.toDouble(), image.height.toDouble());
 
-      if (upsideDownSquares.contains(square)) {
+      if (_isUpsideDown(
+        piece.color,
+        behavior: pieceOrientationBehavior,
+        orientation: orientation,
+        sideToMove: sideToMove,
+      )) {
         canvas.save();
         canvas.translate(dst.center.dx, dst.center.dy);
         canvas.rotate(pi);
@@ -325,7 +351,8 @@ class FadingPiecesPainter extends CustomPainter {
         orientation != oldDelegate.orientation ||
         blindfoldMode != oldDelegate.blindfoldMode ||
         pieceAssets != oldDelegate.pieceAssets ||
-        !_setEquals(upsideDownSquares, oldDelegate.upsideDownSquares);
+        pieceOrientationBehavior != oldDelegate.pieceOrientationBehavior ||
+        sideToMove != oldDelegate.sideToMove;
   }
 }
 
@@ -340,7 +367,8 @@ class TranslatingPiecesPainter extends CustomPainter {
     required this.orientation,
     required this.pieceAssets,
     required this.blindfoldMode,
-    required this.upsideDownSquares,
+    required this.pieceOrientationBehavior,
+    required this.sideToMove,
     required Animation<double> animation,
   }) : _animation = animation,
        super(repaint: animation);
@@ -353,7 +381,8 @@ class TranslatingPiecesPainter extends CustomPainter {
   final Side orientation;
   final PieceAssets pieceAssets;
   final bool blindfoldMode;
-  final Set<Square> upsideDownSquares;
+  final PieceOrientationBehavior pieceOrientationBehavior;
+  final Side? sideToMove;
   final Animation<double> _animation;
 
   @override
@@ -387,7 +416,12 @@ class TranslatingPiecesPainter extends CustomPainter {
       );
       final src = Rect.fromLTWH(0, 0, image.width.toDouble(), image.height.toDouble());
 
-      if (upsideDownSquares.contains(toSquare)) {
+      if (_isUpsideDown(
+        piece.color,
+        behavior: pieceOrientationBehavior,
+        orientation: orientation,
+        sideToMove: sideToMove,
+      )) {
         canvas.save();
         canvas.translate(dst.center.dx, dst.center.dy);
         canvas.rotate(pi);
@@ -406,7 +440,8 @@ class TranslatingPiecesPainter extends CustomPainter {
         orientation != oldDelegate.orientation ||
         blindfoldMode != oldDelegate.blindfoldMode ||
         pieceAssets != oldDelegate.pieceAssets ||
-        !_setEquals(upsideDownSquares, oldDelegate.upsideDownSquares);
+        pieceOrientationBehavior != oldDelegate.pieceOrientationBehavior ||
+        sideToMove != oldDelegate.sideToMove;
   }
 }
 
