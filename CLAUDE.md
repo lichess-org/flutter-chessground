@@ -26,14 +26,19 @@ All public exports go through `lib/chessground.dart`. Internal implementation li
 
 ### Three Board Widgets
 
-- **`Chessboard`** (`src/widgets/board.dart`) — Main interactive board. Two constructors: `Chessboard()` for interactive play (requires `GameData`) and `Chessboard.fixed()` for non-interactive display with animations.
+- **`Chessboard`** (`src/widgets/board.dart`) — Main interactive board. Two constructors: `Chessboard()` for interactive play (requires a `ChessboardController`) and `Chessboard.fixed()` for non-interactive display with animations.
 - **`StaticChessboard`** (`src/widgets/static_board.dart`) — Read-only board optimized for scrollable contexts (uses deferred loading).
 - **`ChessboardEditor`** (`src/widgets/board_editor.dart`) — Position editor with drag and edit pointer modes.
 
 ### Core Data Flow
 
-The board is driven by immutable data objects:
-- **`GameData`** — Holds game state (side to move, valid moves, premove state) and callbacks (`onMove`, `onPremove`). Any game state change requires creating a new `GameData` instance.
+The board is driven by a controller and immutable data objects:
+- **`ChessboardController`** (`src/widgets/board_controller.dart`) — Owns board position, game state, and piece animations. Create once in `initState`, dispose in `dispose`. Two constructors:
+  - `ChessboardController(fen: fen, initialGame: game)` — for interactive boards.
+  - `ChessboardController.nonInteractive(initialFen: fen)` — for non-interactive display boards (`Chessboard.fixed()`).
+  - `updatePosition(String fen, {GameData? game, Move? lastMove, Move? lastDrop})` — advance position with animation. Pass `game:` for interactive boards, `lastMove:` for non-interactive.
+  - `jumpToPosition(String fen, {GameData? game, Move? lastMove})` — switch position without animation.
+- **`GameData`** — Immutable snapshot of interactive game state: `playerSide`, `sideToMove`, `validMoves`, `lastMove`, `premovable`, `droppable`, `promotionMove`, `isCheck`. Does **not** carry the FEN — that is always passed separately.
 - **`ChessboardSettings`** — All visual and behavioral configuration (theme, animations, piece shift method, draw shapes, coordinates, etc.).
 - **`Pieces`** (`Map<Square, Piece>`) — Board position, typically derived from FEN via `readFen()`.
 
