@@ -14,9 +14,10 @@ import '../models.dart';
 ///
 /// The controller must be disposed when no longer needed.
 class ChessboardController extends ChangeNotifier {
-  ChessboardController({required String initialFen, GameData? initialGame})
+  ChessboardController({required String initialFen, GameData? initialGame, Move? initialLastMove})
     : _fen = initialFen,
-      _game = initialGame {
+      _game = initialGame,
+      _lastMove = initialLastMove {
     _piecesNotifier = ValueNotifier(readFen(initialFen));
     _translatingPiecesNotifier = ValueNotifier({});
     _fadingPiecesNotifier = ValueNotifier({});
@@ -25,6 +26,7 @@ class ChessboardController extends ChangeNotifier {
 
   String _fen;
   GameData? _game;
+  Move? _lastMove;
 
   late final ValueNotifier<Pieces> _piecesNotifier;
   late final ValueNotifier<TranslatingPieces> _translatingPiecesNotifier;
@@ -39,6 +41,8 @@ class ChessboardController extends ChangeNotifier {
 
   String get fen => _fen;
   GameData? get game => _game;
+  Move? get lastMove => _lastMove;
+  bool get interactive => _game != null && _game!.playerSide != PlayerSide.none;
   Pieces get pieces => _piecesNotifier.value;
 
   // --- Notifiers consumed by board painters ---
@@ -95,7 +99,7 @@ class ChessboardController extends ChangeNotifier {
   /// Pass [lastDrop] when the triggering move was performed via drag and drop so
   /// the animation engine can suppress the redundant translation of the dragged
   /// piece.
-  void updatePosition(String newFen, {GameData? game, Move? lastDrop}) {
+  void updatePosition(String newFen, {GameData? game, Move? lastMove, Move? lastDrop}) {
     if (newFen == _fen && game == _game) return;
 
     if (newFen != _fen) {
@@ -125,11 +129,13 @@ class ChessboardController extends ChangeNotifier {
       _game = game;
     }
 
+    _lastMove = lastMove;
+
     notifyListeners();
   }
 
   /// Updates the board position without animation (e.g. analysis seeking).
-  void jumpToPosition(String newFen, {GameData? game}) {
+  void jumpToPosition(String newFen, {GameData? game, Move? lastMove}) {
     _animationController?.stop();
     _translatingPiecesNotifier.value = {};
     _fadingPiecesNotifier.value = {};
@@ -140,6 +146,8 @@ class ChessboardController extends ChangeNotifier {
     if (game != null) {
       _game = game;
     }
+
+    _lastMove = lastMove;
 
     notifyListeners();
   }

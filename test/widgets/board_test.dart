@@ -2370,6 +2370,7 @@ class _TestApp extends StatefulWidget {
 }
 
 class _TestAppState extends State<_TestApp> {
+  late ChessboardController _controller;
   late PlayerSide interactiveSide;
   late NormalMove? promotionMove;
   late ISet<Shape> shapes;
@@ -2399,37 +2400,66 @@ class _TestAppState extends State<_TestApp> {
     position = Position.setupPosition(widget.rule, Setup.parseFen(widget.initialFen));
     promotionMove = widget.initialPromotionMove;
     shapes = widget.initialShapes ?? ISet();
-
+    _controller = ChessboardController(
+      initialFen: position.fen,
+      initialGame: _buildGame(),
+      initialLastMove: widget.initialPromotionMove,
+    );
     _gameEventSub = widget.gameEventStream?.listen(_onGameEvent);
   }
 
   @override
   void dispose() {
-    super.dispose();
+    _controller.dispose();
     _gameEventSub?.cancel();
+    super.dispose();
+  }
+
+  GameData _buildGame() {
+    return GameData(
+      playerSide: interactiveSide,
+      isCheck: position.isCheck,
+      sideToMove: position.turn == Side.white ? Side.white : Side.black,
+      validMoves: makeLegalMoves(position),
+      promotionMove: promotionMove,
+      droppable: widget.droppable,
+      onMove: _onMove,
+      onPromotionSelection: (Role? role) {
+        if (role != null) {
+          _playMove(promotionMove!.withPromotion(role));
+        }
+        promotionMove = null;
+        _controller.updatePosition(position.fen, game: _buildGame(), lastMove: lastMove);
+      },
+      premovable: (
+        premove: premoveData,
+        onSetPremove: (Move? move) {
+          premoveData = move;
+          _controller.updatePosition(position.fen, game: _buildGame());
+        },
+      ),
+      canPromoteToKing: widget.canPromoteToKing,
+    );
   }
 
   void _onGameEvent(GameEvent event) {
     switch (event) {
       case GameEvent.nonInteractiveBoardEvent:
-        setState(() {
-          interactiveSide = PlayerSide.none;
-        });
+        interactiveSide = PlayerSide.none;
+        _controller.updatePosition(position.fen, game: _buildGame());
       case GameEvent.interactiveBoardEvent:
-        setState(() {
-          interactiveSide = widget.initialPlayerSide;
-        });
+        interactiveSide = widget.initialPlayerSide;
+        _controller.updatePosition(position.fen, game: _buildGame());
       case GameEvent.externalMove:
-        setState(() {
-          final allMoves = [
-            for (final entry in position.legalMoves.entries)
-              for (final dest in entry.value.squares) NormalMove(from: entry.key, to: dest),
-          ];
-          if (allMoves.isNotEmpty) {
-            position = position.playUnchecked(allMoves.first);
-            lastMove = allMoves.first;
-          }
-        });
+        final allMoves = [
+          for (final entry in position.legalMoves.entries)
+            for (final dest in entry.value.squares) NormalMove(from: entry.key, to: dest),
+        ];
+        if (allMoves.isNotEmpty) {
+          position = position.playUnchecked(allMoves.first);
+          lastMove = allMoves.first;
+          _controller.updatePosition(position.fen, game: _buildGame(), lastMove: lastMove);
+        }
     }
   }
 
@@ -2450,13 +2480,17 @@ class _TestAppState extends State<_TestApp> {
   }
 
   void _onMove(Move move, {bool? viaDragAndDrop}) {
-    setState(() {
-      if (move is NormalMove && isPromotionPawnMove(move)) {
-        promotionMove = move;
-      } else {
-        _playMove(move);
-      }
-    });
+    if (move is NormalMove && isPromotionPawnMove(move)) {
+      promotionMove = move;
+    } else {
+      _playMove(move);
+    }
+    _controller.updatePosition(
+      position.fen,
+      game: _buildGame(),
+      lastMove: lastMove,
+      lastDrop: viaDragAndDrop == true ? move : null,
+    );
 
     if (widget.shouldPlayOpponentMove) {
       Timer(const Duration(milliseconds: 200), () {
@@ -2465,30 +2499,27 @@ class _TestAppState extends State<_TestApp> {
             for (final dest in entry.value.squares) NormalMove(from: entry.key, to: dest),
         ];
         final opponentMove = allMoves.first;
-        setState(() {
-          position = position.playUnchecked(opponentMove);
-          if (position.isGameOver) {
-            interactiveSide = PlayerSide.none;
-          }
-          lastMove = opponentMove;
-        });
+        position = position.playUnchecked(opponentMove);
+        if (position.isGameOver) {
+          interactiveSide = PlayerSide.none;
+        }
+        lastMove = opponentMove;
+        _controller.updatePosition(position.fen, game: _buildGame(), lastMove: opponentMove);
 
         // play premove just after the opponent move
         if (premoveData != null) {
           if (position.isLegal(premoveData!)) {
             if (!isPromotionPawnMove(premoveData!)) {
               scheduleMicrotask(() {
-                setState(() {
-                  position = position.playUnchecked(premoveData!);
-                  premoveData = null;
-                });
+                position = position.playUnchecked(premoveData!);
+                premoveData = null;
+                _controller.updatePosition(position.fen, game: _buildGame(), lastMove: lastMove);
               });
             } else {
               scheduleMicrotask(() {
-                setState(() {
-                  promotionMove = premoveData as NormalMove?;
-                  premoveData = null;
-                });
+                promotionMove = premoveData as NormalMove?;
+                premoveData = null;
+                _controller.updatePosition(position.fen, game: _buildGame());
               });
             }
           }
@@ -2505,37 +2536,10 @@ class _TestAppState extends State<_TestApp> {
         child: Column(
           children: [
             Chessboard(
+              controller: _controller,
               size: boardSize,
               settings: widget.settings ?? defaultSettings,
               orientation: widget.orientation,
-              fen: position.fen,
-              lastMove: lastMove,
-              game: GameData(
-                playerSide: interactiveSide,
-                isCheck: position.isCheck,
-                sideToMove: position.turn == Side.white ? Side.white : Side.black,
-                validMoves: makeLegalMoves(position),
-                promotionMove: promotionMove,
-                droppable: widget.droppable,
-                onMove: _onMove,
-                onPromotionSelection: (Role? role) {
-                  setState(() {
-                    if (role != null) {
-                      _playMove(promotionMove!.withPromotion(role));
-                    }
-                    promotionMove = null;
-                  });
-                },
-                premovable: (
-                  premove: premoveData,
-                  onSetPremove: (Move? move) {
-                    setState(() {
-                      premoveData = move;
-                    });
-                  },
-                ),
-                canPromoteToKing: widget.canPromoteToKing,
-              ),
               onTouchedSquare: widget.onTouchedSquare,
               shapes: shapes,
             ),
