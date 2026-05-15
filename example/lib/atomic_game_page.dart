@@ -21,18 +21,37 @@ class AtomicGamePage extends StatefulWidget {
 
 class _AtomicGamePageState extends State<AtomicGamePage> {
   Atomic position = Atomic.initial;
-  String fen = kInitialBoardFEN;
-  Move? lastMove;
   NormalMove? promotionMove;
-  ValidMoves validMoves = IMap(const {});
   ISet<Square>? explosionSquares;
   BoardTheme boardTheme = BoardTheme.brown;
   PieceSet pieceSet = PieceSet.gioco;
+  late ChessboardController _controller;
 
   @override
   void initState() {
     super.initState();
-    validMoves = makeLegalMoves(position);
+    _controller = ChessboardController(
+      initialFen: position.fen,
+      initialGame: _buildGame(),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  GameData _buildGame() {
+    return GameData(
+      playerSide: position.isGameOver ? PlayerSide.none : PlayerSide.white,
+      validMoves: makeLegalMoves(position),
+      sideToMove: position.turn,
+      isCheck: position.isCheck,
+      promotionMove: promotionMove,
+      onMove: _onUserMove,
+      onPromotionSelection: _onPromotionSelection,
+    );
   }
 
   @override
@@ -61,6 +80,7 @@ class _AtomicGamePageState extends State<AtomicGamePage> {
                       final size =
                           min(constraints.maxWidth, constraints.maxHeight);
                       return Chessboard(
+                        controller: _controller,
                         size: size,
                         settings: ChessboardSettings(
                           pieceAssets: pieceSet.assets,
@@ -68,20 +88,7 @@ class _AtomicGamePageState extends State<AtomicGamePage> {
                           animationDuration: const Duration(milliseconds: 200),
                         ),
                         orientation: Side.white,
-                        fen: fen,
-                        lastMove: lastMove,
                         explosionSquares: explosionSquares,
-                        game: GameData(
-                          playerSide: position.isGameOver
-                              ? PlayerSide.none
-                              : PlayerSide.white,
-                          validMoves: validMoves,
-                          sideToMove: position.turn,
-                          isCheck: position.isCheck,
-                          promotionMove: promotionMove,
-                          onMove: _onUserMove,
-                          onPromotionSelection: _onPromotionSelection,
-                        ),
                       );
                     },
                   ),
@@ -110,27 +117,26 @@ class _AtomicGamePageState extends State<AtomicGamePage> {
   }
 
   void _newGame() {
-    setState(() {
-      position = Atomic.initial;
-      fen = position.fen;
-      validMoves = makeLegalMoves(position);
-      lastMove = null;
-      promotionMove = null;
-      explosionSquares = null;
-    });
+    position = Atomic.initial;
+    promotionMove = null;
+    explosionSquares = null;
+    _controller.jumpToPosition(position.fen, game: _buildGame());
+    setState(() {}); // Update explosionSquares widget param and StatusBar.
   }
 
   void _onUserMove(Move move, {bool? viaDragAndDrop}) {
     if (move is NormalMove && _isPromotionPawnMove(move)) {
-      setState(() => promotionMove = move);
+      promotionMove = move;
+      _controller.updatePosition(position.fen, game: _buildGame());
       return;
     }
-    _applyMove(move, scheduleBotAfter: true);
+    _applyMove(move, scheduleBotAfter: true, viaDragAndDrop: viaDragAndDrop);
   }
 
   void _onPromotionSelection(Role? role) {
     if (role == null) {
-      setState(() => promotionMove = null);
+      promotionMove = null;
+      _controller.updatePosition(position.fen, game: _buildGame());
     } else if (promotionMove != null) {
       _applyMove(promotionMove!.withPromotion(role), scheduleBotAfter: true);
     }
@@ -143,19 +149,25 @@ class _AtomicGamePageState extends State<AtomicGamePage> {
             (move.to.rank == Rank.first && position.turn == Side.black));
   }
 
-  void _applyMove(Move move, {bool scheduleBotAfter = false}) {
+  void _applyMove(
+    Move move, {
+    bool scheduleBotAfter = false,
+    bool? viaDragAndDrop,
+  }) {
     if (!position.isLegal(move)) return;
 
     final newExplosions = ISet(position.explosionSquares(move).squares);
 
-    setState(() {
-      position = position.playUnchecked(move) as Atomic;
-      fen = position.fen;
-      lastMove = move;
-      validMoves = makeLegalMoves(position);
-      promotionMove = null;
-      explosionSquares = newExplosions;
-    });
+    position = position.playUnchecked(move) as Atomic;
+    promotionMove = null;
+    explosionSquares = newExplosions;
+    _controller.updatePosition(
+      position.fen,
+      game: _buildGame(),
+      lastMove: move,
+      lastDrop: viaDragAndDrop == true ? move : null,
+    );
+    setState(() {}); // Update explosionSquares widget param and StatusBar.
 
     if (scheduleBotAfter && !position.isGameOver) {
       _scheduleBotMove();

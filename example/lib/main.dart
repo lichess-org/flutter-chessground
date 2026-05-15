@@ -75,13 +75,10 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   Position position = Chess.initial;
   Side orientation = Side.white;
-  String fen = kInitialBoardFEN;
-  Move? lastMove;
   NormalMove? promotionMove;
   Move? premove;
-  ValidMoves validMoves = IMap(const {});
-  Side sideToMove = Side.white;
   PieceSet pieceSet = PieceSet.gioco;
+  late ChessboardController _controller;
   PieceShiftMethod pieceShiftMethod = PieceShiftMethod.either;
   DragTargetKind dragTargetKind = DragTargetKind.circle;
   BoardTheme boardTheme = BoardTheme.brown;
@@ -108,28 +105,26 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     final newRoundButton = FilledButton.icon(
-        icon: const Icon(Icons.refresh_rounded),
-        label: const Text('New Round'),
-        onPressed: () {
-          setState(() {
-            position = initialPosition;
-            fen = position.fen;
-            validMoves = makeLegalMoves(position);
-            lastMove = null;
-            lastPos = null;
-          });
-        });
+      icon: const Icon(Icons.refresh_rounded),
+      label: const Text('New Round'),
+      onPressed: () {
+        position = initialPosition;
+        lastPos = null;
+        _controller.jumpToPosition(position.fen, game: _buildGame());
+        setState(() {}); // Update undo button.
+      },
+    );
 
     final undoButton = FilledButton.icon(
       icon: const Icon(Icons.undo_rounded),
       label: const Text('Undo'),
       onPressed: lastPos != null
-          ? () => setState(() {
-                position = lastPos!;
-                fen = position.fen;
-                validMoves = makeLegalMoves(position);
-                lastPos = null;
-              })
+          ? () {
+              position = lastPos!;
+              lastPos = null;
+              _controller.jumpToPosition(position.fen, game: _buildGame());
+              setState(() {}); // Update undo button.
+            }
           : null,
     );
 
@@ -260,14 +255,18 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
                 SettingsButton(
-                    label: 'Test Crazyhouse drop moves',
-                    value: testDropMoves ? 'ON' : 'OFF',
-                    onPressed: () {
-                      setState(() {
-                        testDropMoves = !testDropMoves;
-                        position = initialPosition;
-                      });
-                    }),
+                  label: 'Test Crazyhouse drop moves',
+                  value: testDropMoves ? 'ON' : 'OFF',
+                  onPressed: () {
+                    testDropMoves = !testDropMoves;
+                    position = initialPosition;
+                    lastPos = null;
+                    _controller.jumpToPosition(position.fen,
+                        game: _buildGame());
+                    setState(
+                        () {}); // Show/hide CrazyhouseMenu; update undo button.
+                  },
+                ),
               ],
             ),
           ],
@@ -321,33 +320,10 @@ class _HomePageState extends State<HomePage> {
       child: LayoutBuilder(
         builder: (context, constraints) {
           final chessboard = Chessboard(
+            controller: _controller,
             size: min(constraints.maxWidth, constraints.maxHeight),
             settings: settings,
             orientation: orientation,
-            fen: fen,
-            lastMove: lastMove,
-            game: GameData(
-              playerSide:
-                  (playMode == Mode.botPlay || playMode == Mode.inputMove)
-                      ? PlayerSide.white
-                      : (position.turn == Side.white
-                          ? PlayerSide.white
-                          : PlayerSide.black),
-              validMoves: validMoves,
-              droppable: testDropMoves
-                  ? (validDropSquares: position.legalDrops.squares.toISet())
-                  : null,
-              sideToMove: position.turn == Side.white ? Side.white : Side.black,
-              isCheck: position.isCheck,
-              promotionMove: promotionMove,
-              onMove:
-                  playMode == Mode.botPlay ? _onUserMoveAgainstBot : _playMove,
-              onPromotionSelection: _onPromotionSelection,
-              premovable: (
-                onSetPremove: _onSetPremove,
-                premove: premove,
-              ),
-            ),
             shapes: shapes.isNotEmpty ? shapes : null,
           );
 
@@ -391,9 +367,9 @@ class _HomePageState extends State<HomePage> {
           ListTile(
             title: const Text('Random Bot'),
             onTap: () {
-              setState(() {
-                playMode = Mode.botPlay;
-              });
+              playMode = Mode.botPlay;
+              _controller.updatePosition(position.fen, game: _buildGame());
+              setState(() {}); // Update app bar title and button visibility.
               if (position.turn == Side.black) {
                 _playBlackMove();
               }
@@ -403,18 +379,18 @@ class _HomePageState extends State<HomePage> {
           ListTile(
             title: const Text('Enter opponent move'),
             onTap: () {
-              setState(() {
-                playMode = Mode.inputMove;
-              });
+              playMode = Mode.inputMove;
+              _controller.updatePosition(position.fen, game: _buildGame());
+              setState(() {}); // Update app bar title and button visibility.
               Navigator.pop(context);
             },
           ),
           ListTile(
             title: const Text('Free Play'),
             onTap: () {
-              setState(() {
-                playMode = Mode.freePlay;
-              });
+              playMode = Mode.freePlay;
+              _controller.updatePosition(position.fen, game: _buildGame());
+              setState(() {}); // Update app bar title and button visibility.
               Navigator.pop(context);
             },
           ),
@@ -579,19 +555,46 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void initState() {
-    validMoves = makeLegalMoves(position);
     super.initState();
+    _controller = ChessboardController(
+      initialFen: position.fen,
+      initialGame: _buildGame(),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  GameData _buildGame() {
+    return GameData(
+      playerSide: (playMode == Mode.botPlay || playMode == Mode.inputMove)
+          ? PlayerSide.white
+          : (position.turn == Side.white ? PlayerSide.white : PlayerSide.black),
+      validMoves: makeLegalMoves(position),
+      droppable: testDropMoves
+          ? (validDropSquares: position.legalDrops.squares.toISet())
+          : null,
+      sideToMove: position.turn == Side.white ? Side.white : Side.black,
+      isCheck: position.isCheck,
+      promotionMove: promotionMove,
+      onMove: playMode == Mode.botPlay ? _onUserMoveAgainstBot : _playMove,
+      onPromotionSelection: _onPromotionSelection,
+      premovable: (onSetPremove: _onSetPremove, premove: premove),
+    );
   }
 
   void _onSetPremove(Move? move) {
-    setState(() {
-      premove = move;
-    });
+    premove = move;
+    _controller.updatePosition(position.fen, game: _buildGame());
   }
 
   void _onPromotionSelection(Role? role) {
     if (role == null) {
-      _onPromotionCancel();
+      promotionMove = null;
+      _controller.updatePosition(position.fen, game: _buildGame());
     } else if (promotionMove != null) {
       if (playMode == Mode.botPlay) {
         _onUserMoveAgainstBot(promotionMove!.withPromotion(role));
@@ -601,67 +604,62 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  void _onPromotionCancel() {
-    setState(() {
-      promotionMove = null;
-    });
-  }
-
   void _playMove(Move move, {bool? viaDragAndDrop, bool? isPremove}) {
     lastPos = position;
     if (move is NormalMove && isPromotionPawnMove(move)) {
-      setState(() {
-        promotionMove = move;
-      });
+      promotionMove = move;
+      _controller.updatePosition(position.fen, game: _buildGame());
+      setState(() {}); // Update undo button.
     } else if (position.isLegal(move)) {
-      setState(() {
-        position = position.playUnchecked(move);
-        lastMove = move;
-        fen = position.fen;
-        validMoves = makeLegalMoves(position);
-        promotionMove = null;
-        if (isPremove == true) {
-          premove = null;
-        }
-      });
+      position = position.playUnchecked(move);
+      promotionMove = null;
+      if (isPremove == true) premove = null;
+      _controller.updatePosition(
+        position.fen,
+        game: _buildGame(),
+        lastMove: move,
+        lastDrop: viaDragAndDrop == true ? move : null,
+      );
+      setState(() {}); // Update undo button.
     }
   }
 
   void _onUserMoveAgainstBot(Move move, {viaDragAndDrop}) async {
     lastPos = position;
     if (move is NormalMove && isPromotionPawnMove(move)) {
-      setState(() {
-        promotionMove = move;
-      });
+      promotionMove = move;
+      _controller.updatePosition(position.fen, game: _buildGame());
+      setState(() {}); // Update undo button.
     } else {
-      setState(() {
-        position = position.playUnchecked(move);
-        lastMove = move;
-        fen = position.fen;
-        validMoves = IMap(const {});
-        promotionMove = null;
-      });
+      position = position.playUnchecked(move);
+      promotionMove = null;
+      _controller.updatePosition(
+        position.fen,
+        game: _buildGame(),
+        lastMove: move,
+        lastDrop: viaDragAndDrop == true ? move : null,
+      );
+      setState(() {}); // Update undo button.
       await _playBlackMove();
       _tryPlayPremove();
     }
   }
 
   Future<void> _playBlackMove() async {
-    Future.delayed(const Duration(milliseconds: 100)).then((value) {
-      setState(() {});
-    });
     if (position.isGameOver) return;
 
     final random = Random();
     await Future.delayed(Duration(milliseconds: random.nextInt(1000) + 500));
+    if (!mounted) return;
+
     final allMoves = [
       for (final entry in position.legalMoves.entries)
         for (final dest in entry.value.squares)
-          NormalMove(from: entry.key, to: dest)
+          NormalMove(from: entry.key, to: dest),
     ];
     if (allMoves.isNotEmpty) {
       NormalMove mv = (allMoves..shuffle()).first;
-      // Auto promote to a random non-pawn role
+      // Auto promote to a random non-pawn role.
       if (isPromotionPawnMove(mv)) {
         final potentialRoles =
             Role.values.where((role) => role != Role.pawn).toList();
@@ -669,14 +667,14 @@ class _HomePageState extends State<HomePage> {
         mv = mv.withPromotion(role);
       }
 
-      setState(() {
-        position = position.playUnchecked(mv);
-        lastMove =
-            NormalMove(from: mv.from, to: mv.to, promotion: mv.promotion);
-        fen = position.fen;
-        validMoves = makeLegalMoves(position);
-      });
+      position = position.playUnchecked(mv);
       lastPos = position;
+      _controller.updatePosition(
+        position.fen,
+        game: _buildGame(),
+        lastMove: NormalMove(from: mv.from, to: mv.to, promotion: mv.promotion),
+      );
+      setState(() {}); // Update undo button.
     }
   }
 
