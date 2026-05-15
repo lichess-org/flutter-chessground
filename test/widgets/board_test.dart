@@ -2356,7 +2356,7 @@ void main() {
       WidgetTester tester,
     ) async {
       bool showExtra = false;
-      final position = Chess.initial;
+      const position = Chess.initial;
       final interactiveController = ChessboardController(
         initialFen: kInitialFEN,
         initialGame: GameData(
@@ -2415,7 +2415,7 @@ void main() {
       WidgetTester tester,
     ) async {
       bool showExtra = true;
-      final position = Chess.initial;
+      const position = Chess.initial;
       final interactiveController = ChessboardController(
         initialFen: kInitialFEN,
         initialGame: GameData(

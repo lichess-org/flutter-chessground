@@ -42,7 +42,6 @@ class Chessboard extends StatefulWidget with ChessboardGeometry {
     required this.controller,
     this.settings = const ChessboardSettings(),
     required this.orientation,
-    this.opponentsPiecesUpsideDown = false,
     this.onTouchedSquare,
     this.shapes,
     this.annotations,
@@ -69,8 +68,7 @@ class Chessboard extends StatefulWidget with ChessboardGeometry {
   }) : _size = size,
        controller = null,
        _fen = fen,
-       _lastMove = lastMove,
-       opponentsPiecesUpsideDown = false;
+       _lastMove = lastMove;
 
   final double _size;
 
@@ -84,9 +82,6 @@ class Chessboard extends StatefulWidget with ChessboardGeometry {
 
   /// Settings that control the theme and behavior of the board.
   final ChessboardSettings settings;
-
-  /// If `true` the opponent`s pieces are displayed rotated by 180 degrees.
-  final bool opponentsPiecesUpsideDown;
 
   /// Squares to highlight on the board.
   final IMap<Square, SquareHighlight> squareHighlights;
