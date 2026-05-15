@@ -4,7 +4,6 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:chessground/chessground.dart';
 import 'package:dartchess/dartchess.dart';
-import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 
 import 'board_theme.dart';
 
@@ -153,7 +152,7 @@ class _AtomicGamePageState extends State<AtomicGamePage> {
   }) {
     if (!position.isLegal(move)) return;
 
-    final newExplosions = ISet(position.explosionSquares(move).squares);
+    final newExplosions = position.explosionSquares(move).squares.toSet();
 
     position = position.playUnchecked(move) as Atomic;
     promotionMove = null;

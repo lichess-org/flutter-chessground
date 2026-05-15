@@ -4,7 +4,6 @@ import 'package:chessground/src/widgets/geometry.dart';
 import 'package:dartchess/dartchess.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
-import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 
 import 'board_border.dart';
 import 'board_controller.dart';
@@ -46,7 +45,7 @@ class Chessboard extends StatefulWidget with ChessboardGeometry {
     this.shapes,
     this.annotations,
   }) : _size = size,
-       squareHighlights = const IMapConst({}),
+       squareHighlights = const {},
        _fen = null,
        _lastMove = null;
 
@@ -61,7 +60,7 @@ class Chessboard extends StatefulWidget with ChessboardGeometry {
     required this.orientation,
     required String fen,
     Move? lastMove,
-    this.squareHighlights = const IMapConst({}),
+    this.squareHighlights = const {},
     this.onTouchedSquare,
     this.shapes,
     this.annotations,
@@ -84,7 +83,7 @@ class Chessboard extends StatefulWidget with ChessboardGeometry {
   final ChessboardSettings settings;
 
   /// Squares to highlight on the board.
-  final IMap<Square, SquareHighlight> squareHighlights;
+  final Map<Square, SquareHighlight> squareHighlights;
 
   /// Controller that drives the board position, game state, and piece animations.
   ///
@@ -102,10 +101,10 @@ class Chessboard extends StatefulWidget with ChessboardGeometry {
   final void Function(Square)? onTouchedSquare;
 
   /// Optional set of [Shape] to be drawn on the board.
-  final ISet<Shape>? shapes;
+  final Set<Shape>? shapes;
 
   /// Move annotations to be displayed on the board.
-  final IMap<Square, Annotation>? annotations;
+  final Map<Square, Annotation>? annotations;
 
   /// Whether the pieces can be moved by one side or both.
   bool get interactive => controller?.interactive ?? false;
@@ -128,7 +127,7 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
   late ExplosionSetNotifier _explosionNotifier;
 
   /// Last explosion set consumed from the controller, used to detect new triggers.
-  ISet<Square>? _lastSeenExplosionSquares;
+  Set<Square>? _lastSeenExplosionSquares;
 
   /// Currently selected square.
   Square? selected;
@@ -234,7 +233,7 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
       validMoveColor: colorScheme.validMoves,
       occupiedSquares: occupiedSquares,
       checkSquare: checkSquare,
-      squareHighlights: IMap(customHighlights),
+      squareHighlights: customHighlights,
       highlightImagesLoaded: _highlightImagesLoaded,
     );
 
@@ -609,7 +608,7 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
     final game = _controller.game;
     final moveDests =
         widget.settings.showValidMoves && selected != null && game?.validMoves != null
-            ? game!.validMoves[selected!] ?? _emptyValidMoves
+            ? game!.validMoves[selected!]?.toSet() ?? _emptyValidMoves
             : _emptyValidMoves;
     final premoveDests =
         widget.settings.showValidMoves ? _premoveDests ?? const <Square>{} : const <Square>{};
@@ -1121,6 +1120,6 @@ class _DragAvatar {
   }
 }
 
-const ISet<Square> _emptyValidMoves = ISetConst({});
-const ISet<Shape> _emptyShapes = ISetConst({});
-const IMap<Square, Annotation> _emptyAnnotations = IMapConst({});
+const Set<Square> _emptyValidMoves = {};
+const Set<Shape> _emptyShapes = {};
+const Map<Square, Annotation> _emptyAnnotations = {};

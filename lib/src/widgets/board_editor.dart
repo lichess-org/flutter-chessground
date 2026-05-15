@@ -1,6 +1,5 @@
 import 'package:chessground/src/widgets/geometry.dart';
 import 'package:dartchess/dartchess.dart';
-import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/widgets.dart';
 
 import '../board_settings.dart';
@@ -47,7 +46,7 @@ class ChessboardEditor extends StatefulWidget with ChessboardGeometry {
     required this.pieces,
     this.pointerMode = EditorPointerMode.drag,
     this.settings = const ChessboardSettings(),
-    this.squareHighlights = const IMap.empty(),
+    this.squareHighlights = const {},
     this.onEditedSquare,
     this.onDroppedPiece,
     this.onDiscardedPiece,
@@ -74,7 +73,7 @@ class ChessboardEditor extends StatefulWidget with ChessboardGeometry {
   /// The current mode of the pointer tool.
   final EditorPointerMode pointerMode;
 
-  final IMap<Square, SquareHighlight> squareHighlights;
+  final Map<Square, SquareHighlight> squareHighlights;
 
   /// Called when the given square was edited by the user.
   ///

@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:dartchess/dartchess.dart';
-import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 import '../board_color_scheme.dart';
@@ -276,7 +275,7 @@ class _StaticChessboardState extends State<StaticChessboard> with SingleTickerPr
       validMoveColor: widget.colorScheme.validMoves,
       occupiedSquares: const {},
       checkSquare: null,
-      squareHighlights: const IMapConst({}),
+      squareHighlights: const {},
       highlightImagesLoaded: _highlightImagesLoaded,
     );
 

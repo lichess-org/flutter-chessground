@@ -2,7 +2,6 @@ import 'dart:math' show pi;
 import 'dart:ui' as ui;
 
 import 'package:dartchess/dartchess.dart';
-import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/widgets.dart';
 
 import '../board_settings.dart';
@@ -14,12 +13,12 @@ import 'animation.dart';
 /// to repaint without triggering a widget rebuild.
 class BoardHighlightNotifier extends ChangeNotifier {
   Square? selected;
-  ISet<Square> moveDests = const ISetConst({});
+  Set<Square> moveDests = const {};
   Set<Square> premoveDests = const {};
 
   void update({
     required Square? selected,
-    required ISet<Square> moveDests,
+    required Set<Square> moveDests,
     required Set<Square> premoveDests,
   }) {
     this.selected = selected;
@@ -76,7 +75,7 @@ class HighlightsPainter extends CustomPainter {
   final Color validMoveColor;
   final Set<Square> occupiedSquares;
   final Square? checkSquare;
-  final IMap<Square, HighlightDetails> squareHighlights;
+  final Map<Square, HighlightDetails> squareHighlights;
   final bool highlightImagesLoaded;
 
   @override

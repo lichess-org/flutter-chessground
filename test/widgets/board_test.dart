@@ -3,7 +3,6 @@ import 'dart:ui' as ui;
 import 'package:chessground/src/widgets/board_painter.dart';
 import 'package:chessground/src/widgets/explosion.dart';
 import 'package:chessground/src/widgets/promotion.dart';
-import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:dartchess/dartchess.dart';
@@ -481,7 +480,7 @@ void main() {
           initialPlayerSide: PlayerSide.both,
           rule: Rule.crazyhouse,
           initialFen: pos.fen,
-          droppable: (validDropSquares: pos.legalDrops.squares.toISet()),
+          droppable: (validDropSquares: pos.legalDrops.squares.toSet()),
           bottomWidget: Column(
             children: [
               Draggable(
@@ -544,7 +543,7 @@ void main() {
           initialPlayerSide: PlayerSide.both,
           initialFen: pos.fen,
           rule: Rule.crazyhouse,
-          droppable: (validDropSquares: pos.legalDrops.squares.toISet()),
+          droppable: (validDropSquares: pos.legalDrops.squares.toSet()),
           bottomWidget: Column(
             children: [
               Draggable(
@@ -612,7 +611,7 @@ void main() {
           // white is in check, so we can't drag the pawn onto a square that doesn't block the check.
           initialFen: pos.fen,
           rule: Rule.crazyhouse,
-          droppable: (validDropSquares: pos.legalDrops.squares.toISet()),
+          droppable: (validDropSquares: pos.legalDrops.squares.toSet()),
           bottomWidget: Column(
             children: [
               Draggable(
@@ -1712,7 +1711,7 @@ void main() {
           rule: Rule.crazyhouse,
           initialFen: pos.fen,
           settings: const ChessboardSettings(animationDuration: Duration.zero),
-          droppable: (validDropSquares: pos.legalDrops.squares.toISet()),
+          droppable: (validDropSquares: pos.legalDrops.squares.toSet()),
           initialPlayerSide: PlayerSide.white,
           shouldPlayOpponentMove: true,
           bottomWidget: Draggable(
@@ -1868,7 +1867,7 @@ void main() {
       await tester.pumpWidget(
         _TestApp(
           initialPlayerSide: PlayerSide.both,
-          initialShapes: ISet({const Circle(orig: Square.e4, color: Color(0xFF0000FF))}),
+          initialShapes: {const Circle(orig: Square.e4, color: Color(0xFF0000FF))},
         ),
       );
 
@@ -1879,9 +1878,7 @@ void main() {
       await tester.pumpWidget(
         _TestApp(
           initialPlayerSide: PlayerSide.both,
-          initialShapes: ISet({
-            const Arrow(orig: Square.e2, dest: Square.e4, color: Color(0xFF0000FF)),
-          }),
+          initialShapes: {const Arrow(orig: Square.e2, dest: Square.e4, color: Color(0xFF0000FF))},
         ),
       );
 
@@ -1897,13 +1894,13 @@ void main() {
       await tester.pumpWidget(
         _TestApp(
           initialPlayerSide: PlayerSide.both,
-          initialShapes: ISet({
+          initialShapes: {
             const PieceShape(
               orig: Square.e4,
               piece: Piece.whitePawn,
               pieceAssets: PieceSet.horseyAssets,
             ),
-          }),
+          },
         ),
       );
 
@@ -2184,7 +2181,7 @@ void main() {
     testWidgets(
       'no explosion on initial render even when triggerExplosion was called before pump',
       (WidgetTester tester) async {
-        controller.triggerExplosion(ISet(const {Square.e4}));
+        controller.triggerExplosion({Square.e4});
         await tester.pumpWidget(buildBoard());
 
         expect(_explosionsPainter(tester).notifier.activeExplosionCount, 0);
@@ -2193,7 +2190,7 @@ void main() {
 
     testWidgets('explosion is active when triggerExplosion is called', (WidgetTester tester) async {
       await tester.pumpWidget(buildBoard());
-      controller.triggerExplosion(ISet(const {Square.e4}));
+      controller.triggerExplosion({Square.e4});
       await tester.pump();
 
       expect(_explosionsPainter(tester).notifier.activeExplosionCount, 1);
@@ -2201,7 +2198,7 @@ void main() {
 
     testWidgets('one active explosion per square in the set', (WidgetTester tester) async {
       await tester.pumpWidget(buildBoard());
-      controller.triggerExplosion(ISet(const {Square.e4, Square.d5, Square.f6}));
+      controller.triggerExplosion({Square.e4, Square.d5, Square.f6});
       await tester.pump();
 
       expect(_explosionsPainter(tester).notifier.activeExplosionCount, 3);
@@ -2209,7 +2206,7 @@ void main() {
 
     testWidgets('explosions are removed after animation completes', (WidgetTester tester) async {
       await tester.pumpWidget(buildBoard());
-      controller.triggerExplosion(ISet(const {Square.e4}));
+      controller.triggerExplosion({Square.e4});
       await tester.pump();
 
       expect(_explosionsPainter(tester).notifier.activeExplosionCount, 1);
@@ -2219,8 +2216,8 @@ void main() {
       expect(_explosionsPainter(tester).notifier.activeExplosionCount, 0);
     });
 
-    testWidgets('same ISet value does not re-trigger explosions', (WidgetTester tester) async {
-      final squares = ISet(const {Square.e4});
+    testWidgets('same Set reference does not re-trigger explosions', (WidgetTester tester) async {
+      final squares = {Square.e4};
 
       await tester.pumpWidget(buildBoard());
       controller.triggerExplosion(squares);
@@ -2231,7 +2228,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(_explosionsPainter(tester).notifier.activeExplosionCount, 0);
 
-      // Calling triggerExplosion with the same ISet instance should not re-trigger.
+      // Calling triggerExplosion with the same Set reference should not re-trigger.
       controller.triggerExplosion(squares);
       await tester.pump();
       expect(_explosionsPainter(tester).notifier.activeExplosionCount, 0);
@@ -2243,7 +2240,7 @@ void main() {
       await tester.pumpWidget(buildBoard());
 
       // Trigger first explosion on e4.
-      controller.triggerExplosion(ISet(const {Square.e4}));
+      controller.triggerExplosion({Square.e4});
       await tester.pump();
       expect(_explosionsPainter(tester).notifier.activeExplosionCount, 1);
 
@@ -2251,7 +2248,7 @@ void main() {
       await tester.pump(const Duration(milliseconds: 200));
 
       // Trigger a second explosion on d5 while the first is still running.
-      controller.triggerExplosion(ISet(const {Square.d5}));
+      controller.triggerExplosion({Square.d5});
       await tester.pump();
 
       expect(_explosionsPainter(tester).notifier.activeExplosionCount, 2);
@@ -2615,7 +2612,7 @@ class _TestApp extends StatefulWidget {
   final Droppable? droppable;
 
   final NormalMove? initialPromotionMove;
-  final ISet<Shape>? initialShapes;
+  final Set<Shape>? initialShapes;
   final bool enableDrawingShapes;
 
   /// play the first available move for the opponent after a delay of 200ms
@@ -2638,7 +2635,7 @@ class _TestAppState extends State<_TestApp> {
   late ChessboardController _controller;
   late PlayerSide interactiveSide;
   late NormalMove? promotionMove;
-  late ISet<Shape> shapes;
+  late Set<Shape> shapes;
   late Position position;
   Move? lastMove;
   Move? premoveData;
@@ -2649,10 +2646,10 @@ class _TestAppState extends State<_TestApp> {
     drawShape: DrawShapeOptions(
       enable: widget.enableDrawingShapes,
       onCompleteShape: (shape) {
-        setState(() => shapes = shapes.add(shape));
+        setState(() => shapes = {...shapes, shape});
       },
       onClearShapes: () {
-        setState(() => shapes = ISet());
+        setState(() => shapes = {});
       },
       newShapeColor: const Color(0xFF0000FF),
     ),
@@ -2664,7 +2661,7 @@ class _TestAppState extends State<_TestApp> {
     interactiveSide = widget.initialPlayerSide;
     position = Position.setupPosition(widget.rule, Setup.parseFen(widget.initialFen));
     promotionMove = widget.initialPromotionMove;
-    shapes = widget.initialShapes ?? ISet();
+    shapes = widget.initialShapes ?? {};
     _controller = ChessboardController(
       initialFen: position.fen,
       initialGame: _buildGame(),

@@ -1,5 +1,4 @@
 import 'package:dartchess/dartchess.dart';
-import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/widgets.dart';
 
 import 'animation.dart';
@@ -28,7 +27,7 @@ class ChessboardController extends ChangeNotifier {
   String _fen;
   GameData? _game;
   Move? _lastMove;
-  ISet<Square>? _pendingExplosionSquares;
+  Set<Square>? _pendingExplosionSquares;
 
   late final ValueNotifier<Pieces> _piecesNotifier;
   late final ValueNotifier<TranslatingPieces> _translatingPiecesNotifier;
@@ -51,7 +50,7 @@ class ChessboardController extends ChangeNotifier {
   ///
   /// The board tracks this value and triggers the animation whenever it sees
   /// a new, non-null set (i.e. different from the last seen value).
-  ISet<Square>? get pendingExplosionSquares => _pendingExplosionSquares;
+  Set<Square>? get pendingExplosionSquares => _pendingExplosionSquares;
 
   // --- Notifiers consumed by board painters ---
 
@@ -107,9 +106,9 @@ class ChessboardController extends ChangeNotifier {
   /// Typically used for atomic chess: pass the set of exploded squares (capture
   /// square + adjacent non-pawn pieces) after a capture. The board fires the
   /// animation the first time it sees a new, non-null set; calling this method
-  /// with the same set a second time has no effect. To re-trigger with
-  /// identical squares wrap them in a new [ISet] instance.
-  void triggerExplosion(ISet<Square> squares) {
+  /// with the exact same [Set] reference a second time has no effect. To
+  /// re-trigger with identical squares pass a new [Set] instance.
+  void triggerExplosion(Set<Square> squares) {
     _pendingExplosionSquares = squares;
     notifyListeners();
   }

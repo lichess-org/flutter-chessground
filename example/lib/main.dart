@@ -4,7 +4,6 @@ import 'package:board_example/atomic_game_page.dart';
 import 'package:board_example/board_editor_page.dart';
 import 'package:flutter/material.dart';
 import 'package:chessground/chessground.dart';
-import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:dartchess/dartchess.dart';
 
 import 'board_theme.dart';
@@ -88,7 +87,7 @@ class _HomePageState extends State<HomePage> {
   bool testDropMoves = false;
   Mode playMode = Mode.botPlay;
   Position? lastPos;
-  ISet<Shape> shapes = ISet();
+  Set<Shape> shapes = {};
   bool showBorder = false;
 
   Position get initialPosition => testDropMoves
@@ -305,7 +304,7 @@ class _HomePageState extends State<HomePage> {
         onCompleteShape: _onCompleteShape,
         onClearShapes: () {
           setState(() {
-            shapes = ISet();
+            shapes = {};
           });
         },
       ),
@@ -503,12 +502,12 @@ class _HomePageState extends State<HomePage> {
   void _onCompleteShape(Shape shape) {
     if (shapes.any((element) => element == shape)) {
       setState(() {
-        shapes = shapes.remove(shape);
+        shapes = shapes.difference({shape});
       });
       return;
     } else {
       setState(() {
-        shapes = shapes.add(shape);
+        shapes = {...shapes, shape};
       });
     }
   }
@@ -575,7 +574,7 @@ class _HomePageState extends State<HomePage> {
           : (position.turn == Side.white ? PlayerSide.white : PlayerSide.black),
       validMoves: makeLegalMoves(position),
       droppable: testDropMoves
-          ? (validDropSquares: position.legalDrops.squares.toISet())
+          ? (validDropSquares: position.legalDrops.squares.toSet())
           : null,
       sideToMove: position.turn == Side.white ? Side.white : Side.black,
       isCheck: position.isCheck,

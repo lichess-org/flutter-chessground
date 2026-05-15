@@ -1,7 +1,6 @@
 import 'dart:math' as math;
 
 import 'package:dartchess/dartchess.dart';
-import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/widgets.dart';
 
 class _ActiveExplosion {
@@ -25,7 +24,7 @@ class ExplosionSetNotifier extends ChangeNotifier {
 
   int get activeExplosionCount => _active.length;
 
-  void trigger(ISet<Square> squares) {
+  void trigger(Set<Square> squares) {
     for (final square in squares) {
       final ctrl = AnimationController(duration: _duration, vsync: _vsync);
       final explosion = _ActiveExplosion(square, ctrl);

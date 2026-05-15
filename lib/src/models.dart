@@ -114,7 +114,7 @@ typedef Pieces = Map<Square, Piece>;
 typedef ValidMoves = IMap<Square, ISet<Square>>;
 
 /// Set of squares where a piece can be dropped in variants such as Crazyhouse.
-typedef ValidDropSquares = ISet<Square>;
+typedef ValidDropSquares = Set<Square>;
 
 /// Square highlight color or image on the chessboard.
 @immutable
