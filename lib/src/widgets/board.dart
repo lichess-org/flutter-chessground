@@ -122,7 +122,7 @@ class Chessboard extends StatefulWidget with ChessboardGeometry {
   _BoardState createState() => _BoardState();
 }
 
-class _BoardState extends State<Chessboard> with SingleTickerProviderStateMixin {
+class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
   late ChessboardController _controller;
   bool _ownsController = false;
   Side? _lastSideToMove;
@@ -131,8 +131,8 @@ class _BoardState extends State<Chessboard> with SingleTickerProviderStateMixin 
   TranslatingPieces get translatingPieces => _controller.translatingPiecesNotifier.value;
   FadingPieces get fadingPieces => _controller.fadingPiecesNotifier.value;
 
-  /// Squares that currently have an active explosion animation.
-  final Set<Square> _activeExplosions = {};
+  /// Manages active explosion animations.
+  late ExplosionSetNotifier _explosionNotifier;
 
   /// Last explosion set consumed from the controller, used to detect new triggers.
   ISet<Square>? _lastSeenExplosionSquares;
@@ -334,27 +334,15 @@ class _BoardState extends State<Chessboard> with SingleTickerProviderStateMixin 
           square: entry.key,
           annotation: entry.value,
         ),
-      for (final square in _activeExplosions)
-        PositionedSquare(
-          key: ValueKey('${square.name}-explosion'),
-          size: widget.size,
+      CustomPaint(
+        size: Size.square(widget.size),
+        painter: ExplosionsPainter(
+          notifier: _explosionNotifier,
+          squareSize: widget.squareSize,
           orientation: widget.orientation,
-          square: square,
-          child: IgnorePointer(
-            child: OverflowBox(
-              maxWidth: widget.squareSize * 1.5,
-              maxHeight: widget.squareSize * 1.5,
-              child: ExplosionWidget(
-                size: widget.squareSize * 1.5,
-                onComplete: () {
-                  setState(() {
-                    _activeExplosions.remove(square);
-                  });
-                },
-              ),
-            ),
-          ),
         ),
+        willChange: true,
+      ),
       if (game?.droppable != null)
         ...Square.values.map((square) {
           return PositionedSquare(
@@ -483,6 +471,7 @@ class _BoardState extends State<Chessboard> with SingleTickerProviderStateMixin 
       );
       _controller.attachTo(this, widget.settings.animationDuration);
     }
+    _explosionNotifier = ExplosionSetNotifier(vsync: this);
     _lastSeenExplosionSquares = _controller.pendingExplosionSquares;
     _draggedPieceSquareNotifier = ValueNotifier<Square?>(null);
     _imagesLoaded = ChessgroundImages.instance.isAllLoaded(widget.settings.pieceAssets);
@@ -540,6 +529,7 @@ class _BoardState extends State<Chessboard> with SingleTickerProviderStateMixin 
       _controller.removeListener(_onControllerChange);
       _controller.detach();
     }
+    _explosionNotifier.dispose();
     _draggedPieceSquareNotifier.dispose();
     _dragAvatar?.cancel();
     _cancelShapesDoubleTapTimer?.cancel();
@@ -564,7 +554,7 @@ class _BoardState extends State<Chessboard> with SingleTickerProviderStateMixin 
     final newExplosions = _controller.pendingExplosionSquares;
     if (newExplosions != null && newExplosions != _lastSeenExplosionSquares) {
       _lastSeenExplosionSquares = newExplosions;
-      _activeExplosions.addAll(newExplosions);
+      _explosionNotifier.trigger(newExplosions);
     }
     setState(() {});
   }

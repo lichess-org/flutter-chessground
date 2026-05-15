@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:ui' as ui;
 import 'package:chessground/src/widgets/board_painter.dart';
+import 'package:chessground/src/widgets/explosion.dart';
 import 'package:chessground/src/widgets/promotion.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
@@ -30,6 +31,16 @@ HighlightsPainter _highlightsPainter(WidgetTester tester) {
     }
   }
   throw StateError('HighlightsPainter not found');
+}
+
+ExplosionsPainter _explosionsPainter(WidgetTester tester) {
+  for (final element in find.byType(CustomPaint).evaluate()) {
+    final widget = element.widget as CustomPaint;
+    if (widget.painter is ExplosionsPainter) {
+      return widget.painter! as ExplosionsPainter;
+    }
+  }
+  throw StateError('ExplosionsPainter not found');
 }
 
 TranslatingPiecesPainter? _translatingPiecesPainter(WidgetTester tester) {
@@ -2171,40 +2182,36 @@ void main() {
         controller.triggerExplosion(ISet(const {Square.e4}));
         await tester.pumpWidget(buildBoard());
 
-        expect(find.byType(ExplosionWidget), findsNothing);
+        expect(_explosionsPainter(tester).notifier.activeExplosionCount, 0);
       },
     );
 
-    testWidgets('explosion widget appears when triggerExplosion is called', (
-      WidgetTester tester,
-    ) async {
+    testWidgets('explosion is active when triggerExplosion is called', (WidgetTester tester) async {
       await tester.pumpWidget(buildBoard());
       controller.triggerExplosion(ISet(const {Square.e4}));
       await tester.pump();
 
-      expect(find.byType(ExplosionWidget), findsOneWidget);
+      expect(_explosionsPainter(tester).notifier.activeExplosionCount, 1);
     });
 
-    testWidgets('one explosion widget per square in the set', (WidgetTester tester) async {
+    testWidgets('one active explosion per square in the set', (WidgetTester tester) async {
       await tester.pumpWidget(buildBoard());
       controller.triggerExplosion(ISet(const {Square.e4, Square.d5, Square.f6}));
       await tester.pump();
 
-      expect(find.byType(ExplosionWidget), findsNWidgets(3));
+      expect(_explosionsPainter(tester).notifier.activeExplosionCount, 3);
     });
 
-    testWidgets('explosion widgets are removed after animation completes', (
-      WidgetTester tester,
-    ) async {
+    testWidgets('explosions are removed after animation completes', (WidgetTester tester) async {
       await tester.pumpWidget(buildBoard());
       controller.triggerExplosion(ISet(const {Square.e4}));
       await tester.pump();
 
-      expect(find.byType(ExplosionWidget), findsOneWidget);
+      expect(_explosionsPainter(tester).notifier.activeExplosionCount, 1);
 
       await tester.pumpAndSettle();
 
-      expect(find.byType(ExplosionWidget), findsNothing);
+      expect(_explosionsPainter(tester).notifier.activeExplosionCount, 0);
     });
 
     testWidgets('same ISet value does not re-trigger explosions', (WidgetTester tester) async {
@@ -2213,16 +2220,16 @@ void main() {
       await tester.pumpWidget(buildBoard());
       controller.triggerExplosion(squares);
       await tester.pump();
-      expect(find.byType(ExplosionWidget), findsOneWidget);
+      expect(_explosionsPainter(tester).notifier.activeExplosionCount, 1);
 
-      // Advance past animation end so the widget removes itself.
+      // Advance past animation end so the explosion removes itself.
       await tester.pumpAndSettle();
-      expect(find.byType(ExplosionWidget), findsNothing);
+      expect(_explosionsPainter(tester).notifier.activeExplosionCount, 0);
 
       // Calling triggerExplosion with the same ISet instance should not re-trigger.
       controller.triggerExplosion(squares);
       await tester.pump();
-      expect(find.byType(ExplosionWidget), findsNothing);
+      expect(_explosionsPainter(tester).notifier.activeExplosionCount, 0);
     });
 
     testWidgets('new explosion set adds to currently animating explosions', (
@@ -2233,7 +2240,7 @@ void main() {
       // Trigger first explosion on e4.
       controller.triggerExplosion(ISet(const {Square.e4}));
       await tester.pump();
-      expect(find.byType(ExplosionWidget), findsOneWidget);
+      expect(_explosionsPainter(tester).notifier.activeExplosionCount, 1);
 
       // Advance partway through the animation (less than 600 ms default duration).
       await tester.pump(const Duration(milliseconds: 200));
@@ -2242,11 +2249,11 @@ void main() {
       controller.triggerExplosion(ISet(const {Square.d5}));
       await tester.pump();
 
-      expect(find.byType(ExplosionWidget), findsNWidgets(2));
+      expect(_explosionsPainter(tester).notifier.activeExplosionCount, 2);
 
       // After settling, all explosions should be gone.
       await tester.pumpAndSettle();
-      expect(find.byType(ExplosionWidget), findsNothing);
+      expect(_explosionsPainter(tester).notifier.activeExplosionCount, 0);
     });
   });
 
