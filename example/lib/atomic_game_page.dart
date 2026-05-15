@@ -22,7 +22,6 @@ class AtomicGamePage extends StatefulWidget {
 class _AtomicGamePageState extends State<AtomicGamePage> {
   Atomic position = Atomic.initial;
   NormalMove? promotionMove;
-  ISet<Square>? explosionSquares;
   BoardTheme boardTheme = BoardTheme.brown;
   PieceSet pieceSet = PieceSet.gioco;
   late ChessboardController _controller;
@@ -88,7 +87,6 @@ class _AtomicGamePageState extends State<AtomicGamePage> {
                           animationDuration: const Duration(milliseconds: 200),
                         ),
                         orientation: Side.white,
-                        explosionSquares: explosionSquares,
                       );
                     },
                   ),
@@ -119,9 +117,8 @@ class _AtomicGamePageState extends State<AtomicGamePage> {
   void _newGame() {
     position = Atomic.initial;
     promotionMove = null;
-    explosionSquares = null;
     _controller.jumpToPosition(position.fen, game: _buildGame());
-    setState(() {}); // Update explosionSquares widget param and StatusBar.
+    setState(() {});
   }
 
   void _onUserMove(Move move, {bool? viaDragAndDrop}) {
@@ -160,14 +157,16 @@ class _AtomicGamePageState extends State<AtomicGamePage> {
 
     position = position.playUnchecked(move) as Atomic;
     promotionMove = null;
-    explosionSquares = newExplosions;
     _controller.updatePosition(
       position.fen,
       game: _buildGame(),
       lastMove: move,
       lastDrop: viaDragAndDrop == true ? move : null,
     );
-    setState(() {}); // Update explosionSquares widget param and StatusBar.
+    if (newExplosions.isNotEmpty) {
+      _controller.triggerExplosion(newExplosions);
+    }
+    setState(() {});
 
     if (scheduleBotAfter && !position.isGameOver) {
       _scheduleBotMove();

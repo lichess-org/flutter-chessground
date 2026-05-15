@@ -44,12 +44,11 @@ class Chessboard extends StatefulWidget with ChessboardGeometry {
     this.settings = const ChessboardSettings(),
     required this.orientation,
     this.opponentsPiecesUpsideDown = false,
-    this.squareHighlights = const IMapConst({}),
     this.onTouchedSquare,
     this.shapes,
     this.annotations,
-    this.explosionSquares,
   }) : _size = size,
+       squareHighlights = const IMapConst({}),
        _fen = null,
        _lastMove = null;
 
@@ -68,7 +67,6 @@ class Chessboard extends StatefulWidget with ChessboardGeometry {
     this.onTouchedSquare,
     this.shapes,
     this.annotations,
-    this.explosionSquares,
   }) : _size = size,
        controller = null,
        _fen = fen,
@@ -115,16 +113,6 @@ class Chessboard extends StatefulWidget with ChessboardGeometry {
   /// Move annotations to be displayed on the board.
   final IMap<Square, Annotation>? annotations;
 
-  /// Squares on which an atomic chess explosion should be shown.
-  ///
-  /// Whenever this value changes to a new non-null set the board will play a
-  /// one-shot explosion animation on each listed square.  Typically this is the
-  /// set of squares returned by the dartchess atomic-explosion computation
-  /// (capture square + all adjacent non-pawn pieces).
-  ///
-  /// Set to `null` or to the same value to suppress re-triggering.
-  final ISet<Square>? explosionSquares;
-
   /// Whether the pieces can be moved by one side or both.
   bool get interactive => controller?.interactive ?? false;
 
@@ -145,6 +133,9 @@ class _BoardState extends State<Chessboard> with SingleTickerProviderStateMixin 
 
   /// Squares that currently have an active explosion animation.
   final Set<Square> _activeExplosions = {};
+
+  /// Last explosion set consumed from the controller, used to detect new triggers.
+  ISet<Square>? _lastSeenExplosionSquares;
 
   /// Currently selected square.
   Square? selected;
@@ -492,6 +483,7 @@ class _BoardState extends State<Chessboard> with SingleTickerProviderStateMixin 
       );
       _controller.attachTo(this, widget.settings.animationDuration);
     }
+    _lastSeenExplosionSquares = _controller.pendingExplosionSquares;
     _draggedPieceSquareNotifier = ValueNotifier<Square?>(null);
     _imagesLoaded = ChessgroundImages.instance.isAllLoaded(widget.settings.pieceAssets);
     if (!_imagesLoaded) _loadImages(widget.settings.pieceAssets);
@@ -569,6 +561,11 @@ class _BoardState extends State<Chessboard> with SingleTickerProviderStateMixin 
       _lastSideToMove = currentSideToMove;
     }
     _syncHighlightNotifier();
+    final newExplosions = _controller.pendingExplosionSquares;
+    if (newExplosions != null && newExplosions != _lastSeenExplosionSquares) {
+      _lastSeenExplosionSquares = newExplosions;
+      _activeExplosions.addAll(newExplosions);
+    }
     setState(() {});
   }
 
@@ -610,10 +607,6 @@ class _BoardState extends State<Chessboard> with SingleTickerProviderStateMixin 
 
     if (oldBoard.settings.animationDuration != widget.settings.animationDuration) {
       _controller.animationDuration = widget.settings.animationDuration;
-    }
-
-    if (widget.explosionSquares != null && widget.explosionSquares != oldBoard.explosionSquares) {
-      _activeExplosions.addAll(widget.explosionSquares!);
     }
   }
 

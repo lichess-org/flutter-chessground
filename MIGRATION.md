@@ -129,18 +129,20 @@ class _MyBoardState extends State<MyBoard> {
 | `fen: newFen` | `controller.updatePosition(newFen, ...)` |
 | `game: newGame` | `controller.updatePosition(..., game: newGame)` |
 | `lastMove: move` | `controller.updatePosition(..., lastMove: move)` |
+| `explosionSquares: squares` | `controller.triggerExplosion(squares)` |
 
 The `lastDrop:` parameter on `updatePosition()` replaces the internal tracking
 that previously happened automatically. Pass the move as `lastDrop:` when
 `viaDragAndDrop == true` to suppress the redundant slide animation for the
 dragged piece.
 
-### `Chessboard.fixed()` is unchanged
+### `Chessboard.fixed()` is mostly unchanged
 
-The non-interactive constructor keeps the same signature:
+The non-interactive constructor keeps the same signature, except `explosionSquares`
+has been removed (it had no effect without a controller):
 
 ```dart
-// No changes needed here
+// No changes needed here (unless you were using explosionSquares)
 Chessboard.fixed(
   size: 400,
   orientation: Side.white,
@@ -148,6 +150,33 @@ Chessboard.fixed(
   lastMove: lastMove,
 )
 ```
+
+### Explosion squares: widget parameter → controller method
+
+Previously you could pass `explosionSquares:` directly to the `Chessboard()` widget.
+Now call `controller.triggerExplosion(squares)` instead, typically right after
+`controller.updatePosition(...)`:
+
+```dart
+// Before (9.x)
+Chessboard(
+  fen: newFen,
+  game: game,
+  explosionSquares: explodedSquares,
+)
+
+// After (10.0.0)
+controller.updatePosition(newFen, game: game, lastMove: move);
+if (explodedSquares != null) {
+  controller.triggerExplosion(explodedSquares);
+}
+```
+
+### `squareHighlights` removed from interactive `Chessboard()`
+
+This parameter was only useful for `Chessboard.fixed()` and has been removed from
+the interactive constructor. If you were passing `squareHighlights:` to `Chessboard()`,
+remove it — it had no meaningful effect for an interactive board.
 
 ### Ownership and lifecycle
 

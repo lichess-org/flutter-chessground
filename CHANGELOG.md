@@ -9,6 +9,12 @@
 - `ChessboardController.updatePosition()` and `jumpToPosition()` gain a `lastMove:`
   parameter (previously `lastMove` was passed directly to the widget constructor).
 
+- `squareHighlights` has been removed from the interactive `Chessboard()` constructor.
+  It is only supported by `Chessboard.fixed()`.
+
+- `explosionSquares` has been removed from both `Chessboard()` and `Chessboard.fixed()`
+  constructors. Use `ChessboardController.triggerExplosion()` instead.
+
 ### New
 
 - `ChessboardController` is now the public API for driving the interactive board.
@@ -20,6 +26,9 @@
 
 - `ChessboardController.interactive` getter (true when a `GameData` with a
   non-`none` `playerSide` is set).
+
+- `ChessboardController.triggerExplosion(ISet<Square>)` triggers a one-shot atomic
+  chess explosion animation on the given squares.
 
 ## 9.1.0
 
