@@ -176,7 +176,7 @@ class _BoardState extends State<Chessboard> with SingleTickerProviderStateMixin 
   _DragAvatar? _dragAvatar;
 
   /// Once a piece is dragged, holds the square id of the piece.
-  Square? _draggedPieceSquare;
+  late final ValueNotifier<Square?> _draggedPieceSquareNotifier;
 
   /// Current pointer down event.
   ///
@@ -293,7 +293,7 @@ class _BoardState extends State<Chessboard> with SingleTickerProviderStateMixin 
         }
         continue;
       }
-      if (square == _draggedPieceSquare || square == widget.game?.promotionMove?.from) {
+      if (square == widget.game?.promotionMove?.from) {
         continue;
       }
       if (_isUpsideDown(entry.value.color)) {
@@ -306,7 +306,7 @@ class _BoardState extends State<Chessboard> with SingleTickerProviderStateMixin 
       pieceAssets: settings.pieceAssets,
       squareSize: widget.squareSize,
       orientation: widget.orientation,
-      draggedPieceSquare: _draggedPieceSquare,
+      draggedPieceSquareNotifier: _draggedPieceSquareNotifier,
       translatingPieceSquares: translatingPieces.keys.toSet(),
       promotionMoveFrom: widget.game?.promotionMove?.from,
       blindfoldMode: settings.blindfoldMode,
@@ -502,6 +502,7 @@ class _BoardState extends State<Chessboard> with SingleTickerProviderStateMixin 
   void initState() {
     super.initState();
     pieces = readFen(widget.fen);
+    _draggedPieceSquareNotifier = ValueNotifier<Square?>(null);
     _highlightNotifier = BoardHighlightNotifier();
     _pieceAnimationController = AnimationController(
       animationBehavior: AnimationBehavior.preserve,
@@ -562,6 +563,7 @@ class _BoardState extends State<Chessboard> with SingleTickerProviderStateMixin 
 
   @override
   void dispose() {
+    _draggedPieceSquareNotifier.dispose();
     _highlightNotifier.dispose();
     _fadeAnimation.dispose();
     _translationAnimation.dispose();
@@ -583,7 +585,7 @@ class _BoardState extends State<Chessboard> with SingleTickerProviderStateMixin 
       _currentPointerDownEvent = null;
       _dragAvatar?.cancel();
       _dragAvatar = null;
-      _draggedPieceSquare = null;
+      _draggedPieceSquareNotifier.value = null;
       selected = null;
       _premoveDests = null;
     }
@@ -891,9 +893,7 @@ class _BoardState extends State<Chessboard> with SingleTickerProviderStateMixin 
       }
       _onDragEnd();
       if (shouldDeselect) _setSelection(null);
-      setState(() {
-        _draggedPieceSquare = null;
-      });
+      _draggedPieceSquareNotifier.value = null;
     }
     // handle pointer up while not dragging a piece
     else if (selected != null) {
@@ -936,9 +936,7 @@ class _BoardState extends State<Chessboard> with SingleTickerProviderStateMixin 
     }
 
     _onDragEnd();
-    setState(() {
-      _draggedPieceSquare = null;
-    });
+    _draggedPieceSquareNotifier.value = null;
     _currentPointerDownEvent = null;
     _shouldCancelPremoveOnTapUp = false;
     _shouldDeselectOnTapUp = false;
@@ -951,9 +949,7 @@ class _BoardState extends State<Chessboard> with SingleTickerProviderStateMixin 
     final feedbackSize =
         widget.squareSize * (isMousePointer ? 1 : widget.settings.dragFeedbackScale);
     if (square != null && piece != null && (_isMovable(piece) || _isPremovable(piece))) {
-      setState(() {
-        _draggedPieceSquare = square;
-      });
+      _draggedPieceSquareNotifier.value = square;
       _renderBox ??= context.findRenderObject()! as RenderBox;
 
       final dragFeedbackOffsetY =
@@ -1006,9 +1002,7 @@ class _BoardState extends State<Chessboard> with SingleTickerProviderStateMixin 
     _dragAvatar = null;
     _renderBox = null;
     _setSelection(null);
-    setState(() {
-      _draggedPieceSquare = null;
-    });
+    _draggedPieceSquareNotifier.value = null;
     _currentPointerDownEvent = null;
     _shouldDeselectOnTapUp = false;
     _shouldCancelPremoveOnTapUp = false;

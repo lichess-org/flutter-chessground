@@ -229,7 +229,7 @@ class _StaticChessboardState extends State<StaticChessboard> with SingleTickerPr
       pieceAssets: widget.pieceAssets,
       squareSize: widget.squareSize,
       orientation: widget.orientation,
-      draggedPieceSquare: null,
+      draggedPieceSquareNotifier: null,
       translatingPieceSquares: translatingPieces.keys.toSet(),
       promotionMoveFrom: null,
       blindfoldMode: false,

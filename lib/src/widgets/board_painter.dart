@@ -181,19 +181,20 @@ class PiecesPainter extends CustomPainter {
     required this.pieceAssets,
     required this.squareSize,
     required this.orientation,
-    required this.draggedPieceSquare,
+    required ValueNotifier<Square?>? draggedPieceSquareNotifier,
     required this.translatingPieceSquares,
     required this.promotionMoveFrom,
     required this.blindfoldMode,
     required this.upsideDownSquares,
     required this.imagesLoaded,
-  });
+  }) : _draggedPieceSquareNotifier = draggedPieceSquareNotifier,
+       super(repaint: draggedPieceSquareNotifier);
 
   final Pieces pieces;
   final PieceAssets pieceAssets;
   final double squareSize;
   final Side orientation;
-  final Square? draggedPieceSquare;
+  final ValueNotifier<Square?>? _draggedPieceSquareNotifier;
   final Set<Square> translatingPieceSquares;
   final Square? promotionMoveFrom;
   final bool blindfoldMode;
@@ -208,6 +209,7 @@ class PiecesPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     if (blindfoldMode) return;
 
+    final draggedPieceSquare = _draggedPieceSquareNotifier?.value;
     final paint = Paint()..filterQuality = FilterQuality.medium;
     for (final entry in pieces.entries) {
       final square = entry.key;
@@ -241,7 +243,6 @@ class PiecesPainter extends CustomPainter {
     return imagesLoaded != oldDelegate.imagesLoaded ||
         squareSize != oldDelegate.squareSize ||
         orientation != oldDelegate.orientation ||
-        draggedPieceSquare != oldDelegate.draggedPieceSquare ||
         promotionMoveFrom != oldDelegate.promotionMoveFrom ||
         blindfoldMode != oldDelegate.blindfoldMode ||
         pieceAssets != oldDelegate.pieceAssets ||
