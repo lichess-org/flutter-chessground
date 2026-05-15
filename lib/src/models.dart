@@ -20,23 +20,27 @@ enum PlayerSide {
 }
 
 /// Game data for an interactive chessboard.
-///
-/// This is used to control the state of the chessboard and to provide callbacks for user interactions.
 @immutable
 class GameData {
   /// Creates a new [GameData] with the provided values.
   const GameData({
+    required this.fen,
     required this.playerSide,
     required this.sideToMove,
     required this.validMoves,
-    required this.promotionMove,
-    required this.onMove,
-    required this.onPromotionSelection,
+    this.lastMove,
+    this.promotionMove,
     this.isCheck,
     this.premovable,
     this.droppable,
     this.canPromoteToKing = false,
   });
+
+  /// FEN string describing the current board position.
+  final String fen;
+
+  /// The last move played, used to highlight the origin and destination squares.
+  final Move? lastMove;
 
   /// Side that is allowed to move.
   final PlayerSide playerSide;
@@ -55,16 +59,6 @@ class GameData {
   /// Set of moves allowed to be played by current side to move.
   final ValidMoves validMoves;
 
-  /// Callback called after a move has been made.
-  ///
-  /// If the move has been made with drag and drop, `viaDragAndDrop` will be true.
-  final void Function(Move, {bool? viaDragAndDrop}) onMove;
-
-  /// Callback called after a piece has been selected for promotion.
-  ///
-  /// If the argument is `null`, the promotion should be canceled.
-  final void Function(Role? role) onPromotionSelection;
-
   /// Optional premovable state of the board.
   ///
   /// If `null`, the board will not allow premoves.
@@ -80,6 +74,9 @@ class GameData {
 }
 
 /// State of a premovable chessboard.
+///
+/// A non-null value indicates that premoves are enabled. [premove] holds the
+/// currently registered premove, or `null` if none has been set yet.
 typedef Premovable =
     ({
       /// Registered premove.
@@ -88,11 +85,6 @@ typedef Premovable =
       ///
       /// Chessground will not play the premove automatically, it is up to the library user to play it.
       Move? premove,
-
-      /// Callback called after a premove has been set/unset.
-      ///
-      /// If `null`, the premove will be unset.
-      void Function(Move?) onSetPremove,
     });
 
 /// State of a droppable chessboard for variants such as Crazyhouse.

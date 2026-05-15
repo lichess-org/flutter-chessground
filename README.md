@@ -32,13 +32,15 @@ behavior and appearance.
 
 To interact with the board in order to play a game, create a `ChessboardController`
 and pass it to `Chessboard(controller: ...)`. The controller holds the board
-position, the game state, and the last move. Call `controller.updatePosition()`
-after each move to advance the board with animation.
+position and game state. Call `controller.updatePosition()` after each move to
+advance the board with animation.
 
-`GameData` is an immutable object containing the game state (which side is to move,
-the valid moves, etc.) and the callback functions to handle user interactions. All
-chess logic must be handled outside of this package — any change requires calling
-`controller.updatePosition()` with a fresh `GameData`.
+`GameData` is an immutable snapshot of the game state (position, side to move,
+valid moves, etc.). Pass a fresh `GameData` to `controller.updatePosition()`
+whenever the state changes. All chess logic must be handled outside this package.
+
+Callbacks for user interactions (`onMove`, `onPromotionSelection`, `onSetPremove`)
+are parameters on the `Chessboard` widget rather than on `GameData`.
 
 The controller pattern means the board rebuilds itself in response to controller
 updates, without requiring a parent `setState()`.
@@ -47,14 +49,12 @@ updates, without requiring a parent `setState()`.
 class _MyBoardState extends State<MyBoard> {
   late ChessboardController _controller;
   Position position = Chess.initial;
+  Move? lastMove;
 
   @override
   void initState() {
     super.initState();
-    _controller = ChessboardController(
-      initialFen: position.fen,
-      initialGame: _buildGame(),
-    );
+    _controller = ChessboardController(initialGame: _buildGame());
   }
 
   @override
@@ -64,22 +64,22 @@ class _MyBoardState extends State<MyBoard> {
   }
 
   GameData _buildGame() => GameData(
+    fen: position.fen,
+    lastMove: lastMove,
     playerSide: PlayerSide.white,
     isCheck: position.isCheck,
     sideToMove: position.turn == Side.white ? Side.white : Side.black,
     validMoves: makeLegalMoves(position),
-    promotionMove: null,
-    onMove: (move, {viaDragAndDrop}) {
-      position = position.playUnchecked(move);
-      _controller.updatePosition(
-        position.fen,
-        game: _buildGame(),
-        lastMove: move,
-        lastDrop: viaDragAndDrop == true ? move : null,
-      );
-    },
-    onPromotionSelection: (_) {},
   );
+
+  void _onMove(Move move, {bool? viaDragAndDrop}) {
+    position = position.playUnchecked(move);
+    lastMove = move;
+    _controller.updatePosition(
+      _buildGame(),
+      lastDrop: viaDragAndDrop == true ? move : null,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -87,6 +87,8 @@ class _MyBoardState extends State<MyBoard> {
       controller: _controller,
       size: MediaQuery.of(context).size.width,
       orientation: Side.white,
+      onMove: _onMove,
+      onPromotionSelection: (_) {},
     );
   }
 }

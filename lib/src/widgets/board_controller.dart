@@ -14,9 +14,26 @@ import '../models.dart';
 ///
 /// The controller must be disposed when no longer needed.
 class ChessboardController extends ChangeNotifier {
-  ChessboardController({required String initialFen, GameData? initialGame, Move? initialLastMove})
-    : _fen = initialFen,
+  /// Creates a controller for an interactive board driven by [initialGame].
+  ///
+  /// Use this constructor when the board will be interactive (i.e. when you
+  /// pass a [GameData] to [Chessboard]).
+  ChessboardController({required GameData initialGame})
+    : _fen = initialGame.fen,
       _game = initialGame,
+      _lastMove = null {
+    _piecesNotifier = ValueNotifier(readFen(initialGame.fen));
+    _translatingPiecesNotifier = ValueNotifier({});
+    _fadingPiecesNotifier = ValueNotifier({});
+    _highlightNotifier = BoardHighlightNotifier();
+  }
+
+  /// Creates a controller for a non-interactive board showing [initialFen].
+  ///
+  /// Use this constructor when the board has no game state (e.g. [Chessboard.fixed]).
+  ChessboardController.nonInteractive({required String initialFen, Move? initialLastMove})
+    : _fen = initialFen,
+      _game = null,
       _lastMove = initialLastMove {
     _piecesNotifier = ValueNotifier(readFen(initialFen));
     _translatingPiecesNotifier = ValueNotifier({});
@@ -42,7 +59,7 @@ class ChessboardController extends ChangeNotifier {
 
   String get fen => _fen;
   GameData? get game => _game;
-  Move? get lastMove => _lastMove;
+  Move? get lastMove => _game?.lastMove ?? _lastMove;
   bool get interactive => _game != null && _game!.playerSide != PlayerSide.none;
   Pieces get pieces => _piecesNotifier.value;
 
@@ -113,14 +130,13 @@ class ChessboardController extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Updates the board position with piece animation.
+  /// Updates the board to [game] with piece animation.
   ///
   /// Pass [lastDrop] when the triggering move was performed via drag and drop so
   /// the animation engine can suppress the redundant translation of the dragged
   /// piece.
-  void updatePosition(String newFen, {GameData? game, Move? lastMove, Move? lastDrop}) {
-    if (newFen == _fen && game == _game) return;
-
+  void updatePosition(GameData game, {Move? lastDrop}) {
+    final newFen = game.fen;
     if (newFen != _fen) {
       final oldPieces = _piecesNotifier.value;
       _translatingPiecesNotifier.value = {};
@@ -144,8 +160,49 @@ class ChessboardController extends ChangeNotifier {
       _piecesNotifier.value = newPieces;
     }
 
-    if (game != null) {
-      _game = game;
+    _game = game;
+
+    notifyListeners();
+  }
+
+  /// Updates the board to [game] without animation (e.g. analysis seeking).
+  void jumpToPosition(GameData game) {
+    _animationController?.stop();
+    _translatingPiecesNotifier.value = {};
+    _fadingPiecesNotifier.value = {};
+
+    _fen = game.fen;
+    _piecesNotifier.value = readFen(game.fen);
+    _game = game;
+
+    notifyListeners();
+  }
+
+  /// Updates the board position with animation for non-interactive boards.
+  ///
+  /// Use this on controllers created with [ChessboardController.nonInteractive].
+  void updateFen(String newFen, {Move? lastMove, Move? lastDrop}) {
+    if (newFen != _fen) {
+      final oldPieces = _piecesNotifier.value;
+      _translatingPiecesNotifier.value = {};
+      _fadingPiecesNotifier.value = {};
+
+      final newPieces = readFen(newFen);
+
+      if ((_animationController?.duration ?? Duration.zero) > Duration.zero) {
+        final (tp, fp) = preparePieceAnimations(oldPieces, newPieces, lastDrop: lastDrop);
+        _translatingPiecesNotifier.value = tp;
+        _fadingPiecesNotifier.value = fp;
+      }
+
+      if (_translatingPiecesNotifier.value.isNotEmpty || _fadingPiecesNotifier.value.isNotEmpty) {
+        _animationController?.forward(from: 0.0);
+      } else {
+        _animationController?.stop();
+      }
+
+      _fen = newFen;
+      _piecesNotifier.value = newPieces;
     }
 
     _lastMove = lastMove;
@@ -153,19 +210,16 @@ class ChessboardController extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Updates the board position without animation (e.g. analysis seeking).
-  void jumpToPosition(String newFen, {GameData? game, Move? lastMove}) {
+  /// Updates the board position without animation for non-interactive boards.
+  ///
+  /// Use this on controllers created with [ChessboardController.nonInteractive].
+  void jumpToFen(String newFen, {Move? lastMove}) {
     _animationController?.stop();
     _translatingPiecesNotifier.value = {};
     _fadingPiecesNotifier.value = {};
 
     _fen = newFen;
     _piecesNotifier.value = readFen(newFen);
-
-    if (game != null) {
-      _game = game;
-    }
-
     _lastMove = lastMove;
 
     notifyListeners();

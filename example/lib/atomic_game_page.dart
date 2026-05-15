@@ -21,6 +21,7 @@ class AtomicGamePage extends StatefulWidget {
 class _AtomicGamePageState extends State<AtomicGamePage> {
   Atomic position = Atomic.initial;
   NormalMove? promotionMove;
+  Move? lastMove;
   BoardTheme boardTheme = BoardTheme.brown;
   PieceSet pieceSet = PieceSet.gioco;
   late ChessboardController _controller;
@@ -28,10 +29,7 @@ class _AtomicGamePageState extends State<AtomicGamePage> {
   @override
   void initState() {
     super.initState();
-    _controller = ChessboardController(
-      initialFen: position.fen,
-      initialGame: _buildGame(),
-    );
+    _controller = ChessboardController(initialGame: _buildGame());
   }
 
   @override
@@ -42,13 +40,13 @@ class _AtomicGamePageState extends State<AtomicGamePage> {
 
   GameData _buildGame() {
     return GameData(
+      fen: position.fen,
+      lastMove: lastMove,
       playerSide: position.isGameOver ? PlayerSide.none : PlayerSide.white,
       validMoves: makeLegalMoves(position),
       sideToMove: position.turn,
       isCheck: position.isCheck,
       promotionMove: promotionMove,
-      onMove: _onUserMove,
-      onPromotionSelection: _onPromotionSelection,
     );
   }
 
@@ -86,6 +84,8 @@ class _AtomicGamePageState extends State<AtomicGamePage> {
                           animationDuration: const Duration(milliseconds: 200),
                         ),
                         orientation: Side.white,
+                        onMove: _onUserMove,
+                        onPromotionSelection: _onPromotionSelection,
                       );
                     },
                   ),
@@ -116,14 +116,15 @@ class _AtomicGamePageState extends State<AtomicGamePage> {
   void _newGame() {
     position = Atomic.initial;
     promotionMove = null;
-    _controller.jumpToPosition(position.fen, game: _buildGame());
+    lastMove = null;
+    _controller.jumpToPosition(_buildGame());
     setState(() {});
   }
 
   void _onUserMove(Move move, {bool? viaDragAndDrop}) {
     if (move is NormalMove && _isPromotionPawnMove(move)) {
       promotionMove = move;
-      _controller.updatePosition(position.fen, game: _buildGame());
+      _controller.updatePosition(_buildGame());
       return;
     }
     _applyMove(move, scheduleBotAfter: true, viaDragAndDrop: viaDragAndDrop);
@@ -132,7 +133,7 @@ class _AtomicGamePageState extends State<AtomicGamePage> {
   void _onPromotionSelection(Role? role) {
     if (role == null) {
       promotionMove = null;
-      _controller.updatePosition(position.fen, game: _buildGame());
+      _controller.updatePosition(_buildGame());
     } else if (promotionMove != null) {
       _applyMove(promotionMove!.withPromotion(role), scheduleBotAfter: true);
     }
@@ -156,10 +157,9 @@ class _AtomicGamePageState extends State<AtomicGamePage> {
 
     position = position.playUnchecked(move) as Atomic;
     promotionMove = null;
+    lastMove = move;
     _controller.updatePosition(
-      position.fen,
-      game: _buildGame(),
-      lastMove: move,
+      _buildGame(),
       lastDrop: viaDragAndDrop == true ? move : null,
     );
     if (newExplosions.isNotEmpty) {

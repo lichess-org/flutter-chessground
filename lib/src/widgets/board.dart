@@ -35,12 +35,19 @@ class Chessboard extends StatefulWidget with ChessboardGeometry {
   /// Creates a new chessboard widget with interactive pieces.
   ///
   /// Provide a [controller] to control the board position and game state.
+  ///
+  /// [onMove] is called when the user makes a move. [onPromotionSelection] is
+  /// called when the user selects a promotion piece (or cancels with `null`).
+  /// [onSetPremove] is called when a premove is set or cleared.
   const Chessboard({
     super.key,
     required double size,
     required this.controller,
     this.settings = const ChessboardSettings(),
     required this.orientation,
+    this.onMove,
+    this.onPromotionSelection,
+    this.onSetPremove,
     this.onTouchedSquare,
     this.shapes,
     this.annotations,
@@ -66,6 +73,9 @@ class Chessboard extends StatefulWidget with ChessboardGeometry {
     this.annotations,
   }) : _size = size,
        controller = null,
+       onMove = null,
+       onPromotionSelection = null,
+       onSetPremove = null,
        _fen = fen,
        _lastMove = lastMove;
 
@@ -89,6 +99,22 @@ class Chessboard extends StatefulWidget with ChessboardGeometry {
   ///
   /// Null only when using [Chessboard.fixed].
   final ChessboardController? controller;
+
+  /// Called after the user completes a move.
+  ///
+  /// Null when using [Chessboard.fixed].
+  final void Function(Move, {bool? viaDragAndDrop})? onMove;
+
+  /// Called after the user selects a promotion piece, or with `null` to cancel.
+  ///
+  /// Null when using [Chessboard.fixed].
+  final void Function(Role? role)? onPromotionSelection;
+
+  /// Called when a premove is set or cleared by the user.
+  ///
+  /// Receives `null` when the premove is cleared.
+  /// Null when using [Chessboard.fixed].
+  final void Function(Move?)? onSetPremove;
 
   // FEN and last move for the fixed (non-interactive) constructor only.
   final String? _fen;
@@ -349,9 +375,9 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
                 if (game.sideToMove == piece.color &&
                     game.droppable != null &&
                     game.droppable!.validDropSquares.contains(square)) {
-                  game.onMove(move, viaDragAndDrop: true);
+                  widget.onMove?.call(move, viaDragAndDrop: true);
                 } else if (game.premovable != null) {
-                  game.premovable?.onSetPremove.call(move);
+                  widget.onSetPremove?.call(move);
                 }
               },
             ),
@@ -393,9 +419,9 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
                 color: game.sideToMove,
                 orientation: widget.orientation,
                 piecesUpsideDown: _isUpsideDown(game.sideToMove),
-                onSelect: game.onPromotionSelection,
+                onSelect: widget.onPromotionSelection!,
                 onCancel: () {
-                  game.onPromotionSelection(null);
+                  widget.onPromotionSelection!(null);
                 },
                 canPromoteToKing: game.canPromoteToKing,
               ),
@@ -435,7 +461,7 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
       _lastSideToMove = _controller.game?.sideToMove;
     } else {
       _ownsController = true;
-      _controller = ChessboardController(
+      _controller = ChessboardController.nonInteractive(
         initialFen: widget._fen!,
         initialLastMove: widget._lastMove,
       );
@@ -571,7 +597,7 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
 
     if (_ownsController &&
         (oldBoard._fen != widget._fen || oldBoard._lastMove != widget._lastMove)) {
-      _controller.updatePosition(widget._fen!, lastMove: widget._lastMove);
+      _controller.updateFen(widget._fen!, lastMove: widget._lastMove);
     }
 
     _syncHighlightNotifier();
@@ -747,7 +773,7 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
     // - cancel premove
     // - unselect piece
     else if (_controller.game?.premovable?.premove != null) {
-      _controller.game?.premovable?.onSetPremove.call(null);
+      widget.onSetPremove?.call(null);
       _setSelection(null);
     }
 
@@ -833,7 +859,7 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
           final couldMove = _tryMoveOrPremoveTo(square, drop: true);
           // if the premove was not possible, cancel the current premove
           if (!couldMove && _controller.game?.premovable?.premove != null) {
-            _controller.game?.premovable?.onSetPremove.call(null);
+            widget.onSetPremove?.call(null);
           }
         } else {
           // if piece shift method is drag only we always deselect the piece after a drag
@@ -842,7 +868,7 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
       }
       // if the user drags a piece outside the board, cancel the premove
       else if (_controller.game?.premovable?.premove != null) {
-        _controller.game?.premovable?.onSetPremove.call(null);
+        widget.onSetPremove?.call(null);
       }
       _onDragEnd();
       if (shouldDeselect) _setSelection(null);
@@ -860,7 +886,7 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
     if (_shouldCancelPremoveOnTapUp) {
       if (_controller.game?.premovable?.premove case NormalMove(:final from) when from == square) {
         _shouldCancelPremoveOnTapUp = false;
-        _controller.game?.premovable?.onSetPremove.call(null);
+        widget.onSetPremove?.call(null);
       }
     }
 
@@ -1009,18 +1035,17 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
   ///
   /// Returns true if the move/premove was successful.
   bool _tryMoveOrPremoveTo(Square square, {bool drop = false}) {
-    final game = _controller.game;
     final selectedPiece = selected != null ? pieces[selected] : null;
     if (selectedPiece != null && _canMoveTo(selected!, square)) {
       final move = NormalMove(from: selected!, to: square);
       if (_isPromoMove(selectedPiece, square)) {
         if (widget.settings.autoQueenPromotion) {
-          game?.onMove.call(move.withPromotion(Role.queen), viaDragAndDrop: drop);
+          widget.onMove?.call(move.withPromotion(Role.queen), viaDragAndDrop: drop);
         } else {
-          game?.onMove.call(move, viaDragAndDrop: drop);
+          widget.onMove?.call(move, viaDragAndDrop: drop);
         }
       } else {
-        game?.onMove.call(move, viaDragAndDrop: drop);
+        widget.onMove?.call(move, viaDragAndDrop: drop);
       }
       return true;
     } else if (_isPremovable(selectedPiece) && _canPremoveTo(selected!, square)) {
@@ -1029,7 +1054,7 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
           widget.settings.autoQueenPromotionOnPremove && isPromoPremove
               ? NormalMove(from: selected!, to: square, promotion: Role.queen)
               : NormalMove(from: selected!, to: square);
-      game?.premovable?.onSetPremove.call(premove);
+      widget.onSetPremove?.call(premove);
       return true;
     }
     return false;

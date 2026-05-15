@@ -76,6 +76,7 @@ class _HomePageState extends State<HomePage> {
   Side orientation = Side.white;
   NormalMove? promotionMove;
   Move? premove;
+  Move? lastMove;
   PieceSet pieceSet = PieceSet.gioco;
   late ChessboardController _controller;
   PieceShiftMethod pieceShiftMethod = PieceShiftMethod.either;
@@ -109,7 +110,8 @@ class _HomePageState extends State<HomePage> {
       onPressed: () {
         position = initialPosition;
         lastPos = null;
-        _controller.jumpToPosition(position.fen, game: _buildGame());
+        lastMove = null;
+        _controller.jumpToPosition(_buildGame());
         setState(() {}); // Update undo button.
       },
     );
@@ -121,7 +123,8 @@ class _HomePageState extends State<HomePage> {
           ? () {
               position = lastPos!;
               lastPos = null;
-              _controller.jumpToPosition(position.fen, game: _buildGame());
+              lastMove = null;
+              _controller.jumpToPosition(_buildGame());
               setState(() {}); // Update undo button.
             }
           : null,
@@ -260,8 +263,8 @@ class _HomePageState extends State<HomePage> {
                     testDropMoves = !testDropMoves;
                     position = initialPosition;
                     lastPos = null;
-                    _controller.jumpToPosition(position.fen,
-                        game: _buildGame());
+                    lastMove = null;
+                    _controller.jumpToPosition(_buildGame());
                     setState(
                         () {}); // Show/hide CrazyhouseMenu; update undo button.
                   },
@@ -323,6 +326,9 @@ class _HomePageState extends State<HomePage> {
             size: min(constraints.maxWidth, constraints.maxHeight),
             settings: settings,
             orientation: orientation,
+            onMove: playMode == Mode.botPlay ? _onUserMoveAgainstBot : _playMove,
+            onPromotionSelection: _onPromotionSelection,
+            onSetPremove: _onSetPremove,
             shapes: shapes.isNotEmpty ? shapes : null,
           );
 
@@ -367,7 +373,7 @@ class _HomePageState extends State<HomePage> {
             title: const Text('Random Bot'),
             onTap: () {
               playMode = Mode.botPlay;
-              _controller.updatePosition(position.fen, game: _buildGame());
+              _controller.updatePosition(_buildGame());
               setState(() {}); // Update app bar title and button visibility.
               if (position.turn == Side.black) {
                 _playBlackMove();
@@ -379,7 +385,7 @@ class _HomePageState extends State<HomePage> {
             title: const Text('Enter opponent move'),
             onTap: () {
               playMode = Mode.inputMove;
-              _controller.updatePosition(position.fen, game: _buildGame());
+              _controller.updatePosition(_buildGame());
               setState(() {}); // Update app bar title and button visibility.
               Navigator.pop(context);
             },
@@ -388,7 +394,7 @@ class _HomePageState extends State<HomePage> {
             title: const Text('Free Play'),
             onTap: () {
               playMode = Mode.freePlay;
-              _controller.updatePosition(position.fen, game: _buildGame());
+              _controller.updatePosition(_buildGame());
               setState(() {}); // Update app bar title and button visibility.
               Navigator.pop(context);
             },
@@ -555,10 +561,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    _controller = ChessboardController(
-      initialFen: position.fen,
-      initialGame: _buildGame(),
-    );
+    _controller = ChessboardController(initialGame: _buildGame());
   }
 
   @override
@@ -569,6 +572,8 @@ class _HomePageState extends State<HomePage> {
 
   GameData _buildGame() {
     return GameData(
+      fen: position.fen,
+      lastMove: lastMove,
       playerSide: (playMode == Mode.botPlay || playMode == Mode.inputMove)
           ? PlayerSide.white
           : (position.turn == Side.white ? PlayerSide.white : PlayerSide.black),
@@ -579,21 +584,19 @@ class _HomePageState extends State<HomePage> {
       sideToMove: position.turn == Side.white ? Side.white : Side.black,
       isCheck: position.isCheck,
       promotionMove: promotionMove,
-      onMove: playMode == Mode.botPlay ? _onUserMoveAgainstBot : _playMove,
-      onPromotionSelection: _onPromotionSelection,
-      premovable: (onSetPremove: _onSetPremove, premove: premove),
+      premovable: (premove: premove),
     );
   }
 
   void _onSetPremove(Move? move) {
     premove = move;
-    _controller.updatePosition(position.fen, game: _buildGame());
+    _controller.updatePosition(_buildGame());
   }
 
   void _onPromotionSelection(Role? role) {
     if (role == null) {
       promotionMove = null;
-      _controller.updatePosition(position.fen, game: _buildGame());
+      _controller.updatePosition(_buildGame());
     } else if (promotionMove != null) {
       if (playMode == Mode.botPlay) {
         _onUserMoveAgainstBot(promotionMove!.withPromotion(role));
@@ -607,16 +610,15 @@ class _HomePageState extends State<HomePage> {
     lastPos = position;
     if (move is NormalMove && isPromotionPawnMove(move)) {
       promotionMove = move;
-      _controller.updatePosition(position.fen, game: _buildGame());
+      _controller.updatePosition(_buildGame());
       setState(() {}); // Update undo button.
     } else if (position.isLegal(move)) {
       position = position.playUnchecked(move);
       promotionMove = null;
+      lastMove = move;
       if (isPremove == true) premove = null;
       _controller.updatePosition(
-        position.fen,
-        game: _buildGame(),
-        lastMove: move,
+        _buildGame(),
         lastDrop: viaDragAndDrop == true ? move : null,
       );
       setState(() {}); // Update undo button.
@@ -627,15 +629,14 @@ class _HomePageState extends State<HomePage> {
     lastPos = position;
     if (move is NormalMove && isPromotionPawnMove(move)) {
       promotionMove = move;
-      _controller.updatePosition(position.fen, game: _buildGame());
+      _controller.updatePosition(_buildGame());
       setState(() {}); // Update undo button.
     } else {
       position = position.playUnchecked(move);
       promotionMove = null;
+      lastMove = move;
       _controller.updatePosition(
-        position.fen,
-        game: _buildGame(),
-        lastMove: move,
+        _buildGame(),
         lastDrop: viaDragAndDrop == true ? move : null,
       );
       setState(() {}); // Update undo button.
@@ -668,11 +669,8 @@ class _HomePageState extends State<HomePage> {
 
       position = position.playUnchecked(mv);
       lastPos = position;
-      _controller.updatePosition(
-        position.fen,
-        game: _buildGame(),
-        lastMove: NormalMove(from: mv.from, to: mv.to, promotion: mv.promotion),
-      );
+      lastMove = NormalMove(from: mv.from, to: mv.to, promotion: mv.promotion);
+      _controller.updatePosition(_buildGame());
       setState(() {}); // Update undo button.
     }
   }

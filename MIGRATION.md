@@ -10,6 +10,11 @@ passing `fen:`, `game:`, and `lastMove:` to the widget on every `setState`, you
 create a `ChessboardController` once and call `updatePosition()` on it when the
 game state changes.
 
+`GameData` is now a pure state snapshot — it holds `fen`, `lastMove`, and game
+state fields (`sideToMove`, `validMoves`, etc.), but no callbacks. Callbacks
+(`onMove`, `onPromotionSelection`, `onSetPremove`) are parameters on the
+`Chessboard` widget. `Premovable` carries only the current premove, not the setter.
+
 **Before (9.x)**
 
 ```dart
@@ -61,16 +66,13 @@ class _MyBoardState extends State<MyBoard> {
 class _MyBoardState extends State<MyBoard> {
   late ChessboardController _controller;
   Position _position = Chess.initial;
-  NormalMove? _promotionMove;
   Move? _lastMove;
+  NormalMove? _promotionMove;
 
   @override
   void initState() {
     super.initState();
-    _controller = ChessboardController(
-      initialFen: _position.fen,
-      initialGame: _buildGame(),
-    );
+    _controller = ChessboardController(initialGame: _buildGame());
   }
 
   @override
@@ -80,36 +82,34 @@ class _MyBoardState extends State<MyBoard> {
   }
 
   GameData _buildGame() => GameData(
+    fen: _position.fen,
+    lastMove: _lastMove,
     playerSide: PlayerSide.white,
     isCheck: _position.isCheck,
     sideToMove: _position.turn == Side.white ? Side.white : Side.black,
     validMoves: makeLegalMoves(_position),
     promotionMove: _promotionMove,
-    onMove: (move, {viaDragAndDrop}) {
-      _position = _position.playUnchecked(move);
-      _lastMove = move;
-      _controller.updatePosition(
-        _position.fen,
-        game: _buildGame(),
-        lastMove: _lastMove,
-        lastDrop: viaDragAndDrop == true ? move : null,
-      );
-    },
-    onPromotionSelection: (role) {
-      if (role != null) {
-        _position = _position.playUnchecked(
-          _promotionMove!.withPromotion(role),
-        );
-        _lastMove = _promotionMove!.withPromotion(role);
-      }
-      _promotionMove = null;
-      _controller.updatePosition(
-        _position.fen,
-        game: _buildGame(),
-        lastMove: _lastMove,
-      );
-    },
   );
+
+  void _onMove(Move move, {bool? viaDragAndDrop}) {
+    _position = _position.playUnchecked(move);
+    _lastMove = move;
+    _controller.updatePosition(
+      _buildGame(),
+      lastDrop: viaDragAndDrop == true ? move : null,
+    );
+  }
+
+  void _onPromotionSelection(Role? role) {
+    if (role != null) {
+      _position = _position.playUnchecked(
+        _promotionMove!.withPromotion(role),
+      );
+      _lastMove = _promotionMove!.withPromotion(role);
+    }
+    _promotionMove = null;
+    _controller.updatePosition(_buildGame());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -117,6 +117,8 @@ class _MyBoardState extends State<MyBoard> {
       controller: _controller,
       size: 400,
       orientation: Side.white,
+      onMove: _onMove,
+      onPromotionSelection: _onPromotionSelection,
     );
   }
 }
@@ -124,11 +126,14 @@ class _MyBoardState extends State<MyBoard> {
 
 ### Parameter mapping
 
-| 9.x widget constructor param | 10.0.0 equivalent |
+| 9.x | 10.0.0 |
 |---|---|
-| `fen: newFen` | `controller.updatePosition(newFen, ...)` |
-| `game: newGame` | `controller.updatePosition(..., game: newGame)` |
-| `lastMove: move` | `controller.updatePosition(..., lastMove: move)` |
+| `Chessboard(fen: newFen)` | `GameData(fen: newFen, ...)` passed to `controller.updatePosition()` |
+| `Chessboard(lastMove: move)` | `GameData(lastMove: move, ...)` passed to `controller.updatePosition()` |
+| `Chessboard(game: newGame)` | `controller.updatePosition(newGame)` |
+| `GameData(onMove: fn)` | `Chessboard(onMove: fn)` |
+| `GameData(onPromotionSelection: fn)` | `Chessboard(onPromotionSelection: fn)` |
+| `Premovable(onSetPremove: fn, premove: m)` | `Chessboard(onSetPremove: fn)` + `Premovable(premove: m)` |
 | `explosionSquares: squares` | `controller.triggerExplosion(squares)` |
 
 The `lastDrop:` parameter on `updatePosition()` replaces the internal tracking
@@ -136,7 +141,7 @@ that previously happened automatically. Pass the move as `lastDrop:` when
 `viaDragAndDrop == true` to suppress the redundant slide animation for the
 dragged piece.
 
-### `Chessboard.fixed()` is mostly unchanged
+### `Chessboard.fixed()` is unchanged
 
 The non-interactive constructor keeps the same signature, except `explosionSquares`
 has been removed (it had no effect without a controller):
@@ -166,7 +171,7 @@ Chessboard(
 )
 
 // After (10.0.0)
-controller.updatePosition(newFen, game: game, lastMove: move);
+controller.updatePosition(newGameData);
 if (explodedSquares != null) {
   controller.triggerExplosion(explodedSquares);
 }
@@ -192,10 +197,3 @@ void dispose() {
   super.dispose();
 }
 ```
-
-### Why the change?
-
-With the old pattern the parent widget had to call `setState()` on every move,
-which rebuilt the entire widget subtree above the board before the board itself
-could update. With the controller pattern, `updatePosition()` notifies the board
-directly — the board rebuilds itself without touching the parent.
