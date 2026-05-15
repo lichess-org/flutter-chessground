@@ -35,9 +35,10 @@ and pass it to `Chessboard(controller: ...)`. The controller holds the board
 position and game state. Call `controller.updatePosition()` after each move to
 advance the board with animation.
 
-`GameData` is an immutable snapshot of the game state (position, side to move,
-valid moves, etc.). Pass a fresh `GameData` to `controller.updatePosition()`
-whenever the state changes. All chess logic must be handled outside this package.
+`GameData` is an immutable snapshot of the game state (side to move, valid moves,
+last move, etc.). The board position (FEN) is passed separately — directly to
+`controller.updatePosition()` and the constructor. All chess logic must be handled
+outside this package.
 
 Callbacks for user interactions (`onMove`, `onPromotionSelection`, `onSetPremove`)
 are parameters on the `Chessboard` widget rather than on `GameData`.
@@ -54,7 +55,7 @@ class _MyBoardState extends State<MyBoard> {
   @override
   void initState() {
     super.initState();
-    _controller = ChessboardController(initialGame: _buildGame());
+    _controller = ChessboardController(fen: position.fen, initialGame: _buildGame());
   }
 
   @override
@@ -64,7 +65,6 @@ class _MyBoardState extends State<MyBoard> {
   }
 
   GameData _buildGame() => GameData(
-    fen: position.fen,
     lastMove: lastMove,
     playerSide: PlayerSide.white,
     isCheck: position.isCheck,
@@ -76,7 +76,8 @@ class _MyBoardState extends State<MyBoard> {
     position = position.playUnchecked(move);
     lastMove = move;
     _controller.updatePosition(
-      _buildGame(),
+      position.fen,
+      game: _buildGame(),
       lastDrop: viaDragAndDrop == true ? move : null,
     );
   }

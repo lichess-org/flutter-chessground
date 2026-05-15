@@ -18,11 +18,11 @@ class ChessboardController extends ChangeNotifier {
   ///
   /// Use this constructor when the board will be interactive (i.e. when you
   /// pass a [GameData] to [Chessboard]).
-  ChessboardController({required GameData initialGame})
-    : _fen = initialGame.fen,
+  ChessboardController({required String fen, required GameData initialGame})
+    : _fen = fen,
       _game = initialGame,
       _lastMove = null {
-    _piecesNotifier = ValueNotifier(readFen(initialGame.fen));
+    _piecesNotifier = ValueNotifier(readFen(fen));
     _translatingPiecesNotifier = ValueNotifier({});
     _fadingPiecesNotifier = ValueNotifier({});
     _highlightNotifier = BoardHighlightNotifier();
@@ -130,19 +130,21 @@ class ChessboardController extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Updates the board to [game] with piece animation.
+  /// Updates the board to [fen] with piece animation.
+  ///
+  /// For interactive boards, pass [game] to update the game state.
+  /// For non-interactive boards, omit [game] and optionally pass [lastMove].
   ///
   /// Pass [lastDrop] when the triggering move was performed via drag and drop so
   /// the animation engine can suppress the redundant translation of the dragged
   /// piece.
-  void updatePosition(GameData game, {Move? lastDrop}) {
-    final newFen = game.fen;
-    if (newFen != _fen) {
+  void updatePosition(String fen, {GameData? game, Move? lastMove, Move? lastDrop}) {
+    if (fen != _fen) {
       final oldPieces = _piecesNotifier.value;
       _translatingPiecesNotifier.value = {};
       _fadingPiecesNotifier.value = {};
 
-      final newPieces = readFen(newFen);
+      final newPieces = readFen(fen);
 
       if ((_animationController?.duration ?? Duration.zero) > Duration.zero) {
         final (tp, fp) = preparePieceAnimations(oldPieces, newPieces, lastDrop: lastDrop);
@@ -156,70 +158,28 @@ class ChessboardController extends ChangeNotifier {
         _animationController?.stop();
       }
 
-      _fen = newFen;
+      _fen = fen;
       _piecesNotifier.value = newPieces;
     }
 
     _game = game;
-
-    notifyListeners();
-  }
-
-  /// Updates the board to [game] without animation (e.g. analysis seeking).
-  void jumpToPosition(GameData game) {
-    _animationController?.stop();
-    _translatingPiecesNotifier.value = {};
-    _fadingPiecesNotifier.value = {};
-
-    _fen = game.fen;
-    _piecesNotifier.value = readFen(game.fen);
-    _game = game;
-
-    notifyListeners();
-  }
-
-  /// Updates the board position with animation for non-interactive boards.
-  ///
-  /// Use this on controllers created with [ChessboardController.nonInteractive].
-  void updateFen(String newFen, {Move? lastMove, Move? lastDrop}) {
-    if (newFen != _fen) {
-      final oldPieces = _piecesNotifier.value;
-      _translatingPiecesNotifier.value = {};
-      _fadingPiecesNotifier.value = {};
-
-      final newPieces = readFen(newFen);
-
-      if ((_animationController?.duration ?? Duration.zero) > Duration.zero) {
-        final (tp, fp) = preparePieceAnimations(oldPieces, newPieces, lastDrop: lastDrop);
-        _translatingPiecesNotifier.value = tp;
-        _fadingPiecesNotifier.value = fp;
-      }
-
-      if (_translatingPiecesNotifier.value.isNotEmpty || _fadingPiecesNotifier.value.isNotEmpty) {
-        _animationController?.forward(from: 0.0);
-      } else {
-        _animationController?.stop();
-      }
-
-      _fen = newFen;
-      _piecesNotifier.value = newPieces;
-    }
-
     _lastMove = lastMove;
 
     notifyListeners();
   }
 
-  /// Updates the board position without animation for non-interactive boards.
+  /// Updates the board to [fen] without animation (e.g. analysis seeking).
   ///
-  /// Use this on controllers created with [ChessboardController.nonInteractive].
-  void jumpToFen(String newFen, {Move? lastMove}) {
+  /// For interactive boards, pass [game] to update the game state.
+  /// For non-interactive boards, omit [game] and optionally pass [lastMove].
+  void jumpToPosition(String fen, {GameData? game, Move? lastMove}) {
     _animationController?.stop();
     _translatingPiecesNotifier.value = {};
     _fadingPiecesNotifier.value = {};
 
-    _fen = newFen;
-    _piecesNotifier.value = readFen(newFen);
+    _fen = fen;
+    _piecesNotifier.value = readFen(fen);
+    _game = game;
     _lastMove = lastMove;
 
     notifyListeners();

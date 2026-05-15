@@ -2338,7 +2338,7 @@ void main() {
       await tester.pump();
 
       // Controller should still drive the board correctly.
-      controller.jumpToFen('rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1');
+      controller.jumpToPosition('rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1');
       await tester.pump();
 
       expect(_piecesPainter(tester).pieces.containsKey(Square.e4), isTrue);
@@ -2355,8 +2355,8 @@ void main() {
       bool showExtra = false;
       const position = Chess.initial;
       final interactiveController = ChessboardController(
+        fen: kInitialFEN,
         initialGame: GameData(
-          fen: kInitialFEN,
           playerSide: PlayerSide.both,
           isCheck: false,
           sideToMove: Side.white,
@@ -2413,8 +2413,8 @@ void main() {
       bool showExtra = true;
       const position = Chess.initial;
       final interactiveController = ChessboardController(
+        fen: kInitialFEN,
         initialGame: GameData(
-          fen: kInitialFEN,
           playerSide: PlayerSide.both,
           isCheck: false,
           sideToMove: Side.white,
@@ -2488,7 +2488,7 @@ void main() {
       for (var i = 0; i < 3; i++) {
         await tester.tap(find.text('toggle'));
         await tester.pump();
-        controller.jumpToFen(i.isEven ? altFen : kInitialFEN);
+        controller.jumpToPosition(i.isEven ? altFen : kInitialFEN);
         await tester.pump();
       }
 
@@ -2661,7 +2661,7 @@ class _TestAppState extends State<_TestApp> {
     promotionMove = widget.initialPromotionMove;
     lastMove = widget.initialPromotionMove;
     shapes = widget.initialShapes ?? {};
-    _controller = ChessboardController(initialGame: _buildGame());
+    _controller = ChessboardController(fen: position.fen, initialGame: _buildGame());
     _gameEventSub = widget.gameEventStream?.listen(_onGameEvent);
   }
 
@@ -2674,7 +2674,6 @@ class _TestAppState extends State<_TestApp> {
 
   GameData _buildGame() {
     return GameData(
-      fen: position.fen,
       lastMove: lastMove,
       playerSide: interactiveSide,
       isCheck: position.isCheck,
@@ -2691,10 +2690,10 @@ class _TestAppState extends State<_TestApp> {
     switch (event) {
       case GameEvent.nonInteractiveBoardEvent:
         interactiveSide = PlayerSide.none;
-        _controller.updatePosition(_buildGame());
+        _controller.updatePosition(position.fen, game: _buildGame());
       case GameEvent.interactiveBoardEvent:
         interactiveSide = widget.initialPlayerSide;
-        _controller.updatePosition(_buildGame());
+        _controller.updatePosition(position.fen, game: _buildGame());
       case GameEvent.externalMove:
         final allMoves = [
           for (final entry in position.legalMoves.entries)
@@ -2703,7 +2702,7 @@ class _TestAppState extends State<_TestApp> {
         if (allMoves.isNotEmpty) {
           position = position.playUnchecked(allMoves.first);
           lastMove = allMoves.first;
-          _controller.updatePosition(_buildGame());
+          _controller.updatePosition(position.fen, game: _buildGame());
         }
     }
   }
@@ -2730,7 +2729,11 @@ class _TestAppState extends State<_TestApp> {
     } else {
       _playMove(move);
     }
-    _controller.updatePosition(_buildGame(), lastDrop: viaDragAndDrop == true ? move : null);
+    _controller.updatePosition(
+      position.fen,
+      game: _buildGame(),
+      lastDrop: viaDragAndDrop == true ? move : null,
+    );
 
     if (widget.shouldPlayOpponentMove) {
       Timer(const Duration(milliseconds: 200), () {
@@ -2744,7 +2747,7 @@ class _TestAppState extends State<_TestApp> {
           interactiveSide = PlayerSide.none;
         }
         lastMove = opponentMove;
-        _controller.updatePosition(_buildGame());
+        _controller.updatePosition(position.fen, game: _buildGame());
 
         // play premove just after the opponent move
         if (premoveData != null) {
@@ -2753,13 +2756,13 @@ class _TestAppState extends State<_TestApp> {
               scheduleMicrotask(() {
                 position = position.playUnchecked(premoveData!);
                 premoveData = null;
-                _controller.updatePosition(_buildGame());
+                _controller.updatePosition(position.fen, game: _buildGame());
               });
             } else {
               scheduleMicrotask(() {
                 promotionMove = premoveData as NormalMove?;
                 premoveData = null;
-                _controller.updatePosition(_buildGame());
+                _controller.updatePosition(position.fen, game: _buildGame());
               });
             }
           }
@@ -2786,11 +2789,11 @@ class _TestAppState extends State<_TestApp> {
                   _playMove(promotionMove!.withPromotion(role));
                 }
                 promotionMove = null;
-                _controller.updatePosition(_buildGame());
+                _controller.updatePosition(position.fen, game: _buildGame());
               },
               onSetPremove: (Move? move) {
                 premoveData = move;
-                _controller.updatePosition(_buildGame());
+                _controller.updatePosition(position.fen, game: _buildGame());
               },
               onTouchedSquare: widget.onTouchedSquare,
               shapes: shapes,

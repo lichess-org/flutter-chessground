@@ -24,7 +24,6 @@ enum PlayerSide {
 class GameData {
   /// Creates a new [GameData] with the provided values.
   const GameData({
-    required this.fen,
     required this.playerSide,
     required this.sideToMove,
     required this.validMoves,
@@ -35,9 +34,6 @@ class GameData {
     this.droppable,
     this.canPromoteToKing = false,
   });
-
-  /// FEN string describing the current board position.
-  final String fen;
 
   /// The last move played, used to highlight the origin and destination squares.
   final Move? lastMove;

@@ -10,10 +10,12 @@ passing `fen:`, `game:`, and `lastMove:` to the widget on every `setState`, you
 create a `ChessboardController` once and call `updatePosition()` on it when the
 game state changes.
 
-`GameData` is now a pure state snapshot — it holds `fen`, `lastMove`, and game
-state fields (`sideToMove`, `validMoves`, etc.), but no callbacks. Callbacks
-(`onMove`, `onPromotionSelection`, `onSetPremove`) are parameters on the
-`Chessboard` widget. `Premovable` carries only the current premove, not the setter.
+`GameData` is now a pure state snapshot — it holds game state fields
+(`sideToMove`, `validMoves`, `lastMove`, etc.), but no callbacks and no FEN.
+The board position (FEN) is passed directly to the controller constructor and
+update methods. Callbacks (`onMove`, `onPromotionSelection`, `onSetPremove`) are
+parameters on the `Chessboard` widget. `Premovable` carries only the current
+premove, not the setter.
 
 **Before (9.x)**
 
@@ -72,7 +74,7 @@ class _MyBoardState extends State<MyBoard> {
   @override
   void initState() {
     super.initState();
-    _controller = ChessboardController(initialGame: _buildGame());
+    _controller = ChessboardController(fen: _position.fen, initialGame: _buildGame());
   }
 
   @override
@@ -82,7 +84,6 @@ class _MyBoardState extends State<MyBoard> {
   }
 
   GameData _buildGame() => GameData(
-    fen: _position.fen,
     lastMove: _lastMove,
     playerSide: PlayerSide.white,
     isCheck: _position.isCheck,
@@ -95,7 +96,8 @@ class _MyBoardState extends State<MyBoard> {
     _position = _position.playUnchecked(move);
     _lastMove = move;
     _controller.updatePosition(
-      _buildGame(),
+      _position.fen,
+      game: _buildGame(),
       lastDrop: viaDragAndDrop == true ? move : null,
     );
   }
@@ -108,7 +110,7 @@ class _MyBoardState extends State<MyBoard> {
       _lastMove = _promotionMove!.withPromotion(role);
     }
     _promotionMove = null;
-    _controller.updatePosition(_buildGame());
+    _controller.updatePosition(_position.fen, game: _buildGame());
   }
 
   @override
@@ -128,9 +130,9 @@ class _MyBoardState extends State<MyBoard> {
 
 | 9.x | 10.0.0 |
 |---|---|
-| `Chessboard(fen: newFen)` | `GameData(fen: newFen, ...)` passed to `controller.updatePosition()` |
+| `Chessboard(fen: newFen)` | `controller.updatePosition(newFen, game: ...)` |
 | `Chessboard(lastMove: move)` | `GameData(lastMove: move, ...)` passed to `controller.updatePosition()` |
-| `Chessboard(game: newGame)` | `controller.updatePosition(newGame)` |
+| `Chessboard(game: newGame)` | `controller.updatePosition(fen, game: newGame)` |
 | `GameData(onMove: fn)` | `Chessboard(onMove: fn)` |
 | `GameData(onPromotionSelection: fn)` | `Chessboard(onPromotionSelection: fn)` |
 | `Premovable(onSetPremove: fn, premove: m)` | `Chessboard(onSetPremove: fn)` + `Premovable(premove: m)` |
@@ -171,7 +173,7 @@ Chessboard(
 )
 
 // After (10.0.0)
-controller.updatePosition(newGameData);
+controller.updatePosition(newFen, game: newGameData);
 if (explodedSquares != null) {
   controller.triggerExplosion(explodedSquares);
 }

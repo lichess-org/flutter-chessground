@@ -12,22 +12,19 @@
 - `Premovable` no longer carries `onSetPremove`. The callback has moved to a new
   optional `onSetPremove` parameter on the `Chessboard` widget.
 
-- `GameData` now requires a `fen` field (the board position) and accepts an optional
-  `lastMove` field. These are no longer passed separately to the controller.
-
 - `ChessboardController` constructor changed. Use
-  `ChessboardController(initialGame: game)` for interactive boards.
+  `ChessboardController(fen: fen, initialGame: game)` for interactive boards.
   Use `ChessboardController.nonInteractive(initialFen: fen)` for non-interactive
-  display boards. The old `initialFen:` / `initialGame:` / `initialLastMove:`
-  combination is gone.
+  display boards.
 
-- `ChessboardController.updatePosition()` now takes a `GameData` as its first
-  positional argument (the position, last move, and game state are all bundled
-  inside it). The old signature `(String fen, {GameData? game, Move? lastMove})`
-  is removed.
+- `ChessboardController.updatePosition(String fen, {GameData? game, Move? lastMove, Move? lastDrop})`
+  takes the board position as its first argument. Pass `game:` for interactive
+  boards or `lastMove:` for non-interactive boards. This single method replaces
+  the previous `updatePosition(GameData)` and the separate non-interactive
+  `updateFen(String)`.
 
-- `ChessboardController.jumpToPosition()` now takes a `GameData` instead of a
-  raw `String fen`.
+- `ChessboardController.jumpToPosition(String fen, {GameData? game, Move? lastMove})`
+  similarly unifies the previous `jumpToPosition(GameData)` and `jumpToFen(String)`.
 
 - `squareHighlights` has been removed from the interactive `Chessboard()` constructor.
   It is only supported by `Chessboard.fixed()`.
@@ -44,12 +41,6 @@
 
 - `ChessboardController.nonInteractive({required String initialFen, Move? initialLastMove})`
   named constructor for controllers that drive a non-interactive display board.
-
-- `ChessboardController.updateFen(String fen, {Move? lastMove, Move? lastDrop})`
-  advances a non-interactive board's position with animation.
-
-- `ChessboardController.jumpToFen(String fen, {Move? lastMove})` jumps a
-  non-interactive board's position without animation.
 
 - `ChessboardController.lastMove` getter exposes the last move played.
 
