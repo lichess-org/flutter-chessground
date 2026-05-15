@@ -6,12 +6,13 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 
+import 'animation.dart';
 import 'board_border.dart';
+import 'board_controller.dart';
 import 'board_painter.dart';
 import 'color_filter.dart';
 import 'highlight.dart';
 import 'positioned_square.dart';
-import 'animation.dart';
 import 'explosion.dart';
 import 'promotion.dart';
 import 'shape.dart';
@@ -19,7 +20,6 @@ import 'board_annotation.dart';
 import 'static_board.dart';
 import '../images.dart';
 import '../models.dart';
-import '../fen.dart';
 import '../premove.dart';
 import '../board_settings.dart';
 
@@ -136,13 +136,11 @@ class Chessboard extends StatefulWidget with ChessboardGeometry {
 }
 
 class _BoardState extends State<Chessboard> with SingleTickerProviderStateMixin {
-  late final ValueNotifier<Pieces> _piecesNotifier;
-  late final ValueNotifier<TranslatingPieces> _translatingPiecesNotifier;
-  late final ValueNotifier<FadingPieces> _fadingPiecesNotifier;
+  late final ChessboardController _controller;
 
-  Pieces get pieces => _piecesNotifier.value;
-  TranslatingPieces get translatingPieces => _translatingPiecesNotifier.value;
-  FadingPieces get fadingPieces => _fadingPiecesNotifier.value;
+  Pieces get pieces => _controller.pieces;
+  TranslatingPieces get translatingPieces => _controller.translatingPiecesNotifier.value;
+  FadingPieces get fadingPieces => _controller.fadingPiecesNotifier.value;
 
   /// Squares that currently have an active explosion animation.
   final Set<Square> _activeExplosions = {};
@@ -211,15 +209,6 @@ class _BoardState extends State<Chessboard> with SingleTickerProviderStateMixin 
   /// Whether all highlight images are available in the cache.
   bool _highlightImagesLoaded = false;
 
-  /// Drives [HighlightsPainter] repaints for selection/premove changes without
-  /// triggering a full widget rebuild.
-  late final BoardHighlightNotifier _highlightNotifier;
-
-  /// Single controller shared by the fading and translating piece painters;
-  /// drives repaints without a widget rebuild per frame.
-  late final AnimationController _pieceAnimationController;
-  late final CurvedAnimation _translationAnimation;
-  late final CurvedAnimation _fadeAnimation;
 
   @override
   Widget build(BuildContext context) {
@@ -251,7 +240,7 @@ class _BoardState extends State<Chessboard> with SingleTickerProviderStateMixin 
     final Set<Square> occupiedSquares = pieces.keys.toSet();
 
     final highlightsPainter = HighlightsPainter(
-      interactionNotifier: _highlightNotifier,
+      interactionNotifier: _controller.highlightNotifier,
       squareSize: widget.squareSize,
       orientation: widget.orientation,
       showLastMove: settings.showLastMove,
@@ -298,8 +287,8 @@ class _BoardState extends State<Chessboard> with SingleTickerProviderStateMixin 
     }
 
     final piecesPainter = PiecesPainter(
-      piecesNotifier: _piecesNotifier,
-      translatingPiecesNotifier: _translatingPiecesNotifier,
+      piecesNotifier: _controller.piecesNotifier,
+      translatingPiecesNotifier: _controller.translatingPiecesNotifier,
       pieceAssets: settings.pieceAssets,
       squareSize: widget.squareSize,
       orientation: widget.orientation,
@@ -311,23 +300,23 @@ class _BoardState extends State<Chessboard> with SingleTickerProviderStateMixin 
     );
 
     final fadingPiecesPainter = FadingPiecesPainter(
-      fadingPiecesNotifier: _fadingPiecesNotifier,
+      fadingPiecesNotifier: _controller.fadingPiecesNotifier,
       squareSize: widget.squareSize,
       orientation: widget.orientation,
       pieceAssets: settings.pieceAssets,
       blindfoldMode: settings.blindfoldMode,
       upsideDownSquares: upsideDownFadingSquares,
-      animation: _fadeAnimation,
+      animation: _controller.fadeAnimation,
     );
 
     final translatingPiecesPainter = TranslatingPiecesPainter(
-      translatingPiecesNotifier: _translatingPiecesNotifier,
+      translatingPiecesNotifier: _controller.translatingPiecesNotifier,
       squareSize: widget.squareSize,
       orientation: widget.orientation,
       pieceAssets: settings.pieceAssets,
       blindfoldMode: settings.blindfoldMode,
       upsideDownSquares: upsideDownTranslatingSquares,
-      animation: _translationAnimation,
+      animation: _controller.translationAnimation,
     );
 
     final List<Widget> objects = [
@@ -493,21 +482,12 @@ class _BoardState extends State<Chessboard> with SingleTickerProviderStateMixin 
   @override
   void initState() {
     super.initState();
-    _piecesNotifier = ValueNotifier(readFen(widget.fen));
-    _translatingPiecesNotifier = ValueNotifier({});
-    _fadingPiecesNotifier = ValueNotifier({});
+    _controller = ChessboardController(
+      initialFen: widget.fen,
+      initialGame: widget.game,
+    );
+    _controller.attachTo(this, widget.settings.animationDuration);
     _draggedPieceSquareNotifier = ValueNotifier<Square?>(null);
-    _highlightNotifier = BoardHighlightNotifier();
-    _pieceAnimationController = AnimationController(
-      animationBehavior: AnimationBehavior.preserve,
-      duration: widget.settings.animationDuration,
-      vsync: this,
-    );
-    _translationAnimation = CurvedAnimation(
-      parent: _pieceAnimationController,
-      curve: Curves.easeInOutCubic,
-    );
-    _fadeAnimation = CurvedAnimation(parent: _pieceAnimationController, curve: Curves.easeInQuad);
     _imagesLoaded = ChessgroundImages.instance.isAllLoaded(widget.settings.pieceAssets);
     if (!_imagesLoaded) _loadImages(widget.settings.pieceAssets);
     _highlightImagesLoaded = _areHighlightImagesLoaded();
@@ -557,14 +537,8 @@ class _BoardState extends State<Chessboard> with SingleTickerProviderStateMixin 
 
   @override
   void dispose() {
-    _piecesNotifier.dispose();
-    _translatingPiecesNotifier.dispose();
-    _fadingPiecesNotifier.dispose();
+    _controller.dispose();
     _draggedPieceSquareNotifier.dispose();
-    _highlightNotifier.dispose();
-    _fadeAnimation.dispose();
-    _translationAnimation.dispose();
-    _pieceAnimationController.dispose();
     _dragAvatar?.cancel();
     _cancelShapesDoubleTapTimer?.cancel();
     super.dispose();
@@ -603,7 +577,7 @@ class _BoardState extends State<Chessboard> with SingleTickerProviderStateMixin 
     }
 
     if (oldBoard.settings.animationDuration != widget.settings.animationDuration) {
-      _pieceAnimationController.duration = widget.settings.animationDuration;
+      _controller.animationDuration = widget.settings.animationDuration;
     }
 
     // Trigger explosion animations when the set of explosion squares changes.
@@ -611,31 +585,12 @@ class _BoardState extends State<Chessboard> with SingleTickerProviderStateMixin 
       _activeExplosions.addAll(widget.explosionSquares!);
     }
 
-    if (oldBoard.fen == widget.fen) {
-      _lastDrop = null;
-      // as long as the fen is the same as before let's keep animations
-      return;
+    if (oldBoard.fen != widget.fen) {
+      _controller.updatePosition(widget.fen, game: widget.game, lastDrop: _lastDrop);
+    } else if (oldBoard.game != widget.game) {
+      _controller.updatePosition(widget.fen, game: widget.game);
     }
-
-    _translatingPiecesNotifier.value = {};
-    _fadingPiecesNotifier.value = {};
-
-    final newPieces = readFen(widget.fen);
-
-    if (widget.settings.animationDuration > Duration.zero) {
-      final (tp, fp) = preparePieceAnimations(pieces, newPieces, lastDrop: _lastDrop);
-      _translatingPiecesNotifier.value = tp;
-      _fadingPiecesNotifier.value = fp;
-    }
-
-    if (translatingPieces.isNotEmpty || fadingPieces.isNotEmpty) {
-      _pieceAnimationController.forward(from: 0.0);
-    } else {
-      _pieceAnimationController.stop();
-    }
-
     _lastDrop = null;
-    _piecesNotifier.value = newPieces;
   }
 
   Square? _getKingSquare() {
@@ -647,8 +602,8 @@ class _BoardState extends State<Chessboard> with SingleTickerProviderStateMixin 
     return null;
   }
 
-  /// Updates the notifier with the current selection state so [HighlightsPainter]
-  /// repaints without a full widget rebuild.
+  /// Updates the highlight notifier with the current selection state so
+  /// [HighlightsPainter] repaints without a full widget rebuild.
   void _syncHighlightNotifier() {
     final moveDests =
         widget.settings.showValidMoves && selected != null && widget.game?.validMoves != null
@@ -656,7 +611,11 @@ class _BoardState extends State<Chessboard> with SingleTickerProviderStateMixin 
             : _emptyValidMoves;
     final premoveDests =
         widget.settings.showValidMoves ? _premoveDests ?? const <Square>{} : const <Square>{};
-    _highlightNotifier.update(selected: selected, moveDests: moveDests, premoveDests: premoveDests);
+    _controller.highlightNotifier.update(
+      selected: selected,
+      moveDests: moveDests,
+      premoveDests: premoveDests,
+    );
   }
 
   /// Sets interaction state and triggers a highlights repaint via the notifier.
