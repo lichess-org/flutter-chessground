@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math' show pi;
 import 'dart:ui' as ui;
 import 'package:chessground/src/widgets/geometry.dart';
 import 'package:dartchess/dartchess.dart';
@@ -341,11 +340,7 @@ class _BoardState extends State<Chessboard> with SingleTickerProviderStateMixin 
       // static pieces to be re-rasterized. isComplex hints to the raster cache
       // that this picture (up to 32 drawImageRect calls) is worth keeping.
       RepaintBoundary(
-        child: CustomPaint(
-          size: Size.square(widget.size),
-          isComplex: true,
-          painter: piecesPainter,
-        ),
+        child: CustomPaint(size: Size.square(widget.size), isComplex: true, painter: piecesPainter),
       ),
       CustomPaint(
         size: Size.square(widget.size),
@@ -1112,7 +1107,7 @@ class _DragAvatar {
           (_) => Positioned.fill(
             child: IgnorePointer(
               child: CustomPaint(
-                painter: _DragPiecePainter(
+                painter: DragPiecePainter(
                   image: image,
                   feedbackSize: feedbackSize,
                   feedbackOffset: feedbackOffset,
@@ -1128,7 +1123,7 @@ class _DragAvatar {
           (_) => Positioned.fill(
             child: IgnorePointer(
               child: CustomPaint(
-                painter: _DragSquareTargetPainter(
+                painter: DragSquareTargetPainter(
                   squareSize: squareSize,
                   targetKind: targetKind,
                   positionNotifier: _squareTargetNotifier,
@@ -1164,88 +1159,6 @@ class _DragAvatar {
     _squareTargetEntry.remove();
     _positionNotifier.dispose();
     _squareTargetNotifier.dispose();
-  }
-}
-
-class _DragPiecePainter extends CustomPainter {
-  _DragPiecePainter({
-    required this.image,
-    required this.feedbackSize,
-    required this.feedbackOffset,
-    required this.upsideDown,
-    required this.positionNotifier,
-  }) : super(repaint: positionNotifier);
-
-  final ui.Image? image;
-  final double feedbackSize;
-  final Offset feedbackOffset;
-  final bool upsideDown;
-  final ValueNotifier<Offset> positionNotifier;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final img = image;
-    if (img == null) return;
-    final pos = positionNotifier.value;
-    final dst = Rect.fromLTWH(
-      pos.dx + feedbackOffset.dx,
-      pos.dy + feedbackOffset.dy,
-      feedbackSize,
-      feedbackSize,
-    );
-    final src = Rect.fromLTWH(0, 0, img.width.toDouble(), img.height.toDouble());
-    final paint = Paint()..filterQuality = FilterQuality.medium;
-    if (upsideDown) {
-      canvas.save();
-      canvas.translate(dst.center.dx, dst.center.dy);
-      canvas.rotate(pi);
-      canvas.translate(-dst.center.dx, -dst.center.dy);
-      canvas.drawImageRect(img, src, dst, paint);
-      canvas.restore();
-    } else {
-      canvas.drawImageRect(img, src, dst, paint);
-    }
-  }
-
-  @override
-  bool shouldRepaint(_DragPiecePainter oldDelegate) {
-    return image != oldDelegate.image ||
-        feedbackSize != oldDelegate.feedbackSize ||
-        feedbackOffset != oldDelegate.feedbackOffset ||
-        upsideDown != oldDelegate.upsideDown;
-  }
-}
-
-class _DragSquareTargetPainter extends CustomPainter {
-  _DragSquareTargetPainter({
-    required this.squareSize,
-    required this.targetKind,
-    required this.positionNotifier,
-  }) : super(repaint: positionNotifier);
-
-  final double squareSize;
-  final DragTargetKind targetKind;
-  final ValueNotifier<Offset?> positionNotifier;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final pos = positionNotifier.value;
-    if (pos == null || targetKind == DragTargetKind.none) return;
-    final paint =
-        Paint()
-          ..color = const Color(0x33000000)
-          ..style = PaintingStyle.fill;
-    if (targetKind == DragTargetKind.circle) {
-      // pos is already offset by -squareSize/2 so the circle is centered on the square
-      canvas.drawCircle(Offset(pos.dx + squareSize, pos.dy + squareSize), squareSize, paint);
-    } else {
-      canvas.drawRect(Rect.fromLTWH(pos.dx, pos.dy, squareSize, squareSize), paint);
-    }
-  }
-
-  @override
-  bool shouldRepaint(_DragSquareTargetPainter oldDelegate) {
-    return squareSize != oldDelegate.squareSize || targetKind != oldDelegate.targetKind;
   }
 }
 

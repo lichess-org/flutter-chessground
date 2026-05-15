@@ -5,6 +5,7 @@ import 'package:dartchess/dartchess.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/widgets.dart';
 
+import '../board_settings.dart';
 import '../images.dart';
 import '../models.dart';
 import 'animation.dart';
@@ -397,6 +398,88 @@ class TranslatingPiecesPainter extends CustomPainter {
         pieceAssets != oldDelegate.pieceAssets ||
         !_mapEquals(translatingPieces, oldDelegate.translatingPieces) ||
         !_setEquals(upsideDownSquares, oldDelegate.upsideDownSquares);
+  }
+}
+
+class DragPiecePainter extends CustomPainter {
+  DragPiecePainter({
+    required this.image,
+    required this.feedbackSize,
+    required this.feedbackOffset,
+    required this.upsideDown,
+    required this.positionNotifier,
+  }) : super(repaint: positionNotifier);
+
+  final ui.Image? image;
+  final double feedbackSize;
+  final Offset feedbackOffset;
+  final bool upsideDown;
+  final ValueNotifier<Offset> positionNotifier;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final img = image;
+    if (img == null) return;
+    final pos = positionNotifier.value;
+    final dst = Rect.fromLTWH(
+      pos.dx + feedbackOffset.dx,
+      pos.dy + feedbackOffset.dy,
+      feedbackSize,
+      feedbackSize,
+    );
+    final src = Rect.fromLTWH(0, 0, img.width.toDouble(), img.height.toDouble());
+    final paint = Paint()..filterQuality = FilterQuality.medium;
+    if (upsideDown) {
+      canvas.save();
+      canvas.translate(dst.center.dx, dst.center.dy);
+      canvas.rotate(pi);
+      canvas.translate(-dst.center.dx, -dst.center.dy);
+      canvas.drawImageRect(img, src, dst, paint);
+      canvas.restore();
+    } else {
+      canvas.drawImageRect(img, src, dst, paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(DragPiecePainter oldDelegate) {
+    return image != oldDelegate.image ||
+        feedbackSize != oldDelegate.feedbackSize ||
+        feedbackOffset != oldDelegate.feedbackOffset ||
+        upsideDown != oldDelegate.upsideDown;
+  }
+}
+
+class DragSquareTargetPainter extends CustomPainter {
+  DragSquareTargetPainter({
+    required this.squareSize,
+    required this.targetKind,
+    required this.positionNotifier,
+  }) : super(repaint: positionNotifier);
+
+  final double squareSize;
+  final DragTargetKind targetKind;
+  final ValueNotifier<Offset?> positionNotifier;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final pos = positionNotifier.value;
+    if (pos == null || targetKind == DragTargetKind.none) return;
+    final paint =
+        Paint()
+          ..color = const Color(0x33000000)
+          ..style = PaintingStyle.fill;
+    if (targetKind == DragTargetKind.circle) {
+      // pos is already offset by -squareSize/2 so the circle is centered on the square
+      canvas.drawCircle(Offset(pos.dx + squareSize, pos.dy + squareSize), squareSize, paint);
+    } else {
+      canvas.drawRect(Rect.fromLTWH(pos.dx, pos.dy, squareSize, squareSize), paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(DragSquareTargetPainter oldDelegate) {
+    return squareSize != oldDelegate.squareSize || targetKind != oldDelegate.targetKind;
   }
 }
 
