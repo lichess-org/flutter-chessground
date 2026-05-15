@@ -125,6 +125,7 @@ class Chessboard extends StatefulWidget with ChessboardGeometry {
 class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
   late ChessboardController _controller;
   bool _ownsController = false;
+  bool _controllerDetached = false;
   Side? _lastSideToMove;
 
   Pieces get pieces => _controller.pieces;
@@ -522,12 +523,34 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
   }
 
   @override
+  void deactivate() {
+    if (!_ownsController) {
+      _controller.detach();
+      _controllerDetached = true;
+    }
+    super.deactivate();
+  }
+
+  @override
+  void activate() {
+    super.activate();
+    if (!_ownsController) {
+      _controller.attachTo(this, widget.settings.animationDuration);
+      _controllerDetached = false;
+    }
+  }
+
+  @override
   void dispose() {
     if (_ownsController) {
       _controller.dispose();
     } else {
       _controller.removeListener(_onControllerChange);
-      _controller.detach();
+      // deactivate() already called detach(); only call it here if activate()
+      // re-attached us (i.e. the widget was temporarily removed then reinserted).
+      if (!_controllerDetached) {
+        _controller.detach();
+      }
     }
     _explosionNotifier.dispose();
     _draggedPieceSquareNotifier.dispose();

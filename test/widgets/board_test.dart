@@ -2257,6 +2257,246 @@ void main() {
     });
   });
 
+  group('ChessboardController tree reattachment', () {
+    late ChessboardController controller;
+
+    setUp(() {
+      controller = ChessboardController(initialFen: kInitialFEN);
+    });
+
+    tearDown(() {
+      controller.dispose();
+    });
+
+    // Regression: toggling a widget above the board in a Column shifts the
+    // Chessboard from index 0 to index 1. Flutter deactivates the old
+    // _BoardState and creates a new one before disposing the old one, which
+    // previously triggered the "ChessboardController is already attached"
+    // assertion in attachTo().
+    testWidgets('does not crash when a sibling is inserted before the board in a Column', (
+      WidgetTester tester,
+    ) async {
+      bool showExtra = false;
+
+      await tester.pumpWidget(
+        StatefulBuilder(
+          builder: (context, setState) {
+            return MaterialApp(
+              home: Column(
+                children: [
+                  if (showExtra) const SizedBox(height: 10),
+                  Chessboard(controller: controller, size: boardSize, orientation: Side.white),
+                  ElevatedButton(
+                    onPressed: () => setState(() => showExtra = !showExtra),
+                    child: const Text('toggle'),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+      );
+
+      expect(find.byType(Chessboard), findsOneWidget);
+      expect(_piecesPainter(tester).pieces.length, 32);
+
+      await tester.tap(find.text('toggle'));
+      await tester.pump();
+
+      expect(find.byType(Chessboard), findsOneWidget);
+      expect(_piecesPainter(tester).pieces.length, 32);
+    });
+
+    testWidgets('controller remains functional after the board shifts position in a Column', (
+      WidgetTester tester,
+    ) async {
+      bool showExtra = false;
+
+      await tester.pumpWidget(
+        StatefulBuilder(
+          builder: (context, setState) {
+            return MaterialApp(
+              home: Column(
+                children: [
+                  if (showExtra) const SizedBox(height: 10),
+                  Chessboard(controller: controller, size: boardSize, orientation: Side.white),
+                  ElevatedButton(
+                    onPressed: () => setState(() => showExtra = !showExtra),
+                    child: const Text('toggle'),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+      );
+
+      // Shift the board to a new position in the tree.
+      await tester.tap(find.text('toggle'));
+      await tester.pump();
+
+      // Controller should still drive the board correctly.
+      controller.jumpToPosition('rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1');
+      await tester.pump();
+
+      expect(_piecesPainter(tester).pieces.containsKey(Square.e4), isTrue);
+      expect(_piecesPainter(tester).pieces.containsKey(Square.e2), isFalse);
+    });
+
+    // Regression: after a tree shift, the old _BoardState.dispose() called
+    // detach() on the controller, nulling the animations that the new state had
+    // just set up in its initState(). Any subsequent rebuild (e.g. from setState
+    // triggered by piece selection) then crashed with "not attached".
+    testWidgets('board is still interactive after tree shift (setState-triggered rebuild)', (
+      WidgetTester tester,
+    ) async {
+      bool showExtra = false;
+      final position = Chess.initial;
+      final interactiveController = ChessboardController(
+        initialFen: kInitialFEN,
+        initialGame: GameData(
+          playerSide: PlayerSide.both,
+          isCheck: false,
+          sideToMove: Side.white,
+          validMoves: makeLegalMoves(position),
+          promotionMove: null,
+          onMove: (_, {viaDragAndDrop}) {},
+          onPromotionSelection: (_) {},
+        ),
+      );
+      addTearDown(interactiveController.dispose);
+
+      await tester.pumpWidget(
+        StatefulBuilder(
+          builder: (context, setState) {
+            return MaterialApp(
+              home: Column(
+                children: [
+                  if (showExtra) const SizedBox(height: 10),
+                  Chessboard(
+                    controller: interactiveController,
+                    size: boardSize,
+                    orientation: Side.white,
+                  ),
+                  ElevatedButton(
+                    onPressed: () => setState(() => showExtra = !showExtra),
+                    child: const Text('toggle'),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+      );
+
+      // Shift the board (inserts a sibling before it).
+      await tester.tap(find.text('toggle'));
+      await tester.pump();
+      // At this point the old _BoardState has been disposed. Without the fix,
+      // dispose() would have nulled the controller's animations.
+
+      // Tapping a piece triggers setState inside _BoardState, which rebuilds
+      // the board and accesses _controller.fadeAnimation — crashing without fix.
+      await tester.tapAt(squareOffset(tester, Square.e2));
+      await tester.pump();
+
+      expect(_isSelected(tester, Square.e2), isTrue);
+    });
+
+    // Regression: same bug but in the reverse direction — removing the sibling
+    // shifts the board from index 1 back to index 0, going through the same
+    // deactivate → new initState → old dispose sequence.
+    testWidgets('board is still interactive after reverse tree shift (sibling removal)', (
+      WidgetTester tester,
+    ) async {
+      bool showExtra = true;
+      final position = Chess.initial;
+      final interactiveController = ChessboardController(
+        initialFen: kInitialFEN,
+        initialGame: GameData(
+          playerSide: PlayerSide.both,
+          isCheck: false,
+          sideToMove: Side.white,
+          validMoves: makeLegalMoves(position),
+          promotionMove: null,
+          onMove: (_, {viaDragAndDrop}) {},
+          onPromotionSelection: (_) {},
+        ),
+      );
+      addTearDown(interactiveController.dispose);
+
+      await tester.pumpWidget(
+        StatefulBuilder(
+          builder: (context, setState) {
+            return MaterialApp(
+              home: Column(
+                children: [
+                  if (showExtra) const SizedBox(height: 10),
+                  Chessboard(
+                    controller: interactiveController,
+                    size: boardSize,
+                    orientation: Side.white,
+                  ),
+                  ElevatedButton(
+                    onPressed: () => setState(() => showExtra = !showExtra),
+                    child: const Text('toggle'),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+      );
+
+      // Remove the sibling to shift board back to index 0.
+      await tester.tap(find.text('toggle'));
+      await tester.pump();
+
+      await tester.tapAt(squareOffset(tester, Square.e2));
+      await tester.pump();
+
+      expect(_isSelected(tester, Square.e2), isTrue);
+    });
+
+    testWidgets('board survives repeated back-and-forth tree shifts', (WidgetTester tester) async {
+      bool showExtra = false;
+
+      await tester.pumpWidget(
+        StatefulBuilder(
+          builder: (context, setState) {
+            return MaterialApp(
+              home: Column(
+                children: [
+                  if (showExtra) const SizedBox(height: 10),
+                  Chessboard(controller: controller, size: boardSize, orientation: Side.white),
+                  ElevatedButton(
+                    onPressed: () => setState(() => showExtra = !showExtra),
+                    child: const Text('toggle'),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+      );
+
+      // Toggle three times. Each toggle shifts the board in the Column and
+      // goes through the full deactivate → new initState → old dispose cycle.
+      // jumpToPosition forces a rebuild after each shift so that any broken
+      // animation state is exercised immediately.
+      const altFen = 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1';
+      for (var i = 0; i < 3; i++) {
+        await tester.tap(find.text('toggle'));
+        await tester.pump();
+        controller.jumpToPosition(i.isEven ? altFen : kInitialFEN);
+        await tester.pump();
+      }
+
+      expect(find.byType(Chessboard), findsOneWidget);
+      expect(_piecesPainter(tester).pieces.length, 32);
+    });
+  });
+
   group('board piece rendering', () {
     testWidgets('all pieces are rendered by PiecesPainter regardless of cache state', (
       WidgetTester tester,
