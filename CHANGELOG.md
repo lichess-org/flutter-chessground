@@ -1,3 +1,26 @@
+## 10.0.0
+
+### BREAKING CHANGES
+
+- The interactive `Chessboard()` constructor now requires a `controller:` parameter
+  of type `ChessboardController` instead of separate `fen:`, `game:`, and `lastMove:`
+  parameters. See the [migration guide](MIGRATION.md) for the before/after pattern.
+
+- `ChessboardController.updatePosition()` and `jumpToPosition()` gain a `lastMove:`
+  parameter (previously `lastMove` was passed directly to the widget constructor).
+
+### New
+
+- `ChessboardController` is now the public API for driving the interactive board.
+  Create one in `initState`, pass it to `Chessboard(controller: ...)`, and call
+  `updatePosition()` after each move. The board listens internally and rebuilds
+  itself without requiring a parent `setState()`.
+
+- `ChessboardController.lastMove` getter exposes the last move played.
+
+- `ChessboardController.interactive` getter (true when a `GameData` with a
+  non-`none` `playerSide` is set).
+
 ## 9.1.0
 
 - Added a Swift Package exposing Chessground board textures and piece images as an

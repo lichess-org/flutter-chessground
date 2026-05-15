@@ -28,13 +28,71 @@ This package exports a `Chessboard` widget which can be interactable or not.
 It is configurable with a `ChessboardSettings` object which defines the board
 behavior and appearance.
 
-To interact with the board in order to play a game, you must provide a `GameData`
-object to the `Chessboard` widget. This object is immutable and contains the game
-state (which side is to move, the current valid moves, etc.), along with the
-callback functions to handle user interactions.
+### Interactive board
 
-All chess logic must be handled outside of this package. Any change in the state
-of the game needs to be transferred to the board by creating a new `GameData` object.
+To interact with the board in order to play a game, create a `ChessboardController`
+and pass it to `Chessboard(controller: ...)`. The controller holds the board
+position, the game state, and the last move. Call `controller.updatePosition()`
+after each move to advance the board with animation.
+
+`GameData` is an immutable object containing the game state (which side is to move,
+the valid moves, etc.) and the callback functions to handle user interactions. All
+chess logic must be handled outside of this package — any change requires calling
+`controller.updatePosition()` with a fresh `GameData`.
+
+The controller pattern means the board rebuilds itself in response to controller
+updates, without requiring a parent `setState()`.
+
+```dart
+class _MyBoardState extends State<MyBoard> {
+  late ChessboardController _controller;
+  Position position = Chess.initial;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = ChessboardController(
+      initialFen: position.fen,
+      initialGame: _buildGame(),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  GameData _buildGame() => GameData(
+    playerSide: PlayerSide.white,
+    isCheck: position.isCheck,
+    sideToMove: position.turn == Side.white ? Side.white : Side.black,
+    validMoves: makeLegalMoves(position),
+    promotionMove: null,
+    onMove: (move, {viaDragAndDrop}) {
+      position = position.playUnchecked(move);
+      _controller.updatePosition(
+        position.fen,
+        game: _buildGame(),
+        lastMove: move,
+        lastDrop: viaDragAndDrop == true ? move : null,
+      );
+    },
+    onPromotionSelection: (_) {},
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    return Chessboard(
+      controller: _controller,
+      size: MediaQuery.of(context).size.width,
+      orientation: Side.white,
+    );
+  }
+}
+```
+
+### Non-interactive board
 
 ## Piece image cache
 
@@ -59,8 +117,6 @@ await ChessgroundImages.instance.loadAll(newPieceAssets);
 ```
 
 If you only need to evict a single image, use `ChessgroundImages.instance.evict(asset)`.
-
-## Usage
 
 This will display a non-interactable board from the starting position, using the
 default theme:
@@ -100,6 +156,8 @@ class _MyHomePageState extends State<MyHomePage> {
 }
 ```
 
+## Usage
+
 See the example app for:
 - Random Bot: an interactable board for one player playing against a random bot,
 - Free Play: an interactable board for two players sitting opposite to each other,
@@ -123,7 +181,7 @@ the `ChessgroundAssets` library to your target.
 Or in `Package.swift`:
 
 ```swift
-.package(url: "https://github.com/lichess-org/flutter-chessground", from: "9.0.0")
+.package(url: "https://github.com/lichess-org/flutter-chessground", from: "10.0.0")
 ```
 
 ### Loading assets
