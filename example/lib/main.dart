@@ -307,9 +307,11 @@ class _HomePageState extends State<HomePage> {
         enable: drawMode,
         onCompleteShape: _onCompleteShape,
         onClearShapes: () {
-          setState(() {
-            shapes = {};
-          });
+          if (shapes.isNotEmpty) {
+            setState(() {
+              shapes = {};
+            });
+          }
         },
       ),
       pieceShiftMethod: pieceShiftMethod,

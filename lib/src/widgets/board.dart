@@ -730,10 +730,12 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
             });
           }
         }
-        // selecting a piece to move should clear shapes
+        // selecting a piece to move should clear shapes (only if there are shapes)
         else if (_isMovable(piece) || _isPremovable(piece)) {
           _cancelShapesDoubleTapTimer?.cancel();
-          widget.settings.drawShape.onClearShapes?.call();
+          if (widget.shapes?.isNotEmpty == true) {
+            widget.settings.drawShape.onClearShapes?.call();
+          }
         }
       }
       // draw mode takes priority over play mode when the draw mode lock is set
