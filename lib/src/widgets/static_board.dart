@@ -88,6 +88,7 @@ class _StaticChessboardState extends State<StaticChessboard> with SingleTickerPr
   bool _highlightImagesLoaded = false;
   late final BoardHighlightNotifier _highlightNotifier;
 
+  late final ValueNotifier<GameData?> _gameNotifier;
   late final ValueNotifier<Pieces> _piecesNotifier;
   late final ValueNotifier<TranslatingPieces> _translatingPiecesNotifier;
   late final ValueNotifier<FadingPieces> _fadingPiecesNotifier;
@@ -103,6 +104,7 @@ class _StaticChessboardState extends State<StaticChessboard> with SingleTickerPr
   @override
   void initState() {
     super.initState();
+    _gameNotifier = ValueNotifier(null);
     _piecesNotifier = ValueNotifier(readFen(widget.fen));
     _translatingPiecesNotifier = ValueNotifier({});
     _fadingPiecesNotifier = ValueNotifier({});
@@ -153,6 +155,7 @@ class _StaticChessboardState extends State<StaticChessboard> with SingleTickerPr
 
   @override
   void dispose() {
+    _gameNotifier.dispose();
     _piecesNotifier.dispose();
     _translatingPiecesNotifier.dispose();
     _fadingPiecesNotifier.dispose();
@@ -254,10 +257,9 @@ class _StaticChessboardState extends State<StaticChessboard> with SingleTickerPr
       squareSize: widget.squareSize,
       orientation: widget.orientation,
       draggedPieceSquareNotifier: null,
-      promotionMoveFrom: null,
+      gameNotifier: _gameNotifier,
       blindfoldMode: false,
       pieceOrientationBehavior: PieceOrientationBehavior.facingUser,
-      sideToMove: null,
       imagesLoaded: imagesLoaded,
     );
 
@@ -268,7 +270,7 @@ class _StaticChessboardState extends State<StaticChessboard> with SingleTickerPr
       pieceAssets: widget.pieceAssets,
       blindfoldMode: false,
       pieceOrientationBehavior: PieceOrientationBehavior.facingUser,
-      sideToMove: null,
+      gameNotifier: _gameNotifier,
       animation: _fadeAnimation,
     );
 
@@ -279,7 +281,7 @@ class _StaticChessboardState extends State<StaticChessboard> with SingleTickerPr
       pieceAssets: widget.pieceAssets,
       blindfoldMode: false,
       pieceOrientationBehavior: PieceOrientationBehavior.facingUser,
-      sideToMove: null,
+      gameNotifier: _gameNotifier,
       animation: _translationAnimation,
     );
 

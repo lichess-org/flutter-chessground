@@ -197,13 +197,12 @@ class PiecesPainter extends CustomPainter {
     required this.squareSize,
     required this.orientation,
     required ValueNotifier<Square?>? draggedPieceSquareNotifier,
-    required this.promotionMoveFrom,
+    required this.gameNotifier,
     required this.blindfoldMode,
     required this.pieceOrientationBehavior,
-    required this.sideToMove,
     required this.imagesLoaded,
   }) : _draggedPieceSquareNotifier = draggedPieceSquareNotifier,
-       super(repaint: Listenable.merge([piecesNotifier, draggedPieceSquareNotifier]));
+       super(repaint: Listenable.merge([piecesNotifier, draggedPieceSquareNotifier, gameNotifier]));
 
   final ValueNotifier<Pieces> piecesNotifier;
   final ValueNotifier<TranslatingPieces> translatingPiecesNotifier;
@@ -214,10 +213,12 @@ class PiecesPainter extends CustomPainter {
   final double squareSize;
   final Side orientation;
   final ValueNotifier<Square?>? _draggedPieceSquareNotifier;
-  final Square? promotionMoveFrom;
+  final ValueNotifier<GameData?> gameNotifier;
   final bool blindfoldMode;
   final PieceOrientationBehavior pieceOrientationBehavior;
-  final Side? sideToMove;
+
+  Square? get promotionMoveFrom => gameNotifier.value?.promotionMove?.from;
+  Side? get sideToMove => gameNotifier.value?.sideToMove;
 
   /// Whether all piece images are available in the cache.
   ///
@@ -228,9 +229,12 @@ class PiecesPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     if (blindfoldMode) return;
 
+    final game = gameNotifier.value;
     final pieces = piecesNotifier.value;
     final translatingPieceSquares = translatingPiecesNotifier.value.keys.toSet();
     final draggedPieceSquare = _draggedPieceSquareNotifier?.value;
+    final promotionMoveFrom = game?.promotionMove?.from;
+    final sideToMove = game?.sideToMove;
     final paint = Paint()..filterQuality = FilterQuality.medium;
     for (final entry in pieces.entries) {
       final square = entry.key;
@@ -269,11 +273,9 @@ class PiecesPainter extends CustomPainter {
     return imagesLoaded != oldDelegate.imagesLoaded ||
         squareSize != oldDelegate.squareSize ||
         orientation != oldDelegate.orientation ||
-        promotionMoveFrom != oldDelegate.promotionMoveFrom ||
         blindfoldMode != oldDelegate.blindfoldMode ||
         pieceAssets != oldDelegate.pieceAssets ||
-        pieceOrientationBehavior != oldDelegate.pieceOrientationBehavior ||
-        sideToMove != oldDelegate.sideToMove;
+        pieceOrientationBehavior != oldDelegate.pieceOrientationBehavior;
   }
 }
 
@@ -289,7 +291,7 @@ class FadingPiecesPainter extends CustomPainter {
     required this.pieceAssets,
     required this.blindfoldMode,
     required this.pieceOrientationBehavior,
-    required this.sideToMove,
+    required this.gameNotifier,
     required Animation<double> animation,
   }) : _animation = animation,
        super(repaint: animation);
@@ -303,7 +305,7 @@ class FadingPiecesPainter extends CustomPainter {
   final PieceAssets pieceAssets;
   final bool blindfoldMode;
   final PieceOrientationBehavior pieceOrientationBehavior;
-  final Side? sideToMove;
+  final ValueNotifier<GameData?> gameNotifier;
   final Animation<double> _animation;
 
   @override
@@ -311,6 +313,7 @@ class FadingPiecesPainter extends CustomPainter {
     final fadingPieces = fadingPiecesNotifier.value;
     if (blindfoldMode || fadingPieces.isEmpty) return;
 
+    final sideToMove = gameNotifier.value?.sideToMove;
     final alpha = (255 * (1.0 - _animation.value)).round().clamp(0, 255);
     final paint =
         Paint()
@@ -353,8 +356,7 @@ class FadingPiecesPainter extends CustomPainter {
         orientation != oldDelegate.orientation ||
         blindfoldMode != oldDelegate.blindfoldMode ||
         pieceAssets != oldDelegate.pieceAssets ||
-        pieceOrientationBehavior != oldDelegate.pieceOrientationBehavior ||
-        sideToMove != oldDelegate.sideToMove;
+        pieceOrientationBehavior != oldDelegate.pieceOrientationBehavior;
   }
 }
 
@@ -370,7 +372,7 @@ class TranslatingPiecesPainter extends CustomPainter {
     required this.pieceAssets,
     required this.blindfoldMode,
     required this.pieceOrientationBehavior,
-    required this.sideToMove,
+    required this.gameNotifier,
     required Animation<double> animation,
   }) : _animation = animation,
        super(repaint: animation);
@@ -384,7 +386,7 @@ class TranslatingPiecesPainter extends CustomPainter {
   final PieceAssets pieceAssets;
   final bool blindfoldMode;
   final PieceOrientationBehavior pieceOrientationBehavior;
-  final Side? sideToMove;
+  final ValueNotifier<GameData?> gameNotifier;
   final Animation<double> _animation;
 
   @override
@@ -392,6 +394,7 @@ class TranslatingPiecesPainter extends CustomPainter {
     final translatingPieces = translatingPiecesNotifier.value;
     if (blindfoldMode || translatingPieces.isEmpty) return;
 
+    final sideToMove = gameNotifier.value?.sideToMove;
     final t = _animation.value;
     final paint = Paint()..filterQuality = FilterQuality.medium;
 
@@ -442,8 +445,7 @@ class TranslatingPiecesPainter extends CustomPainter {
         orientation != oldDelegate.orientation ||
         blindfoldMode != oldDelegate.blindfoldMode ||
         pieceAssets != oldDelegate.pieceAssets ||
-        pieceOrientationBehavior != oldDelegate.pieceOrientationBehavior ||
-        sideToMove != oldDelegate.sideToMove;
+        pieceOrientationBehavior != oldDelegate.pieceOrientationBehavior;
   }
 }
 

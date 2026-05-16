@@ -17,8 +17,8 @@ class ChessboardController extends ChangeNotifier {
   /// Creates a controller for an interactive board showing [fen] and driven by [game].
   ChessboardController({required String fen, required GameData game})
     : _fen = fen,
-      _game = game,
       _lastMove = null {
+    _gameNotifier = ValueNotifier(game);
     _piecesNotifier = ValueNotifier(readFen(fen));
     _translatingPiecesNotifier = ValueNotifier({});
     _fadingPiecesNotifier = ValueNotifier({});
@@ -28,8 +28,8 @@ class ChessboardController extends ChangeNotifier {
   /// Creates a controller for a non-interactive board showing [fen].
   ChessboardController.nonInteractive({required String fen, Move? lastMove})
     : _fen = fen,
-      _game = null,
       _lastMove = lastMove {
+    _gameNotifier = ValueNotifier(null);
     _piecesNotifier = ValueNotifier(readFen(fen));
     _translatingPiecesNotifier = ValueNotifier({});
     _fadingPiecesNotifier = ValueNotifier({});
@@ -37,10 +37,10 @@ class ChessboardController extends ChangeNotifier {
   }
 
   String _fen;
-  GameData? _game;
   Move? _lastMove;
   Set<Square>? _pendingExplosionSquares;
 
+  late final ValueNotifier<GameData?> _gameNotifier;
   late final ValueNotifier<Pieces> _piecesNotifier;
   late final ValueNotifier<TranslatingPieces> _translatingPiecesNotifier;
   late final ValueNotifier<FadingPieces> _fadingPiecesNotifier;
@@ -53,9 +53,10 @@ class ChessboardController extends ChangeNotifier {
   // --- Public read-only state ---
 
   String get fen => _fen;
-  GameData? get game => _game;
-  Move? get lastMove => _game?.lastMove ?? _lastMove;
-  bool get interactive => _game != null && _game!.playerSide != PlayerSide.none;
+  GameData? get game => _gameNotifier.value;
+  Move? get lastMove => _gameNotifier.value?.lastMove ?? _lastMove;
+  bool get interactive =>
+      _gameNotifier.value != null && _gameNotifier.value!.playerSide != PlayerSide.none;
   Pieces get pieces => _piecesNotifier.value;
 
   /// The most recently requested explosion squares, or `null` if none.
@@ -66,6 +67,7 @@ class ChessboardController extends ChangeNotifier {
 
   // --- Notifiers consumed by board painters ---
 
+  ValueNotifier<GameData?> get gameNotifier => _gameNotifier;
   ValueNotifier<Pieces> get piecesNotifier => _piecesNotifier;
   ValueNotifier<TranslatingPieces> get translatingPiecesNotifier => _translatingPiecesNotifier;
   ValueNotifier<FadingPieces> get fadingPiecesNotifier => _fadingPiecesNotifier;
@@ -157,7 +159,7 @@ class ChessboardController extends ChangeNotifier {
       _piecesNotifier.value = newPieces;
     }
 
-    _game = game;
+    _gameNotifier.value = game;
     _lastMove = lastMove;
 
     notifyListeners();
@@ -174,7 +176,7 @@ class ChessboardController extends ChangeNotifier {
 
     _fen = fen;
     _piecesNotifier.value = readFen(fen);
-    _game = game;
+    _gameNotifier.value = game;
     _lastMove = lastMove;
 
     notifyListeners();
@@ -183,6 +185,7 @@ class ChessboardController extends ChangeNotifier {
   @override
   void dispose() {
     detach();
+    _gameNotifier.dispose();
     _piecesNotifier.dispose();
     _translatingPiecesNotifier.dispose();
     _fadingPiecesNotifier.dispose();

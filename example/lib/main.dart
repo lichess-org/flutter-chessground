@@ -79,6 +79,8 @@ class _HomePageState extends State<HomePage> {
   Move? lastMove;
   PieceSet pieceSet = PieceSet.gioco;
   late ChessboardController _controller;
+  late final ValueNotifier<bool> _canUndo;
+  late final ValueNotifier<Position> _positionNotifier;
   PieceShiftMethod pieceShiftMethod = PieceShiftMethod.either;
   DragTargetKind dragTargetKind = DragTargetKind.circle;
   BoardTheme boardTheme = BoardTheme.brown;
@@ -111,23 +113,10 @@ class _HomePageState extends State<HomePage> {
         position = initialPosition;
         lastPos = null;
         lastMove = null;
+        _canUndo.value = false;
+        _positionNotifier.value = position;
         _controller.jumpToPosition(position.fen, game: _buildGame());
-        setState(() {}); // Update undo button.
       },
-    );
-
-    final undoButton = FilledButton.icon(
-      icon: const Icon(Icons.undo_rounded),
-      label: const Text('Undo'),
-      onPressed: lastPos != null
-          ? () {
-              position = lastPos!;
-              lastPos = null;
-              lastMove = null;
-              _controller.jumpToPosition(position.fen, game: _buildGame());
-              setState(() {}); // Update undo button.
-            }
-          : null,
     );
 
     final controlButtons = SizedBox(
@@ -137,7 +126,29 @@ class _HomePageState extends State<HomePage> {
         children: [
           Expanded(child: newRoundButton),
           if (playMode == Mode.freePlay) const SizedBox(width: buttonsSplitter),
-          if (playMode == Mode.freePlay) Expanded(child: undoButton),
+          if (playMode == Mode.freePlay)
+            Expanded(
+              child: ValueListenableBuilder<bool>(
+                valueListenable: _canUndo,
+                builder: (context, canUndo, _) => FilledButton.icon(
+                  icon: const Icon(Icons.undo_rounded),
+                  label: const Text('Undo'),
+                  onPressed: canUndo
+                      ? () {
+                          position = lastPos!;
+                          lastPos = null;
+                          lastMove = null;
+                          _canUndo.value = false;
+                          _positionNotifier.value = position;
+                          _controller.jumpToPosition(
+                            position.fen,
+                            game: _buildGame(),
+                          );
+                        }
+                      : null,
+                ),
+              ),
+            ),
         ],
       ),
     );
@@ -264,10 +275,11 @@ class _HomePageState extends State<HomePage> {
                     position = initialPosition;
                     lastPos = null;
                     lastMove = null;
+                    _canUndo.value = false;
+                    _positionNotifier.value = position;
                     _controller.jumpToPosition(position.fen,
                         game: _buildGame());
-                    setState(
-                        () {}); // Show/hide CrazyhouseMenu; update undo button.
+                    setState(() {}); // Show/hide CrazyhouseMenu.
                   },
                 ),
               ],
@@ -340,21 +352,27 @@ class _HomePageState extends State<HomePage> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               if (testDropMoves)
-                CrazyhouseMenu(
-                  position: position,
-                  side: Side.black,
-                  pieceSet: pieceSet,
-                  squareSize: chessboard.squareSize,
-                  settings: settings,
+                ValueListenableBuilder<Position>(
+                  valueListenable: _positionNotifier,
+                  builder: (context, pos, _) => CrazyhouseMenu(
+                    position: pos,
+                    side: Side.black,
+                    pieceSet: pieceSet,
+                    squareSize: chessboard.squareSize,
+                    settings: settings,
+                  ),
                 ),
               chessboard,
               if (testDropMoves)
-                CrazyhouseMenu(
-                  position: position,
-                  side: Side.white,
-                  pieceSet: pieceSet,
-                  squareSize: chessboard.squareSize,
-                  settings: settings,
+                ValueListenableBuilder<Position>(
+                  valueListenable: _positionNotifier,
+                  builder: (context, pos, _) => CrazyhouseMenu(
+                    position: pos,
+                    side: Side.white,
+                    pieceSet: pieceSet,
+                    squareSize: chessboard.squareSize,
+                    settings: settings,
+                  ),
                 ),
             ],
           );
@@ -566,11 +584,15 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _controller = ChessboardController(fen: position.fen, game: _buildGame());
+    _canUndo = ValueNotifier(false);
+    _positionNotifier = ValueNotifier(position);
   }
 
   @override
   void dispose() {
     _controller.dispose();
+    _canUndo.dispose();
+    _positionNotifier.dispose();
     super.dispose();
   }
 
@@ -614,7 +636,7 @@ class _HomePageState extends State<HomePage> {
     if (move is NormalMove && isPromotionPawnMove(move)) {
       promotionMove = move;
       _controller.updatePosition(position.fen, game: _buildGame());
-      setState(() {}); // Update undo button.
+      _canUndo.value = true;
     } else if (position.isLegal(move)) {
       position = position.playUnchecked(move);
       promotionMove = null;
@@ -625,7 +647,8 @@ class _HomePageState extends State<HomePage> {
         game: _buildGame(),
         lastDrop: viaDragAndDrop == true ? move : null,
       );
-      setState(() {}); // Update undo button.
+      _canUndo.value = true;
+      _positionNotifier.value = position;
     }
   }
 
@@ -634,7 +657,7 @@ class _HomePageState extends State<HomePage> {
     if (move is NormalMove && isPromotionPawnMove(move)) {
       promotionMove = move;
       _controller.updatePosition(position.fen, game: _buildGame());
-      setState(() {}); // Update undo button.
+      _canUndo.value = true;
     } else {
       position = position.playUnchecked(move);
       promotionMove = null;
@@ -644,7 +667,8 @@ class _HomePageState extends State<HomePage> {
         game: _buildGame(),
         lastDrop: viaDragAndDrop == true ? move : null,
       );
-      setState(() {}); // Update undo button.
+      _canUndo.value = true;
+      _positionNotifier.value = position;
       await _playBlackMove();
       _tryPlayPremove();
     }
@@ -676,7 +700,8 @@ class _HomePageState extends State<HomePage> {
       lastPos = position;
       lastMove = NormalMove(from: mv.from, to: mv.to, promotion: mv.promotion);
       _controller.updatePosition(position.fen, game: _buildGame());
-      setState(() {}); // Update undo button.
+      _canUndo.value = true;
+      _positionNotifier.value = position;
     }
   }
 
