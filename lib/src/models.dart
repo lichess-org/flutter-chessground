@@ -71,8 +71,8 @@ class GameData {
 
 /// State of a premovable chessboard.
 ///
-/// A non-null value indicates that premoves are enabled. [premove] holds the
-/// currently registered premove, or `null` if none has been set yet.
+/// A non-null value indicates that premoves are enabled. Holds the currently registered premove, or
+/// `null` if none has been set yet.
 typedef Premovable =
     ({
       /// Registered premove.
