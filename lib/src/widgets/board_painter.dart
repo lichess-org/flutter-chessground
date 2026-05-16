@@ -15,15 +15,27 @@ class BoardHighlightNotifier extends ChangeNotifier {
   Square? selected;
   Set<Square> moveDests = const {};
   Set<Square> premoveDests = const {};
+  Set<Square> occupiedSquares = const {};
+  Move? lastMove;
+  Move? premove;
+  Square? checkSquare;
 
   void update({
     required Square? selected,
     required Set<Square> moveDests,
     required Set<Square> premoveDests,
+    required Set<Square> occupiedSquares,
+    required Move? lastMove,
+    required Move? premove,
+    required Square? checkSquare,
   }) {
     this.selected = selected;
     this.moveDests = moveDests;
     this.premoveDests = premoveDests;
+    this.occupiedSquares = occupiedSquares;
+    this.lastMove = lastMove;
+    this.premove = premove;
+    this.checkSquare = checkSquare;
     notifyListeners();
   }
 }
@@ -51,14 +63,10 @@ class HighlightsPainter extends CustomPainter {
     required this.squareSize,
     required this.orientation,
     required this.showLastMove,
-    required this.lastMove,
-    required this.premove,
     required this.premoveColor,
     required this.lastMoveDetails,
     required this.selectedDetails,
     required this.validMoveColor,
-    required this.occupiedSquares,
-    required this.checkSquare,
     required this.squareHighlights,
     required this.highlightImagesLoaded,
   }) : super(repaint: interactionNotifier);
@@ -67,14 +75,10 @@ class HighlightsPainter extends CustomPainter {
   final double squareSize;
   final Side orientation;
   final bool showLastMove;
-  final Move? lastMove;
-  final Move? premove;
   final Color premoveColor;
   final HighlightDetails? lastMoveDetails;
   final HighlightDetails? selectedDetails;
   final Color validMoveColor;
-  final Set<Square> occupiedSquares;
-  final Square? checkSquare;
   final Map<Square, HighlightDetails> squareHighlights;
   final bool highlightImagesLoaded;
 
@@ -83,10 +87,13 @@ class HighlightsPainter extends CustomPainter {
     final selected = interactionNotifier.selected;
     final moveDests = interactionNotifier.moveDests;
     final premoveDests = interactionNotifier.premoveDests;
+    final lastMove = interactionNotifier.lastMove;
+    final premove = interactionNotifier.premove;
+    final checkSquare = interactionNotifier.checkSquare;
 
     if (showLastMove && lastMove != null) {
-      for (final square in lastMove!.squares) {
-        if (premove == null || !premove!.hasSquare(square)) {
+      for (final square in lastMove.squares) {
+        if (premove == null || !premove.hasSquare(square)) {
           _drawHighlight(canvas, _squareRect(square, squareSize, orientation), lastMoveDetails);
         }
       }
@@ -94,7 +101,7 @@ class HighlightsPainter extends CustomPainter {
 
     if (premove != null) {
       final paint = Paint()..color = premoveColor;
-      for (final square in premove!.squares) {
+      for (final square in premove.squares) {
         canvas.drawRect(_squareRect(square, squareSize, orientation), paint);
       }
     }
@@ -115,7 +122,7 @@ class HighlightsPainter extends CustomPainter {
     }
 
     if (checkSquare != null) {
-      _drawCheck(canvas, checkSquare!);
+      _drawCheck(canvas, checkSquare);
     }
   }
 
@@ -143,7 +150,7 @@ class HighlightsPainter extends CustomPainter {
     for (final dest in dests) {
       final rect = _squareRect(dest, squareSize, orientation);
       final center = rect.center;
-      if (occupiedSquares.contains(dest)) {
+      if (interactionNotifier.occupiedSquares.contains(dest)) {
         canvas.save();
         canvas.clipRect(rect);
         canvas.drawCircle(center, squareSize - (squareSize / 3), strokePaint);
@@ -174,14 +181,10 @@ class HighlightsPainter extends CustomPainter {
         squareSize != oldDelegate.squareSize ||
         orientation != oldDelegate.orientation ||
         showLastMove != oldDelegate.showLastMove ||
-        lastMove != oldDelegate.lastMove ||
-        premove != oldDelegate.premove ||
         premoveColor != oldDelegate.premoveColor ||
         lastMoveDetails != oldDelegate.lastMoveDetails ||
         selectedDetails != oldDelegate.selectedDetails ||
         validMoveColor != oldDelegate.validMoveColor ||
-        !_setEquals(occupiedSquares, oldDelegate.occupiedSquares) ||
-        checkSquare != oldDelegate.checkSquare ||
         squareHighlights != oldDelegate.squareHighlights;
   }
 }
@@ -524,13 +527,4 @@ class DragSquareTargetPainter extends CustomPainter {
   bool shouldRepaint(DragSquareTargetPainter oldDelegate) {
     return squareSize != oldDelegate.squareSize || targetKind != oldDelegate.targetKind;
   }
-}
-
-bool _setEquals<T>(Set<T> a, Set<T> b) {
-  if (identical(a, b)) return true;
-  if (a.length != b.length) return false;
-  for (final v in a) {
-    if (!b.contains(v)) return false;
-  }
-  return true;
 }

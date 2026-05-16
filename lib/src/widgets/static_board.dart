@@ -116,7 +116,16 @@ class _StaticChessboardState extends State<StaticChessboard> with SingleTickerPr
       curve: Curves.easeInOutCubic,
     );
     _fadeAnimation = CurvedAnimation(parent: _pieceAnimationController, curve: Curves.easeInQuad);
-    _highlightNotifier = BoardHighlightNotifier();
+    _highlightNotifier =
+        BoardHighlightNotifier()..update(
+          selected: null,
+          moveDests: const {},
+          premoveDests: const {},
+          occupiedSquares: const {},
+          lastMove: widget.lastMove,
+          premove: null,
+          checkSquare: null,
+        );
     _imagesLoaded = ChessgroundImages.instance.isAllLoaded(widget.pieceAssets);
     if (!_imagesLoaded) _loadImages(widget.pieceAssets);
     _highlightImagesLoaded = _areHighlightImagesLoaded();
@@ -170,6 +179,18 @@ class _StaticChessboardState extends State<StaticChessboard> with SingleTickerPr
 
     if (oldWidget.animationDuration != widget.animationDuration) {
       _pieceAnimationController.duration = widget.animationDuration;
+    }
+
+    if (oldWidget.lastMove != widget.lastMove) {
+      _highlightNotifier.update(
+        selected: null,
+        moveDests: const {},
+        premoveDests: const {},
+        occupiedSquares: const {},
+        lastMove: widget.lastMove,
+        premove: null,
+        checkSquare: null,
+      );
     }
 
     if (oldWidget.fen == widget.fen) {
@@ -267,14 +288,10 @@ class _StaticChessboardState extends State<StaticChessboard> with SingleTickerPr
       squareSize: widget.squareSize,
       orientation: widget.orientation,
       showLastMove: true,
-      lastMove: widget.lastMove,
-      premove: null,
       premoveColor: widget.colorScheme.validPremoves,
       lastMoveDetails: widget.colorScheme.lastMove,
       selectedDetails: widget.colorScheme.selected,
       validMoveColor: widget.colorScheme.validMoves,
-      occupiedSquares: const {},
-      checkSquare: null,
       squareHighlights: const {},
       highlightImagesLoaded: _highlightImagesLoaded,
     );

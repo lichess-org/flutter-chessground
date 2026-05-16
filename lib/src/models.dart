@@ -29,7 +29,7 @@ class GameData {
     required this.validMoves,
     this.lastMove,
     this.promotionMove,
-    this.isCheck,
+    this.kingSquareInCheck,
     this.premovable,
     this.droppable,
     this.canPromoteToKing = false,
@@ -49,8 +49,8 @@ class GameData {
   /// Will show a promotion dialog if not null.
   final NormalMove? promotionMove;
 
-  /// Highlight the king of current side to move
-  final bool? isCheck;
+  /// The king square in check. If non-null, the king of the side to move is in check and will be highlighted.
+  final Square? kingSquareInCheck;
 
   /// Set of moves allowed to be played by current side to move.
   final ValidMoves validMoves;

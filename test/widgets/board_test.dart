@@ -59,18 +59,18 @@ bool _isSelected(WidgetTester tester, Square square) {
 bool _isLastMove(WidgetTester tester, Square square) {
   final p = _highlightsPainter(tester);
   return p.showLastMove &&
-      p.lastMove != null &&
-      p.lastMove!.hasSquare(square) &&
-      (p.premove == null || !p.premove!.hasSquare(square));
+      p.interactionNotifier.lastMove != null &&
+      p.interactionNotifier.lastMove!.hasSquare(square) &&
+      (p.interactionNotifier.premove == null || !p.interactionNotifier.premove!.hasSquare(square));
 }
 
 bool _isPremove(WidgetTester tester, Square square) {
   final p = _highlightsPainter(tester);
-  return p.premove != null && p.premove!.hasSquare(square);
+  return p.interactionNotifier.premove != null && p.interactionNotifier.premove!.hasSquare(square);
 }
 
 bool _isCheckSquare(WidgetTester tester, Square square) {
-  return _highlightsPainter(tester).checkSquare == square;
+  return _highlightsPainter(tester).interactionNotifier.checkSquare == square;
 }
 
 int _moveDestCount(WidgetTester tester) {
@@ -2486,7 +2486,6 @@ void main() {
         fen: kInitialFEN,
         game: GameData(
           playerSide: PlayerSide.both,
-          isCheck: false,
           sideToMove: Side.white,
           validMoves: makeLegalMoves(position),
         ),
@@ -2544,7 +2543,6 @@ void main() {
         fen: kInitialFEN,
         game: GameData(
           playerSide: PlayerSide.both,
-          isCheck: false,
           sideToMove: Side.white,
           validMoves: makeLegalMoves(position),
         ),
@@ -2804,7 +2802,7 @@ class _TestAppState extends State<_TestApp> {
     return GameData(
       lastMove: lastMove,
       playerSide: interactiveSide,
-      isCheck: position.isCheck,
+      kingSquareInCheck: position.isCheck ? position.board.kingOf(position.turn) : null,
       sideToMove: position.turn == Side.white ? Side.white : Side.black,
       validMoves: makeLegalMoves(position),
       promotionMove: promotionMove,

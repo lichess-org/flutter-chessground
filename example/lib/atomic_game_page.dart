@@ -44,7 +44,7 @@ class _AtomicGamePageState extends State<AtomicGamePage> {
       playerSide: position.isGameOver ? PlayerSide.none : PlayerSide.white,
       validMoves: makeLegalMoves(position),
       sideToMove: position.turn,
-      isCheck: position.isCheck,
+      kingSquareInCheck: position.isCheck ? position.board.kingOf(position.turn) : null,
       promotionMove: promotionMove,
     );
   }

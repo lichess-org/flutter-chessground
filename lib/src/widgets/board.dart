@@ -146,6 +146,7 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
   bool _ownsController = false;
   bool _controllerDetached = false;
   Side? _lastSideToMove;
+  GameData? _lastSeenGame;
 
   Pieces get pieces => _controller.pieces;
 
@@ -229,8 +230,6 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
     final shapes = widget.shapes ?? _emptyShapes;
     final annotations = widget.annotations ?? _emptyAnnotations;
     final game = _controller.game;
-    final checkSquare = game?.isCheck == true ? _getKingSquare() : null;
-    final premove = game?.premovable?.premove;
 
     final background = BrightnessHueFilter(
       hue: widget.settings.hue,
@@ -242,29 +241,20 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
               : colorScheme.background,
     );
 
-    final bool premoveVisible =
-        premove != null && game?.playerSide.name == game?.sideToMove.opposite.name;
-
     final Map<Square, HighlightDetails> customHighlights = {
       for (final MapEntry(key: square, value: highlight) in widget.squareHighlights.entries)
         square: highlight.details,
     };
-
-    final Set<Square> occupiedSquares = pieces.keys.toSet();
 
     final highlightsPainter = HighlightsPainter(
       interactionNotifier: _controller.highlightNotifier,
       squareSize: widget.squareSize,
       orientation: widget.orientation,
       showLastMove: settings.showLastMove,
-      lastMove: _controller.lastMove,
-      premove: premoveVisible ? premove : null,
       premoveColor: colorScheme.validPremoves,
       lastMoveDetails: colorScheme.lastMove,
       selectedDetails: colorScheme.selected,
       validMoveColor: colorScheme.validMoves,
-      occupiedSquares: occupiedSquares,
-      checkSquare: checkSquare,
       squareHighlights: customHighlights,
       highlightImagesLoaded: _highlightImagesLoaded,
     );
@@ -495,6 +485,7 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
       _controller.attachTo(this, widget.settings.animationDuration);
       _controller.addListener(_onControllerChange);
       _lastSideToMove = _controller.game?.sideToMove;
+      _lastSeenGame = _controller.game;
     } else {
       _ownsController = true;
       _controller = ChessboardController.nonInteractive(
@@ -611,7 +602,11 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
       _lastSeenExplosionSquares = newExplosions;
       _explosionNotifier.trigger(newExplosions);
     }
-    setState(() {});
+    final newGame = _controller.game;
+    if (newGame != _lastSeenGame) {
+      _lastSeenGame = newGame;
+      setState(() {});
+    }
   }
 
   @override
@@ -630,6 +625,7 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
       _controller.attachTo(this, widget.settings.animationDuration);
       _controller.addListener(_onControllerChange);
       _lastSideToMove = _controller.game?.sideToMove;
+      _lastSeenGame = _controller.game;
     }
 
     if (_ownsController &&
@@ -655,16 +651,6 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
     }
   }
 
-  Square? _getKingSquare() {
-    for (final square in pieces.keys) {
-      if (pieces[square]!.color == _controller.game?.sideToMove &&
-          pieces[square]!.role == Role.king) {
-        return square;
-      }
-    }
-    return null;
-  }
-
   /// Updates the highlight notifier with the current selection state so
   /// [HighlightsPainter] repaints without a full widget rebuild.
   void _syncHighlightNotifier() {
@@ -675,10 +661,17 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
             : _emptyValidMoves;
     final premoveDests =
         widget.settings.showValidMoves ? _premoveDests ?? const <Square>{} : const <Square>{};
+    final premove = game?.premovable?.premove;
+    final premoveHighlight =
+        premove != null && game?.playerSide.name == game?.sideToMove.opposite.name ? premove : null;
     _controller.highlightNotifier.update(
       selected: selected,
       moveDests: moveDests,
       premoveDests: premoveDests,
+      occupiedSquares: _controller.pieces.keys.toSet(),
+      lastMove: _controller.lastMove,
+      premove: premoveHighlight,
+      checkSquare: game?.kingSquareInCheck,
     );
   }
 
