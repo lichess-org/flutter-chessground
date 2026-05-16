@@ -512,8 +512,7 @@ void main() {
 
       await tester.drag(
         whitePawnDraggable,
-        tester.getCenter(find.byKey(const Key('e4-drag-target'))) -
-            tester.getCenter(whitePawnDraggable),
+        squareOffset(tester, Square.e4) - tester.getCenter(whitePawnDraggable),
       );
 
       await tester.pumpAndSettle();
@@ -524,8 +523,7 @@ void main() {
       final blackKnightDraggable = find.byKey(const Key('blackKnight'));
       await tester.drag(
         blackKnightDraggable,
-        tester.getCenter(find.byKey(const Key('e5-drag-target'))) -
-            tester.getCenter(blackKnightDraggable),
+        squareOffset(tester, Square.e5) - tester.getCenter(blackKnightDraggable),
       );
 
       await tester.pumpAndSettle();
@@ -575,13 +573,11 @@ void main() {
 
       await tester.drag(
         whitePawnDraggable,
-        tester.getCenter(find.byKey(const Key('a1-drag-target'))) -
-            tester.getCenter(whitePawnDraggable),
+        squareOffset(tester, Square.a1) - tester.getCenter(whitePawnDraggable),
       );
       await tester.drag(
         whitePawnDraggable,
-        tester.getCenter(find.byKey(const Key('a8-drag-target'))) -
-            tester.getCenter(whitePawnDraggable),
+        squareOffset(tester, Square.a8) - tester.getCenter(whitePawnDraggable),
       );
 
       await tester.pumpAndSettle();
@@ -592,8 +588,7 @@ void main() {
       final whiteKnightDraggable = find.byKey(const Key('whiteKnight'));
       await tester.drag(
         whiteKnightDraggable,
-        tester.getCenter(find.byKey(const Key('a8-drag-target'))) -
-            tester.getCenter(whiteKnightDraggable),
+        squareOffset(tester, Square.a8) - tester.getCenter(whiteKnightDraggable),
       );
 
       await tester.pumpAndSettle();
@@ -634,8 +629,7 @@ void main() {
       // This square is empty, but this move wouldn't block the check, so it should not be allowed
       await tester.drag(
         whitePawnDraggable,
-        tester.getCenter(find.byKey(const Key('a4-drag-target'))) -
-            tester.getCenter(whitePawnDraggable),
+        squareOffset(tester, Square.a4) - tester.getCenter(whitePawnDraggable),
       );
 
       await tester.pumpAndSettle();
@@ -644,8 +638,7 @@ void main() {
       // Only square that blocks the check
       await tester.drag(
         whitePawnDraggable,
-        tester.getCenter(find.byKey(const Key('d2-drag-target'))) -
-            tester.getCenter(whitePawnDraggable),
+        squareOffset(tester, Square.d2) - tester.getCenter(whitePawnDraggable),
       );
 
       await tester.pumpAndSettle();
@@ -657,7 +650,146 @@ void main() {
     ) async {
       await tester.pumpWidget(const _TestApp(initialPlayerSide: PlayerSide.both));
 
-      expect(find.byKey(const Key('e4-drag-target')), findsNothing);
+      expect(find.byType(DragTarget<Piece>), findsNothing);
+    });
+
+    testWidgets(
+      'drop hover circle renders without crashing when dragging a pocket piece over a square',
+      (WidgetTester tester) async {
+        final pos = Position.setupPosition(
+          Rule.crazyhouse,
+          Setup.parseFen('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[Pn] w KQkq - 0 1'),
+        );
+        await tester.pumpWidget(
+          _TestApp(
+            initialPlayerSide: PlayerSide.both,
+            rule: Rule.crazyhouse,
+            fen: pos.fen,
+            droppable: (validDropSquares: pos.legalDrops.squares.toSet()),
+            bottomWidget: Draggable(
+              key: const Key('whitePawn'),
+              data: Piece.whitePawn,
+              feedback: const SizedBox.shrink(),
+              child: PieceWidget(
+                piece: Piece.whitePawn,
+                size: squareSize,
+                pieceAssets: PieceSet.merida.assets,
+              ),
+            ),
+          ),
+        );
+
+        final gesture = await tester.startGesture(
+          tester.getCenter(find.byKey(const Key('whitePawn'))),
+        );
+        // Moving over e4 triggers DragTarget.onMove, which sets the hover notifier.
+        await gesture.moveTo(squareOffset(tester, Square.e4));
+        // Rebuilding here is the path that previously crashed: PositionedSquare
+        // emits a Positioned widget which requires a Stack ancestor, but
+        // DragTarget.builder wraps its output in MetaData, not Stack.
+        await tester.pump();
+
+        expect(
+          find.descendant(of: find.byType(DragTarget<Piece>), matching: find.byType(Container)),
+          findsOneWidget,
+        );
+
+        await gesture.up();
+        await tester.pumpAndSettle();
+      },
+    );
+
+    testWidgets('drop hover circle updates as pocket piece is dragged across squares', (
+      WidgetTester tester,
+    ) async {
+      final pos = Position.setupPosition(
+        Rule.crazyhouse,
+        Setup.parseFen('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[Pn] w KQkq - 0 1'),
+      );
+      await tester.pumpWidget(
+        _TestApp(
+          initialPlayerSide: PlayerSide.both,
+          rule: Rule.crazyhouse,
+          fen: pos.fen,
+          droppable: (validDropSquares: pos.legalDrops.squares.toSet()),
+          bottomWidget: Draggable(
+            key: const Key('whitePawn'),
+            data: Piece.whitePawn,
+            feedback: const SizedBox.shrink(),
+            child: PieceWidget(
+              piece: Piece.whitePawn,
+              size: squareSize,
+              pieceAssets: PieceSet.merida.assets,
+            ),
+          ),
+        ),
+      );
+
+      final gesture = await tester.startGesture(
+        tester.getCenter(find.byKey(const Key('whitePawn'))),
+      );
+      await gesture.moveTo(squareOffset(tester, Square.e4));
+      await tester.pump();
+      expect(
+        find.descendant(of: find.byType(DragTarget<Piece>), matching: find.byType(Container)),
+        findsOneWidget,
+      );
+
+      await gesture.moveTo(squareOffset(tester, Square.d4));
+      await tester.pump();
+      expect(
+        find.descendant(of: find.byType(DragTarget<Piece>), matching: find.byType(Container)),
+        findsOneWidget,
+      );
+
+      await gesture.up();
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('drop hover circle disappears after pocket piece is dropped', (
+      WidgetTester tester,
+    ) async {
+      final pos = Position.setupPosition(
+        Rule.crazyhouse,
+        Setup.parseFen('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[Pn] w KQkq - 0 1'),
+      );
+      await tester.pumpWidget(
+        _TestApp(
+          initialPlayerSide: PlayerSide.both,
+          rule: Rule.crazyhouse,
+          fen: pos.fen,
+          droppable: (validDropSquares: pos.legalDrops.squares.toSet()),
+          bottomWidget: Draggable(
+            key: const Key('whitePawn'),
+            data: Piece.whitePawn,
+            feedback: const SizedBox.shrink(),
+            child: PieceWidget(
+              piece: Piece.whitePawn,
+              size: squareSize,
+              pieceAssets: PieceSet.merida.assets,
+            ),
+          ),
+        ),
+      );
+
+      final gesture = await tester.startGesture(
+        tester.getCenter(find.byKey(const Key('whitePawn'))),
+      );
+      await gesture.moveTo(squareOffset(tester, Square.e4));
+      await tester.pump();
+      expect(
+        find.descendant(of: find.byType(DragTarget<Piece>), matching: find.byType(Container)),
+        findsOneWidget,
+      );
+
+      await gesture.up();
+      await tester.pumpAndSettle();
+      // Circle is gone after the drop.
+      expect(
+        find.descendant(of: find.byType(DragTarget<Piece>), matching: find.byType(Container)),
+        findsNothing,
+      );
+      expect(_piecesPainter(tester).pieces[Square.e4], Piece.whitePawn);
     });
 
     testWidgets('Cannot move by drag if piece shift method is tapTwoSquares', (
@@ -1729,8 +1861,7 @@ void main() {
       final whiteRookDraggable = find.byKey(const Key('whiteRook'));
       await tester.drag(
         whiteRookDraggable,
-        tester.getCenter(find.byKey(const Key('f3-drag-target'))) -
-            tester.getCenter(whiteRookDraggable),
+        squareOffset(tester, Square.f3) - tester.getCenter(whiteRookDraggable),
       );
       await tester.pump(); // Wait for piece to drop and board to redraw
       expect(_isPremove(tester, Square.f3), isTrue);
