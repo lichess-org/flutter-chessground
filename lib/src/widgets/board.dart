@@ -269,11 +269,6 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
       highlightImagesLoaded: _highlightImagesLoaded,
     );
 
-    final List<Widget> highlightedBackground = [
-      SizedBox.square(dimension: widget.size, child: background),
-      CustomPaint(size: Size.square(widget.size), painter: highlightsPainter),
-    ];
-
     final piecesPainter = PiecesPainter(
       piecesNotifier: _controller.piecesNotifier,
       translatingPiecesNotifier: _controller.translatingPiecesNotifier,
@@ -310,106 +305,9 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
       animation: _controller.translationAnimation,
     );
 
-    final List<Widget> objects = [
-      CustomPaint(size: Size.square(widget.size), painter: fadingPiecesPainter, willChange: true),
-      // RepaintBoundary isolates this layer so that animation ticks from the
-      // fading/translating painters and highlight changes do not cause the
-      // static pieces to be re-rasterized. isComplex hints to the raster cache
-      // that this picture (up to 32 drawImageRect calls) is worth keeping.
-      RepaintBoundary(
-        child: CustomPaint(size: Size.square(widget.size), isComplex: true, painter: piecesPainter),
-      ),
-      CustomPaint(
-        size: Size.square(widget.size),
-        painter: translatingPiecesPainter,
-        willChange: true,
-      ),
-      for (final shape in shapes)
-        BoardShapeWidget(shape: shape, size: widget.size, orientation: widget.orientation),
-      if (_shapeAvatar != null)
-        BoardShapeWidget(shape: _shapeAvatar!, size: widget.size, orientation: widget.orientation),
-      for (final entry in annotations.entries)
-        BoardAnnotation(
-          key: ValueKey('${entry.key.name}-${entry.value.symbol}-${entry.value.color}'),
-          size: widget.size,
-          orientation: widget.orientation,
-          square: entry.key,
-          annotation: entry.value,
-        ),
-      CustomPaint(
-        size: Size.square(widget.size),
-        painter: ExplosionsPainter(
-          notifier: _explosionNotifier,
-          squareSize: widget.squareSize,
-          orientation: widget.orientation,
-        ),
-        willChange: true,
-      ),
-      if (game?.droppable != null)
-        SizedBox.square(
-          key: _dropTargetKey,
-          dimension: widget.size,
-          child: DragTarget<Piece>(
-            hitTestBehavior: HitTestBehavior.opaque,
-            onMove: (details) {
-              final renderBox = _dropTargetKey.currentContext?.findRenderObject() as RenderBox?;
-              if (renderBox == null) return;
-              final square = widget.offsetSquare(renderBox.globalToLocal(details.offset));
-              if (_dropHoverSquareNotifier.value != square) {
-                _dropHoverSquareNotifier.value = square;
-              }
-            },
-            onLeave: (_) => _dropHoverSquareNotifier.value = null,
-            onAcceptWithDetails: (details) {
-              _dropHoverSquareNotifier.value = null;
-              if (game == null) return;
-              final renderBox = _dropTargetKey.currentContext?.findRenderObject() as RenderBox?;
-              if (renderBox == null) return;
-              final square = widget.offsetSquare(renderBox.globalToLocal(details.offset));
-              if (square == null) return;
-              final piece = details.data;
-              final backRankPawnDrop =
-                  piece.role == Role.pawn &&
-                  (square.rank == Rank.first || square.rank == Rank.eighth);
-              if (backRankPawnDrop) return;
-              final move = DropMove(to: square, role: piece.role);
-              if (game.sideToMove == piece.color &&
-                  game.droppable != null &&
-                  game.droppable!.validDropSquares.contains(square)) {
-                widget.onMove?.call(move, viaDragAndDrop: true);
-              } else if (game.premovable != null) {
-                widget.onSetPremove?.call(move);
-              }
-            },
-            builder: (context, candidateData, _) {
-              if (candidateData.isEmpty) return const SizedBox.shrink();
-              return ValueListenableBuilder<Square?>(
-                valueListenable: _dropHoverSquareNotifier,
-                builder: (context, square, _) {
-                  if (square == null) return const SizedBox.shrink();
-                  return Stack(
-                    children: [
-                      PositionedSquare(
-                        size: widget.size,
-                        orientation: widget.orientation,
-                        square: square,
-                        child: Transform.scale(
-                          scale: 2,
-                          child: Container(
-                            decoration: const BoxDecoration(
-                              color: Color(0x33000000),
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  );
-                },
-              );
-            },
-          ),
-        ),
+    final List<Widget> highlightedBackground = [
+      SizedBox.square(dimension: widget.size, child: background),
+      CustomPaint(size: Size.square(widget.size), painter: highlightsPainter),
     ];
 
     final board = Listener(
@@ -437,7 +335,118 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
               )
             else
               ...highlightedBackground,
-            ...objects,
+            CustomPaint(
+              size: Size.square(widget.size),
+              painter: fadingPiecesPainter,
+              willChange: true,
+            ),
+            // RepaintBoundary isolates this layer so that animation ticks from the
+            // fading/translating painters and highlight changes do not cause the
+            // static pieces to be re-rasterized. isComplex hints to the raster cache
+            // that this picture (up to 32 drawImageRect calls) is worth keeping.
+            RepaintBoundary(
+              child: CustomPaint(
+                size: Size.square(widget.size),
+                isComplex: true,
+                painter: piecesPainter,
+              ),
+            ),
+            CustomPaint(
+              size: Size.square(widget.size),
+              painter: translatingPiecesPainter,
+              willChange: true,
+            ),
+            for (final shape in shapes)
+              BoardShapeWidget(shape: shape, size: widget.size, orientation: widget.orientation),
+            if (_shapeAvatar != null)
+              BoardShapeWidget(
+                shape: _shapeAvatar!,
+                size: widget.size,
+                orientation: widget.orientation,
+              ),
+            for (final entry in annotations.entries)
+              BoardAnnotation(
+                size: widget.size,
+                orientation: widget.orientation,
+                square: entry.key,
+                annotation: entry.value,
+              ),
+            CustomPaint(
+              size: Size.square(widget.size),
+              painter: ExplosionsPainter(
+                notifier: _explosionNotifier,
+                squareSize: widget.squareSize,
+                orientation: widget.orientation,
+              ),
+              willChange: true,
+            ),
+            if (game?.droppable != null)
+              SizedBox.square(
+                key: _dropTargetKey,
+                dimension: widget.size,
+                child: DragTarget<Piece>(
+                  hitTestBehavior: HitTestBehavior.opaque,
+                  onMove: (details) {
+                    final renderBox =
+                        _dropTargetKey.currentContext?.findRenderObject() as RenderBox?;
+                    if (renderBox == null) return;
+                    final square = widget.offsetSquare(renderBox.globalToLocal(details.offset));
+                    if (_dropHoverSquareNotifier.value != square) {
+                      _dropHoverSquareNotifier.value = square;
+                    }
+                  },
+                  onLeave: (_) => _dropHoverSquareNotifier.value = null,
+                  onAcceptWithDetails: (details) {
+                    _dropHoverSquareNotifier.value = null;
+                    if (game == null) return;
+                    final renderBox =
+                        _dropTargetKey.currentContext?.findRenderObject() as RenderBox?;
+                    if (renderBox == null) return;
+                    final square = widget.offsetSquare(renderBox.globalToLocal(details.offset));
+                    if (square == null) return;
+                    final piece = details.data;
+                    final backRankPawnDrop =
+                        piece.role == Role.pawn &&
+                        (square.rank == Rank.first || square.rank == Rank.eighth);
+                    if (backRankPawnDrop) return;
+                    final move = DropMove(to: square, role: piece.role);
+                    if (game.sideToMove == piece.color &&
+                        game.droppable != null &&
+                        game.droppable!.validDropSquares.contains(square)) {
+                      widget.onMove?.call(move, viaDragAndDrop: true);
+                    } else if (game.premovable != null) {
+                      widget.onSetPremove?.call(move);
+                    }
+                  },
+                  builder: (context, candidateData, _) {
+                    if (candidateData.isEmpty) return const SizedBox.shrink();
+                    return ValueListenableBuilder<Square?>(
+                      valueListenable: _dropHoverSquareNotifier,
+                      builder: (context, square, _) {
+                        if (square == null) return const SizedBox.shrink();
+                        return Stack(
+                          children: [
+                            PositionedSquare(
+                              size: widget.size,
+                              orientation: widget.orientation,
+                              square: square,
+                              child: Transform.scale(
+                                scale: 2,
+                                child: Container(
+                                  decoration: const BoxDecoration(
+                                    color: Color(0x33000000),
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  },
+                ),
+              ),
             if (game != null && game.promotionMove != null)
               PromotionSelector(
                 pieceAssets: settings.pieceAssets,
