@@ -2057,9 +2057,7 @@ void main() {
     });
 
     testWidgets('draw a circle by hand', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        const _TestApp(initialPlayerSide: PlayerSide.both, enableDrawingShapes: true),
-      );
+      await tester.pumpWidget(const _TestApp(initialPlayerSide: PlayerSide.both));
 
       await TestAsyncUtils.guard<void>(() async {
         // keep pressing an empty square to enable drawing shapes
@@ -2079,9 +2077,7 @@ void main() {
     });
 
     testWidgets('draw an arrow by hand', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        const _TestApp(initialPlayerSide: PlayerSide.both, enableDrawingShapes: true),
-      );
+      await tester.pumpWidget(const _TestApp(initialPlayerSide: PlayerSide.both));
 
       // keep pressing an empty square to enable drawing shapes
       final pressGesture = await tester.startGesture(squareOffset(tester, Square.a3));
@@ -2102,9 +2098,7 @@ void main() {
     });
 
     testWidgets('can draw shapes on an non-interactive board', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        const _TestApp(initialPlayerSide: PlayerSide.none, enableDrawingShapes: true),
-      );
+      await tester.pumpWidget(const _TestApp(initialPlayerSide: PlayerSide.none));
 
       // keep pressing an empty square to enable drawing shapes
       final pressGesture = await tester.startGesture(squareOffset(tester, Square.a3));
@@ -2125,9 +2119,7 @@ void main() {
     });
 
     testWidgets('double tap to clear shapes', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        const _TestApp(initialPlayerSide: PlayerSide.both, enableDrawingShapes: true),
-      );
+      await tester.pumpWidget(const _TestApp(initialPlayerSide: PlayerSide.both));
 
       await TestAsyncUtils.guard<void>(() async {
         // keep pressing an empty square to enable drawing shapes
@@ -2163,9 +2155,7 @@ void main() {
     });
 
     testWidgets('selecting one piece should clear shapes', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        const _TestApp(initialPlayerSide: PlayerSide.both, enableDrawingShapes: true),
-      );
+      await tester.pumpWidget(const _TestApp(initialPlayerSide: PlayerSide.both));
 
       await TestAsyncUtils.guard<void>(() async {
         // keep pressing an empty square to enable drawing shapes
@@ -2688,6 +2678,137 @@ void main() {
       await tester.pump();
     });
   });
+
+  group('no unnecessary rebuilds', () {
+    testWidgets('selecting a piece does not rebuild the board widget', (WidgetTester tester) async {
+      await tester.pumpWidget(const _TestApp(initialPlayerSide: PlayerSide.white));
+
+      final highlightsBefore = _highlightsPainter(tester);
+      final piecesBefore = _piecesPainter(tester);
+      final explosionsBefore = _explosionsPainter(tester);
+
+      await tester.tapAt(squareOffset(tester, Square.e2));
+      await tester.pump();
+
+      expect(_isSelected(tester, Square.e2), isTrue);
+      expect(
+        identical(_highlightsPainter(tester), highlightsBefore),
+        isTrue,
+        reason: 'HighlightsPainter was recreated — build() was called',
+      );
+      expect(
+        identical(_piecesPainter(tester), piecesBefore),
+        isTrue,
+        reason: 'PiecesPainter was recreated — build() was called',
+      );
+      expect(
+        identical(_explosionsPainter(tester), explosionsBefore),
+        isTrue,
+        reason: 'ExplosionsPainter was recreated — build() was called',
+      );
+    });
+
+    testWidgets('deselecting a piece does not rebuild the board widget', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(const _TestApp(initialPlayerSide: PlayerSide.white));
+
+      // Select e2 first.
+      await tester.tapAt(squareOffset(tester, Square.e2));
+      await tester.pump();
+      expect(_isSelected(tester, Square.e2), isTrue);
+
+      final highlightsBefore = _highlightsPainter(tester);
+      final piecesBefore = _piecesPainter(tester);
+      final explosionsBefore = _explosionsPainter(tester);
+
+      // Deselect by tapping the same square.
+      await tester.tapAt(squareOffset(tester, Square.e2));
+      await tester.pump();
+
+      expect(_isSelected(tester, Square.e2), isFalse);
+      expect(
+        identical(_highlightsPainter(tester), highlightsBefore),
+        isTrue,
+        reason: 'HighlightsPainter was recreated — build() was called',
+      );
+      expect(
+        identical(_piecesPainter(tester), piecesBefore),
+        isTrue,
+        reason: 'PiecesPainter was recreated — build() was called',
+      );
+      expect(
+        identical(_explosionsPainter(tester), explosionsBefore),
+        isTrue,
+        reason: 'ExplosionsPainter was recreated — build() was called',
+      );
+    });
+
+    testWidgets('making a move does not rebuild the board widget', (WidgetTester tester) async {
+      await tester.pumpWidget(const _TestApp(initialPlayerSide: PlayerSide.white));
+
+      final highlightsBefore = _highlightsPainter(tester);
+      final piecesBefore = _piecesPainter(tester);
+      final explosionsBefore = _explosionsPainter(tester);
+
+      await tester.tapAt(squareOffset(tester, Square.e2));
+      await tester.pump();
+      await tester.tapAt(squareOffset(tester, Square.e4));
+      await tester.pump();
+
+      expect(_isLastMove(tester, Square.e4), isTrue);
+      expect(
+        identical(_highlightsPainter(tester), highlightsBefore),
+        isTrue,
+        reason: 'HighlightsPainter was recreated — build() was called',
+      );
+      expect(
+        identical(_piecesPainter(tester), piecesBefore),
+        isTrue,
+        reason: 'PiecesPainter was recreated — build() was called',
+      );
+      expect(
+        identical(_explosionsPainter(tester), explosionsBefore),
+        isTrue,
+        reason: 'ExplosionsPainter was recreated — build() was called',
+      );
+    });
+
+    testWidgets('controller.updatePosition does not rebuild the board widget', (
+      WidgetTester tester,
+    ) async {
+      final gameEventController = StreamController<GameEvent>();
+      addTearDown(gameEventController.close);
+
+      await tester.pumpWidget(
+        _TestApp(initialPlayerSide: PlayerSide.white, gameEventStream: gameEventController.stream),
+      );
+
+      final highlightsBefore = _highlightsPainter(tester);
+      final piecesBefore = _piecesPainter(tester);
+      final explosionsBefore = _explosionsPainter(tester);
+
+      // Trigger an external move via the controller (no setState on parent).
+      gameEventController.add(GameEvent.externalMove);
+      await tester.pump();
+
+      expect(
+        identical(_highlightsPainter(tester), highlightsBefore),
+        isTrue,
+        reason: 'HighlightsPainter was recreated — build() was called',
+      );
+      expect(
+        identical(_piecesPainter(tester), piecesBefore),
+        isTrue,
+        reason: 'PiecesPainter was recreated — build() was called',
+      );
+      expect(
+        identical(_explosionsPainter(tester), explosionsBefore),
+        isTrue,
+        reason: 'ExplosionsPainter was recreated — build() was called',
+      );
+    });
+  });
 }
 
 Future<void> makeMove(WidgetTester tester, Square from, Square to) async {
@@ -2719,7 +2840,6 @@ class _TestApp extends StatefulWidget {
     this.droppable,
     this.initialPromotionMove,
     this.initialShapes,
-    this.enableDrawingShapes = false,
     this.shouldPlayOpponentMove = false,
     this.gameEventStream,
     this.onTouchedSquare,
@@ -2737,7 +2857,6 @@ class _TestApp extends StatefulWidget {
 
   final NormalMove? initialPromotionMove;
   final Set<Shape>? initialShapes;
-  final bool enableDrawingShapes;
 
   /// play the first available move for the opponent after a delay of 200ms
   final bool shouldPlayOpponentMove;
@@ -2768,7 +2887,7 @@ class _TestAppState extends State<_TestApp> {
 
   ChessboardSettings get defaultSettings => ChessboardSettings(
     drawShape: DrawShapeOptions(
-      enable: widget.enableDrawingShapes,
+      enable: true,
       onCompleteShape: (shape) {
         setState(() => shapes = {...shapes, shape});
       },
