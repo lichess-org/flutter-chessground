@@ -34,8 +34,8 @@ All public exports go through `lib/chessground.dart`. Internal implementation li
 
 The board is driven by a controller and immutable data objects:
 - **`ChessboardController`** (`src/widgets/board_controller.dart`) — Owns board position, game state, and piece animations. Create once in `initState`, dispose in `dispose`. Two constructors:
-  - `ChessboardController(fen: fen, initialGame: game)` — for interactive boards.
-  - `ChessboardController.nonInteractive(initialFen: fen)` — for non-interactive display boards (`Chessboard.fixed()`).
+  - `ChessboardController(fen: fen, game: game)` — for interactive boards.
+  - `ChessboardController.nonInteractive(fen: fen)` — for non-interactive display boards (`Chessboard.fixed()`).
   - `updatePosition(String fen, {GameData? game, Move? lastMove, Move? lastDrop})` — advance position with animation. Pass `game:` for interactive boards, `lastMove:` for non-interactive.
   - `jumpToPosition(String fen, {GameData? game, Move? lastMove})` — switch position without animation.
 - **`GameData`** — Immutable snapshot of interactive game state: `playerSide`, `sideToMove`, `validMoves`, `lastMove`, `premovable`, `droppable`, `promotionMove`, `isCheck`. Does **not** carry the FEN — that is always passed separately.

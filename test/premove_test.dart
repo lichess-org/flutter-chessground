@@ -2,30 +2,30 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:dartchess/dartchess.dart';
 import 'package:chessground/chessground.dart';
 
-const initialFen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR';
+const fen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR';
 
 void main() {
   test('pawn premoves', () {
     expect(
-      premovesOf(Square.e2, readFen(initialFen)),
+      premovesOf(Square.e2, readFen(fen)),
       equals({Square.d3, Square.e3, Square.e4, Square.f3}),
     );
   });
 
   test('knight premoves', () {
-    expect(premovesOf(Square.b1, readFen(initialFen)), equals({Square.a3, Square.c3, Square.d2}));
+    expect(premovesOf(Square.b1, readFen(fen)), equals({Square.a3, Square.c3, Square.d2}));
   });
 
   test('bishop premoves', () {
     expect(
-      premovesOf(Square.c1, readFen(initialFen)),
+      premovesOf(Square.c1, readFen(fen)),
       equals({Square.a3, Square.b2, Square.d2, Square.e3, Square.f4, Square.g5, Square.h6}),
     );
   });
 
   test('rook premoves', () {
     expect(
-      premovesOf(Square.a1, readFen(initialFen)),
+      premovesOf(Square.a1, readFen(fen)),
       equals({
         Square.a2,
         Square.a3,
@@ -47,7 +47,7 @@ void main() {
 
   test('queen premoves', () {
     expect(
-      premovesOf(Square.d1, readFen(initialFen)),
+      premovesOf(Square.d1, readFen(fen)),
       equals({
         Square.a1,
         Square.b1,
@@ -76,7 +76,7 @@ void main() {
 
   test('king premoves', () {
     expect(
-      premovesOf(Square.e1, readFen(initialFen), canCastle: true),
+      premovesOf(Square.e1, readFen(fen), canCastle: true),
       equals({
         Square.a1,
         Square.c1,
@@ -91,7 +91,7 @@ void main() {
     );
 
     expect(
-      premovesOf(Square.e1, readFen(initialFen)),
+      premovesOf(Square.e1, readFen(fen)),
       equals({Square.d1, Square.d2, Square.e2, Square.f2, Square.f1}),
     );
   });

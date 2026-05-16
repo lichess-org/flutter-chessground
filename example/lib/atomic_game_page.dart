@@ -29,7 +29,7 @@ class _AtomicGamePageState extends State<AtomicGamePage> {
   @override
   void initState() {
     super.initState();
-    _controller = ChessboardController(fen: position.fen, initialGame: _buildGame());
+    _controller = ChessboardController(fen: position.fen, game: _buildGame());
   }
 
   @override

@@ -14,13 +14,10 @@ import '../models.dart';
 ///
 /// The controller must be disposed when no longer needed.
 class ChessboardController extends ChangeNotifier {
-  /// Creates a controller for an interactive board driven by [initialGame].
-  ///
-  /// Use this constructor when the board will be interactive (i.e. when you
-  /// pass a [GameData] to [Chessboard]).
-  ChessboardController({required String fen, required GameData initialGame})
+  /// Creates a controller for an interactive board showing [fen] and driven by [game].
+  ChessboardController({required String fen, required GameData game})
     : _fen = fen,
-      _game = initialGame,
+      _game = game,
       _lastMove = null {
     _piecesNotifier = ValueNotifier(readFen(fen));
     _translatingPiecesNotifier = ValueNotifier({});
@@ -28,14 +25,12 @@ class ChessboardController extends ChangeNotifier {
     _highlightNotifier = BoardHighlightNotifier();
   }
 
-  /// Creates a controller for a non-interactive board showing [initialFen].
-  ///
-  /// Use this constructor when the board has no game state (e.g. [Chessboard.fixed]).
-  ChessboardController.nonInteractive({required String initialFen, Move? initialLastMove})
-    : _fen = initialFen,
+  /// Creates a controller for a non-interactive board showing [fen].
+  ChessboardController.nonInteractive({required String fen, Move? lastMove})
+    : _fen = fen,
       _game = null,
-      _lastMove = initialLastMove {
-    _piecesNotifier = ValueNotifier(readFen(initialFen));
+      _lastMove = lastMove {
+    _piecesNotifier = ValueNotifier(readFen(fen));
     _translatingPiecesNotifier = ValueNotifier({});
     _fadingPiecesNotifier = ValueNotifier({});
     _highlightNotifier = BoardHighlightNotifier();

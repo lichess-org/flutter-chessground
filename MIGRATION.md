@@ -74,7 +74,7 @@ class _MyBoardState extends State<MyBoard> {
   @override
   void initState() {
     super.initState();
-    _controller = ChessboardController(fen: _position.fen, initialGame: _buildGame());
+    _controller = ChessboardController(fen: _position.fen, game: _buildGame());
   }
 
   @override

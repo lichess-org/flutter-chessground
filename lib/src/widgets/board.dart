@@ -462,8 +462,8 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
     } else {
       _ownsController = true;
       _controller = ChessboardController.nonInteractive(
-        initialFen: widget._fen!,
-        initialLastMove: widget._lastMove,
+        fen: widget._fen!,
+        lastMove: widget._lastMove,
       );
       _controller.attachTo(this, widget.settings.animationDuration);
     }

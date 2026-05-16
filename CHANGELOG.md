@@ -13,8 +13,8 @@
   optional `onSetPremove` parameter on the `Chessboard` widget.
 
 - `ChessboardController` constructor changed. Use
-  `ChessboardController(fen: fen, initialGame: game)` for interactive boards.
-  Use `ChessboardController.nonInteractive(initialFen: fen)` for non-interactive
+  `ChessboardController(fen: fen, game: game)` for interactive boards.
+  Use `ChessboardController.nonInteractive(fen: fen)` for non-interactive
   display boards.
 
 - `ChessboardController.updatePosition(String fen, {GameData? game, Move? lastMove, Move? lastDrop})`
@@ -39,7 +39,7 @@
   `updatePosition()` after each move. The board listens internally and rebuilds
   itself without requiring a parent `setState()`.
 
-- `ChessboardController.nonInteractive({required String initialFen, Move? initialLastMove})`
+- `ChessboardController.nonInteractive({required String fen, Move? lastMove})`
   named constructor for controllers that drive a non-interactive display board.
 
 - `ChessboardController.lastMove` getter exposes the last move played.

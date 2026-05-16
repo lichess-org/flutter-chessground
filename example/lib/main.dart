@@ -264,7 +264,8 @@ class _HomePageState extends State<HomePage> {
                     position = initialPosition;
                     lastPos = null;
                     lastMove = null;
-                    _controller.jumpToPosition(position.fen, game: _buildGame());
+                    _controller.jumpToPosition(position.fen,
+                        game: _buildGame());
                     setState(
                         () {}); // Show/hide CrazyhouseMenu; update undo button.
                   },
@@ -326,7 +327,8 @@ class _HomePageState extends State<HomePage> {
             size: min(constraints.maxWidth, constraints.maxHeight),
             settings: settings,
             orientation: orientation,
-            onMove: playMode == Mode.botPlay ? _onUserMoveAgainstBot : _playMove,
+            onMove:
+                playMode == Mode.botPlay ? _onUserMoveAgainstBot : _playMove,
             onPromotionSelection: _onPromotionSelection,
             onSetPremove: _onSetPremove,
             shapes: shapes.isNotEmpty ? shapes : null,
@@ -561,7 +563,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    _controller = ChessboardController(fen: position.fen, initialGame: _buildGame());
+    _controller = ChessboardController(fen: position.fen, game: _buildGame());
   }
 
   @override

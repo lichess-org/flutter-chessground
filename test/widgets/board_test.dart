@@ -391,7 +391,7 @@ void main() {
     testWidgets('castling by selecting king then rook is possible', (WidgetTester tester) async {
       await tester.pumpWidget(
         const _TestApp(
-          initialFen: 'r1bqk1nr/pppp1ppp/2n5/2b1p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4',
+          fen: 'r1bqk1nr/pppp1ppp/2n5/2b1p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4',
           initialPlayerSide: PlayerSide.both,
         ),
       );
@@ -479,7 +479,7 @@ void main() {
         _TestApp(
           initialPlayerSide: PlayerSide.both,
           rule: Rule.crazyhouse,
-          initialFen: pos.fen,
+          fen: pos.fen,
           droppable: (validDropSquares: pos.legalDrops.squares.toSet()),
           bottomWidget: Column(
             children: [
@@ -541,7 +541,7 @@ void main() {
       await tester.pumpWidget(
         _TestApp(
           initialPlayerSide: PlayerSide.both,
-          initialFen: pos.fen,
+          fen: pos.fen,
           rule: Rule.crazyhouse,
           droppable: (validDropSquares: pos.legalDrops.squares.toSet()),
           bottomWidget: Column(
@@ -609,7 +609,7 @@ void main() {
         _TestApp(
           initialPlayerSide: PlayerSide.both,
           // white is in check, so we can't drag the pawn onto a square that doesn't block the check.
-          initialFen: pos.fen,
+          fen: pos.fen,
           rule: Rule.crazyhouse,
           droppable: (validDropSquares: pos.legalDrops.squares.toSet()),
           bottomWidget: Column(
@@ -817,7 +817,7 @@ void main() {
     testWidgets('king check square black', (WidgetTester tester) async {
       await tester.pumpWidget(
         const _TestApp(
-          initialFen: 'rnbqkbnr/ppp2ppp/3p4/4p3/3PP3/8/PPP2PPP/RNBQKBNR w KQkq - 0 3',
+          fen: 'rnbqkbnr/ppp2ppp/3p4/4p3/3PP3/8/PPP2PPP/RNBQKBNR w KQkq - 0 3',
           initialPlayerSide: PlayerSide.white,
         ),
       );
@@ -828,7 +828,7 @@ void main() {
     testWidgets('king check square white', (WidgetTester tester) async {
       await tester.pumpWidget(
         const _TestApp(
-          initialFen: 'rnbqkbnr/pppp1ppp/8/4p3/3P4/4P3/PPP2PPP/RNBQKBNR b KQkq - 0 2',
+          fen: 'rnbqkbnr/pppp1ppp/8/4p3/3P4/4P3/PPP2PPP/RNBQKBNR b KQkq - 0 2',
           initialPlayerSide: PlayerSide.black,
         ),
       );
@@ -845,7 +845,7 @@ void main() {
 
       await tester.pumpWidget(
         _TestApp(
-          initialFen: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
+          fen: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
           initialPlayerSide: PlayerSide.white,
           gameEventStream: controller.stream,
         ),
@@ -877,7 +877,7 @@ void main() {
 
       await tester.pumpWidget(
         _TestApp(
-          initialFen: kInitialBoardFEN,
+          fen: kInitialBoardFEN,
           initialPlayerSide: PlayerSide.white,
           gameEventStream: controller.stream,
         ),
@@ -904,7 +904,7 @@ void main() {
 
       await tester.pumpWidget(
         _TestApp(
-          initialFen: 'r1bqkbnr/ppp2ppp/2np4/4p3/2B1P3/5Q2/PPPP1PPP/RNB1K1NR w KQkq - 0 4',
+          fen: 'r1bqkbnr/ppp2ppp/2np4/4p3/2B1P3/5Q2/PPPP1PPP/RNB1K1NR w KQkq - 0 4',
           initialPlayerSide: PlayerSide.white,
           gameEventStream: controller.stream,
         ),
@@ -995,7 +995,7 @@ void main() {
       await tester.pumpWidget(
         const _TestApp(
           initialPlayerSide: PlayerSide.both,
-          initialFen: '8/5P2/2RK2P1/8/4k3/8/8/7r w - - 0 1',
+          fen: '8/5P2/2RK2P1/8/4k3/8/8/7r w - - 0 1',
           initialPromotionMove: NormalMove(from: Square.f7, to: Square.f8),
         ),
       );
@@ -1008,7 +1008,7 @@ void main() {
       await tester.pumpWidget(
         const _TestApp(
           initialPlayerSide: PlayerSide.both,
-          initialFen: '8/5P2/2RK2P1/8/4k3/8/8/7r w - - 0 1',
+          fen: '8/5P2/2RK2P1/8/4k3/8/8/7r w - - 0 1',
         ),
       );
 
@@ -1032,10 +1032,7 @@ void main() {
     });
     testWidgets('Player on top promotes a bishop', (WidgetTester tester) async {
       await tester.pumpWidget(
-        const _TestApp(
-          initialPlayerSide: PlayerSide.both,
-          initialFen: 'K7/8/k7/8/8/8/p7/1Q4n1 b - - 0 1',
-        ),
+        const _TestApp(initialPlayerSide: PlayerSide.both, fen: 'K7/8/k7/8/8/8/p7/1Q4n1 b - - 0 1'),
       );
 
       await tester.tapAt(squareOffset(tester, Square.a2));
@@ -1061,7 +1058,7 @@ void main() {
       await tester.pumpWidget(
         const _TestApp(
           initialPlayerSide: PlayerSide.both,
-          initialFen: '8/5P2/2RK2P1/8/4k3/8/8/7r w - - 0 1',
+          fen: '8/5P2/2RK2P1/8/4k3/8/8/7r w - - 0 1',
         ),
       );
 
@@ -1095,7 +1092,7 @@ void main() {
       await tester.pumpWidget(
         const _TestApp(
           initialPlayerSide: PlayerSide.both,
-          initialFen: '8/5P2/2RK2P1/8/4k3/8/8/7r w - - 0 1',
+          fen: '8/5P2/2RK2P1/8/4k3/8/8/7r w - - 0 1',
           canPromoteToKing: true,
         ),
       );
@@ -1129,7 +1126,7 @@ void main() {
       await tester.pumpWidget(
         const _TestApp(
           initialPlayerSide: PlayerSide.both,
-          initialFen: '8/5P2/2RK2P1/8/4k3/8/8/7r w - - 0 1',
+          fen: '8/5P2/2RK2P1/8/4k3/8/8/7r w - - 0 1',
           canPromoteToKing: true,
         ),
       );
@@ -1155,7 +1152,7 @@ void main() {
       await tester.pumpWidget(
         const _TestApp(
           initialPlayerSide: PlayerSide.both,
-          initialFen: 'K7/8/k7/8/8/8/p7/1Q4n1 b - - 0 1',
+          fen: 'K7/8/k7/8/8/8/p7/1Q4n1 b - - 0 1',
           canPromoteToKing: true,
         ),
       );
@@ -1188,7 +1185,7 @@ void main() {
       await tester.pumpWidget(
         const _TestApp(
           initialPlayerSide: PlayerSide.both,
-          initialFen: '8/5P2/2RK2P1/8/4k3/8/8/7r w - - 0 1',
+          fen: '8/5P2/2RK2P1/8/4k3/8/8/7r w - - 0 1',
           orientation: orientation,
         ),
       );
@@ -1226,7 +1223,7 @@ void main() {
       await tester.pumpWidget(
         const _TestApp(
           initialPlayerSide: PlayerSide.both,
-          initialFen: 'K7/8/k7/8/8/8/p7/1Q4n1 b - - 0 1',
+          fen: 'K7/8/k7/8/8/8/p7/1Q4n1 b - - 0 1',
           orientation: orientation,
         ),
       );
@@ -1265,7 +1262,7 @@ void main() {
       await tester.pumpWidget(
         const _TestApp(
           initialPlayerSide: PlayerSide.both,
-          initialFen: '8/5P2/2RK2P1/8/4k3/8/8/7r w - - 0 1',
+          fen: '8/5P2/2RK2P1/8/4k3/8/8/7r w - - 0 1',
           orientation: orientation,
           canPromoteToKing: true,
         ),
@@ -1302,7 +1299,7 @@ void main() {
       await tester.pumpWidget(
         const _TestApp(
           initialPlayerSide: PlayerSide.both,
-          initialFen: 'K7/8/k7/8/8/8/p7/1Q4n1 b - - 0 1',
+          fen: 'K7/8/k7/8/8/8/p7/1Q4n1 b - - 0 1',
           orientation: orientation,
           canPromoteToKing: true,
         ),
@@ -1333,7 +1330,7 @@ void main() {
       await tester.pumpWidget(
         const _TestApp(
           initialPlayerSide: PlayerSide.both,
-          initialFen: '8/5P2/2RK2P1/8/4k3/8/8/7r w - - 0 1',
+          fen: '8/5P2/2RK2P1/8/4k3/8/8/7r w - - 0 1',
         ),
       );
 
@@ -1361,7 +1358,7 @@ void main() {
         const _TestApp(
           settings: ChessboardSettings(autoQueenPromotion: true),
           initialPlayerSide: PlayerSide.both,
-          initialFen: '8/5P2/2RK2P1/8/4k3/8/8/7r w - - 0 1',
+          fen: '8/5P2/2RK2P1/8/4k3/8/8/7r w - - 0 1',
         ),
       );
 
@@ -1378,7 +1375,7 @@ void main() {
     testWidgets('select and deselect with empty square', (WidgetTester tester) async {
       await tester.pumpWidget(
         const _TestApp(
-          initialFen: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
+          fen: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
           initialPlayerSide: PlayerSide.white,
         ),
       );
@@ -1397,7 +1394,7 @@ void main() {
     testWidgets('select and deselect with opponent piece', (WidgetTester tester) async {
       await tester.pumpWidget(
         const _TestApp(
-          initialFen: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
+          fen: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
           initialPlayerSide: PlayerSide.white,
         ),
       );
@@ -1416,7 +1413,7 @@ void main() {
     testWidgets('select and deselect with same piece', (WidgetTester tester) async {
       await tester.pumpWidget(
         const _TestApp(
-          initialFen: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
+          fen: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
           initialPlayerSide: PlayerSide.white,
         ),
       );
@@ -1437,7 +1434,7 @@ void main() {
     ) async {
       await tester.pumpWidget(
         const _TestApp(
-          initialFen: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
+          fen: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
           initialPlayerSide: PlayerSide.white,
         ),
       );
@@ -1453,7 +1450,7 @@ void main() {
     testWidgets('dragging off target unselects', (WidgetTester tester) async {
       await tester.pumpWidget(
         const _TestApp(
-          initialFen: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
+          fen: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
           initialPlayerSide: PlayerSide.white,
         ),
       );
@@ -1476,7 +1473,7 @@ void main() {
     testWidgets('dragging off board unselects', (WidgetTester tester) async {
       await tester.pumpWidget(
         const _TestApp(
-          initialFen: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
+          fen: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
           initialPlayerSide: PlayerSide.white,
         ),
       );
@@ -1499,7 +1496,7 @@ void main() {
     testWidgets('set/unset by tapping empty square or opponent piece', (WidgetTester tester) async {
       await tester.pumpWidget(
         const _TestApp(
-          initialFen: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
+          fen: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
           initialPlayerSide: PlayerSide.white,
         ),
       );
@@ -1528,7 +1525,7 @@ void main() {
     testWidgets('unset by dragging off board', (WidgetTester tester) async {
       await tester.pumpWidget(
         const _TestApp(
-          initialFen: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
+          fen: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
           initialPlayerSide: PlayerSide.white,
         ),
       );
@@ -1551,7 +1548,7 @@ void main() {
     testWidgets('unset by dragging to an empty square', (WidgetTester tester) async {
       await tester.pumpWidget(
         const _TestApp(
-          initialFen: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
+          fen: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
           initialPlayerSide: PlayerSide.white,
         ),
       );
@@ -1574,7 +1571,7 @@ void main() {
     testWidgets('unset by tapping same origin square again', (WidgetTester tester) async {
       await tester.pumpWidget(
         const _TestApp(
-          initialFen: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
+          fen: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
           initialPlayerSide: PlayerSide.white,
         ),
       );
@@ -1594,7 +1591,7 @@ void main() {
     testWidgets('set and change by tap', (WidgetTester tester) async {
       await tester.pumpWidget(
         const _TestApp(
-          initialFen: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
+          fen: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
           initialPlayerSide: PlayerSide.white,
         ),
       );
@@ -1620,7 +1617,7 @@ void main() {
     testWidgets('set and change by drag', (WidgetTester tester) async {
       await tester.pumpWidget(
         const _TestApp(
-          initialFen: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
+          fen: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
           initialPlayerSide: PlayerSide.white,
         ),
       );
@@ -1640,7 +1637,7 @@ void main() {
     testWidgets('drag to set', (WidgetTester tester) async {
       await tester.pumpWidget(
         const _TestApp(
-          initialFen: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
+          fen: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
           initialPlayerSide: PlayerSide.white,
         ),
       );
@@ -1655,7 +1652,7 @@ void main() {
     testWidgets('select another piece from same side does not unset', (WidgetTester tester) async {
       await tester.pumpWidget(
         const _TestApp(
-          initialFen: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
+          fen: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
           initialPlayerSide: PlayerSide.white,
         ),
       );
@@ -1709,7 +1706,7 @@ void main() {
       await tester.pumpWidget(
         _TestApp(
           rule: Rule.crazyhouse,
-          initialFen: pos.fen,
+          fen: pos.fen,
           settings: const ChessboardSettings(animationDuration: Duration.zero),
           droppable: (validDropSquares: pos.legalDrops.squares.toSet()),
           initialPlayerSide: PlayerSide.white,
@@ -1758,7 +1755,7 @@ void main() {
         const _TestApp(
           settings: ChessboardSettings(animationDuration: Duration.zero),
           initialPlayerSide: PlayerSide.white,
-          initialFen: '8/5P2/2RK2P1/8/4k3/8/8/8 w - - 0 1',
+          fen: '8/5P2/2RK2P1/8/4k3/8/8/8 w - - 0 1',
           shouldPlayOpponentMove: true,
         ),
       );
@@ -1789,7 +1786,7 @@ void main() {
             animationDuration: Duration.zero,
           ),
           initialPlayerSide: PlayerSide.white,
-          initialFen: '8/5P2/2RK2P1/8/4k3/8/8/8 w - - 0 1',
+          fen: '8/5P2/2RK2P1/8/4k3/8/8/8 w - - 0 1',
           shouldPlayOpponentMove: true,
         ),
       );
@@ -1831,7 +1828,7 @@ void main() {
             animationDuration: Duration.zero,
           ),
           initialPlayerSide: PlayerSide.white,
-          initialFen: '8/5P2/2RK2P1/8/4k3/8/8/8 w - - 0 1',
+          fen: '8/5P2/2RK2P1/8/4k3/8/8/8 w - - 0 1',
           shouldPlayOpponentMove: true,
         ),
       );
@@ -2168,7 +2165,7 @@ void main() {
     late ChessboardController controller;
 
     setUp(() {
-      controller = ChessboardController.nonInteractive(initialFen: kInitialFEN);
+      controller = ChessboardController.nonInteractive(fen: kInitialFEN);
     });
 
     tearDown(() {
@@ -2263,7 +2260,7 @@ void main() {
     late ChessboardController controller;
 
     setUp(() {
-      controller = ChessboardController.nonInteractive(initialFen: kInitialFEN);
+      controller = ChessboardController.nonInteractive(fen: kInitialFEN);
     });
 
     tearDown(() {
@@ -2356,7 +2353,7 @@ void main() {
       const position = Chess.initial;
       final interactiveController = ChessboardController(
         fen: kInitialFEN,
-        initialGame: GameData(
+        game: GameData(
           playerSide: PlayerSide.both,
           isCheck: false,
           sideToMove: Side.white,
@@ -2414,7 +2411,7 @@ void main() {
       const position = Chess.initial;
       final interactiveController = ChessboardController(
         fen: kInitialFEN,
-        initialGame: GameData(
+        game: GameData(
           playerSide: PlayerSide.both,
           isCheck: false,
           sideToMove: Side.white,
@@ -2586,7 +2583,7 @@ enum GameEvent {
 class _TestApp extends StatefulWidget {
   const _TestApp({
     required this.initialPlayerSide,
-    this.initialFen = kInitialFEN,
+    this.fen = kInitialFEN,
     this.rule = Rule.chess,
     this.orientation = Side.white,
     this.settings,
@@ -2603,7 +2600,7 @@ class _TestApp extends StatefulWidget {
   });
 
   final PlayerSide initialPlayerSide;
-  final String initialFen;
+  final String fen;
   final Rule rule;
   final ChessboardSettings? settings;
   final Side orientation;
@@ -2657,11 +2654,11 @@ class _TestAppState extends State<_TestApp> {
   void initState() {
     super.initState();
     interactiveSide = widget.initialPlayerSide;
-    position = Position.setupPosition(widget.rule, Setup.parseFen(widget.initialFen));
+    position = Position.setupPosition(widget.rule, Setup.parseFen(widget.fen));
     promotionMove = widget.initialPromotionMove;
     lastMove = widget.initialPromotionMove;
     shapes = widget.initialShapes ?? {};
-    _controller = ChessboardController(fen: position.fen, initialGame: _buildGame());
+    _controller = ChessboardController(fen: position.fen, game: _buildGame());
     _gameEventSub = widget.gameEventStream?.listen(_onGameEvent);
   }
 
