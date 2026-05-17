@@ -334,7 +334,6 @@ class _HomePageState extends State<HomePage> {
                 playMode == Mode.botPlay ? _onUserMoveAgainstBot : _playMove,
             onPromotionSelection: _onPromotionSelection,
             onSetPremove: _onSetPremove,
-            shapes: null,
           );
 
           return Column(

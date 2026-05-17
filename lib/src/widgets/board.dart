@@ -49,8 +49,8 @@ class Chessboard extends StatefulWidget with ChessboardGeometry {
     this.onPromotionSelection,
     this.onSetPremove,
     this.onTouchedSquare,
-    this.shapes,
-    this.annotations,
+    this.shapes = const {},
+    this.annotations = const {},
   }) : _size = size,
        squareHighlights = const {},
        _fen = null,
@@ -69,8 +69,8 @@ class Chessboard extends StatefulWidget with ChessboardGeometry {
     Move? lastMove,
     this.squareHighlights = const {},
     this.onTouchedSquare,
-    this.shapes,
-    this.annotations,
+    this.shapes = const {},
+    this.annotations = const {},
   }) : _size = size,
        controller = null,
        onMove = null,
@@ -127,10 +127,10 @@ class Chessboard extends StatefulWidget with ChessboardGeometry {
   final void Function(Square)? onTouchedSquare;
 
   /// Optional set of [Shape] to be drawn on the board.
-  final Set<Shape>? shapes;
+  final Set<Shape> shapes;
 
   /// Move annotations to be displayed on the board.
-  final Map<Square, Annotation>? annotations;
+  final Map<Square, Annotation> annotations;
 
   /// Whether the pieces can be moved by one side or both.
   bool get interactive => controller?.interactive ?? false;
@@ -226,8 +226,8 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     final settings = widget.settings;
     final colorScheme = settings.colorScheme;
-    final shapes = {...(widget.shapes ?? _emptyShapes), ..._controller.drawnShapes};
-    final annotations = widget.annotations ?? _emptyAnnotations;
+    final shapes = {...widget.shapes, ..._controller.drawnShapes};
+    final annotations = widget.annotations;
 
     final background = BrightnessHueFilter(
       hue: widget.settings.hue,
@@ -1189,5 +1189,3 @@ class _DragAvatar {
 }
 
 const Set<Square> _emptyValidMoves = {};
-const Set<Shape> _emptyShapes = {};
-const Map<Square, Annotation> _emptyAnnotations = {};

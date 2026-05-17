@@ -2958,7 +2958,7 @@ class _TestApp extends StatefulWidget {
     this.settings,
     this.droppable,
     this.initialPromotionMove,
-    this.initialShapes,
+    this.initialShapes = const {},
     this.shouldPlayOpponentMove = false,
     this.gameEventStream,
     this.onTouchedSquare,
@@ -2975,7 +2975,7 @@ class _TestApp extends StatefulWidget {
   final Droppable? droppable;
 
   final NormalMove? initialPromotionMove;
-  final Set<Shape>? initialShapes;
+  final Set<Shape> initialShapes;
 
   /// play the first available move for the opponent after a delay of 200ms
   final bool shouldPlayOpponentMove;

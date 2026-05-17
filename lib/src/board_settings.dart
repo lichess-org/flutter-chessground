@@ -74,8 +74,8 @@ class BoardBorder {
 
 /// Board settings that controls visual aspects and behavior of the board.
 ///
-/// This is meant for fixed settings that don't change during a game. Sensible
-/// defaults are provided.
+/// This is meant for fixed settings that don't change during a game. Sensible defaults are
+/// provided.
 @immutable
 class ChessboardSettings {
   const ChessboardSettings({
