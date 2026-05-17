@@ -226,7 +226,7 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     final settings = widget.settings;
     final colorScheme = settings.colorScheme;
-    final shapes = widget.shapes ?? _emptyShapes;
+    final shapes = {...(widget.shapes ?? _emptyShapes), ..._controller.drawnShapes};
     final annotations = widget.annotations ?? _emptyAnnotations;
 
     final background = BrightnessHueFilter(
@@ -503,6 +503,7 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
       );
       _controller.attachTo(this, widget.settings.animationDuration);
     }
+    _controller.drawnShapesNotifier.addListener(_onDrawnShapesChange);
     _explosionNotifier = ExplosionSetNotifier(vsync: this);
     _lastSeenExplosionSquares = _controller.pendingExplosionSquares;
     _draggedPieceSquareNotifier = ValueNotifier<Square?>(null);
@@ -573,6 +574,7 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
 
   @override
   void dispose() {
+    _controller.drawnShapesNotifier.removeListener(_onDrawnShapesChange);
     if (_ownsController) {
       _controller.dispose();
     } else {
@@ -589,6 +591,10 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
     _dragAvatar?.cancel();
     _cancelShapesDoubleTapTimer?.cancel();
     super.dispose();
+  }
+
+  void _onDrawnShapesChange() {
+    setState(() {});
   }
 
   void _onControllerChange() {
@@ -624,10 +630,12 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
 
     if (!_ownsController && oldBoard.controller != widget.controller) {
       oldBoard.controller!.removeListener(_onControllerChange);
+      oldBoard.controller!.drawnShapesNotifier.removeListener(_onDrawnShapesChange);
       oldBoard.controller!.detach();
       _controller = widget.controller!;
       _controller.attachTo(this, widget.settings.animationDuration);
       _controller.addListener(_onControllerChange);
+      _controller.drawnShapesNotifier.addListener(_onDrawnShapesChange);
       _lastSideToMove = _controller.game?.sideToMove;
     }
 
@@ -724,7 +732,7 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
 
           // double tap on empty square to clear shapes
           if (_cancelShapesDoubleTapTimer != null) {
-            widget.settings.drawShape.onClearShapes?.call();
+            _controller.clearDrawnShapes();
             _cancelShapesDoubleTapTimer?.cancel();
             _cancelShapesDoubleTapTimer = null;
           } else {
@@ -733,11 +741,11 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
             });
           }
         }
-        // selecting a piece to move should clear shapes (only if there are shapes)
+        // selecting a piece to move should clear drawn shapes
         else if (_isMovable(piece) || _isPremovable(piece)) {
           _cancelShapesDoubleTapTimer?.cancel();
-          if (widget.shapes?.isNotEmpty == true) {
-            widget.settings.drawShape.onClearShapes?.call();
+          if (_controller.drawnShapes.isNotEmpty) {
+            _controller.clearDrawnShapes();
           }
         }
       }
@@ -871,7 +879,7 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
     } else if (_shapeAvatar != null &&
         _drawOrigin != null &&
         _drawOrigin!.pointer == details.pointer) {
-      widget.settings.drawShape.onCompleteShape?.call(_shapeAvatar!.withScale(1.0));
+      _controller.toggleDrawnShape(_shapeAvatar!.withScale(1.0));
       setState(() {
         _shapeAvatar = null;
       });

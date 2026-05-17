@@ -23,6 +23,7 @@ class ChessboardController extends ChangeNotifier {
     _translatingPiecesNotifier = ValueNotifier({});
     _fadingPiecesNotifier = ValueNotifier({});
     _highlightNotifier = BoardHighlightNotifier();
+    _drawnShapesNotifier = ValueNotifier({});
   }
 
   /// Creates a controller for a non-interactive board showing [fen].
@@ -34,6 +35,7 @@ class ChessboardController extends ChangeNotifier {
     _translatingPiecesNotifier = ValueNotifier({});
     _fadingPiecesNotifier = ValueNotifier({});
     _highlightNotifier = BoardHighlightNotifier();
+    _drawnShapesNotifier = ValueNotifier({});
   }
 
   String _fen;
@@ -45,6 +47,7 @@ class ChessboardController extends ChangeNotifier {
   late final ValueNotifier<TranslatingPieces> _translatingPiecesNotifier;
   late final ValueNotifier<FadingPieces> _fadingPiecesNotifier;
   late final BoardHighlightNotifier _highlightNotifier;
+  late final ValueNotifier<Set<Shape>> _drawnShapesNotifier;
 
   AnimationController? _animationController;
   CurvedAnimation? _translationAnimation;
@@ -65,6 +68,9 @@ class ChessboardController extends ChangeNotifier {
   /// a new, non-null set (i.e. different from the last seen value).
   Set<Square>? get pendingExplosionSquares => _pendingExplosionSquares;
 
+  /// The set of shapes drawn by the user on the board.
+  Set<Shape> get drawnShapes => _drawnShapesNotifier.value;
+
   // --- Notifiers consumed by board painters ---
 
   ValueNotifier<GameData?> get gameNotifier => _gameNotifier;
@@ -72,6 +78,7 @@ class ChessboardController extends ChangeNotifier {
   ValueNotifier<TranslatingPieces> get translatingPiecesNotifier => _translatingPiecesNotifier;
   ValueNotifier<FadingPieces> get fadingPiecesNotifier => _fadingPiecesNotifier;
   BoardHighlightNotifier get highlightNotifier => _highlightNotifier;
+  ValueNotifier<Set<Shape>> get drawnShapesNotifier => _drawnShapesNotifier;
 
   CurvedAnimation get translationAnimation {
     assert(_translationAnimation != null, 'ChessboardController is not attached to a board.');
@@ -114,6 +121,32 @@ class ChessboardController extends ChangeNotifier {
   }
 
   // --- Public mutation API ---
+
+  /// Adds [shape] to the controller's set of user-drawn shapes.
+  ///
+  /// The board re-renders automatically. This is equivalent to what the user
+  /// achieves by drawing with their finger when [DrawShapeOptions.enable] is true.
+  void addDrawnShape(Shape shape) {
+    _drawnShapesNotifier.value = {..._drawnShapesNotifier.value, shape};
+  }
+
+  /// Toggles [shape] in the set of user-drawn shapes.
+  ///
+  /// If [shape] is already present it is removed; otherwise it is added.
+  /// This is the behavior used by the board's drawing gesture — drawing the
+  /// same shape a second time erases it.
+  void toggleDrawnShape(Shape shape) {
+    final current = _drawnShapesNotifier.value;
+    _drawnShapesNotifier.value =
+        current.contains(shape) ? current.difference({shape}) : {...current, shape};
+  }
+
+  /// Removes all user-drawn shapes from the board.
+  ///
+  /// This does not affect externally supplied shapes passed via [Chessboard.shapes].
+  void clearDrawnShapes() {
+    _drawnShapesNotifier.value = {};
+  }
 
   /// Triggers a one-shot explosion animation on the given squares.
   ///
@@ -190,6 +223,7 @@ class ChessboardController extends ChangeNotifier {
     _translatingPiecesNotifier.dispose();
     _fadingPiecesNotifier.dispose();
     _highlightNotifier.dispose();
+    _drawnShapesNotifier.dispose();
     super.dispose();
   }
 }

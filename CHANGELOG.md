@@ -32,6 +32,11 @@
 - `explosionSquares` has been removed from both `Chessboard()` and `Chessboard.fixed()`
   constructors. Use `ChessboardController.triggerExplosion()` instead.
 
+- `DrawShapeOptions` no longer accepts `onCompleteShape` or `onClearShapes`
+  callbacks. Shape state drawn by the user is now managed internally by
+  `ChessboardController`. See the [migration guide](MIGRATION.md) for the
+  before/after pattern.
+
 ### New
 
 - `ChessboardController` is now the public API for driving the interactive board.
@@ -49,6 +54,22 @@
 
 - `ChessboardController.triggerExplosion(ISet<Square>)` triggers a one-shot atomic
   chess explosion animation on the given squares.
+
+- `ChessboardController.addDrawnShape(Shape shape)` adds a shape to the
+  controller's internally managed set of user-drawn shapes.
+
+- `ChessboardController.toggleDrawnShape(Shape shape)` adds the shape if
+  absent, or removes it if already present. Drawing the same shape a second
+  time now erases it (the behavior previously left to caller code).
+
+- `ChessboardController.clearDrawnShapes()` clears all user-drawn shapes.
+
+- `ChessboardController.drawnShapes` getter exposes the current set of
+  user-drawn shapes.
+
+- The board renders the union of `drawnShapes` (controller-managed) and the
+  externally supplied `Chessboard.shapes` set, so analysis arrows and
+  user-drawn shapes coexist without any extra wiring.
 
 ## 9.1.0
 

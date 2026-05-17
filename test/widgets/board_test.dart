@@ -2154,7 +2154,7 @@ void main() {
       expect(find.byType(BoardShapeWidget), findsNothing);
     });
 
-    testWidgets('selecting one piece should clear shapes', (WidgetTester tester) async {
+    testWidgets('selecting one piece should clear user drawn shapes', (WidgetTester tester) async {
       await tester.pumpWidget(const _TestApp(initialPlayerSide: PlayerSide.both));
 
       await TestAsyncUtils.guard<void>(() async {
@@ -2177,6 +2177,125 @@ void main() {
       await tester.pump();
 
       expect(find.byType(BoardShapeWidget), findsNothing);
+    });
+
+    testWidgets('drawing the same circle twice removes it', (WidgetTester tester) async {
+      await tester.pumpWidget(const _TestApp(initialPlayerSide: PlayerSide.both));
+
+      Future<void> drawCircleOnE4() async {
+        await TestAsyncUtils.guard<void>(() async {
+          final pressGesture = await tester.startGesture(squareOffset(tester, Square.a3));
+          final tapGesture = await tester.startGesture(squareOffset(tester, Square.e4));
+          await tapGesture.up();
+          await pressGesture.up();
+        });
+        await tester.pump(const Duration(milliseconds: 210));
+      }
+
+      await drawCircleOnE4();
+      expect(find.byType(BoardShapeWidget), findsOneWidget);
+
+      await drawCircleOnE4();
+      expect(find.byType(BoardShapeWidget), findsNothing);
+    });
+
+    testWidgets('drawing the same arrow twice removes it', (WidgetTester tester) async {
+      await tester.pumpWidget(const _TestApp(initialPlayerSide: PlayerSide.both));
+
+      Future<void> drawArrowE2E4() async {
+        final pressGesture = await tester.startGesture(squareOffset(tester, Square.a3));
+        await tester.dragFrom(squareOffset(tester, Square.e2), const Offset(0, -(squareSize * 2)));
+        await pressGesture.up();
+        await tester.pump(const Duration(milliseconds: 210));
+      }
+
+      await drawArrowE2E4();
+      expect(find.byType(BoardShapeWidget), findsOneWidget);
+
+      await drawArrowE2E4();
+      expect(find.byType(BoardShapeWidget), findsNothing);
+    });
+
+    testWidgets('drawing a different shape on the same square adds to the set', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(const _TestApp(initialPlayerSide: PlayerSide.both));
+
+      // draw a circle on e4
+      await TestAsyncUtils.guard<void>(() async {
+        final pressGesture = await tester.startGesture(squareOffset(tester, Square.a3));
+        final tapGesture = await tester.startGesture(squareOffset(tester, Square.e4));
+        await tapGesture.up();
+        await pressGesture.up();
+      });
+      await tester.pump(const Duration(milliseconds: 210));
+
+      // draw an arrow from e4 to e6 — different shape, same origin square
+      final pressGesture = await tester.startGesture(squareOffset(tester, Square.a3));
+      await tester.dragFrom(squareOffset(tester, Square.e4), const Offset(0, -(squareSize * 2)));
+      await pressGesture.up();
+      await tester.pump(const Duration(milliseconds: 210));
+
+      expect(find.byType(BoardShapeWidget), findsNWidgets(2));
+    });
+
+    testWidgets('external shapes are displayed alongside drawn shapes', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        _TestApp(
+          initialPlayerSide: PlayerSide.both,
+          initialShapes: {const Arrow(orig: Square.d1, dest: Square.d4, color: Color(0xFFFF0000))},
+        ),
+      );
+
+      // external shape is visible
+      expect(find.byType(BoardShapeWidget), findsOneWidget);
+
+      await TestAsyncUtils.guard<void>(() async {
+        // draw a circle by hand
+        final pressGesture = await tester.startGesture(squareOffset(tester, Square.a3));
+        final tapGesture = await tester.startGesture(squareOffset(tester, Square.e4));
+        await tapGesture.up();
+        await pressGesture.up();
+      });
+
+      // wait for the double tap delay to expire
+      await tester.pump(const Duration(milliseconds: 210));
+
+      // both external and drawn shapes are visible
+      expect(find.byType(BoardShapeWidget), findsNWidgets(2));
+    });
+
+    testWidgets('clearing drawn shapes does not affect external shapes', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        _TestApp(
+          initialPlayerSide: PlayerSide.both,
+          initialShapes: {const Circle(orig: Square.d4, color: Color(0xFFFF0000))},
+        ),
+      );
+
+      await TestAsyncUtils.guard<void>(() async {
+        // draw a circle by hand
+        final pressGesture = await tester.startGesture(squareOffset(tester, Square.a3));
+        final tapGesture = await tester.startGesture(squareOffset(tester, Square.e4));
+        await tapGesture.up();
+        await pressGesture.up();
+      });
+
+      await tester.pump(const Duration(milliseconds: 210));
+
+      expect(find.byType(BoardShapeWidget), findsNWidgets(2));
+
+      // double tap to clear drawn shapes
+      await tester.tapAt(squareOffset(tester, Square.a3));
+      await tester.tapAt(squareOffset(tester, Square.a3));
+      await tester.pump();
+
+      // only the external shape remains
+      expect(find.byType(BoardShapeWidget), findsOneWidget);
     });
   });
 
@@ -2878,24 +2997,14 @@ class _TestAppState extends State<_TestApp> {
   late ChessboardController _controller;
   late PlayerSide interactiveSide;
   late NormalMove? promotionMove;
-  late Set<Shape> shapes;
   late Position position;
   Move? lastMove;
   Move? premoveData;
 
   StreamSubscription<GameEvent>? _gameEventSub;
 
-  ChessboardSettings get defaultSettings => ChessboardSettings(
-    drawShape: DrawShapeOptions(
-      enable: true,
-      onCompleteShape: (shape) {
-        setState(() => shapes = {...shapes, shape});
-      },
-      onClearShapes: () {
-        setState(() => shapes = {});
-      },
-      newShapeColor: const Color(0xFF0000FF),
-    ),
+  ChessboardSettings get defaultSettings => const ChessboardSettings(
+    drawShape: DrawShapeOptions(enable: true, newShapeColor: Color(0xFF0000FF)),
   );
 
   @override
@@ -2905,7 +3014,6 @@ class _TestAppState extends State<_TestApp> {
     position = Position.setupPosition(widget.rule, Setup.parseFen(widget.fen));
     promotionMove = widget.initialPromotionMove;
     lastMove = widget.initialPromotionMove;
-    shapes = widget.initialShapes ?? {};
     _controller = ChessboardController(fen: position.fen, game: _buildGame());
     _gameEventSub = widget.gameEventStream?.listen(_onGameEvent);
   }
@@ -3041,7 +3149,7 @@ class _TestAppState extends State<_TestApp> {
                 _controller.updatePosition(position.fen, game: _buildGame());
               },
               onTouchedSquare: widget.onTouchedSquare,
-              shapes: shapes,
+              shapes: widget.initialShapes,
             ),
             if (widget.bottomWidget != null) widget.bottomWidget!,
           ],

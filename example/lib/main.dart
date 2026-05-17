@@ -90,7 +90,6 @@ class _HomePageState extends State<HomePage> {
   bool testDropMoves = false;
   Mode playMode = Mode.botPlay;
   Position? lastPos;
-  Set<Shape> shapes = {};
   bool showBorder = false;
 
   Position get initialPosition => testDropMoves
@@ -315,17 +314,7 @@ class _HomePageState extends State<HomePage> {
           pieceAnimation ? const Duration(milliseconds: 200) : Duration.zero,
       dragFeedbackScale: dragMagnify ? 2.0 : 1.0,
       dragTargetKind: dragTargetKind,
-      drawShape: DrawShapeOptions(
-        enable: drawMode,
-        onCompleteShape: _onCompleteShape,
-        onClearShapes: () {
-          if (shapes.isNotEmpty) {
-            setState(() {
-              shapes = {};
-            });
-          }
-        },
-      ),
+      drawShape: DrawShapeOptions(enable: drawMode),
       pieceShiftMethod: pieceShiftMethod,
       autoQueenPromotionOnPremove: false,
       pieceOrientationBehavior: playMode == Mode.freePlay
@@ -345,7 +334,7 @@ class _HomePageState extends State<HomePage> {
                 playMode == Mode.botPlay ? _onUserMoveAgainstBot : _playMove,
             onPromotionSelection: _onPromotionSelection,
             onSetPremove: _onSetPremove,
-            shapes: shapes.isNotEmpty ? shapes : null,
+            shapes: null,
           );
 
           return Column(
@@ -523,19 +512,6 @@ class _HomePageState extends State<HomePage> {
     if (premove != null) {
       Timer.run(() {
         _playMove(premove!, isPremove: true);
-      });
-    }
-  }
-
-  void _onCompleteShape(Shape shape) {
-    if (shapes.any((element) => element == shape)) {
-      setState(() {
-        shapes = shapes.difference({shape});
-      });
-      return;
-    } else {
-      setState(() {
-        shapes = {...shapes, shape};
       });
     }
   }

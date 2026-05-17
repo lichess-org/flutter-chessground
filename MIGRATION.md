@@ -199,3 +199,97 @@ void dispose() {
   super.dispose();
 }
 ```
+
+### Shape drawing: callbacks removed, controller manages drawn shapes
+
+`DrawShapeOptions` no longer takes `onCompleteShape` or `onClearShapes`
+callbacks. The controller now owns the set of user-drawn shapes and the board
+updates itself automatically — no parent `setState` required.
+
+The externally supplied `Chessboard.shapes` parameter still works the same way
+and is intended for shapes you control from outside (engine arrows, analysis
+annotations, etc.). The board renders the union of both sets.
+
+**Before (9.x)**
+
+```dart
+class _MyBoardState extends State<MyBoard> {
+  Set<Shape> _shapes = {};
+
+  ChessboardSettings get _settings => ChessboardSettings(
+    drawShape: DrawShapeOptions(
+      enable: true,
+      onCompleteShape: (shape) {
+        setState(() => _shapes = {..._shapes, shape});
+      },
+      onClearShapes: () {
+        setState(() => _shapes = {});
+      },
+    ),
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    return Chessboard(
+      // ...
+      settings: _settings,
+      shapes: _shapes,
+    );
+  }
+}
+```
+
+**After (10.0.0)**
+
+```dart
+class _MyBoardState extends State<MyBoard> {
+  late ChessboardController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = ChessboardController(fen: Chess.initial.fen, game: _buildGame());
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Chessboard(
+      controller: _controller,
+      // ...
+      settings: const ChessboardSettings(
+        drawShape: DrawShapeOptions(enable: true),
+      ),
+      // shapes: externalShapes,  ← only needed for externally supplied shapes
+    );
+  }
+}
+```
+
+To clear drawn shapes from outside the board (e.g. when the position advances):
+
+```dart
+_controller.clearDrawnShapes();
+```
+
+To read the current drawn shapes (e.g. to persist them):
+
+```dart
+final drawn = _controller.drawnShapes; // Set<Shape>
+```
+
+### Parameter mapping (shape drawing)
+
+| 9.x | 10.0.0 |
+|---|---|
+| `DrawShapeOptions(onCompleteShape: fn)` | removed — controller handles it internally |
+| `DrawShapeOptions(onClearShapes: fn)` | removed — call `controller.clearDrawnShapes()` instead |
+| `setState(() => shapes.add(shape))` in `onCompleteShape` | automatic — board calls `controller.toggleDrawnShape()` internally |
+| toggle-on-redraw logic in `onCompleteShape` | built into the board — drawing the same shape twice removes it |
+| `setState(() => shapes = {})` in `onClearShapes` | `controller.clearDrawnShapes()` |
+| `Chessboard(shapes: userDrawnShapes)` | use `Chessboard(shapes: ...)` for *external* shapes only |
