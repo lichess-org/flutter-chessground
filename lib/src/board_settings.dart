@@ -74,8 +74,8 @@ class BoardBorder {
 
 /// Board settings that controls visual aspects and behavior of the board.
 ///
-/// This is meant for fixed settings that don't change during a game. Sensible
-/// defaults are provided.
+/// This is meant for fixed settings that don't change during a game. Sensible defaults are
+/// provided.
 @immutable
 class ChessboardSettings {
   const ChessboardSettings({
@@ -175,7 +175,10 @@ class ChessboardSettings {
   /// Controls how moves are made.
   final PieceShiftMethod pieceShiftMethod;
 
-  /// Shape drawing options object containing data about how new shapes can be drawn.
+  /// Options that control the shape drawing gesture (enable/disable and color).
+  ///
+  /// Drawn shapes are stored in [ChessboardController] and can be cleared with
+  /// [ChessboardController.clearDrawnShapes].
   final DrawShapeOptions drawShape;
 
   @override

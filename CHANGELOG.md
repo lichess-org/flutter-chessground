@@ -1,3 +1,76 @@
+## 10.0.0
+
+### BREAKING CHANGES
+
+- The interactive `Chessboard()` constructor now requires a `controller:` parameter
+  of type `ChessboardController` instead of separate `fen:`, `game:`, and `lastMove:`
+  parameters. See the [migration guide](MIGRATION.md) for the before/after pattern.
+
+- Callbacks (`onMove`, `onPromotionSelection`) have been removed from `GameData`
+  and are now optional parameters on the `Chessboard` widget itself.
+
+- `Premovable` no longer carries `onSetPremove`. The callback has moved to a new
+  optional `onSetPremove` parameter on the `Chessboard` widget.
+
+- `ChessboardController` constructor changed. Use
+  `ChessboardController(fen: fen, game: game)` for interactive boards.
+  Use `ChessboardController.nonInteractive(fen: fen)` for non-interactive
+  display boards.
+
+- `ChessboardController.updatePosition(String fen, {GameData? game, Move? lastMove, Move? lastDrop})`
+  takes the board position as its first argument. Pass `game:` for interactive
+  boards or `lastMove:` for non-interactive boards. This single method replaces
+  the previous `updatePosition(GameData)` and the separate non-interactive
+  `updateFen(String)`.
+
+- `ChessboardController.jumpToPosition(String fen, {GameData? game, Move? lastMove})`
+  similarly unifies the previous `jumpToPosition(GameData)` and `jumpToFen(String)`.
+
+- `squareHighlights` has been removed from the interactive `Chessboard()` constructor.
+  It is only supported by `Chessboard.fixed()`.
+
+- `explosionSquares` has been removed from both `Chessboard()` and `Chessboard.fixed()`
+  constructors. Use `ChessboardController.triggerExplosion()` instead.
+
+- `DrawShapeOptions` no longer accepts `onCompleteShape` or `onClearShapes`
+  callbacks. Shape state drawn by the user is now managed internally by
+  `ChessboardController`. See the [migration guide](MIGRATION.md) for the
+  before/after pattern.
+
+### New
+
+- `ChessboardController` is now the public API for driving the interactive board.
+  Create one in `initState`, pass it to `Chessboard(controller: ...)`, and call
+  `updatePosition()` after each move. The board listens internally and rebuilds
+  itself without requiring a parent `setState()`.
+
+- `ChessboardController.nonInteractive({required String fen, Move? lastMove})`
+  named constructor for controllers that drive a non-interactive display board.
+
+- `ChessboardController.lastMove` getter exposes the last move played.
+
+- `ChessboardController.interactive` getter (true when a `GameData` with a
+  non-`none` `playerSide` is set).
+
+- `ChessboardController.triggerExplosion(ISet<Square>)` triggers a one-shot atomic
+  chess explosion animation on the given squares.
+
+- `ChessboardController.addDrawnShape(Shape shape)` adds a shape to the
+  controller's internally managed set of user-drawn shapes.
+
+- `ChessboardController.toggleDrawnShape(Shape shape)` adds the shape if
+  absent, or removes it if already present. Drawing the same shape a second
+  time now erases it (the behavior previously left to caller code).
+
+- `ChessboardController.clearDrawnShapes()` clears all user-drawn shapes.
+
+- `ChessboardController.drawnShapes` getter exposes the current set of
+  user-drawn shapes.
+
+- The board renders the union of `drawnShapes` (controller-managed) and the
+  externally supplied `Chessboard.shapes` set, so analysis arrows and
+  user-drawn shapes coexist without any extra wiring.
+
 ## 9.1.0
 
 - Added a Swift Package exposing Chessground board textures and piece images as an

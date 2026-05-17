@@ -20,8 +20,6 @@ enum PlayerSide {
 }
 
 /// Game data for an interactive chessboard.
-///
-/// This is used to control the state of the chessboard and to provide callbacks for user interactions.
 @immutable
 class GameData {
   /// Creates a new [GameData] with the provided values.
@@ -29,14 +27,16 @@ class GameData {
     required this.playerSide,
     required this.sideToMove,
     required this.validMoves,
-    required this.promotionMove,
-    required this.onMove,
-    required this.onPromotionSelection,
-    this.isCheck,
+    this.lastMove,
+    this.promotionMove,
+    this.kingSquareInCheck,
     this.premovable,
     this.droppable,
     this.canPromoteToKing = false,
   });
+
+  /// The last move played, used to highlight the origin and destination squares.
+  final Move? lastMove;
 
   /// Side that is allowed to move.
   final PlayerSide playerSide;
@@ -49,21 +49,11 @@ class GameData {
   /// Will show a promotion dialog if not null.
   final NormalMove? promotionMove;
 
-  /// Highlight the king of current side to move
-  final bool? isCheck;
+  /// The king square in check. If non-null, the king of the side to move is in check and will be highlighted.
+  final Square? kingSquareInCheck;
 
   /// Set of moves allowed to be played by current side to move.
   final ValidMoves validMoves;
-
-  /// Callback called after a move has been made.
-  ///
-  /// If the move has been made with drag and drop, `viaDragAndDrop` will be true.
-  final void Function(Move, {bool? viaDragAndDrop}) onMove;
-
-  /// Callback called after a piece has been selected for promotion.
-  ///
-  /// If the argument is `null`, the promotion should be canceled.
-  final void Function(Role? role) onPromotionSelection;
 
   /// Optional premovable state of the board.
   ///
@@ -80,6 +70,9 @@ class GameData {
 }
 
 /// State of a premovable chessboard.
+///
+/// A non-null value indicates that premoves are enabled. Holds the currently registered premove, or
+/// `null` if none has been set yet.
 typedef Premovable =
     ({
       /// Registered premove.
@@ -88,11 +81,6 @@ typedef Premovable =
       ///
       /// Chessground will not play the premove automatically, it is up to the library user to play it.
       Move? premove,
-
-      /// Callback called after a premove has been set/unset.
-      ///
-      /// If `null`, the premove will be unset.
-      void Function(Move?) onSetPremove,
     });
 
 /// State of a droppable chessboard for variants such as Crazyhouse.
@@ -114,7 +102,7 @@ typedef Pieces = Map<Square, Piece>;
 typedef ValidMoves = IMap<Square, ISet<Square>>;
 
 /// Set of squares where a piece can be dropped in variants such as Crazyhouse.
-typedef ValidDropSquares = ISet<Square>;
+typedef ValidDropSquares = Set<Square>;
 
 /// Square highlight color or image on the chessboard.
 @immutable
@@ -127,6 +115,18 @@ class HighlightDetails {
 
   final Color? solidColor;
   final AssetImage? image;
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        other is HighlightDetails &&
+            other.runtimeType == runtimeType &&
+            other.solidColor == solidColor &&
+            other.image == image;
+  }
+
+  @override
+  int get hashCode => Object.hash(solidColor, image);
 }
 
 /// A chess move annotation represented by a symbol and a color.

@@ -5,33 +5,28 @@ import 'dart:ui' as ui;
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
-import 'widgets/piece.dart';
+import 'models.dart';
 
 /// A singleton cache for chess piece images.
 ///
 /// This is useful to avoid using the global flutter image cache and the standard
 /// [Image] widget which can be unpredictable, and can cause images to blink.
 ///
-/// The images should be preloaded into the cache using the [load] method before
-/// they are used in the [PieceWidget]. This will ensure that the images are
-/// available when the [PieceWidget] is built.
+/// The board widgets will automatically call [loadAll] on first render if the
+/// cache does not already contain the required images. Pieces are hidden until
+/// loading completes. For zero-latency first render, pre-populate the cache
+/// before the board is displayed:
 ///
-/// Example:
 /// ```dart
 /// // in main.dart
 /// final PieceAssets assets = getPieceAssets();
 /// final devicePixelRatio = WidgetsBinding
 ///         .instance.platformDispatcher.implicitView?.devicePixelRatio ?? 1.0;
-/// for (final asset in assets.values) {
-///   await ChessgroundImages.instance.load(asset, devicePixelRatio: devicePixelRatio);
-/// }
+/// await ChessgroundImages.instance.loadAll(assets, devicePixelRatio: devicePixelRatio);
 /// ```
 ///
-/// Using the cache is optional, and the [PieceWidget] will load images directly
-/// from the [AssetImage] if the cache is not used.
-///
-/// When the pieces are cached in memory, the [PieceWidget] class will display
-/// the piece image using the [RawImage] widget.
+/// The [PieceWidget] class will display the piece image using the [RawImage]
+/// widget once the image is available in the cache.
 ///
 /// This is the responsibility of the user to dispose of the cache when it is no
 /// longer needed, or when changing the piece set, using the [clear] method.
@@ -105,6 +100,18 @@ class ChessgroundImages {
 
   /// Whether the cache contains the specified [key] or not.
   bool containsKey(AssetImage key) => _assets.containsKey(key);
+
+  /// Returns true if all images in [assets] are currently loaded in the cache.
+  bool isAllLoaded(PieceAssets assets) =>
+      assets.values.every((AssetImage a) => _assets[a]?.image != null);
+
+  /// Loads all images in [assets] that are not already cached.
+  Future<void> loadAll(PieceAssets assets, {double? devicePixelRatio}) {
+    return Future.wait([
+      for (final asset in assets.values)
+        if (!containsKey(asset)) load(asset, devicePixelRatio: devicePixelRatio),
+    ]);
+  }
 
   /// Returns the list of keys in the cache.
   List<AssetImage> get keys => _assets.keys.toList();
