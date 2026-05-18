@@ -102,6 +102,7 @@ class ChessboardSettings {
     this.drawShape = const DrawShapeOptions(),
 
     // behavior settings
+    this.enableDrops = false,
     this.enablePremoves = true,
     this.enablePremoveCastling = true,
     this.autoQueenPromotion = false,
@@ -163,6 +164,9 @@ class ChessboardSettings {
   /// Controls if any pieces are displayed upside down.
   final PieceOrientationBehavior pieceOrientationBehavior;
 
+  /// Whether drop moves are enabled (for variants such as Crazyhouse).
+  final bool enableDrops;
+
   /// Whether premoves are enabled.
   final bool enablePremoves;
 
@@ -212,6 +216,7 @@ class ChessboardSettings {
         other.dragFeedbackOffset == dragFeedbackOffset &&
         other.dragTargetKind == dragTargetKind &&
         other.pieceOrientationBehavior == pieceOrientationBehavior &&
+        other.enableDrops == enableDrops &&
         other.enablePremoves == enablePremoves &&
         other.enablePremoveCastling == enablePremoveCastling &&
         other.autoQueenPromotion == autoQueenPromotion &&
@@ -237,6 +242,7 @@ class ChessboardSettings {
     dragFeedbackOffset,
     dragTargetKind,
     pieceOrientationBehavior,
+    enableDrops,
     enablePremoves,
     enablePremoveCastling,
     autoQueenPromotion,
@@ -262,6 +268,7 @@ class ChessboardSettings {
     Offset? dragFeedbackOffset,
     DragTargetKind? dragTargetKind,
     PieceOrientationBehavior? pieceOrientationBehavior,
+    bool? enableDrops,
     bool? enablePremoves,
     bool? enablePremoveCastling,
     bool? autoQueenPromotion,
@@ -287,6 +294,7 @@ class ChessboardSettings {
       dragFeedbackOffset: dragFeedbackOffset ?? this.dragFeedbackOffset,
       dragTargetKind: dragTargetKind ?? this.dragTargetKind,
       pieceOrientationBehavior: pieceOrientationBehavior ?? this.pieceOrientationBehavior,
+      enableDrops: enableDrops ?? this.enableDrops,
       enablePremoves: enablePremoves ?? this.enablePremoves,
       enablePremoveCastling: enablePremoveCastling ?? this.enablePremoveCastling,
       autoQueenPromotionOnPremove: autoQueenPromotionOnPremove ?? this.autoQueenPromotionOnPremove,

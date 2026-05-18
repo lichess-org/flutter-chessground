@@ -38,8 +38,8 @@ The board is driven by a controller and immutable data objects:
   - `ChessboardController.nonInteractive(fen: fen)` — for non-interactive display boards (`Chessboard.fixed()`).
   - `updatePosition(String fen, {GameData? game, Move? lastMove, Move? lastDrop})` — advance position with animation. Pass `game:` for interactive boards, `lastMove:` for non-interactive.
   - `jumpToPosition(String fen, {GameData? game, Move? lastMove})` — switch position without animation.
-- **`GameData`** — Immutable snapshot of interactive game state: `playerSide`, `sideToMove`, `validMoves`, `lastMove`, `premovable`, `droppable`, `promotionMove`, `isCheck`. Does **not** carry the FEN — that is always passed separately.
-- **`ChessboardSettings`** — All visual and behavioral configuration (theme, animations, piece shift method, draw shapes, coordinates, etc.).
+- **`GameData`** — Immutable snapshot of interactive game state: `playerSide`, `sideToMove`, `validMoves`, `lastMove`, `kingSquareInCheck`, `validDropSquares`. Does **not** carry the FEN — that is always passed separately.
+- **`ChessboardSettings`** — All visual and behavioral configuration (theme, animations, piece shift method, draw shapes, coordinates, `enableDrops`, etc.).
 - **`Pieces`** (`Map<Square, Piece>`) — Board position, typically derived from FEN via `readFen()`.
 
 ### Shape System

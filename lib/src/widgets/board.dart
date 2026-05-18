@@ -360,7 +360,7 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
             ValueListenableBuilder<GameData?>(
               valueListenable: _controller.gameNotifier,
               builder: (context, game, _) {
-                if (game?.droppable == null) return const SizedBox.shrink();
+                if (!widget.settings.enableDrops) return const SizedBox.shrink();
                 return SizedBox.square(
                   key: _dropTargetKey,
                   dimension: widget.size,
@@ -392,8 +392,7 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
                       if (backRankPawnDrop) return;
                       final move = DropMove(to: square, role: piece.role);
                       if (currentGame.sideToMove == piece.color &&
-                          currentGame.droppable != null &&
-                          currentGame.droppable!.validDropSquares.contains(square)) {
+                          currentGame.validDropSquares?.contains(square) == true) {
                         widget.onMove?.call(move, viaDragAndDrop: true);
                       } else if (widget.settings.enablePremoves) {
                         _controller.premove = move;

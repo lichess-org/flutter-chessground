@@ -480,7 +480,8 @@ void main() {
           initialPlayerSide: PlayerSide.both,
           rule: Rule.crazyhouse,
           fen: pos.fen,
-          droppable: (validDropSquares: pos.legalDrops.squares.toSet()),
+          settings: const ChessboardSettings(enableDrops: true),
+          validDropSquares: pos.legalDrops.squares.toSet(),
           bottomWidget: Column(
             children: [
               Draggable(
@@ -541,7 +542,8 @@ void main() {
           initialPlayerSide: PlayerSide.both,
           fen: pos.fen,
           rule: Rule.crazyhouse,
-          droppable: (validDropSquares: pos.legalDrops.squares.toSet()),
+          settings: const ChessboardSettings(enableDrops: true),
+          validDropSquares: pos.legalDrops.squares.toSet(),
           bottomWidget: Column(
             children: [
               Draggable(
@@ -606,7 +608,8 @@ void main() {
           // white is in check, so we can't drag the pawn onto a square that doesn't block the check.
           fen: pos.fen,
           rule: Rule.crazyhouse,
-          droppable: (validDropSquares: pos.legalDrops.squares.toSet()),
+          settings: const ChessboardSettings(enableDrops: true),
+          validDropSquares: pos.legalDrops.squares.toSet(),
           bottomWidget: Column(
             children: [
               Draggable(
@@ -665,7 +668,8 @@ void main() {
             initialPlayerSide: PlayerSide.both,
             rule: Rule.crazyhouse,
             fen: pos.fen,
-            droppable: (validDropSquares: pos.legalDrops.squares.toSet()),
+            settings: const ChessboardSettings(enableDrops: true),
+          validDropSquares: pos.legalDrops.squares.toSet(),
             bottomWidget: Draggable(
               key: const Key('whitePawn'),
               data: Piece.whitePawn,
@@ -711,7 +715,8 @@ void main() {
           initialPlayerSide: PlayerSide.both,
           rule: Rule.crazyhouse,
           fen: pos.fen,
-          droppable: (validDropSquares: pos.legalDrops.squares.toSet()),
+          settings: const ChessboardSettings(enableDrops: true),
+          validDropSquares: pos.legalDrops.squares.toSet(),
           bottomWidget: Draggable(
             key: const Key('whitePawn'),
             data: Piece.whitePawn,
@@ -758,7 +763,8 @@ void main() {
           initialPlayerSide: PlayerSide.both,
           rule: Rule.crazyhouse,
           fen: pos.fen,
-          droppable: (validDropSquares: pos.legalDrops.squares.toSet()),
+          settings: const ChessboardSettings(enableDrops: true),
+          validDropSquares: pos.legalDrops.squares.toSet(),
           bottomWidget: Draggable(
             key: const Key('whitePawn'),
             data: Piece.whitePawn,
@@ -1996,8 +2002,8 @@ void main() {
         _TestApp(
           rule: Rule.crazyhouse,
           fen: pos.fen,
-          settings: const ChessboardSettings(animationDuration: Duration.zero),
-          droppable: (validDropSquares: pos.legalDrops.squares.toSet()),
+          settings: const ChessboardSettings(animationDuration: Duration.zero, enableDrops: true),
+          validDropSquares: pos.legalDrops.squares.toSet(),
           initialPlayerSide: PlayerSide.white,
           shouldPlayOpponentMove: true,
           bottomWidget: Draggable(
@@ -3111,7 +3117,7 @@ class _TestApp extends StatefulWidget {
     this.rule = Rule.chess,
     this.orientation = Side.white,
     this.settings,
-    this.droppable,
+    this.validDropSquares,
     this.initialPromotionMove,
     this.initialShapes = const {},
     this.shouldPlayOpponentMove = false,
@@ -3127,7 +3133,7 @@ class _TestApp extends StatefulWidget {
   final Rule rule;
   final ChessboardSettings? settings;
   final Side orientation;
-  final Droppable? droppable;
+  final ValidDropSquares? validDropSquares;
 
   final NormalMove? initialPromotionMove;
   final Set<Shape> initialShapes;
@@ -3188,7 +3194,7 @@ class _TestAppState extends State<_TestApp> {
       kingSquareInCheck: position.isCheck ? position.board.kingOf(position.turn) : null,
       sideToMove: position.turn == Side.white ? Side.white : Side.black,
       validMoves: makeLegalMoves(position),
-      droppable: widget.droppable,
+      validDropSquares: widget.validDropSquares,
     );
   }
 

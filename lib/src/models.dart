@@ -28,7 +28,7 @@ class GameData {
     required this.validMoves,
     this.lastMove,
     this.kingSquareInCheck,
-    this.droppable,
+    this.validDropSquares,
   });
 
   /// The last move played, used to highlight the origin and destination squares.
@@ -46,18 +46,9 @@ class GameData {
   /// Set of moves allowed to be played by current side to move.
   final ValidMoves validMoves;
 
-  /// Optional droppable state of the board for variants such as Crazyhouse.
-  ///
-  /// If `null`, the board will not allow drops.
-  final Droppable? droppable;
+  /// Set of squares where the current side to move can drop a piece, for variants such as Crazyhouse.
+  final ValidDropSquares? validDropSquares;
 }
-
-/// State of a droppable chessboard for variants such as Crazyhouse.
-typedef Droppable =
-    ({
-      /// Set of squares where the current side to move can drop a piece in variants such as Crazyhouse.
-      ValidDropSquares validDropSquares,
-    });
 
 /// Describes a set of piece assets.
 ///

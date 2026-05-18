@@ -282,6 +282,40 @@ final drawn = _controller.drawnShapes; // Set<Shape>
 | `setState(() => shapes = {})` in `onClearShapes` | `controller.clearDrawnShapes()` |
 | `Chessboard(shapes: userDrawnShapes)` | use `Chessboard(shapes: ...)` for *external* shapes only |
 
+### Drop moves: `Droppable` removed
+
+`GameData.droppable` and the `Droppable` record typedef have been removed.
+Pass the valid drop squares directly on `GameData`, and enable the drop target
+via `ChessboardSettings`.
+
+**Before (9.x)**
+
+```dart
+GameData(
+  // ...
+  droppable: (validDropSquares: position.legalDrops.squares.toSet()),
+)
+```
+
+**After (10.0.0)**
+
+```dart
+// In GameData
+GameData(
+  // ...
+  validDropSquares: position.legalDrops.squares.toSet(),
+)
+
+// In ChessboardSettings — required to activate the drop target
+ChessboardSettings(
+  enableDrops: true,
+  // ...
+)
+```
+
+When drop moves are not applicable (standard chess), omit `validDropSquares`
+(it defaults to `null`) and leave `enableDrops` at its default `false`.
+
 ### Premove handling: `Premovable` removed
 
 Premove state is now owned by `ChessboardController`. You no longer need to track

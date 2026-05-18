@@ -313,6 +313,7 @@ class _HomePageState extends State<HomePage> {
       dragFeedbackScale: dragMagnify ? 2.0 : 1.0,
       dragTargetKind: dragTargetKind,
       drawShape: DrawShapeOptions(enable: drawMode),
+      enableDrops: testDropMoves,
       pieceShiftMethod: pieceShiftMethod,
       autoQueenPromotionOnPremove: false,
       pieceOrientationBehavior: playMode == Mode.freePlay
@@ -585,9 +586,7 @@ class _HomePageState extends State<HomePage> {
           ? PlayerSide.white
           : (position.turn == Side.white ? PlayerSide.white : PlayerSide.black),
       validMoves: makeLegalMoves(position),
-      droppable: testDropMoves
-          ? (validDropSquares: position.legalDrops.squares.toSet())
-          : null,
+      validDropSquares: testDropMoves ? position.legalDrops.squares.toSet() : null,
       sideToMove: position.turn == Side.white ? Side.white : Side.black,
       kingSquareInCheck:
           position.isCheck ? position.board.kingOf(position.turn) : null,

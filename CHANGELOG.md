@@ -48,6 +48,12 @@
   `ChessboardController`. See the [migration guide](MIGRATION.md) for the
   before/after pattern.
 
+- `GameData.droppable` (the `Droppable` record wrapper) has been removed.
+  Pass `validDropSquares` directly on `GameData` instead, and set
+  `ChessboardSettings(enableDrops: true)` to activate the drop target.
+  The `Droppable` typedef has been removed. See the
+  [migration guide](MIGRATION.md) for the before/after pattern.
+
 ### New
 
 - `ChessboardController` is now the public API for driving the interactive board.
@@ -81,6 +87,11 @@
 - `ChessboardController.premoveNotifier` — a `ValueNotifier<Move?>` that fires
   whenever the premove is set or cleared, useful for reacting outside the board
   (e.g. pocket highlights, haptics, or analytics).
+
+- `ChessboardSettings.enableDrops` (default `false`) — enables the drop target
+  for Crazyhouse and other drop-move variants. Replaces the implicit on/off
+  behaviour that was controlled by the nullability of the removed
+  `GameData.droppable`. Set alongside `GameData.validDropSquares`.
 
 - `ChessboardSettings.enablePremoves` (default `true`) — the on/off switch for
   premoves, replacing the nullability of the removed `GameData.premovable`.
