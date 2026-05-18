@@ -507,12 +507,16 @@ class _HomePageState extends State<HomePage> {
     final move = _controller.premove;
     if (move != null) {
       _controller.premove = null;
-      Timer.run(() {
+      Timer.run(() async {
         if (move is NormalMove && _isPromotionPawnMove(move)) {
           _controller.pendingPromotion = move;
           _controller.updatePosition(position.fen, game: _buildGame());
         } else {
           _playMove(move);
+          if (playMode == Mode.botPlay) {
+            await _playBlackMove();
+            _tryPlayPremove();
+          }
         }
       });
     }
