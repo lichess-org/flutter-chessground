@@ -5,10 +5,33 @@ import 'package:chessground/chessground.dart';
 const fen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR';
 
 void main() {
-  test('pawn premoves', () {
+  test('white pawn premoves from starting rank', () {
     expect(
       premovesOf(Square.e2, readFen(fen)),
       equals({Square.d3, Square.e3, Square.e4, Square.f3}),
+    );
+  });
+
+  test('white pawn premoves from non-starting rank', () {
+    // no double push allowed from rank 3
+    expect(
+      premovesOf(Square.e3, readFen('8/8/8/8/8/4P3/8/8')),
+      equals({Square.d4, Square.e4, Square.f4}),
+    );
+  });
+
+  test('black pawn premoves from starting rank', () {
+    expect(
+      premovesOf(Square.e7, readFen(fen)),
+      equals({Square.d6, Square.e5, Square.e6, Square.f6}),
+    );
+  });
+
+  test('black pawn premoves from non-starting rank', () {
+    // no double push allowed from rank 6
+    expect(
+      premovesOf(Square.e6, readFen('8/8/4p3/8/8/8/8/8')),
+      equals({Square.d5, Square.e5, Square.f5}),
     );
   });
 
@@ -74,7 +97,7 @@ void main() {
     );
   });
 
-  test('king premoves', () {
+  test('white king premoves', () {
     expect(
       premovesOf(Square.e1, readFen(fen), canCastle: true),
       equals({
@@ -93,6 +116,36 @@ void main() {
     expect(
       premovesOf(Square.e1, readFen(fen)),
       equals({Square.d1, Square.d2, Square.e2, Square.f2, Square.f1}),
+    );
+  });
+
+  test('black king premoves', () {
+    expect(
+      premovesOf(Square.e8, readFen('r3k2r/8/8/8/8/8/8/8'), canCastle: true),
+      equals({
+        Square.a8,
+        Square.c8,
+        Square.d7,
+        Square.d8,
+        Square.e7,
+        Square.f7,
+        Square.f8,
+        Square.g8,
+        Square.h8,
+      }),
+    );
+
+    expect(
+      premovesOf(Square.e8, readFen('r3k2r/8/8/8/8/8/8/8')),
+      equals({Square.d7, Square.d8, Square.e7, Square.f7, Square.f8}),
+    );
+  });
+
+  test('chess960 king castling premoves', () {
+    // king at d1 can premove to rook on a1 (Chess960 castling)
+    expect(
+      premovesOf(Square.d1, readFen('8/8/8/8/8/8/8/R2K4'), canCastle: true),
+      equals({Square.a1, Square.c1, Square.c2, Square.d2, Square.e1, Square.e2}),
     );
   });
 }
