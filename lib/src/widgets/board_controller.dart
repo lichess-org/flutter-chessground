@@ -6,15 +6,40 @@ import 'board_painter.dart';
 import '../fen.dart';
 import '../models.dart';
 
-/// Controls the board position, game state, and piece animations.
+/// Controls the board position, game state, and piece animations for a [Chessboard].
 ///
-/// Create a controller and pass it to [Chessboard]. Call [updatePosition] after
-/// each move to advance the board with animation, or [jumpToPosition] to switch
-/// positions without animation (e.g. analysis seeking).
+/// ## Constructors
+///
+/// Use [ChessboardController.new] for interactive boards passed to [Chessboard],
+/// and [ChessboardController.nonInteractive] for display boards passed to
+/// [Chessboard.fixed].
+///
+/// ## Updating the position
+///
+/// Call [updatePosition] after each move to advance the board with piece
+/// animation. Call [jumpToPosition] to switch positions without animation
+/// (e.g. analysis seeking or history navigation).
+///
+/// ## Premoves
+///
+/// Read [premove] or subscribe to [premoveNotifier] to detect a pending premove.
+/// The parent is responsible for executing the premove at the right time (after
+/// the opponent moves) and for clearing it with `premove = null` when needed.
+///
+/// ## Drawn shapes
+///
+/// [drawnShapes] exposes the shapes the user has drawn with gestures.
+/// Use [addDrawnShape], [toggleDrawnShape], and [clearDrawnShapes] to
+/// manipulate them programmatically.
+///
+/// ## Atomic explosions
+///
+/// Call [triggerExplosion] with the set of squares to animate a one-shot
+/// explosion (used in atomic chess).
 ///
 /// The controller must be disposed when no longer needed.
 class ChessboardController extends ChangeNotifier {
-  /// Creates a controller for an interactive board showing [fen] and driven by [game].
+  /// Creates a controller for an interactive [Chessboard] showing [fen] and driven by [game].
   ChessboardController({required String fen, required GameData game})
     : _fen = fen,
       _lastMove = null {
@@ -28,7 +53,7 @@ class ChessboardController extends ChangeNotifier {
     _premoveNotifier = ValueNotifier(null);
   }
 
-  /// Creates a controller for a non-interactive board showing [fen].
+  /// Creates a controller for a non-interactive [Chessboard.fixed] showing [fen].
   ChessboardController.nonInteractive({required String fen, Move? lastMove})
     : _fen = fen,
       _lastMove = lastMove {
