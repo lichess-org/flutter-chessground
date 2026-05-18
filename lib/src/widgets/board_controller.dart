@@ -10,9 +10,10 @@ import '../models.dart';
 ///
 /// ## Constructors
 ///
-/// Use [ChessboardController.new] for interactive boards passed to [Chessboard],
-/// and [ChessboardController.nonInteractive] for display boards passed to
-/// [Chessboard.fixed].
+/// Use [ChessboardController.new] for interactive boards passed to [Chessboard].
+/// Use [ChessboardController.nonInteractive] with [Chessboard] when you want an
+/// animated, externally-controlled board that the user cannot interact with.
+/// [Chessboard.fixed] manages its own internal controller and does not accept one.
 ///
 /// ## Updating the position
 ///
