@@ -32,7 +32,7 @@ class StaticChessboard extends StatefulWidget with ChessboardGeometry {
     this.colorScheme = ChessboardColorScheme.brown,
     this.brightness = 1.0,
     this.hue = 0.0,
-    this.pieceAssets = PieceSet.stauntyAssets,
+    this.pieceAssets = PieceSet.cburnettAssets,
     this.borderRadius = BorderRadius.zero,
     this.boxShadow = const <BoxShadow>[],
     this.enableCoordinates = false,

@@ -119,7 +119,7 @@ class Annotation {
 
 /// Base class for shapes that can be drawn on the board.
 sealed class Shape {
-  /// Scale factor for the shape. Must be between 0.0 and 1.0.
+  /// Scale factor for the shape. Must be greater than 0.0 and at most 1.0.
   double get scale => 1.0;
 
   /// Decides what shape to draw based on the current shape and the new destination.
@@ -134,7 +134,7 @@ sealed class Shape {
 class Circle implements Shape {
   /// Creates a new [Circle] with the provided values.
   ///
-  /// The [scale] must be between 0.0 and 1.0.
+  /// The [scale] must be greater than 0.0 and at most 1.0.
   const Circle({required this.color, required this.orig, this.scale = 1.0})
     : assert(scale > 0.0 && scale <= 1.0);
 
@@ -192,7 +192,7 @@ class Arrow implements Shape {
   /// Creates a new [Arrow] with the provided values.
   ///
   /// The [orig] and [dest] must be different squares.
-  /// The [scale] must be between 0.0 and 1.0.
+  /// The [scale] must be greater than 0.0 and at most 1.0.
   const Arrow({required this.color, required this.orig, required this.dest, this.scale = 1.0})
     : assert(orig != dest && scale > 0.0 && scale <= 1.0);
 
@@ -246,7 +246,7 @@ class PieceShape implements Shape {
 
   /// Creates a new [PieceShape] with the provided values.
   ///
-  /// The [scale] must be between 0.0 and 1.0.
+  /// The [scale] must be greater than 0.0 and at most 1.0.
   /// The default [opacity] is 0.5 and the default [scale] is 0.9.
   const PieceShape({
     this.color,

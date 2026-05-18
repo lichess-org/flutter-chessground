@@ -669,7 +669,7 @@ void main() {
             rule: Rule.crazyhouse,
             fen: pos.fen,
             settings: const ChessboardSettings(enableDrops: true),
-          validDropSquares: pos.legalDrops.squares.toSet(),
+            validDropSquares: pos.legalDrops.squares.toSet(),
             bottomWidget: Draggable(
               key: const Key('whitePawn'),
               data: Piece.whitePawn,

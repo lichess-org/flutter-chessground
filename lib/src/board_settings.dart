@@ -174,7 +174,7 @@ class ChessboardSettings {
   final bool enablePremoveCastling;
 
   /// If true the promotion selector won't appear and pawn will be promoted
-  // automatically to queen
+  /// automatically to queen.
   final bool autoQueenPromotion;
 
   /// If true the promotion selector won't appear and pawn will be promoted
@@ -207,6 +207,8 @@ class ChessboardSettings {
         other.border == border &&
         other.borderRadius == borderRadius &&
         other.boxShadow == boxShadow &&
+        other.brightness == brightness &&
+        other.hue == hue &&
         other.enableCoordinates == enableCoordinates &&
         other.animationDuration == animationDuration &&
         other.showLastMove == showLastMove &&
@@ -233,6 +235,8 @@ class ChessboardSettings {
     border,
     borderRadius,
     boxShadow,
+    brightness,
+    hue,
     enableCoordinates,
     animationDuration,
     showLastMove,
@@ -257,6 +261,7 @@ class ChessboardSettings {
     double? brightness,
     double? hue,
     PieceAssets? pieceAssets,
+    BoardBorder? border,
     BorderRadiusGeometry? borderRadius,
     List<BoxShadow>? boxShadow,
     bool? enableCoordinates,
@@ -282,7 +287,7 @@ class ChessboardSettings {
       brightness: brightness ?? this.brightness,
       hue: hue ?? this.hue,
       pieceAssets: pieceAssets ?? this.pieceAssets,
-      border: border,
+      border: border ?? this.border,
       borderRadius: borderRadius ?? this.borderRadius,
       boxShadow: boxShadow ?? this.boxShadow,
       enableCoordinates: enableCoordinates ?? this.enableCoordinates,
