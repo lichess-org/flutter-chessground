@@ -582,7 +582,8 @@ class _HomePageState extends State<HomePage> {
           ? (validDropSquares: position.legalDrops.squares.toSet())
           : null,
       sideToMove: position.turn == Side.white ? Side.white : Side.black,
-      kingSquareInCheck: position.isCheck ? position.board.kingOf(position.turn) : null,
+      kingSquareInCheck:
+          position.isCheck ? position.board.kingOf(position.turn) : null,
       promotionMove: promotionMove,
       premovable: (premove: premove),
     );

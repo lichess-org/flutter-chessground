@@ -1,6 +1,5 @@
 import 'package:dartchess/dartchess.dart';
 import 'package:flutter/widgets.dart';
-import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 
 /// The side that can interact with the board.
 enum PlayerSide {
@@ -93,13 +92,13 @@ typedef Droppable =
 /// Describes a set of piece assets.
 ///
 /// The [PieceAssets] must be complete with all the pieces for both sides.
-typedef PieceAssets = IMap<PieceKind, AssetImage>;
+typedef PieceAssets = Map<PieceKind, AssetImage>;
 
 /// Representation of the piece positions on a board.
 typedef Pieces = Map<Square, Piece>;
 
 /// Sets of each valid destinations for an origin square.
-typedef ValidMoves = IMap<Square, ISet<Square>>;
+typedef ValidMoves = Map<Square, Set<Square>>;
 
 /// Set of squares where a piece can be dropped in variants such as Crazyhouse.
 typedef ValidDropSquares = Set<Square>;

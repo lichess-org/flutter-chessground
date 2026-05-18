@@ -10,8 +10,7 @@ environment:
   flutter: ">=3.29.0"
 
 dependencies:
-  dartchess: ^0.12.0
-  fast_immutable_collections: ^11.0.0
+  dartchess: ^0.13.0
   flutter:
     sdk: flutter
 
