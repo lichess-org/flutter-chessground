@@ -40,23 +40,6 @@ class BoardHighlightNotifier extends ChangeNotifier {
   }
 }
 
-Rect _squareRect(Square square, double squareSize, Side orientation) {
-  final x = orientation == Side.black ? 7 - square.file : square.file;
-  final y = orientation == Side.black ? square.rank : 7 - square.rank;
-  return Rect.fromLTWH(x * squareSize, y * squareSize, squareSize, squareSize);
-}
-
-bool _isUpsideDown(
-  Side pieceColor, {
-  required PieceOrientationBehavior behavior,
-  required Side orientation,
-  Side? sideToMove,
-}) => switch (behavior) {
-  PieceOrientationBehavior.facingUser => false,
-  PieceOrientationBehavior.opponentUpsideDown => pieceColor == orientation.opposite,
-  PieceOrientationBehavior.sideToPlay => sideToMove == orientation.opposite,
-};
-
 class HighlightsPainter extends CustomPainter {
   HighlightsPainter({
     required this.interactionNotifier,
@@ -539,3 +522,20 @@ class DragSquareTargetPainter extends CustomPainter {
     return squareSize != oldDelegate.squareSize || targetKind != oldDelegate.targetKind;
   }
 }
+
+Rect _squareRect(Square square, double squareSize, Side orientation) {
+  final x = orientation == Side.black ? 7 - square.file : square.file;
+  final y = orientation == Side.black ? square.rank : 7 - square.rank;
+  return Rect.fromLTWH(x * squareSize, y * squareSize, squareSize, squareSize);
+}
+
+bool _isUpsideDown(
+  Side pieceColor, {
+  required PieceOrientationBehavior behavior,
+  required Side orientation,
+  Side? sideToMove,
+}) => switch (behavior) {
+  PieceOrientationBehavior.facingUser => false,
+  PieceOrientationBehavior.opponentUpsideDown => pieceColor == orientation.opposite,
+  PieceOrientationBehavior.sideToPlay => sideToMove == orientation.opposite,
+};
