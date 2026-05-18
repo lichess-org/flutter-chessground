@@ -106,6 +106,7 @@ class ChessboardSettings {
     this.autoQueenPromotion = false,
     this.autoQueenPromotionOnPremove = true,
     this.pieceShiftMethod = PieceShiftMethod.either,
+    this.canPromoteToKing = false,
   });
 
   /// Theme of the board
@@ -175,6 +176,9 @@ class ChessboardSettings {
   /// Controls how moves are made.
   final PieceShiftMethod pieceShiftMethod;
 
+  /// Whether the pawn can be promoted to a king (for example in Antichess).
+  final bool canPromoteToKing;
+
   /// Options that control the shape drawing gesture (enable/disable and color).
   ///
   /// Drawn shapes are stored in [ChessboardController] and can be cleared with
@@ -208,6 +212,7 @@ class ChessboardSettings {
         other.autoQueenPromotion == autoQueenPromotion &&
         other.autoQueenPromotionOnPremove == autoQueenPromotionOnPremove &&
         other.pieceShiftMethod == pieceShiftMethod &&
+        other.canPromoteToKing == canPromoteToKing &&
         other.drawShape == drawShape;
   }
 
@@ -231,6 +236,7 @@ class ChessboardSettings {
     autoQueenPromotion,
     autoQueenPromotionOnPremove,
     pieceShiftMethod,
+    canPromoteToKing,
     drawShape,
   );
 
@@ -254,6 +260,7 @@ class ChessboardSettings {
     bool? autoQueenPromotion,
     bool? autoQueenPromotionOnPremove,
     PieceShiftMethod? pieceShiftMethod,
+    bool? canPromoteToKing,
     DrawShapeOptions? drawShape,
   }) {
     return ChessboardSettings(
@@ -277,6 +284,7 @@ class ChessboardSettings {
       autoQueenPromotionOnPremove: autoQueenPromotionOnPremove ?? this.autoQueenPromotionOnPremove,
       autoQueenPromotion: autoQueenPromotion ?? this.autoQueenPromotion,
       pieceShiftMethod: pieceShiftMethod ?? this.pieceShiftMethod,
+      canPromoteToKing: canPromoteToKing ?? this.canPromoteToKing,
       drawShape: drawShape ?? this.drawShape,
     );
   }

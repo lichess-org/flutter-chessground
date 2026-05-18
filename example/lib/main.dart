@@ -74,7 +74,6 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   Position position = Chess.initial;
   Side orientation = Side.white;
-  NormalMove? promotionMove;
   Move? premove;
   Move? lastMove;
   PieceSet pieceSet = PieceSet.gioco;
@@ -332,7 +331,6 @@ class _HomePageState extends State<HomePage> {
             orientation: orientation,
             onMove:
                 playMode == Mode.botPlay ? _onUserMoveAgainstBot : _playMove,
-            onPromotionSelection: _onPromotionSelection,
             onSetPremove: _onSetPremove,
           );
 
@@ -509,8 +507,15 @@ class _HomePageState extends State<HomePage> {
 
   void _tryPlayPremove() {
     if (premove != null) {
+      final move = premove!;
+      premove = null;
       Timer.run(() {
-        _playMove(premove!, isPremove: true);
+        if (move is NormalMove && _isPromotionPawnMove(move)) {
+          _controller.pendingPromotion = move;
+          _controller.updatePosition(position.fen, game: _buildGame());
+        } else {
+          _playMove(move);
+        }
       });
     }
   }
@@ -584,7 +589,6 @@ class _HomePageState extends State<HomePage> {
       sideToMove: position.turn == Side.white ? Side.white : Side.black,
       kingSquareInCheck:
           position.isCheck ? position.board.kingOf(position.turn) : null,
-      promotionMove: promotionMove,
       premovable: (premove: premove),
     );
   }
@@ -594,30 +598,11 @@ class _HomePageState extends State<HomePage> {
     _controller.updatePosition(position.fen, game: _buildGame());
   }
 
-  void _onPromotionSelection(Role? role) {
-    if (role == null) {
-      promotionMove = null;
-      _controller.updatePosition(position.fen, game: _buildGame());
-    } else if (promotionMove != null) {
-      if (playMode == Mode.botPlay) {
-        _onUserMoveAgainstBot(promotionMove!.withPromotion(role));
-      } else {
-        _playMove(promotionMove!.withPromotion(role));
-      }
-    }
-  }
-
-  void _playMove(Move move, {bool? viaDragAndDrop, bool? isPremove}) {
-    lastPos = position;
-    if (move is NormalMove && isPromotionPawnMove(move)) {
-      promotionMove = move;
-      _controller.updatePosition(position.fen, game: _buildGame());
-      _canUndo.value = true;
-    } else if (position.isLegal(move)) {
+  void _playMove(Move move, {bool? viaDragAndDrop}) {
+    if (position.isLegal(move)) {
+      lastPos = position;
       position = position.playUnchecked(move);
-      promotionMove = null;
       lastMove = move;
-      if (isPremove == true) premove = null;
       _controller.updatePosition(
         position.fen,
         game: _buildGame(),
@@ -628,15 +613,10 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  void _onUserMoveAgainstBot(Move move, {viaDragAndDrop}) async {
-    lastPos = position;
-    if (move is NormalMove && isPromotionPawnMove(move)) {
-      promotionMove = move;
-      _controller.updatePosition(position.fen, game: _buildGame());
-      _canUndo.value = true;
-    } else {
+  void _onUserMoveAgainstBot(Move move, {bool? viaDragAndDrop}) async {
+    if (position.isLegal(move)) {
+      lastPos = position;
       position = position.playUnchecked(move);
-      promotionMove = null;
       lastMove = move;
       _controller.updatePosition(
         position.fen,
@@ -665,7 +645,7 @@ class _HomePageState extends State<HomePage> {
     if (allMoves.isNotEmpty) {
       NormalMove mv = (allMoves..shuffle()).first;
       // Auto promote to a random non-pawn role.
-      if (isPromotionPawnMove(mv)) {
+      if (_isPromotionPawnMove(mv)) {
         final potentialRoles =
             Role.values.where((role) => role != Role.pawn).toList();
         final role = potentialRoles[random.nextInt(potentialRoles.length)];
@@ -681,7 +661,7 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  bool isPromotionPawnMove(NormalMove move) {
+  bool _isPromotionPawnMove(NormalMove move) {
     return move.promotion == null &&
         position.board.roleAt(move.from) == Role.pawn &&
         ((move.to.rank == Rank.first && position.turn == Side.black) ||

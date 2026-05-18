@@ -24,6 +24,7 @@ class ChessboardController extends ChangeNotifier {
     _fadingPiecesNotifier = ValueNotifier({});
     _highlightNotifier = BoardHighlightNotifier();
     _drawnShapesNotifier = ValueNotifier({});
+    _pendingPromotionNotifier = ValueNotifier(null);
   }
 
   /// Creates a controller for a non-interactive board showing [fen].
@@ -36,6 +37,7 @@ class ChessboardController extends ChangeNotifier {
     _fadingPiecesNotifier = ValueNotifier({});
     _highlightNotifier = BoardHighlightNotifier();
     _drawnShapesNotifier = ValueNotifier({});
+    _pendingPromotionNotifier = ValueNotifier(null);
   }
 
   String _fen;
@@ -48,6 +50,7 @@ class ChessboardController extends ChangeNotifier {
   late final ValueNotifier<FadingPieces> _fadingPiecesNotifier;
   late final BoardHighlightNotifier _highlightNotifier;
   late final ValueNotifier<Set<Shape>> _drawnShapesNotifier;
+  late final ValueNotifier<NormalMove?> _pendingPromotionNotifier;
 
   AnimationController? _animationController;
   CurvedAnimation? _translationAnimation;
@@ -79,6 +82,7 @@ class ChessboardController extends ChangeNotifier {
   ValueNotifier<FadingPieces> get fadingPiecesNotifier => _fadingPiecesNotifier;
   BoardHighlightNotifier get highlightNotifier => _highlightNotifier;
   ValueNotifier<Set<Shape>> get drawnShapesNotifier => _drawnShapesNotifier;
+  ValueNotifier<NormalMove?> get pendingPromotionNotifier => _pendingPromotionNotifier;
 
   CurvedAnimation get translationAnimation {
     assert(_translationAnimation != null, 'ChessboardController is not attached to a board.');
@@ -121,6 +125,18 @@ class ChessboardController extends ChangeNotifier {
   }
 
   // --- Public mutation API ---
+
+  /// The pending promotion move, or `null` when no promotion is in progress.
+  NormalMove? get pendingPromotion => _pendingPromotionNotifier.value;
+
+  /// Sets or clears the pending promotion move.
+  ///
+  /// Setting a non-null value causes the board to show the promotion selector.
+  /// Typically set when executing a premove that turns out to be a promotion and
+  /// [ChessboardSettings.autoQueenPromotionOnPremove] is disabled.
+  set pendingPromotion(NormalMove? move) {
+    _pendingPromotionNotifier.value = move;
+  }
 
   /// Adds [shape] to the controller's set of user-drawn shapes.
   ///
@@ -224,6 +240,7 @@ class ChessboardController extends ChangeNotifier {
     _fadingPiecesNotifier.dispose();
     _highlightNotifier.dispose();
     _drawnShapesNotifier.dispose();
+    _pendingPromotionNotifier.dispose();
     super.dispose();
   }
 }

@@ -6,8 +6,8 @@
   of type `ChessboardController` instead of separate `fen:`, `game:`, and `lastMove:`
   parameters. See the [migration guide](MIGRATION.md) for the before/after pattern.
 
-- Callbacks (`onMove`, `onPromotionSelection`) have been removed from `GameData`
-  and are now optional parameters on the `Chessboard` widget itself.
+- Callbacks (`onMove`) have been removed from `GameData` and is now an optional
+  parameter on the `Chessboard` widget itself.
 
 - `Premovable` no longer carries `onSetPremove`. The callback has moved to a new
   optional `onSetPremove` parameter on the `Chessboard` widget.
@@ -32,6 +32,14 @@
 - `explosionSquares` has been removed from both `Chessboard()` and `Chessboard.fixed()`
   constructors. Use `ChessboardController.triggerExplosion()` instead.
 
+- Promotion is now handled fully inside the board. The `onPromotionSelection`
+  callback has been removed from `Chessboard`. The `promotionMove` field and
+  `canPromoteToKing` flag have been removed from `GameData`. `canPromoteToKing`
+  is now a field on `ChessboardSettings`. The board calls `onMove` exactly once,
+  after the user has selected a promotion piece, with a fully-resolved
+  `NormalMove` (promotion role already set). See the
+  [migration guide](MIGRATION.md) for details.
+
 - `DrawShapeOptions` no longer accepts `onCompleteShape` or `onClearShapes`
   callbacks. Shape state drawn by the user is now managed internally by
   `ChessboardController`. See the [migration guide](MIGRATION.md) for the
@@ -54,6 +62,16 @@
 
 - `ChessboardController.triggerExplosion(ISet<Square>)` triggers a one-shot atomic
   chess explosion animation on the given squares.
+
+- `ChessboardController.pendingPromotion` getter and setter. The getter exposes
+  the promotion move currently awaiting piece selection (`null` when idle). The
+  setter lets the parent show the promotion selector programmatically — useful
+  when executing a promotion premove: set `controller.pendingPromotion = move`
+  after detecting that the premove would promote, and `onMove` will fire once
+  the user selects a piece.
+
+- `ChessboardSettings.canPromoteToKing` (default `false`) allows promotion to
+  king in variants such as Antichess.
 
 - `ChessboardController.addDrawnShape(Shape shape)` adds a shape to the
   controller's internally managed set of user-drawn shapes.

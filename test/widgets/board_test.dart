@@ -1123,7 +1123,9 @@ void main() {
   });
 
   group('Promotion', () {
-    testWidgets('can display the selector', (WidgetTester tester) async {
+    testWidgets('selector is shown when pendingPromotion is set on the controller', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         const _TestApp(
           initialPlayerSide: PlayerSide.both,
@@ -1132,8 +1134,9 @@ void main() {
         ),
       );
 
-      // promotion dialog is shown
       expect(find.byType(PromotionSelector), findsOneWidget);
+      // pawn at f7 is hidden by painter while selector is open
+      expect(_piecesPainter(tester).promotionMoveFrom, Square.f7);
     });
 
     testWidgets('promote a knight', (WidgetTester tester) async {
@@ -1148,8 +1151,6 @@ void main() {
       await tester.pump();
       await tester.tapAt(squareOffset(tester, Square.f8));
       await tester.pump();
-
-      // wait for promotion selector to show
       await tester.pump();
       expect(find.byType(PromotionSelector), findsOneWidget);
 
@@ -1161,7 +1162,10 @@ void main() {
       await tester.pump();
       expect(_piecesPainter(tester).pieces[Square.f8], Piece.whiteKnight);
       expect(_piecesPainter(tester).pieces.containsKey(Square.f7), isFalse);
+      // painter no longer hides the pawn after promotion completes
+      expect(_piecesPainter(tester).promotionMoveFrom, isNull);
     });
+
     testWidgets('Player on top promotes a bishop', (WidgetTester tester) async {
       await tester.pumpWidget(
         const _TestApp(initialPlayerSide: PlayerSide.both, fen: 'K7/8/k7/8/8/8/p7/1Q4n1 b - - 0 1'),
@@ -1171,8 +1175,6 @@ void main() {
       await tester.pump();
       await tester.tapAt(squareOffset(tester, Square.b1));
       await tester.pump();
-
-      // wait for promotion selector to show
       await tester.pump();
       expect(find.byType(PromotionSelector), findsOneWidget);
 
@@ -1184,6 +1186,159 @@ void main() {
       await tester.pump();
       expect(_piecesPainter(tester).pieces[Square.b1], Piece.blackBishop);
       expect(_piecesPainter(tester).pieces.containsKey(Square.a2), isFalse);
+      expect(_piecesPainter(tester).promotionMoveFrom, isNull);
+    });
+
+    testWidgets('onMove is called exactly once with the complete move after piece selection', (
+      WidgetTester tester,
+    ) async {
+      final recorded = <(Move, bool?)>[];
+      final position = Position.setupPosition(
+        Rule.chess,
+        Setup.parseFen('8/5P2/2RK2P1/8/4k3/8/8/7r w - - 0 1'),
+      );
+      final controller = ChessboardController(
+        fen: position.fen,
+        game: GameData(
+          playerSide: PlayerSide.both,
+          sideToMove: Side.white,
+          validMoves: makeLegalMoves(position),
+        ),
+      );
+      addTearDown(controller.dispose);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Align(
+            alignment: Alignment.topLeft,
+            child: Chessboard(
+              controller: controller,
+              size: boardSize,
+              orientation: Side.white,
+              onMove: (move, {viaDragAndDrop}) => recorded.add((move, viaDragAndDrop)),
+            ),
+          ),
+        ),
+      );
+
+      await tester.tapAt(squareOffset(tester, Square.f7));
+      await tester.pump();
+      await tester.tapAt(squareOffset(tester, Square.f8));
+      await tester.pump();
+      await tester.pump();
+
+      expect(find.byType(PromotionSelector), findsOneWidget);
+      // no callback fired before the user picks a piece
+      expect(recorded, isEmpty);
+
+      // tap knight (second choice, rendered at f7 square for white top-rank promotion)
+      await tester.tapAt(squareOffset(tester, Square.f7));
+      await tester.pump();
+
+      expect(recorded, hasLength(1));
+      expect(
+        recorded.first.$1,
+        const NormalMove(from: Square.f7, to: Square.f8, promotion: Role.knight),
+      );
+      expect(recorded.first.$2, isFalse); // tap move, not drag
+      expect(find.byType(PromotionSelector), findsNothing);
+    });
+
+    testWidgets('onMove is not called when promotion is cancelled', (WidgetTester tester) async {
+      final recorded = <Move>[];
+      final position = Position.setupPosition(
+        Rule.chess,
+        Setup.parseFen('8/5P2/2RK2P1/8/4k3/8/8/7r w - - 0 1'),
+      );
+      final controller = ChessboardController(
+        fen: position.fen,
+        game: GameData(
+          playerSide: PlayerSide.both,
+          sideToMove: Side.white,
+          validMoves: makeLegalMoves(position),
+        ),
+      );
+      addTearDown(controller.dispose);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Align(
+            alignment: Alignment.topLeft,
+            child: Chessboard(
+              controller: controller,
+              size: boardSize,
+              orientation: Side.white,
+              onMove: (move, {viaDragAndDrop}) => recorded.add(move),
+            ),
+          ),
+        ),
+      );
+
+      await tester.tapAt(squareOffset(tester, Square.f7));
+      await tester.pump();
+      await tester.tapAt(squareOffset(tester, Square.f8));
+      await tester.pump();
+      await tester.pump();
+      expect(find.byType(PromotionSelector), findsOneWidget);
+
+      // tap outside the selector to cancel
+      await tester.tapAt(squareOffset(tester, Square.c4));
+      await tester.pump();
+
+      expect(find.byType(PromotionSelector), findsNothing);
+      expect(recorded, isEmpty);
+      expect(_piecesPainter(tester).promotionMoveFrom, isNull);
+    });
+
+    testWidgets('promotion via drag calls onMove with viaDragAndDrop: true', (
+      WidgetTester tester,
+    ) async {
+      final recorded = <(Move, bool?)>[];
+      final position = Position.setupPosition(
+        Rule.chess,
+        Setup.parseFen('8/5P2/2RK2P1/8/4k3/8/8/7r w - - 0 1'),
+      );
+      final controller = ChessboardController(
+        fen: position.fen,
+        game: GameData(
+          playerSide: PlayerSide.both,
+          sideToMove: Side.white,
+          validMoves: makeLegalMoves(position),
+        ),
+      );
+      addTearDown(controller.dispose);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Align(
+            alignment: Alignment.topLeft,
+            child: Chessboard(
+              controller: controller,
+              size: boardSize,
+              orientation: Side.white,
+              onMove: (move, {viaDragAndDrop}) => recorded.add((move, viaDragAndDrop)),
+            ),
+          ),
+        ),
+      );
+
+      // drag pawn from f7 to f8 (one square up)
+      await tester.dragFrom(squareOffset(tester, Square.f7), const Offset(0, -squareSize));
+      await tester.pump();
+      expect(find.byType(PromotionSelector), findsOneWidget);
+      expect(recorded, isEmpty);
+
+      // tap queen (first choice, at f8 for white top-rank promotion)
+      await tester.tapAt(squareOffset(tester, Square.f8));
+      await tester.pump();
+
+      expect(recorded, hasLength(1));
+      expect(
+        recorded.first.$1,
+        const NormalMove(from: Square.f7, to: Square.f8, promotion: Role.queen),
+      );
+      expect(recorded.first.$2, isTrue); // drag-and-drop flag preserved
+      expect(find.byType(PromotionSelector), findsNothing);
     });
 
     testWidgets('default promotion shows 4 pieces without king', (WidgetTester tester) async {
@@ -1218,6 +1373,7 @@ void main() {
       final hasKing = pieceWidgets.any((widget) => widget.piece.role == Role.king);
       expect(hasKing, false);
     });
+
     testWidgets('promotion with canPromoteToKing shows 5 pieces including king', (
       WidgetTester tester,
     ) async {
@@ -1310,6 +1466,7 @@ void main() {
       expect(_piecesPainter(tester).pieces[Square.b1], Piece.blackKing);
       expect(_piecesPainter(tester).pieces.containsKey(Square.a2), isFalse);
     });
+
     testWidgets('promote a piece on flipped board (orientation black)', (
       WidgetTester tester,
     ) async {
@@ -2613,7 +2770,6 @@ void main() {
                     size: boardSize,
                     orientation: Side.white,
                     onMove: (_, {viaDragAndDrop}) {},
-                    onPromotionSelection: (_) {},
                   ),
                   ElevatedButton(
                     onPressed: () => setState(() => showExtra = !showExtra),
@@ -2670,7 +2826,6 @@ void main() {
                     size: boardSize,
                     orientation: Side.white,
                     onMove: (_, {viaDragAndDrop}) {},
-                    onPromotionSelection: (_) {},
                   ),
                   ElevatedButton(
                     onPressed: () => setState(() => showExtra = !showExtra),
@@ -2996,15 +3151,15 @@ class _TestApp extends StatefulWidget {
 class _TestAppState extends State<_TestApp> {
   late ChessboardController _controller;
   late PlayerSide interactiveSide;
-  late NormalMove? promotionMove;
   late Position position;
   Move? lastMove;
   Move? premoveData;
 
   StreamSubscription<GameEvent>? _gameEventSub;
 
-  ChessboardSettings get defaultSettings => const ChessboardSettings(
-    drawShape: DrawShapeOptions(enable: true, newShapeColor: Color(0xFF0000FF)),
+  ChessboardSettings get defaultSettings => ChessboardSettings(
+    drawShape: const DrawShapeOptions(enable: true, newShapeColor: Color(0xFF0000FF)),
+    canPromoteToKing: widget.canPromoteToKing,
   );
 
   @override
@@ -3012,9 +3167,11 @@ class _TestAppState extends State<_TestApp> {
     super.initState();
     interactiveSide = widget.initialPlayerSide;
     position = Position.setupPosition(widget.rule, Setup.parseFen(widget.fen));
-    promotionMove = widget.initialPromotionMove;
     lastMove = widget.initialPromotionMove;
     _controller = ChessboardController(fen: position.fen, game: _buildGame());
+    if (widget.initialPromotionMove != null) {
+      _controller.pendingPromotion = widget.initialPromotionMove;
+    }
     _gameEventSub = widget.gameEventStream?.listen(_onGameEvent);
   }
 
@@ -3032,10 +3189,8 @@ class _TestAppState extends State<_TestApp> {
       kingSquareInCheck: position.isCheck ? position.board.kingOf(position.turn) : null,
       sideToMove: position.turn == Side.white ? Side.white : Side.black,
       validMoves: makeLegalMoves(position),
-      promotionMove: promotionMove,
       droppable: widget.droppable,
       premovable: (premove: premoveData),
-      canPromoteToKing: widget.canPromoteToKing,
     );
   }
 
@@ -3068,20 +3223,8 @@ class _TestAppState extends State<_TestApp> {
     lastMove = move;
   }
 
-  bool isPromotionPawnMove(Move move) {
-    return move is NormalMove &&
-        move.promotion == null &&
-        position.board.roleAt(move.from) == Role.pawn &&
-        ((move.to.rank == Rank.first && position.turn == Side.black) ||
-            (move.to.rank == Rank.eighth && position.turn == Side.white));
-  }
-
   void _onMove(Move move, {bool? viaDragAndDrop}) {
-    if (move is NormalMove && isPromotionPawnMove(move)) {
-      promotionMove = move;
-    } else {
-      _playMove(move);
-    }
+    _playMove(move);
     _controller.updatePosition(
       position.fen,
       game: _buildGame(),
@@ -3104,16 +3247,25 @@ class _TestAppState extends State<_TestApp> {
 
         // play premove just after the opponent move
         if (premoveData != null) {
-          if (position.isLegal(premoveData!)) {
-            if (!isPromotionPawnMove(premoveData!)) {
+          final premove = premoveData!;
+          if (position.isLegal(premove)) {
+            if (premove is NormalMove &&
+                premove.promotion == null &&
+                position.board.roleAt(premove.from) == Role.pawn &&
+                ((premove.to.rank == Rank.first && position.turn == Side.black) ||
+                    (premove.to.rank == Rank.eighth && position.turn == Side.white))) {
+              // Promotion premove with autoQueenPromotionOnPremove disabled
+              final promoMove = premove;
               scheduleMicrotask(() {
-                position = position.playUnchecked(premoveData!);
+                _controller.pendingPromotion = promoMove;
                 premoveData = null;
                 _controller.updatePosition(position.fen, game: _buildGame());
               });
             } else {
               scheduleMicrotask(() {
-                promotionMove = premoveData as NormalMove?;
+                position = position.playUnchecked(premove);
+                if (position.isGameOver) interactiveSide = PlayerSide.none;
+                lastMove = premove;
                 premoveData = null;
                 _controller.updatePosition(position.fen, game: _buildGame());
               });
@@ -3137,13 +3289,6 @@ class _TestAppState extends State<_TestApp> {
               settings: widget.settings ?? defaultSettings,
               orientation: widget.orientation,
               onMove: _onMove,
-              onPromotionSelection: (Role? role) {
-                if (role != null) {
-                  _playMove(promotionMove!.withPromotion(role));
-                }
-                promotionMove = null;
-                _controller.updatePosition(position.fen, game: _buildGame());
-              },
               onSetPremove: (Move? move) {
                 premoveData = move;
                 _controller.updatePosition(position.fen, game: _buildGame());

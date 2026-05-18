@@ -13,9 +13,10 @@ game state changes.
 `GameData` is now a pure state snapshot — it holds game state fields
 (`sideToMove`, `validMoves`, `lastMove`, etc.), but no callbacks and no FEN.
 The board position (FEN) is passed directly to the controller constructor and
-update methods. Callbacks (`onMove`, `onPromotionSelection`, `onSetPremove`) are
-parameters on the `Chessboard` widget. `Premovable` carries only the current
-premove, not the setter.
+update methods. Callbacks (`onMove`, `onSetPremove`) are parameters on the
+`Chessboard` widget. `Premovable` carries only the current premove, not the
+setter. Promotion is handled fully inside the board — see the
+[Promotion section](#promotion-handling-onpromotionselection-removed) below.
 
 **Before (9.x)**
 
@@ -27,7 +28,6 @@ class _MyBoardState extends State<MyBoard> {
 
   GameData _buildGame() => GameData(
     playerSide: PlayerSide.white,
-    isCheck: _position.isCheck,
     sideToMove: _position.turn == Side.white ? Side.white : Side.black,
     validMoves: makeLegalMoves(_position),
     promotionMove: _promotionMove,
@@ -69,7 +69,6 @@ class _MyBoardState extends State<MyBoard> {
   late ChessboardController _controller;
   Position _position = Chess.initial;
   Move? _lastMove;
-  NormalMove? _promotionMove;
 
   @override
   void initState() {
@@ -86,10 +85,8 @@ class _MyBoardState extends State<MyBoard> {
   GameData _buildGame() => GameData(
     lastMove: _lastMove,
     playerSide: PlayerSide.white,
-    isCheck: _position.isCheck,
     sideToMove: _position.turn == Side.white ? Side.white : Side.black,
     validMoves: makeLegalMoves(_position),
-    promotionMove: _promotionMove,
   );
 
   void _onMove(Move move, {bool? viaDragAndDrop}) {
@@ -102,17 +99,6 @@ class _MyBoardState extends State<MyBoard> {
     );
   }
 
-  void _onPromotionSelection(Role? role) {
-    if (role != null) {
-      _position = _position.playUnchecked(
-        _promotionMove!.withPromotion(role),
-      );
-      _lastMove = _promotionMove!.withPromotion(role);
-    }
-    _promotionMove = null;
-    _controller.updatePosition(_position.fen, game: _buildGame());
-  }
-
   @override
   Widget build(BuildContext context) {
     return Chessboard(
@@ -120,7 +106,6 @@ class _MyBoardState extends State<MyBoard> {
       size: 400,
       orientation: Side.white,
       onMove: _onMove,
-      onPromotionSelection: _onPromotionSelection,
     );
   }
 }
@@ -134,7 +119,9 @@ class _MyBoardState extends State<MyBoard> {
 | `Chessboard(lastMove: move)` | `GameData(lastMove: move, ...)` passed to `controller.updatePosition()` |
 | `Chessboard(game: newGame)` | `controller.updatePosition(fen, game: newGame)` |
 | `GameData(onMove: fn)` | `Chessboard(onMove: fn)` |
-| `GameData(onPromotionSelection: fn)` | `Chessboard(onPromotionSelection: fn)` |
+| `GameData(onPromotionSelection: fn)` | removed — board handles promotion internally |
+| `GameData(promotionMove: move)` | removed — board handles promotion internally |
+| `GameData(canPromoteToKing: true)` | `ChessboardSettings(canPromoteToKing: true)` |
 | `Premovable(onSetPremove: fn, premove: m)` | `Chessboard(onSetPremove: fn)` + `Premovable(premove: m)` |
 | `explosionSquares: squares` | `controller.triggerExplosion(squares)` |
 
@@ -293,3 +280,86 @@ final drawn = _controller.drawnShapes; // Set<Shape>
 | toggle-on-redraw logic in `onCompleteShape` | built into the board — drawing the same shape twice removes it |
 | `setState(() => shapes = {})` in `onClearShapes` | `controller.clearDrawnShapes()` |
 | `Chessboard(shapes: userDrawnShapes)` | use `Chessboard(shapes: ...)` for *external* shapes only |
+
+### Promotion handling: `onPromotionSelection` removed
+
+Promotion is now handled entirely inside the board. You no longer need to track a
+`promotionMove` in parent state or wire up an `onPromotionSelection` callback.
+When a pawn reaches the back rank, the board shows the selector automatically.
+`onMove` fires exactly once — after the user picks a piece — with a
+fully-resolved `NormalMove` whose `promotion` field is already set.
+
+**Before (9.x)**
+
+```dart
+NormalMove? _promotionMove;
+
+// GameData carried the pending move
+GameData _buildGame() => GameData(
+  ...
+  promotionMove: _promotionMove,
+);
+
+// Chessboard had onPromotionSelection
+Chessboard(
+  game: _buildGame(),
+  onMove: (move, {viaDragAndDrop}) {
+    if (isPromotionPawnMove(move)) {
+      setState(() => _promotionMove = move);
+    } else {
+      // play move
+    }
+  },
+  onPromotionSelection: (role) {
+    if (role != null) _playMove(_promotionMove!.withPromotion(role));
+    setState(() => _promotionMove = null);
+  },
+)
+```
+
+**After (10.0.0)**
+
+```dart
+// No promotionMove state needed.
+// onMove always receives the complete move.
+
+Chessboard(
+  controller: _controller,
+  onMove: (move, {bool? viaDragAndDrop}) {
+    _position = _position.playUnchecked(move); // move.promotion is set
+    _controller.updatePosition(_position.fen, game: _buildGame());
+  },
+)
+```
+
+#### `canPromoteToKing` moved to `ChessboardSettings`
+
+```dart
+// Before (9.x)
+GameData(canPromoteToKing: true, ...)
+
+// After (10.0.0)
+ChessboardSettings(canPromoteToKing: true)
+```
+
+#### Promotion premoves
+
+If `autoQueenPromotionOnPremove` is `false` and you execute a premove that
+turns out to be a promotion, use `controller.pendingPromotion` to show the
+selector:
+
+```dart
+void _tryPlayPremove() {
+  final move = premove;
+  if (move == null) return;
+  premove = null;
+
+  if (move is NormalMove && _isPromotionPawnMove(move)) {
+    // Let the board show the selector; onMove fires with the resolved move.
+    _controller.pendingPromotion = move;
+    _controller.updatePosition(position.fen, game: _buildGame());
+  } else {
+    _playMove(move);
+  }
+}
+```

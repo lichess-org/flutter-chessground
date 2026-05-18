@@ -20,7 +20,6 @@ class AtomicGamePage extends StatefulWidget {
 
 class _AtomicGamePageState extends State<AtomicGamePage> {
   Atomic position = Atomic.initial;
-  NormalMove? promotionMove;
   Move? lastMove;
   BoardTheme boardTheme = BoardTheme.brown;
   PieceSet pieceSet = PieceSet.gioco;
@@ -45,7 +44,6 @@ class _AtomicGamePageState extends State<AtomicGamePage> {
       validMoves: makeLegalMoves(position),
       sideToMove: position.turn,
       kingSquareInCheck: position.isCheck ? position.board.kingOf(position.turn) : null,
-      promotionMove: promotionMove,
     );
   }
 
@@ -84,7 +82,6 @@ class _AtomicGamePageState extends State<AtomicGamePage> {
                         ),
                         orientation: Side.white,
                         onMove: _onUserMove,
-                        onPromotionSelection: _onPromotionSelection,
                       );
                     },
                   ),
@@ -114,28 +111,13 @@ class _AtomicGamePageState extends State<AtomicGamePage> {
 
   void _newGame() {
     position = Atomic.initial;
-    promotionMove = null;
     lastMove = null;
     _controller.jumpToPosition(position.fen, game: _buildGame());
     setState(() {});
   }
 
   void _onUserMove(Move move, {bool? viaDragAndDrop}) {
-    if (move is NormalMove && _isPromotionPawnMove(move)) {
-      promotionMove = move;
-      _controller.updatePosition(position.fen, game: _buildGame());
-      return;
-    }
     _applyMove(move, scheduleBotAfter: true, viaDragAndDrop: viaDragAndDrop);
-  }
-
-  void _onPromotionSelection(Role? role) {
-    if (role == null) {
-      promotionMove = null;
-      _controller.updatePosition(position.fen, game: _buildGame());
-    } else if (promotionMove != null) {
-      _applyMove(promotionMove!.withPromotion(role), scheduleBotAfter: true);
-    }
   }
 
   bool _isPromotionPawnMove(NormalMove move) {
@@ -155,7 +137,6 @@ class _AtomicGamePageState extends State<AtomicGamePage> {
     final newExplosions = position.explosionSquares(move).squares.toSet();
 
     position = position.playUnchecked(move) as Atomic;
-    promotionMove = null;
     lastMove = move;
     _controller.updatePosition(
       position.fen,

@@ -92,6 +92,7 @@ class _StaticChessboardState extends State<StaticChessboard> with SingleTickerPr
   late final ValueNotifier<Pieces> _piecesNotifier;
   late final ValueNotifier<TranslatingPieces> _translatingPiecesNotifier;
   late final ValueNotifier<FadingPieces> _fadingPiecesNotifier;
+  final ValueNotifier<NormalMove?> _noPendingPromotionNotifier = ValueNotifier(null);
 
   Pieces get pieces => _piecesNotifier.value;
   TranslatingPieces get translatingPieces => _translatingPiecesNotifier.value;
@@ -160,6 +161,7 @@ class _StaticChessboardState extends State<StaticChessboard> with SingleTickerPr
     _translatingPiecesNotifier.dispose();
     _fadingPiecesNotifier.dispose();
     _highlightNotifier.dispose();
+    _noPendingPromotionNotifier.dispose();
     _fadeAnimation.dispose();
     _translationAnimation.dispose();
     _pieceAnimationController.dispose();
@@ -258,6 +260,7 @@ class _StaticChessboardState extends State<StaticChessboard> with SingleTickerPr
       orientation: widget.orientation,
       draggedPieceSquareNotifier: null,
       gameNotifier: _gameNotifier,
+      pendingPromotionNotifier: _noPendingPromotionNotifier,
       blindfoldMode: false,
       pieceOrientationBehavior: PieceOrientationBehavior.facingUser,
       imagesLoaded: imagesLoaded,

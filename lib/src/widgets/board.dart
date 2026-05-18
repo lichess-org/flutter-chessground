@@ -36,8 +36,9 @@ class Chessboard extends StatefulWidget with ChessboardGeometry {
   ///
   /// Provide a [controller] to control the board position and game state.
   ///
-  /// [onMove] is called when the user makes a move. [onPromotionSelection] is
-  /// called when the user selects a promotion piece (or cancels with `null`).
+  /// [onMove] is called when the user completes a move, including after a
+  /// promotion piece has been selected. The promotion role is already set on
+  /// the [Move] at that point.
   /// [onSetPremove] is called when a premove is set or cleared.
   const Chessboard({
     super.key,
@@ -46,7 +47,6 @@ class Chessboard extends StatefulWidget with ChessboardGeometry {
     this.settings = const ChessboardSettings(),
     required this.orientation,
     this.onMove,
-    this.onPromotionSelection,
     this.onSetPremove,
     this.onTouchedSquare,
     this.shapes = const {},
@@ -74,7 +74,6 @@ class Chessboard extends StatefulWidget with ChessboardGeometry {
   }) : _size = size,
        controller = null,
        onMove = null,
-       onPromotionSelection = null,
        onSetPremove = null,
        _fen = fen,
        _lastMove = lastMove;
@@ -100,15 +99,11 @@ class Chessboard extends StatefulWidget with ChessboardGeometry {
   /// Null only when using [Chessboard.fixed].
   final ChessboardController? controller;
 
-  /// Called after the user completes a move.
+  /// Called after the user completes a move, including after a promotion piece
+  /// has been selected. The promotion role is already set on the [Move].
   ///
   /// Null when using [Chessboard.fixed].
   final void Function(Move, {bool? viaDragAndDrop})? onMove;
-
-  /// Called after the user selects a promotion piece, or with `null` to cancel.
-  ///
-  /// Null when using [Chessboard.fixed].
-  final void Function(Role? role)? onPromotionSelection;
 
   /// Called when a premove is set or cleared by the user.
   ///
@@ -222,6 +217,9 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
   /// Whether all highlight images are available in the cache.
   bool _highlightImagesLoaded = false;
 
+  /// Whether the pending promotion move was initiated via drag and drop.
+  bool _pendingPromotionViaDragAndDrop = false;
+
   @override
   Widget build(BuildContext context) {
     final settings = widget.settings;
@@ -265,6 +263,7 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
       orientation: widget.orientation,
       draggedPieceSquareNotifier: _draggedPieceSquareNotifier,
       gameNotifier: _controller.gameNotifier,
+      pendingPromotionNotifier: _controller.pendingPromotionNotifier,
       blindfoldMode: settings.blindfoldMode,
       pieceOrientationBehavior: settings.pieceOrientationBehavior,
       imagesLoaded: _imagesLoaded,
@@ -440,24 +439,31 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
                 );
               },
             ),
-            ValueListenableBuilder<GameData?>(
-              valueListenable: _controller.gameNotifier,
-              builder: (context, game, _) {
-                if (game == null || game.promotionMove == null) {
-                  return const SizedBox.shrink();
-                }
+            ValueListenableBuilder<NormalMove?>(
+              valueListenable: _controller.pendingPromotionNotifier,
+              builder: (context, pendingMove, _) {
+                if (pendingMove == null) return const SizedBox.shrink();
+                final pawnColor =
+                    pieces[pendingMove.from]?.color ?? _controller.game?.sideToMove ?? Side.white;
                 return PromotionSelector(
                   pieceAssets: settings.pieceAssets,
-                  move: game.promotionMove!,
+                  move: pendingMove,
                   size: widget.size,
-                  color: game.sideToMove,
+                  color: pawnColor,
                   orientation: widget.orientation,
-                  piecesUpsideDown: _isUpsideDown(game.sideToMove),
-                  onSelect: widget.onPromotionSelection!,
-                  onCancel: () {
-                    widget.onPromotionSelection!(null);
+                  piecesUpsideDown: _isUpsideDown(pawnColor),
+                  onSelect: (role) {
+                    final resolvedMove = pendingMove.withPromotion(role);
+                    final viaDragAndDrop = _pendingPromotionViaDragAndDrop;
+                    _pendingPromotionViaDragAndDrop = false;
+                    _controller.pendingPromotion = null;
+                    widget.onMove?.call(resolvedMove, viaDragAndDrop: viaDragAndDrop);
                   },
-                  canPromoteToKing: game.canPromoteToKing,
+                  onCancel: () {
+                    _pendingPromotionViaDragAndDrop = false;
+                    _controller.pendingPromotion = null;
+                  },
+                  canPromoteToKing: widget.settings.canPromoteToKing,
                 );
               },
             ),
@@ -605,6 +611,8 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
       _draggedPieceSquareNotifier.value = null;
       selected = null;
       _premoveDests = null;
+      _controller.pendingPromotion = null;
+      _pendingPromotionViaDragAndDrop = false;
     }
     final currentSideToMove = _controller.game?.sideToMove;
     if (currentSideToMove != _lastSideToMove) {
@@ -637,6 +645,7 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
       _controller.addListener(_onControllerChange);
       _controller.drawnShapesNotifier.addListener(_onDrawnShapesChange);
       _lastSideToMove = _controller.game?.sideToMove;
+      _pendingPromotionViaDragAndDrop = false;
     }
 
     if (_ownsController &&
@@ -1085,7 +1094,8 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
         if (widget.settings.autoQueenPromotion) {
           widget.onMove?.call(move.withPromotion(Role.queen), viaDragAndDrop: drop);
         } else {
-          widget.onMove?.call(move, viaDragAndDrop: drop);
+          _pendingPromotionViaDragAndDrop = drop;
+          _controller.pendingPromotion = move;
         }
       } else {
         widget.onMove?.call(move, viaDragAndDrop: drop);

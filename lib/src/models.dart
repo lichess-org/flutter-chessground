@@ -27,11 +27,9 @@ class GameData {
     required this.sideToMove,
     required this.validMoves,
     this.lastMove,
-    this.promotionMove,
     this.kingSquareInCheck,
     this.premovable,
     this.droppable,
-    this.canPromoteToKing = false,
   });
 
   /// The last move played, used to highlight the origin and destination squares.
@@ -42,11 +40,6 @@ class GameData {
 
   /// Side which is to move.
   final Side sideToMove;
-
-  /// A pawn move that should be promoted.
-  ///
-  /// Will show a promotion dialog if not null.
-  final NormalMove? promotionMove;
 
   /// The king square in check. If non-null, the king of the side to move is in check and will be highlighted.
   final Square? kingSquareInCheck;
@@ -63,9 +56,6 @@ class GameData {
   ///
   /// If `null`, the board will not allow drops.
   final Droppable? droppable;
-
-  /// Whether the pawn can be promoted to a king (possible for example in Antichess).
-  final bool canPromoteToKing;
 }
 
 /// State of a premovable chessboard.

@@ -198,11 +198,19 @@ class PiecesPainter extends CustomPainter {
     required this.orientation,
     required ValueNotifier<Square?>? draggedPieceSquareNotifier,
     required this.gameNotifier,
+    required this.pendingPromotionNotifier,
     required this.blindfoldMode,
     required this.pieceOrientationBehavior,
     required this.imagesLoaded,
   }) : _draggedPieceSquareNotifier = draggedPieceSquareNotifier,
-       super(repaint: Listenable.merge([piecesNotifier, draggedPieceSquareNotifier, gameNotifier]));
+       super(
+         repaint: Listenable.merge([
+           piecesNotifier,
+           draggedPieceSquareNotifier,
+           gameNotifier,
+           pendingPromotionNotifier,
+         ]),
+       );
 
   final ValueNotifier<Pieces> piecesNotifier;
   final ValueNotifier<TranslatingPieces> translatingPiecesNotifier;
@@ -214,10 +222,11 @@ class PiecesPainter extends CustomPainter {
   final Side orientation;
   final ValueNotifier<Square?>? _draggedPieceSquareNotifier;
   final ValueNotifier<GameData?> gameNotifier;
+  final ValueNotifier<NormalMove?> pendingPromotionNotifier;
   final bool blindfoldMode;
   final PieceOrientationBehavior pieceOrientationBehavior;
 
-  Square? get promotionMoveFrom => gameNotifier.value?.promotionMove?.from;
+  Square? get promotionMoveFrom => pendingPromotionNotifier.value?.from;
   Side? get sideToMove => gameNotifier.value?.sideToMove;
 
   /// Whether all piece images are available in the cache.
@@ -233,7 +242,7 @@ class PiecesPainter extends CustomPainter {
     final pieces = piecesNotifier.value;
     final translatingPieceSquares = translatingPiecesNotifier.value.keys.toSet();
     final draggedPieceSquare = _draggedPieceSquareNotifier?.value;
-    final promotionMoveFrom = game?.promotionMove?.from;
+    final promotionMoveFrom = pendingPromotionNotifier.value?.from;
     final sideToMove = game?.sideToMove;
     final paint = Paint()..filterQuality = FilterQuality.medium;
     for (final entry in pieces.entries) {

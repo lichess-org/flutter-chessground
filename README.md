@@ -40,8 +40,10 @@ last move, etc.). The board position (FEN) is passed separately — directly to
 `controller.updatePosition()` and the constructor. All chess logic must be handled
 outside this package.
 
-Callbacks for user interactions (`onMove`, `onPromotionSelection`, `onSetPremove`)
-are parameters on the `Chessboard` widget rather than on `GameData`.
+Callbacks for user interactions (`onMove`, `onSetPremove`) are parameters on
+the `Chessboard` widget rather than on `GameData`. Promotion is handled
+internally — `onMove` fires once with a fully-resolved move after the user
+picks a promotion piece.
 
 The controller pattern means the board rebuilds itself in response to controller
 updates, without requiring a parent `setState()`.
@@ -67,8 +69,8 @@ class _MyBoardState extends State<MyBoard> {
   GameData _buildGame() => GameData(
     lastMove: lastMove,
     playerSide: PlayerSide.white,
-    isCheck: position.isCheck,
     sideToMove: position.turn == Side.white ? Side.white : Side.black,
+    kingSquareInCheck: position.isCheck ? position.board.kingOf(position.turn) : null,
     validMoves: makeLegalMoves(position),
   );
 
@@ -89,7 +91,6 @@ class _MyBoardState extends State<MyBoard> {
       size: MediaQuery.of(context).size.width,
       orientation: Side.white,
       onMove: _onMove,
-      onPromotionSelection: (_) {},
     );
   }
 }
