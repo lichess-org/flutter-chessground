@@ -26,12 +26,12 @@ Set<Square> premovesOf(Square square, Pieces pieces, {bool canCastle = false}) {
         }
       })();
 
-  return Set.unmodifiable({
+  return {
     for (final s in Square.values)
       if ((square.file != s.file || square.rank != s.rank) &&
           mobility(square.file, square.rank, s.file, s.rank))
         s,
-  });
+  };
 }
 
 typedef _Mobility = bool Function(int x1, int y1, int x2, int y2);
