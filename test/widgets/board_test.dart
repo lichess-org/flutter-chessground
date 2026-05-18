@@ -3153,7 +3153,6 @@ class _TestAppState extends State<_TestApp> {
   late PlayerSide interactiveSide;
   late Position position;
   Move? lastMove;
-  Move? premoveData;
 
   StreamSubscription<GameEvent>? _gameEventSub;
 
@@ -3190,7 +3189,6 @@ class _TestAppState extends State<_TestApp> {
       sideToMove: position.turn == Side.white ? Side.white : Side.black,
       validMoves: makeLegalMoves(position),
       droppable: widget.droppable,
-      premovable: (premove: premoveData),
     );
   }
 
@@ -3246,8 +3244,8 @@ class _TestAppState extends State<_TestApp> {
         _controller.updatePosition(position.fen, game: _buildGame());
 
         // play premove just after the opponent move
-        if (premoveData != null) {
-          final premove = premoveData!;
+        final premove = _controller.premove;
+        if (premove != null) {
           if (position.isLegal(premove)) {
             if (premove is NormalMove &&
                 premove.promotion == null &&
@@ -3258,7 +3256,7 @@ class _TestAppState extends State<_TestApp> {
               final promoMove = premove;
               scheduleMicrotask(() {
                 _controller.pendingPromotion = promoMove;
-                premoveData = null;
+                _controller.premove = null;
                 _controller.updatePosition(position.fen, game: _buildGame());
               });
             } else {
@@ -3266,7 +3264,7 @@ class _TestAppState extends State<_TestApp> {
                 position = position.playUnchecked(premove);
                 if (position.isGameOver) interactiveSide = PlayerSide.none;
                 lastMove = premove;
-                premoveData = null;
+                _controller.premove = null;
                 _controller.updatePosition(position.fen, game: _buildGame());
               });
             }
@@ -3289,10 +3287,6 @@ class _TestAppState extends State<_TestApp> {
               settings: widget.settings ?? defaultSettings,
               orientation: widget.orientation,
               onMove: _onMove,
-              onSetPremove: (Move? move) {
-                premoveData = move;
-                _controller.updatePosition(position.fen, game: _buildGame());
-              },
               onTouchedSquare: widget.onTouchedSquare,
               shapes: widget.initialShapes,
             ),

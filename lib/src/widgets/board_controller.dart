@@ -25,6 +25,7 @@ class ChessboardController extends ChangeNotifier {
     _highlightNotifier = BoardHighlightNotifier();
     _drawnShapesNotifier = ValueNotifier({});
     _pendingPromotionNotifier = ValueNotifier(null);
+    _premoveNotifier = ValueNotifier(null);
   }
 
   /// Creates a controller for a non-interactive board showing [fen].
@@ -38,6 +39,7 @@ class ChessboardController extends ChangeNotifier {
     _highlightNotifier = BoardHighlightNotifier();
     _drawnShapesNotifier = ValueNotifier({});
     _pendingPromotionNotifier = ValueNotifier(null);
+    _premoveNotifier = ValueNotifier(null);
   }
 
   String _fen;
@@ -51,6 +53,7 @@ class ChessboardController extends ChangeNotifier {
   late final BoardHighlightNotifier _highlightNotifier;
   late final ValueNotifier<Set<Shape>> _drawnShapesNotifier;
   late final ValueNotifier<NormalMove?> _pendingPromotionNotifier;
+  late final ValueNotifier<Move?> _premoveNotifier;
 
   AnimationController? _animationController;
   CurvedAnimation? _translationAnimation;
@@ -64,6 +67,15 @@ class ChessboardController extends ChangeNotifier {
   bool get interactive =>
       _gameNotifier.value != null && _gameNotifier.value!.playerSide != PlayerSide.none;
   Pieces get pieces => _piecesNotifier.value;
+
+  /// The currently registered premove, or `null` if none is set.
+  Move? get premove => _premoveNotifier.value;
+
+  /// A notifier that fires whenever the premove is set or cleared.
+  ///
+  /// Useful for parents that need to react to premove changes outside the board
+  /// (e.g. updating pocket highlights, analytics, or haptic feedback).
+  ValueNotifier<Move?> get premoveNotifier => _premoveNotifier;
 
   /// The most recently requested explosion squares, or `null` if none.
   ///
@@ -125,6 +137,18 @@ class ChessboardController extends ChangeNotifier {
   }
 
   // --- Public mutation API ---
+
+  /// Sets or clears the premove.
+  ///
+  /// Assign a non-null [Move] to register a premove, or `null` to clear it.
+  /// The board updates its highlight display immediately.
+  ///
+  /// The parent is still responsible for executing the premove at the right time
+  /// (typically after the opponent moves). Read [premove] or listen to [premoveNotifier]
+  /// to know when a premove is pending.
+  set premove(Move? move) {
+    _premoveNotifier.value = move;
+  }
 
   /// The pending promotion move, or `null` when no promotion is in progress.
   NormalMove? get pendingPromotion => _pendingPromotionNotifier.value;
@@ -218,6 +242,9 @@ class ChessboardController extends ChangeNotifier {
   ///
   /// For interactive boards, pass [game] to update the game state.
   /// For non-interactive boards, omit [game] and optionally pass [lastMove].
+  ///
+  /// Any registered premove is cleared, since it is no longer meaningful after
+  /// jumping to an arbitrary position.
   void jumpToPosition(String fen, {GameData? game, Move? lastMove}) {
     _animationController?.stop();
     _translatingPiecesNotifier.value = {};
@@ -227,6 +254,7 @@ class ChessboardController extends ChangeNotifier {
     _piecesNotifier.value = readFen(fen);
     _gameNotifier.value = game;
     _lastMove = lastMove;
+    _premoveNotifier.value = null;
 
     notifyListeners();
   }
@@ -241,6 +269,7 @@ class ChessboardController extends ChangeNotifier {
     _highlightNotifier.dispose();
     _drawnShapesNotifier.dispose();
     _pendingPromotionNotifier.dispose();
+    _premoveNotifier.dispose();
     super.dispose();
   }
 }

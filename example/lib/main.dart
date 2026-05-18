@@ -74,7 +74,6 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   Position position = Chess.initial;
   Side orientation = Side.white;
-  Move? premove;
   Move? lastMove;
   PieceSet pieceSet = PieceSet.gioco;
   late ChessboardController _controller;
@@ -331,7 +330,6 @@ class _HomePageState extends State<HomePage> {
             orientation: orientation,
             onMove:
                 playMode == Mode.botPlay ? _onUserMoveAgainstBot : _playMove,
-            onSetPremove: _onSetPremove,
           );
 
           return Column(
@@ -506,9 +504,9 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _tryPlayPremove() {
-    if (premove != null) {
-      final move = premove!;
-      premove = null;
+    final move = _controller.premove;
+    if (move != null) {
+      _controller.premove = null;
       Timer.run(() {
         if (move is NormalMove && _isPromotionPawnMove(move)) {
           _controller.pendingPromotion = move;
@@ -589,13 +587,7 @@ class _HomePageState extends State<HomePage> {
       sideToMove: position.turn == Side.white ? Side.white : Side.black,
       kingSquareInCheck:
           position.isCheck ? position.board.kingOf(position.turn) : null,
-      premovable: (premove: premove),
     );
-  }
-
-  void _onSetPremove(Move? move) {
-    premove = move;
-    _controller.updatePosition(position.fen, game: _buildGame());
   }
 
   void _playMove(Move move, {bool? viaDragAndDrop}) {

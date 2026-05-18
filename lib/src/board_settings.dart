@@ -102,6 +102,7 @@ class ChessboardSettings {
     this.drawShape = const DrawShapeOptions(),
 
     // behavior settings
+    this.enablePremoves = true,
     this.enablePremoveCastling = true,
     this.autoQueenPromotion = false,
     this.autoQueenPromotionOnPremove = true,
@@ -162,6 +163,9 @@ class ChessboardSettings {
   /// Controls if any pieces are displayed upside down.
   final PieceOrientationBehavior pieceOrientationBehavior;
 
+  /// Whether premoves are enabled.
+  final bool enablePremoves;
+
   /// Whether castling is enabled with a premove.
   final bool enablePremoveCastling;
 
@@ -208,6 +212,7 @@ class ChessboardSettings {
         other.dragFeedbackOffset == dragFeedbackOffset &&
         other.dragTargetKind == dragTargetKind &&
         other.pieceOrientationBehavior == pieceOrientationBehavior &&
+        other.enablePremoves == enablePremoves &&
         other.enablePremoveCastling == enablePremoveCastling &&
         other.autoQueenPromotion == autoQueenPromotion &&
         other.autoQueenPromotionOnPremove == autoQueenPromotionOnPremove &&
@@ -217,7 +222,7 @@ class ChessboardSettings {
   }
 
   @override
-  int get hashCode => Object.hash(
+  int get hashCode => Object.hashAll([
     colorScheme,
     pieceAssets,
     border,
@@ -232,13 +237,14 @@ class ChessboardSettings {
     dragFeedbackOffset,
     dragTargetKind,
     pieceOrientationBehavior,
+    enablePremoves,
     enablePremoveCastling,
     autoQueenPromotion,
     autoQueenPromotionOnPremove,
     pieceShiftMethod,
     canPromoteToKing,
     drawShape,
-  );
+  ]);
 
   ChessboardSettings copyWith({
     ChessboardColorScheme? colorScheme,
@@ -256,6 +262,7 @@ class ChessboardSettings {
     Offset? dragFeedbackOffset,
     DragTargetKind? dragTargetKind,
     PieceOrientationBehavior? pieceOrientationBehavior,
+    bool? enablePremoves,
     bool? enablePremoveCastling,
     bool? autoQueenPromotion,
     bool? autoQueenPromotionOnPremove,
@@ -280,6 +287,7 @@ class ChessboardSettings {
       dragFeedbackOffset: dragFeedbackOffset ?? this.dragFeedbackOffset,
       dragTargetKind: dragTargetKind ?? this.dragTargetKind,
       pieceOrientationBehavior: pieceOrientationBehavior ?? this.pieceOrientationBehavior,
+      enablePremoves: enablePremoves ?? this.enablePremoves,
       enablePremoveCastling: enablePremoveCastling ?? this.enablePremoveCastling,
       autoQueenPromotionOnPremove: autoQueenPromotionOnPremove ?? this.autoQueenPromotionOnPremove,
       autoQueenPromotion: autoQueenPromotion ?? this.autoQueenPromotion,

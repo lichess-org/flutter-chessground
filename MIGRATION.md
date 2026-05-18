@@ -13,9 +13,9 @@ game state changes.
 `GameData` is now a pure state snapshot — it holds game state fields
 (`sideToMove`, `validMoves`, `lastMove`, etc.), but no callbacks and no FEN.
 The board position (FEN) is passed directly to the controller constructor and
-update methods. Callbacks (`onMove`, `onSetPremove`) are parameters on the
-`Chessboard` widget. `Premovable` carries only the current premove, not the
-setter. Promotion is handled fully inside the board — see the
+update methods. `onMove` is a parameter on the `Chessboard` widget. Premove and
+promotion state are both managed internally by `ChessboardController` — see the
+[Premove section](#premove-handling-premovable-removed) and the
 [Promotion section](#promotion-handling-onpromotionselection-removed) below.
 
 **Before (9.x)**
@@ -122,7 +122,8 @@ class _MyBoardState extends State<MyBoard> {
 | `GameData(onPromotionSelection: fn)` | removed — board handles promotion internally |
 | `GameData(promotionMove: move)` | removed — board handles promotion internally |
 | `GameData(canPromoteToKing: true)` | `ChessboardSettings(canPromoteToKing: true)` |
-| `Premovable(onSetPremove: fn, premove: m)` | `Chessboard(onSetPremove: fn)` + `Premovable(premove: m)` |
+| `GameData(premovable: (onSetPremove: fn, premove: m))` | removed — see [Premove section](#premove-handling-premovable-removed) |
+| `BoardSettings(enablePremoves: false)` (9.x: pass `premovable: null`) | `ChessboardSettings(enablePremoves: false)` |
 | `explosionSquares: squares` | `controller.triggerExplosion(squares)` |
 
 The `lastDrop:` parameter on `updatePosition()` replaces the internal tracking
@@ -281,6 +282,96 @@ final drawn = _controller.drawnShapes; // Set<Shape>
 | `setState(() => shapes = {})` in `onClearShapes` | `controller.clearDrawnShapes()` |
 | `Chessboard(shapes: userDrawnShapes)` | use `Chessboard(shapes: ...)` for *external* shapes only |
 
+### Premove handling: `Premovable` removed
+
+Premove state is now owned by `ChessboardController`. You no longer need to track
+the current premove in parent state, wire up an `onSetPremove` callback, or
+round-trip the move back into `GameData` on every rebuild.
+
+Enable or disable premoves via `ChessboardSettings.enablePremoves` (default `true`).
+The board sets and clears the premove internally as the user interacts. Read
+`controller.premove` (or listen to `controller.premoveNotifier`) to know when a
+premove is pending. You are still responsible for *executing* the premove at the
+right time (typically right after the opponent moves).
+
+**Before (9.x)**
+
+```dart
+class _MyBoardState extends State<MyBoard> {
+  Move? _premove;
+
+  GameData _buildGame() => GameData(
+    // ...
+    premovable: (
+      onSetPremove: (move) {
+        setState(() => _premove = move);
+        _controller.updatePosition(position.fen, game: _buildGame());
+      },
+      premove: _premove,
+    ),
+  );
+
+  void _onOpponentMove(Move opponentMove) {
+    position = position.playUnchecked(opponentMove);
+    _controller.updatePosition(position.fen, game: _buildGame());
+
+    final premove = _premove;
+    if (premove != null && position.isLegal(premove)) {
+      _premove = null;
+      _playMove(premove);
+    }
+  }
+}
+```
+
+**After (10.0.0)**
+
+```dart
+class _MyBoardState extends State<MyBoard> {
+  // No _premove field needed.
+
+  GameData _buildGame() => GameData(
+    // premovable removed — enablePremoves is in ChessboardSettings (default true)
+    // ...
+  );
+
+  void _onOpponentMove(Move opponentMove) {
+    position = position.playUnchecked(opponentMove);
+    _controller.updatePosition(position.fen, game: _buildGame());
+
+    final premove = _controller.premove;
+    if (premove != null && position.isLegal(premove)) {
+      _controller.premove = null;
+      _playMove(premove);
+    }
+  }
+}
+```
+
+To disable premoves entirely:
+
+```dart
+// Before (9.x): pass premovable: null in GameData
+// After (10.0.0):
+ChessboardSettings(enablePremoves: false)
+```
+
+To set or clear a premove programmatically (e.g. to cancel it when the game
+ends):
+
+```dart
+_controller.premove = null;
+```
+
+To react to premove changes outside the board (e.g. pocket highlights):
+
+```dart
+_controller.premoveNotifier.addListener(() {
+  final premove = _controller.premove;
+  // update pocket UI, trigger haptics, etc.
+});
+```
+
 ### Promotion handling: `onPromotionSelection` removed
 
 Promotion is now handled entirely inside the board. You no longer need to track a
@@ -350,9 +441,9 @@ selector:
 
 ```dart
 void _tryPlayPremove() {
-  final move = premove;
+  final move = _controller.premove;
   if (move == null) return;
-  premove = null;
+  _controller.premove = null;
 
   if (move is NormalMove && _isPromotionPawnMove(move)) {
     // Let the board show the selector; onMove fires with the resolved move.

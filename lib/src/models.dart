@@ -28,7 +28,6 @@ class GameData {
     required this.validMoves,
     this.lastMove,
     this.kingSquareInCheck,
-    this.premovable,
     this.droppable,
   });
 
@@ -47,30 +46,11 @@ class GameData {
   /// Set of moves allowed to be played by current side to move.
   final ValidMoves validMoves;
 
-  /// Optional premovable state of the board.
-  ///
-  /// If `null`, the board will not allow premoves.
-  final Premovable? premovable;
-
   /// Optional droppable state of the board for variants such as Crazyhouse.
   ///
   /// If `null`, the board will not allow drops.
   final Droppable? droppable;
 }
-
-/// State of a premovable chessboard.
-///
-/// A non-null value indicates that premoves are enabled. Holds the currently registered premove, or
-/// `null` if none has been set yet.
-typedef Premovable =
-    ({
-      /// Registered premove.
-      ///
-      /// Will be shown on the board as a preview move.
-      ///
-      /// Chessground will not play the premove automatically, it is up to the library user to play it.
-      Move? premove,
-    });
 
 /// State of a droppable chessboard for variants such as Crazyhouse.
 typedef Droppable =

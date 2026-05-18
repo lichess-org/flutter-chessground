@@ -9,8 +9,11 @@
 - Callbacks (`onMove`) have been removed from `GameData` and is now an optional
   parameter on the `Chessboard` widget itself.
 
-- `Premovable` no longer carries `onSetPremove`. The callback has moved to a new
-  optional `onSetPremove` parameter on the `Chessboard` widget.
+- `Premovable` typedef and `GameData.premovable` have been removed. Premove state
+  is now managed entirely by `ChessboardController`. The `onSetPremove` callback
+  has been removed from `Chessboard`. Enable or disable premoves via
+  `ChessboardSettings.enablePremoves` (default `true`). See the
+  [migration guide](MIGRATION.md) for the before/after pattern.
 
 - `ChessboardController` constructor changed. Use
   `ChessboardController(fen: fen, game: game)` for interactive boards.
@@ -69,6 +72,18 @@
   when executing a promotion premove: set `controller.pendingPromotion = move`
   after detecting that the premove would promote, and `onMove` will fire once
   the user selects a piece.
+
+- `ChessboardController.premove` getter and setter. Assign a `Move` to register
+  a premove; assign `null` to clear it. The board updates its highlight display
+  immediately. The parent is still responsible for executing the premove at the
+  right time (typically after the opponent moves).
+
+- `ChessboardController.premoveNotifier` — a `ValueNotifier<Move?>` that fires
+  whenever the premove is set or cleared, useful for reacting outside the board
+  (e.g. pocket highlights, haptics, or analytics).
+
+- `ChessboardSettings.enablePremoves` (default `true`) — the on/off switch for
+  premoves, replacing the nullability of the removed `GameData.premovable`.
 
 - `ChessboardSettings.canPromoteToKing` (default `false`) allows promotion to
   king in variants such as Antichess.

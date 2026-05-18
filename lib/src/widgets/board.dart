@@ -39,7 +39,6 @@ class Chessboard extends StatefulWidget with ChessboardGeometry {
   /// [onMove] is called when the user completes a move, including after a
   /// promotion piece has been selected. The promotion role is already set on
   /// the [Move] at that point.
-  /// [onSetPremove] is called when a premove is set or cleared.
   const Chessboard({
     super.key,
     required double size,
@@ -47,7 +46,6 @@ class Chessboard extends StatefulWidget with ChessboardGeometry {
     this.settings = const ChessboardSettings(),
     required this.orientation,
     this.onMove,
-    this.onSetPremove,
     this.onTouchedSquare,
     this.shapes = const {},
     this.annotations = const {},
@@ -74,7 +72,6 @@ class Chessboard extends StatefulWidget with ChessboardGeometry {
   }) : _size = size,
        controller = null,
        onMove = null,
-       onSetPremove = null,
        _fen = fen,
        _lastMove = lastMove;
 
@@ -104,12 +101,6 @@ class Chessboard extends StatefulWidget with ChessboardGeometry {
   ///
   /// Null when using [Chessboard.fixed].
   final void Function(Move, {bool? viaDragAndDrop})? onMove;
-
-  /// Called when a premove is set or cleared by the user.
-  ///
-  /// Receives `null` when the premove is cleared.
-  /// Null when using [Chessboard.fixed].
-  final void Function(Move?)? onSetPremove;
 
   // FEN and last move for the fixed (non-interactive) constructor only.
   final String? _fen;
@@ -404,8 +395,8 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
                           currentGame.droppable != null &&
                           currentGame.droppable!.validDropSquares.contains(square)) {
                         widget.onMove?.call(move, viaDragAndDrop: true);
-                      } else if (currentGame.premovable != null) {
-                        widget.onSetPremove?.call(move);
+                      } else if (widget.settings.enablePremoves) {
+                        _controller.premove = move;
                       }
                     },
                     builder: (context, candidateData, _) {
@@ -510,6 +501,7 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
       _controller.attachTo(this, widget.settings.animationDuration);
     }
     _controller.drawnShapesNotifier.addListener(_onDrawnShapesChange);
+    _controller.premoveNotifier.addListener(_onPremoveChange);
     _explosionNotifier = ExplosionSetNotifier(vsync: this);
     _lastSeenExplosionSquares = _controller.pendingExplosionSquares;
     _draggedPieceSquareNotifier = ValueNotifier<Square?>(null);
@@ -581,6 +573,7 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
   @override
   void dispose() {
     _controller.drawnShapesNotifier.removeListener(_onDrawnShapesChange);
+    _controller.premoveNotifier.removeListener(_onPremoveChange);
     if (_ownsController) {
       _controller.dispose();
     } else {
@@ -601,6 +594,10 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
 
   void _onDrawnShapesChange() {
     setState(() {});
+  }
+
+  void _onPremoveChange() {
+    _syncHighlightNotifier();
   }
 
   void _onControllerChange() {
@@ -639,11 +636,13 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
     if (!_ownsController && oldBoard.controller != widget.controller) {
       oldBoard.controller!.removeListener(_onControllerChange);
       oldBoard.controller!.drawnShapesNotifier.removeListener(_onDrawnShapesChange);
+      oldBoard.controller!.premoveNotifier.removeListener(_onPremoveChange);
       oldBoard.controller!.detach();
       _controller = widget.controller!;
       _controller.attachTo(this, widget.settings.animationDuration);
       _controller.addListener(_onControllerChange);
       _controller.drawnShapesNotifier.addListener(_onDrawnShapesChange);
+      _controller.premoveNotifier.addListener(_onPremoveChange);
       _lastSideToMove = _controller.game?.sideToMove;
       _pendingPromotionViaDragAndDrop = false;
     }
@@ -681,7 +680,7 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
             : _emptyValidMoves;
     final premoveDests =
         widget.settings.showValidMoves ? _premoveDests ?? const <Square>{} : const <Square>{};
-    final premove = game?.premovable?.premove;
+    final premove = _controller.premove;
     final premoveHighlight =
         premove != null && game?.playerSide.name == game?.sideToMove.opposite.name ? premove : null;
     _controller.highlightNotifier.update(
@@ -824,14 +823,14 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
     // pointer down on empty square:
     // - cancel premove
     // - unselect piece
-    else if (_controller.game?.premovable?.premove != null) {
-      widget.onSetPremove?.call(null);
+    else if (_controller.premove != null) {
+      _controller.premove = null;
       _setSelection(null);
     }
 
     // there is a premove set from the touched square:
     // - cancel the premove on the next tap up event
-    if (_controller.game?.premovable?.premove case NormalMove(:final from) when from == square) {
+    if (_controller.premove case NormalMove(:final from) when from == square) {
       _shouldCancelPremoveOnTapUp = true;
     }
 
@@ -910,8 +909,8 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
         if (square != selected) {
           final couldMove = _tryMoveOrPremoveTo(square, drop: true);
           // if the premove was not possible, cancel the current premove
-          if (!couldMove && _controller.game?.premovable?.premove != null) {
-            widget.onSetPremove?.call(null);
+          if (!couldMove && _controller.premove != null) {
+            _controller.premove = null;
           }
         } else {
           // if piece shift method is drag only we always deselect the piece after a drag
@@ -919,8 +918,8 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
         }
       }
       // if the user drags a piece outside the board, cancel the premove
-      else if (_controller.game?.premovable?.premove != null) {
-        widget.onSetPremove?.call(null);
+      else if (_controller.premove != null) {
+        _controller.premove = null;
       }
       _onDragEnd();
       if (shouldDeselect) _setSelection(null);
@@ -936,9 +935,9 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
 
     // cancel premove if the user taps on the origin square of the premove
     if (_shouldCancelPremoveOnTapUp) {
-      if (_controller.game?.premovable?.premove case NormalMove(:final from) when from == square) {
+      if (_controller.premove case NormalMove(:final from) when from == square) {
         _shouldCancelPremoveOnTapUp = false;
-        widget.onSetPremove?.call(null);
+        _controller.premove = null;
       }
     }
 
@@ -1060,7 +1059,7 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
   bool _isPremovable(Piece? piece) {
     final game = _controller.game;
     return piece != null &&
-        game?.premovable != null &&
+        widget.settings.enablePremoves &&
         game?.playerSide.name == piece.color.name &&
         game?.sideToMove != piece.color;
   }
@@ -1107,7 +1106,7 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
           widget.settings.autoQueenPromotionOnPremove && isPromoPremove
               ? NormalMove(from: selected!, to: square, promotion: Role.queen)
               : NormalMove(from: selected!, to: square);
-      widget.onSetPremove?.call(premove);
+      _controller.premove = premove;
       return true;
     }
     return false;
