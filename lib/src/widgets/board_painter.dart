@@ -240,14 +240,14 @@ class PiecesPainter extends CustomPainter {
 
     final game = gameNotifier.value;
     final pieces = piecesNotifier.value;
-    final translatingPieceSquares = translatingPiecesNotifier.value.keys.toSet();
+    final translatingPieces = translatingPiecesNotifier.value;
     final draggedPieceSquare = _draggedPieceSquareNotifier?.value;
     final promotionMoveFrom = pendingPromotionNotifier.value?.from;
     final sideToMove = game?.sideToMove;
     final paint = Paint()..filterQuality = FilterQuality.medium;
     for (final entry in pieces.entries) {
       final square = entry.key;
-      if (translatingPieceSquares.contains(square) ||
+      if (translatingPieces.containsKey(square) ||
           square == draggedPieceSquare ||
           square == promotionMoveFrom) {
         continue;
