@@ -503,6 +503,7 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
     _controller.premoveNotifier.addListener(_onPremoveChange);
     _explosionNotifier = ExplosionSetNotifier(vsync: this);
     _lastSeenExplosionSquares = _controller.pendingExplosionSquares;
+    _syncHighlightNotifier();
     _draggedPieceSquareNotifier = ValueNotifier<Square?>(null);
     _imagesLoaded = ChessgroundImages.instance.isAllLoaded(widget.settings.pieceAssets);
     if (!_imagesLoaded) _loadImages(widget.settings.pieceAssets);

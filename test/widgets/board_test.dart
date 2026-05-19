@@ -231,6 +231,40 @@ void main() {
   });
 
   group('Interactive board', () {
+    testWidgets('initial lastMove and checkSquare are highlighted on first paint', (
+      WidgetTester tester,
+    ) async {
+      // Scholar's mate: Qxf7# — queen moved from h5 to f7, black king on e8 is in check.
+      const fen = 'r1bqkb1r/pppp1Qpp/2n2n2/4p3/2B1P3/8/PPPP1PPP/RNB1K1NR b KQkq - 0 4';
+      const lastMove = NormalMove(from: Square.h5, to: Square.f7);
+
+      final controller = ChessboardController(
+        fen: fen,
+        game: const GameData(
+          playerSide: PlayerSide.white,
+          sideToMove: Side.black,
+          validMoves: {},
+          lastMove: lastMove,
+          kingSquareInCheck: Square.e8,
+        ),
+      );
+      addTearDown(controller.dispose);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Align(
+            alignment: Alignment.topLeft,
+            child: Chessboard(controller: controller, size: boardSize, orientation: Side.white),
+          ),
+        ),
+      );
+
+      // No interaction required — highlights must be correct from the very first paint.
+      expect(_isLastMove(tester, Square.h5), isTrue);
+      expect(_isLastMove(tester, Square.f7), isTrue);
+      expect(_isCheckSquare(tester, Square.e8), isTrue);
+    });
+
     testWidgets('selecting and deselecting a square', (WidgetTester tester) async {
       for (final settings in [
         const ChessboardSettings(),
