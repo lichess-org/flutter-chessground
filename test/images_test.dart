@@ -1,6 +1,7 @@
 import 'dart:ui' as ui;
 
 import 'package:chessground/chessground.dart';
+import 'package:dartchess/dartchess.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -72,6 +73,32 @@ void main() {
       _cache.add(key, images[i]);
     }
     expect(_cache.keys.toSet(), {for (var i = 0; i < images.length; i++) AssetImage(i.toString())});
+  });
+
+  test('loadAll awaits in-flight loads already present in cache', () async {
+    const assets = <PieceKind, AssetImage>{
+      PieceKind.whiteKing: AssetImage('wK.png'),
+      PieceKind.blackKing: AssetImage('bK.png'),
+      PieceKind.whiteQueen: AssetImage('wQ.png'),
+    };
+
+    // Start loading without awaiting — entries are added to _assets immediately
+    // but their futures haven't resolved yet.
+    for (final asset in assets.values) {
+      _cache.loadBase64(asset, pixel);
+    }
+
+    // Sanity check: in-flight entries are present but images not yet available.
+    for (final asset in assets.values) {
+      expect(_cache.containsKey(asset), isTrue);
+      expect(_cache.get(asset), isNull);
+    }
+
+    // loadAll must await the in-flight futures, not skip them because
+    // containsKey() already returns true.
+    await _cache.loadAll(assets);
+
+    expect(_cache.isAllLoaded(assets), isTrue);
   });
 
   test('.ready()', () async {

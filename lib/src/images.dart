@@ -105,11 +105,10 @@ class ChessgroundImages {
   bool isAllLoaded(PieceAssets assets) =>
       assets.values.every((AssetImage a) => _assets[a]?.image != null);
 
-  /// Loads all images in [assets] that are not already cached.
+  /// Loads all images in [assets], awaiting any already in-flight loads.
   Future<void> loadAll(PieceAssets assets, {double? devicePixelRatio}) {
     return Future.wait([
-      for (final asset in assets.values)
-        if (!containsKey(asset)) load(asset, devicePixelRatio: devicePixelRatio),
+      for (final asset in assets.values) load(asset, devicePixelRatio: devicePixelRatio),
     ]);
   }
 
