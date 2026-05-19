@@ -110,7 +110,7 @@ class ChessboardController extends ChangeNotifier {
   Set<Square>? get pendingExplosionSquares => _pendingExplosionSquares;
 
   /// The set of shapes drawn by the user on the board.
-  Set<Shape> get drawnShapes => _drawnShapesNotifier.value;
+  Iterable<Shape> get drawnShapes => _drawnShapesNotifier.value;
 
   // --- Notifiers consumed by board painters ---
 
