@@ -1,5 +1,6 @@
 import 'package:dartchess/dartchess.dart';
 import 'package:flutter/widgets.dart';
+import 'package:meta/meta.dart';
 
 import 'animation.dart';
 import 'board_painter.dart';
@@ -29,9 +30,8 @@ import '../models.dart';
 ///
 /// ## Drawn shapes
 ///
-/// [drawnShapes] exposes the shapes the user has drawn with gestures.
 /// Use [addDrawnShape], [toggleDrawnShape], and [clearDrawnShapes] to
-/// manipulate them programmatically.
+/// manipulate user-drawn shapes programmatically.
 ///
 /// ## Atomic explosions
 ///
@@ -85,7 +85,7 @@ class ChessboardController extends ChangeNotifier {
   CurvedAnimation? _translationAnimation;
   CurvedAnimation? _fadeAnimation;
 
-  // --- Public read-only state ---
+  // --- Public API ---
 
   String get fen => _fen;
   GameData? get game => _gameNotifier.value;
@@ -103,30 +103,36 @@ class ChessboardController extends ChangeNotifier {
   /// (e.g. updating pocket highlights, analytics, or haptic feedback).
   ValueNotifier<Move?> get premoveNotifier => _premoveNotifier;
 
-  /// The most recently requested explosion squares, or `null` if none.
-  ///
-  /// The board tracks this value and triggers the animation whenever it sees
-  /// a new, non-null set (i.e. different from the last seen value).
+  @internal
   Set<Square>? get pendingExplosionSquares => _pendingExplosionSquares;
 
-  /// The set of shapes drawn by the user on the board.
+  @internal
   Iterable<Shape> get drawnShapes => _drawnShapesNotifier.value;
 
-  // --- Notifiers consumed by board painters ---
+  // --- Notifiers consumed by board painters (internal use only) ---
 
+  @internal
   ValueNotifier<GameData?> get gameNotifier => _gameNotifier;
+  @internal
   ValueNotifier<Pieces> get piecesNotifier => _piecesNotifier;
+  @internal
   ValueNotifier<TranslatingPieces> get translatingPiecesNotifier => _translatingPiecesNotifier;
+  @internal
   ValueNotifier<FadingPieces> get fadingPiecesNotifier => _fadingPiecesNotifier;
+  @internal
   BoardHighlightNotifier get highlightNotifier => _highlightNotifier;
+  @internal
   ValueNotifier<Set<Shape>> get drawnShapesNotifier => _drawnShapesNotifier;
+  @internal
   ValueNotifier<NormalMove?> get pendingPromotionNotifier => _pendingPromotionNotifier;
 
+  @internal
   CurvedAnimation get translationAnimation {
     assert(_translationAnimation != null, 'ChessboardController is not attached to a board.');
     return _translationAnimation!;
   }
 
+  @internal
   CurvedAnimation get fadeAnimation {
     assert(_fadeAnimation != null, 'ChessboardController is not attached to a board.');
     return _fadeAnimation!;
@@ -134,6 +140,7 @@ class ChessboardController extends ChangeNotifier {
 
   // --- Lifecycle (called by _BoardState) ---
 
+  @internal
   void attachTo(TickerProvider vsync, Duration animationDuration) {
     assert(_animationController == null, 'ChessboardController is already attached.');
     _animationController = AnimationController(
@@ -148,6 +155,7 @@ class ChessboardController extends ChangeNotifier {
     _fadeAnimation = CurvedAnimation(parent: _animationController!, curve: Curves.easeInQuad);
   }
 
+  @internal
   void detach() {
     _fadeAnimation?.dispose();
     _translationAnimation?.dispose();
@@ -157,7 +165,9 @@ class ChessboardController extends ChangeNotifier {
     _animationController = null;
   }
 
+  @internal
   Duration get animationDuration => _animationController?.duration ?? Duration.zero;
+  @internal
   set animationDuration(Duration value) {
     _animationController?.duration = value;
   }
