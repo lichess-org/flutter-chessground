@@ -69,7 +69,7 @@
 - `ChessboardController.interactive` getter (true when a `GameData` with a
   non-`none` `playerSide` is set).
 
-- `ChessboardController.triggerExplosion(ISet<Square>)` triggers a one-shot atomic
+- `ChessboardController.triggerExplosion(Set<Square>)` triggers a one-shot atomic
   chess explosion animation on the given squares.
 
 - `ChessboardController.pendingPromotion` getter and setter. The getter exposes
