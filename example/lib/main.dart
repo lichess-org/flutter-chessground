@@ -742,6 +742,7 @@ class CrazyhouseMenu extends StatelessWidget {
             return IgnorePointer(
               ignoring: !hasPieceInPocket,
               child: Draggable(
+                dragAnchorStrategy: pointerDragAnchorStrategy,
                 data: piece,
                 feedback: PieceDragFeedback(
                   scale: settings.dragFeedbackScale,

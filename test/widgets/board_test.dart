@@ -3,6 +3,7 @@ import 'dart:ui' as ui;
 import 'package:chessground/src/widgets/board_painter.dart';
 import 'package:chessground/src/widgets/explosion.dart';
 import 'package:chessground/src/widgets/promotion.dart';
+import 'package:flutter/gestures.dart' show PointerDeviceKind;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:dartchess/dartchess.dart';
@@ -504,334 +505,6 @@ void main() {
       }
     });
 
-    testWidgets('dragging a piece onto the board triggers DropMove', (WidgetTester tester) async {
-      final pos = Position.setupPosition(
-        Rule.crazyhouse,
-        Setup.parseFen('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[Pn] w KQkq - 0 1'),
-      );
-      await tester.pumpWidget(
-        _TestApp(
-          initialPlayerSide: PlayerSide.both,
-          rule: Rule.crazyhouse,
-          fen: pos.fen,
-          settings: const ChessboardSettings(enableDrops: true),
-          validDropSquares: pos.legalDrops.squares.toSet(),
-          bottomWidget: Column(
-            children: [
-              Draggable(
-                key: const Key('whitePawn'),
-                data: Piece.whitePawn,
-                feedback: const SizedBox.shrink(),
-                child: PieceWidget(
-                  piece: Piece.whitePawn,
-                  size: squareSize,
-                  pieceAssets: PieceSet.merida.assets,
-                ),
-              ),
-              Draggable(
-                key: const Key('blackKnight'),
-                data: Piece.blackKnight,
-                feedback: const SizedBox.shrink(),
-                child: PieceWidget(
-                  piece: Piece.blackKnight,
-                  size: squareSize,
-                  pieceAssets: PieceSet.merida.assets,
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-
-      final whitePawnDraggable = find.byKey(const Key('whitePawn'));
-
-      await tester.drag(
-        whitePawnDraggable,
-        squareOffset(tester, Square.e4) - tester.getCenter(whitePawnDraggable),
-      );
-
-      await tester.pumpAndSettle();
-      expect(_piecesPainter(tester).pieces[Square.e4], Piece.whitePawn);
-      // Just to make sure we didn't play a normal move
-      expect(_piecesPainter(tester).pieces[Square.e2], Piece.whitePawn);
-
-      final blackKnightDraggable = find.byKey(const Key('blackKnight'));
-      await tester.drag(
-        blackKnightDraggable,
-        squareOffset(tester, Square.e5) - tester.getCenter(blackKnightDraggable),
-      );
-
-      await tester.pumpAndSettle();
-      expect(_piecesPainter(tester).pieces[Square.e4], Piece.whitePawn);
-      expect(_piecesPainter(tester).pieces[Square.e5], Piece.blackKnight);
-    });
-
-    testWidgets('Cannot move pawns onto the back rank', (WidgetTester tester) async {
-      final pos = Position.setupPosition(
-        Rule.crazyhouse,
-        Setup.parseFen('8/8/3K4/8/3k4/8/8/8[PNp] w - - 0 1'),
-      );
-      await tester.pumpWidget(
-        _TestApp(
-          initialPlayerSide: PlayerSide.both,
-          fen: pos.fen,
-          rule: Rule.crazyhouse,
-          settings: const ChessboardSettings(enableDrops: true),
-          validDropSquares: pos.legalDrops.squares.toSet(),
-          bottomWidget: Column(
-            children: [
-              Draggable(
-                key: const Key('whitePawn'),
-                data: Piece.whitePawn,
-                feedback: const SizedBox.shrink(),
-                child: PieceWidget(
-                  piece: Piece.whitePawn,
-                  size: squareSize,
-                  pieceAssets: PieceSet.merida.assets,
-                ),
-              ),
-              Draggable(
-                key: const Key('whiteKnight'),
-                data: Piece.whiteKnight,
-                feedback: const SizedBox.shrink(),
-                child: PieceWidget(
-                  piece: Piece.whiteKnight,
-                  size: squareSize,
-                  pieceAssets: PieceSet.merida.assets,
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-
-      final whitePawnDraggable = find.byKey(const Key('whitePawn'));
-
-      await tester.drag(
-        whitePawnDraggable,
-        squareOffset(tester, Square.a1) - tester.getCenter(whitePawnDraggable),
-      );
-      await tester.drag(
-        whitePawnDraggable,
-        squareOffset(tester, Square.a8) - tester.getCenter(whitePawnDraggable),
-      );
-
-      await tester.pumpAndSettle();
-      expect(_piecesPainter(tester).pieces.containsKey(Square.a8), isFalse);
-      expect(_piecesPainter(tester).pieces.containsKey(Square.a1), isFalse);
-
-      // Dragging other pieces onto the back rank should work though
-      final whiteKnightDraggable = find.byKey(const Key('whiteKnight'));
-      await tester.drag(
-        whiteKnightDraggable,
-        squareOffset(tester, Square.a8) - tester.getCenter(whiteKnightDraggable),
-      );
-
-      await tester.pumpAndSettle();
-      expect(_piecesPainter(tester).pieces[Square.a8], Piece.whiteKnight);
-    });
-
-    testWidgets('Cannot play illegal drop moves', (WidgetTester tester) async {
-      final pos = Position.setupPosition(
-        Rule.crazyhouse,
-        Setup.parseFen('rnb1kbnr/pppp2pp/8/4p3/8/2q2N2/PP2PPPP/R1B1KB1R[P] w - - 8 8'),
-      );
-      await tester.pumpWidget(
-        _TestApp(
-          initialPlayerSide: PlayerSide.both,
-          // white is in check, so we can't drag the pawn onto a square that doesn't block the check.
-          fen: pos.fen,
-          rule: Rule.crazyhouse,
-          settings: const ChessboardSettings(enableDrops: true),
-          validDropSquares: pos.legalDrops.squares.toSet(),
-          bottomWidget: Column(
-            children: [
-              Draggable(
-                key: const Key('whitePawn'),
-                data: Piece.whitePawn,
-                feedback: const SizedBox.shrink(),
-                child: PieceWidget(
-                  piece: Piece.whitePawn,
-                  size: squareSize,
-                  pieceAssets: PieceSet.merida.assets,
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-
-      final whitePawnDraggable = find.byKey(const Key('whitePawn'));
-
-      // This square is empty, but this move wouldn't block the check, so it should not be allowed
-      await tester.drag(
-        whitePawnDraggable,
-        squareOffset(tester, Square.a4) - tester.getCenter(whitePawnDraggable),
-      );
-
-      await tester.pumpAndSettle();
-      expect(_piecesPainter(tester).pieces.containsKey(Square.a4), isFalse);
-
-      // Only square that blocks the check
-      await tester.drag(
-        whitePawnDraggable,
-        squareOffset(tester, Square.d2) - tester.getCenter(whitePawnDraggable),
-      );
-
-      await tester.pumpAndSettle();
-      expect(_piecesPainter(tester).pieces[Square.d2], Piece.whitePawn);
-    });
-
-    testWidgets('no drag targets if drop moves not explicitly enabled', (
-      WidgetTester tester,
-    ) async {
-      await tester.pumpWidget(const _TestApp(initialPlayerSide: PlayerSide.both));
-
-      expect(find.byType(DragTarget<Piece>), findsNothing);
-    });
-
-    testWidgets(
-      'drop hover circle renders without crashing when dragging a pocket piece over a square',
-      (WidgetTester tester) async {
-        final pos = Position.setupPosition(
-          Rule.crazyhouse,
-          Setup.parseFen('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[Pn] w KQkq - 0 1'),
-        );
-        await tester.pumpWidget(
-          _TestApp(
-            initialPlayerSide: PlayerSide.both,
-            rule: Rule.crazyhouse,
-            fen: pos.fen,
-            settings: const ChessboardSettings(enableDrops: true),
-            validDropSquares: pos.legalDrops.squares.toSet(),
-            bottomWidget: Draggable(
-              key: const Key('whitePawn'),
-              data: Piece.whitePawn,
-              feedback: const SizedBox.shrink(),
-              child: PieceWidget(
-                piece: Piece.whitePawn,
-                size: squareSize,
-                pieceAssets: PieceSet.merida.assets,
-              ),
-            ),
-          ),
-        );
-
-        final gesture = await tester.startGesture(
-          tester.getCenter(find.byKey(const Key('whitePawn'))),
-        );
-        // Moving over e4 triggers DragTarget.onMove, which sets the hover notifier.
-        await gesture.moveTo(squareOffset(tester, Square.e4));
-        // Rebuilding here is the path that previously crashed: PositionedSquare
-        // emits a Positioned widget which requires a Stack ancestor, but
-        // DragTarget.builder wraps its output in MetaData, not Stack.
-        await tester.pump();
-
-        expect(
-          find.descendant(of: find.byType(DragTarget<Piece>), matching: find.byType(Container)),
-          findsOneWidget,
-        );
-
-        await gesture.up();
-        await tester.pumpAndSettle();
-      },
-    );
-
-    testWidgets('drop hover circle updates as pocket piece is dragged across squares', (
-      WidgetTester tester,
-    ) async {
-      final pos = Position.setupPosition(
-        Rule.crazyhouse,
-        Setup.parseFen('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[Pn] w KQkq - 0 1'),
-      );
-      await tester.pumpWidget(
-        _TestApp(
-          initialPlayerSide: PlayerSide.both,
-          rule: Rule.crazyhouse,
-          fen: pos.fen,
-          settings: const ChessboardSettings(enableDrops: true),
-          validDropSquares: pos.legalDrops.squares.toSet(),
-          bottomWidget: Draggable(
-            key: const Key('whitePawn'),
-            data: Piece.whitePawn,
-            feedback: const SizedBox.shrink(),
-            child: PieceWidget(
-              piece: Piece.whitePawn,
-              size: squareSize,
-              pieceAssets: PieceSet.merida.assets,
-            ),
-          ),
-        ),
-      );
-
-      final gesture = await tester.startGesture(
-        tester.getCenter(find.byKey(const Key('whitePawn'))),
-      );
-      await gesture.moveTo(squareOffset(tester, Square.e4));
-      await tester.pump();
-      expect(
-        find.descendant(of: find.byType(DragTarget<Piece>), matching: find.byType(Container)),
-        findsOneWidget,
-      );
-
-      await gesture.moveTo(squareOffset(tester, Square.d4));
-      await tester.pump();
-      expect(
-        find.descendant(of: find.byType(DragTarget<Piece>), matching: find.byType(Container)),
-        findsOneWidget,
-      );
-
-      await gesture.up();
-      await tester.pumpAndSettle();
-    });
-
-    testWidgets('drop hover circle disappears after pocket piece is dropped', (
-      WidgetTester tester,
-    ) async {
-      final pos = Position.setupPosition(
-        Rule.crazyhouse,
-        Setup.parseFen('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[Pn] w KQkq - 0 1'),
-      );
-      await tester.pumpWidget(
-        _TestApp(
-          initialPlayerSide: PlayerSide.both,
-          rule: Rule.crazyhouse,
-          fen: pos.fen,
-          settings: const ChessboardSettings(enableDrops: true),
-          validDropSquares: pos.legalDrops.squares.toSet(),
-          bottomWidget: Draggable(
-            key: const Key('whitePawn'),
-            data: Piece.whitePawn,
-            feedback: const SizedBox.shrink(),
-            child: PieceWidget(
-              piece: Piece.whitePawn,
-              size: squareSize,
-              pieceAssets: PieceSet.merida.assets,
-            ),
-          ),
-        ),
-      );
-
-      final gesture = await tester.startGesture(
-        tester.getCenter(find.byKey(const Key('whitePawn'))),
-      );
-      await gesture.moveTo(squareOffset(tester, Square.e4));
-      await tester.pump();
-      expect(
-        find.descendant(of: find.byType(DragTarget<Piece>), matching: find.byType(Container)),
-        findsOneWidget,
-      );
-
-      await gesture.up();
-      await tester.pumpAndSettle();
-      // Circle is gone after the drop.
-      expect(
-        find.descendant(of: find.byType(DragTarget<Piece>), matching: find.byType(Container)),
-        findsNothing,
-      );
-      expect(_piecesPainter(tester).pieces[Square.e4], Piece.whitePawn);
-    });
-
     testWidgets('Cannot move by drag if piece shift method is tapTwoSquares', (
       WidgetTester tester,
     ) async {
@@ -1160,6 +833,453 @@ void main() {
       () => onTouchedSquare(Square.e3),
     ]);
     verifyNoMoreInteractions(onTouchedSquare);
+  });
+
+  group('Drop squares enabled', () {
+    testWidgets('dragging a piece onto the board triggers DropMove', (WidgetTester tester) async {
+      final pos = Position.setupPosition(
+        Rule.crazyhouse,
+        Setup.parseFen('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[Pn] w KQkq - 0 1'),
+      );
+      await tester.pumpWidget(
+        _TestApp(
+          initialPlayerSide: PlayerSide.both,
+          rule: Rule.crazyhouse,
+          fen: pos.fen,
+          settings: const ChessboardSettings(enableDrops: true),
+          validDropSquares: pos.legalDrops.squares.toSet(),
+          bottomWidget: Column(
+            children: [
+              Draggable(
+                key: const Key('whitePawn'),
+                dragAnchorStrategy: pointerDragAnchorStrategy,
+                data: Piece.whitePawn,
+                feedback: const SizedBox.shrink(),
+                child: PieceWidget(
+                  piece: Piece.whitePawn,
+                  size: squareSize,
+                  pieceAssets: PieceSet.merida.assets,
+                ),
+              ),
+              Draggable(
+                key: const Key('blackKnight'),
+                dragAnchorStrategy: pointerDragAnchorStrategy,
+                data: Piece.blackKnight,
+                feedback: const SizedBox.shrink(),
+                child: PieceWidget(
+                  piece: Piece.blackKnight,
+                  size: squareSize,
+                  pieceAssets: PieceSet.merida.assets,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+
+      final whitePawnDraggable = find.byKey(const Key('whitePawn'));
+
+      await tester.drag(
+        whitePawnDraggable,
+        squareOffset(tester, Square.e4) - tester.getCenter(whitePawnDraggable),
+      );
+
+      await tester.pumpAndSettle();
+      expect(_piecesPainter(tester).pieces[Square.e4], Piece.whitePawn);
+      // Just to make sure we didn't play a normal move
+      expect(_piecesPainter(tester).pieces[Square.e2], Piece.whitePawn);
+
+      final blackKnightDraggable = find.byKey(const Key('blackKnight'));
+      await tester.drag(
+        blackKnightDraggable,
+        squareOffset(tester, Square.e5) - tester.getCenter(blackKnightDraggable),
+      );
+
+      await tester.pumpAndSettle();
+      expect(_piecesPainter(tester).pieces[Square.e4], Piece.whitePawn);
+      expect(_piecesPainter(tester).pieces[Square.e5], Piece.blackKnight);
+    });
+
+    testWidgets('Cannot move pawns onto the back rank', (WidgetTester tester) async {
+      final pos = Position.setupPosition(
+        Rule.crazyhouse,
+        Setup.parseFen('8/8/3K4/8/3k4/8/8/8[PNp] w - - 0 1'),
+      );
+      await tester.pumpWidget(
+        _TestApp(
+          initialPlayerSide: PlayerSide.both,
+          fen: pos.fen,
+          rule: Rule.crazyhouse,
+          settings: const ChessboardSettings(enableDrops: true),
+          validDropSquares: pos.legalDrops.squares.toSet(),
+          bottomWidget: Column(
+            children: [
+              Draggable(
+                key: const Key('whitePawn'),
+                dragAnchorStrategy: pointerDragAnchorStrategy,
+                data: Piece.whitePawn,
+                feedback: const SizedBox.shrink(),
+                child: PieceWidget(
+                  piece: Piece.whitePawn,
+                  size: squareSize,
+                  pieceAssets: PieceSet.merida.assets,
+                ),
+              ),
+              Draggable(
+                key: const Key('whiteKnight'),
+                dragAnchorStrategy: pointerDragAnchorStrategy,
+                data: Piece.whiteKnight,
+                feedback: const SizedBox.shrink(),
+                child: PieceWidget(
+                  piece: Piece.whiteKnight,
+                  size: squareSize,
+                  pieceAssets: PieceSet.merida.assets,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+
+      final whitePawnDraggable = find.byKey(const Key('whitePawn'));
+
+      await tester.drag(
+        whitePawnDraggable,
+        squareOffset(tester, Square.a1) - tester.getCenter(whitePawnDraggable),
+      );
+      await tester.drag(
+        whitePawnDraggable,
+        squareOffset(tester, Square.a8) - tester.getCenter(whitePawnDraggable),
+      );
+
+      await tester.pumpAndSettle();
+      expect(_piecesPainter(tester).pieces.containsKey(Square.a8), isFalse);
+      expect(_piecesPainter(tester).pieces.containsKey(Square.a1), isFalse);
+
+      // Dragging other pieces onto the back rank should work though
+      final whiteKnightDraggable = find.byKey(const Key('whiteKnight'));
+      await tester.drag(
+        whiteKnightDraggable,
+        squareOffset(tester, Square.a8) - tester.getCenter(whiteKnightDraggable),
+      );
+
+      await tester.pumpAndSettle();
+      expect(_piecesPainter(tester).pieces[Square.a8], Piece.whiteKnight);
+    });
+
+    testWidgets('Cannot play illegal drop moves', (WidgetTester tester) async {
+      final pos = Position.setupPosition(
+        Rule.crazyhouse,
+        Setup.parseFen('rnb1kbnr/pppp2pp/8/4p3/8/2q2N2/PP2PPPP/R1B1KB1R[P] w - - 8 8'),
+      );
+      await tester.pumpWidget(
+        _TestApp(
+          initialPlayerSide: PlayerSide.both,
+          // white is in check, so we can't drag the pawn onto a square that doesn't block the check.
+          fen: pos.fen,
+          rule: Rule.crazyhouse,
+          settings: const ChessboardSettings(enableDrops: true),
+          validDropSquares: pos.legalDrops.squares.toSet(),
+          bottomWidget: Column(
+            children: [
+              Draggable(
+                key: const Key('whitePawn'),
+                dragAnchorStrategy: pointerDragAnchorStrategy,
+                data: Piece.whitePawn,
+                feedback: const SizedBox.shrink(),
+                child: PieceWidget(
+                  piece: Piece.whitePawn,
+                  size: squareSize,
+                  pieceAssets: PieceSet.merida.assets,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+
+      final whitePawnDraggable = find.byKey(const Key('whitePawn'));
+
+      // This square is empty, but this move wouldn't block the check, so it should not be allowed
+      await tester.drag(
+        whitePawnDraggable,
+        squareOffset(tester, Square.a4) - tester.getCenter(whitePawnDraggable),
+      );
+
+      await tester.pumpAndSettle();
+      expect(_piecesPainter(tester).pieces.containsKey(Square.a4), isFalse);
+
+      // Only square that blocks the check
+      await tester.drag(
+        whitePawnDraggable,
+        squareOffset(tester, Square.d2) - tester.getCenter(whitePawnDraggable),
+      );
+
+      await tester.pumpAndSettle();
+      expect(_piecesPainter(tester).pieces[Square.d2], Piece.whitePawn);
+    });
+
+    testWidgets('no drag targets if drop moves not explicitly enabled', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(const _TestApp(initialPlayerSide: PlayerSide.both));
+
+      expect(find.byType(DragTarget<Piece>), findsNothing);
+    });
+
+    testWidgets(
+      'drop hover circle renders without crashing when dragging a pocket piece over a square',
+      (WidgetTester tester) async {
+        final pos = Position.setupPosition(
+          Rule.crazyhouse,
+          Setup.parseFen('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[Pn] w KQkq - 0 1'),
+        );
+        await tester.pumpWidget(
+          _TestApp(
+            initialPlayerSide: PlayerSide.both,
+            rule: Rule.crazyhouse,
+            fen: pos.fen,
+            settings: const ChessboardSettings(enableDrops: true),
+            validDropSquares: pos.legalDrops.squares.toSet(),
+            bottomWidget: Draggable(
+              key: const Key('whitePawn'),
+              dragAnchorStrategy: pointerDragAnchorStrategy,
+              data: Piece.whitePawn,
+              feedback: const SizedBox.shrink(),
+              child: PieceWidget(
+                piece: Piece.whitePawn,
+                size: squareSize,
+                pieceAssets: PieceSet.merida.assets,
+              ),
+            ),
+          ),
+        );
+
+        final gesture = await tester.startGesture(
+          tester.getCenter(find.byKey(const Key('whitePawn'))),
+        );
+        // Moving over e4 triggers DragTarget.onMove, which sets the hover notifier.
+        await gesture.moveTo(squareOffset(tester, Square.e4));
+        // Rebuilding here is the path that previously crashed: PositionedSquare
+        // emits a Positioned widget which requires a Stack ancestor, but
+        // DragTarget.builder wraps its output in MetaData, not Stack.
+        await tester.pump();
+
+        expect(
+          find.descendant(of: find.byType(DragTarget<Piece>), matching: find.byType(Container)),
+          findsOneWidget,
+        );
+
+        await gesture.up();
+        await tester.pumpAndSettle();
+      },
+    );
+
+    testWidgets('drop hover circle updates as pocket piece is dragged across squares', (
+      WidgetTester tester,
+    ) async {
+      final pos = Position.setupPosition(
+        Rule.crazyhouse,
+        Setup.parseFen('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[Pn] w KQkq - 0 1'),
+      );
+      await tester.pumpWidget(
+        _TestApp(
+          initialPlayerSide: PlayerSide.both,
+          rule: Rule.crazyhouse,
+          fen: pos.fen,
+          settings: const ChessboardSettings(enableDrops: true),
+          validDropSquares: pos.legalDrops.squares.toSet(),
+          bottomWidget: Draggable(
+            key: const Key('whitePawn'),
+            dragAnchorStrategy: pointerDragAnchorStrategy,
+            data: Piece.whitePawn,
+            feedback: const SizedBox.shrink(),
+            child: PieceWidget(
+              piece: Piece.whitePawn,
+              size: squareSize,
+              pieceAssets: PieceSet.merida.assets,
+            ),
+          ),
+        ),
+      );
+
+      final gesture = await tester.startGesture(
+        tester.getCenter(find.byKey(const Key('whitePawn'))),
+      );
+      await gesture.moveTo(squareOffset(tester, Square.e4));
+      await tester.pump();
+      expect(
+        find.descendant(of: find.byType(DragTarget<Piece>), matching: find.byType(Container)),
+        findsOneWidget,
+      );
+
+      await gesture.moveTo(squareOffset(tester, Square.d4));
+      await tester.pump();
+      expect(
+        find.descendant(of: find.byType(DragTarget<Piece>), matching: find.byType(Container)),
+        findsOneWidget,
+      );
+
+      await gesture.up();
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('drop hover circle disappears after pocket piece is dropped', (
+      WidgetTester tester,
+    ) async {
+      final pos = Position.setupPosition(
+        Rule.crazyhouse,
+        Setup.parseFen('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[Pn] w KQkq - 0 1'),
+      );
+      await tester.pumpWidget(
+        _TestApp(
+          initialPlayerSide: PlayerSide.both,
+          rule: Rule.crazyhouse,
+          fen: pos.fen,
+          settings: const ChessboardSettings(enableDrops: true),
+          validDropSquares: pos.legalDrops.squares.toSet(),
+          bottomWidget: Draggable(
+            key: const Key('whitePawn'),
+            dragAnchorStrategy: pointerDragAnchorStrategy,
+            data: Piece.whitePawn,
+            feedback: const SizedBox.shrink(),
+            child: PieceWidget(
+              piece: Piece.whitePawn,
+              size: squareSize,
+              pieceAssets: PieceSet.merida.assets,
+            ),
+          ),
+        ),
+      );
+
+      final gesture = await tester.startGesture(
+        tester.getCenter(find.byKey(const Key('whitePawn'))),
+      );
+      await gesture.moveTo(squareOffset(tester, Square.e4));
+      await tester.pump();
+      expect(
+        find.descendant(of: find.byType(DragTarget<Piece>), matching: find.byType(Container)),
+        findsOneWidget,
+      );
+
+      await gesture.up();
+      await tester.pumpAndSettle();
+      // Circle is gone after the drop.
+      expect(
+        find.descendant(of: find.byType(DragTarget<Piece>), matching: find.byType(Container)),
+        findsNothing,
+      );
+      expect(_piecesPainter(tester).pieces[Square.e4], Piece.whitePawn);
+    });
+
+    testWidgets('pocket piece draggable uses pointer drag anchor strategy', (tester) async {
+      final pos = Position.setupPosition(
+        Rule.crazyhouse,
+        Setup.parseFen('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[Pn] w KQkq - 0 1'),
+      );
+      await tester.pumpWidget(
+        _TestApp(
+          initialPlayerSide: PlayerSide.both,
+          rule: Rule.crazyhouse,
+          fen: pos.fen,
+          settings: const ChessboardSettings(enableDrops: true),
+          validDropSquares: pos.legalDrops.squares.toSet(),
+          bottomWidget: Draggable<Piece>(
+            key: const Key('pocketPiece'),
+            dragAnchorStrategy: pointerDragAnchorStrategy,
+            data: Piece.whitePawn,
+            feedback: PieceDragFeedback(
+              squareSize: squareSize,
+              piece: Piece.whitePawn,
+              pieceAssets: PieceSet.merida.assets,
+            ),
+            child: PieceWidget(
+              piece: Piece.whitePawn,
+              size: squareSize,
+              pieceAssets: PieceSet.merida.assets,
+            ),
+          ),
+        ),
+      );
+
+      final draggable = tester.widget<Draggable<Piece>>(find.byKey(const Key('pocketPiece')));
+      expect(draggable.dragAnchorStrategy, pointerDragAnchorStrategy);
+    });
+
+    testWidgets(
+      'pocket piece drag feedback layout position matches pointer regardless of where piece is touched',
+      (tester) async {
+        final pos = Position.setupPosition(
+          Rule.crazyhouse,
+          Setup.parseFen('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[Pn] w KQkq - 0 1'),
+        );
+        await tester.pumpWidget(
+          _TestApp(
+            initialPlayerSide: PlayerSide.both,
+            rule: Rule.crazyhouse,
+            fen: pos.fen,
+            settings: const ChessboardSettings(enableDrops: true),
+            validDropSquares: pos.legalDrops.squares.toSet(),
+            bottomWidget: Draggable<Piece>(
+              key: const Key('pocketPiece'),
+              dragAnchorStrategy: pointerDragAnchorStrategy,
+              data: Piece.whitePawn,
+              feedback: PieceDragFeedback(
+                squareSize: squareSize,
+                piece: Piece.whitePawn,
+                pieceAssets: PieceSet.merida.assets,
+              ),
+              child: PieceWidget(
+                piece: Piece.whitePawn,
+                size: squareSize,
+                pieceAssets: PieceSet.merida.assets,
+              ),
+            ),
+          ),
+        );
+
+        final pieceTopLeft = tester.getTopLeft(find.byKey(const Key('pocketPiece')));
+        // Use mouse pointer: its hit slop is 1px, so any small move triggers the
+        // drag (touch slop is 18px and would require a larger moveBy).
+        const move = Offset(0.0, -10.0);
+
+        // Drag from near the top-left corner of the pocket piece.
+        final gesture1 = await tester.startGesture(
+          pieceTopLeft + const Offset(2.0, 2.0),
+          kind: PointerDeviceKind.mouse,
+        );
+        await gesture1.moveBy(move);
+        await tester.pump();
+
+        // With pointerDragAnchorStrategy the overlay Positioned is placed exactly
+        // at the pointer, so getTopLeft == current pointer position.
+        expect(
+          tester.getTopLeft(find.byType(PieceDragFeedback)),
+          pieceTopLeft + const Offset(2.0, -8.0),
+        );
+
+        await gesture1.cancel();
+        await tester.pumpAndSettle();
+
+        // Drag from near the bottom-right corner of the same piece.
+        final gesture2 = await tester.startGesture(
+          pieceTopLeft + const Offset(squareSize - 2.0, squareSize - 2.0),
+          kind: PointerDeviceKind.mouse,
+        );
+        await gesture2.moveBy(move);
+        await tester.pump();
+
+        // Pointer is now at a different absolute position, but the invariant
+        // holds: feedback top-left == current pointer position.
+        expect(
+          tester.getTopLeft(find.byType(PieceDragFeedback)),
+          pieceTopLeft + const Offset(squareSize - 2.0, squareSize - 12.0),
+        );
+
+        await gesture2.cancel();
+        await tester.pumpAndSettle();
+      },
+    );
   });
 
   group('Promotion', () {

@@ -165,12 +165,6 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
   /// Once a piece is dragged, holds the square id of the piece.
   late final ValueNotifier<Square?> _draggedPieceSquareNotifier;
 
-  /// Tracks which square is currently hovered during a piece drop drag.
-  final _dropHoverSquareNotifier = ValueNotifier<Square?>(null);
-
-  /// Key for the single drop DragTarget, used to obtain its RenderBox.
-  final _dropTargetKey = GlobalKey();
-
   /// Current pointer down event.
   ///
   /// This field is reset to null when the pointer is released (up or cancel).
@@ -357,78 +351,6 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
               ),
               willChange: true,
             ),
-            ValueListenableBuilder<GameData?>(
-              valueListenable: _controller.gameNotifier,
-              builder: (context, game, _) {
-                if (!widget.settings.enableDrops) return const SizedBox.shrink();
-                return SizedBox.square(
-                  key: _dropTargetKey,
-                  dimension: widget.size,
-                  child: DragTarget<Piece>(
-                    hitTestBehavior: HitTestBehavior.opaque,
-                    onMove: (details) {
-                      final renderBox =
-                          _dropTargetKey.currentContext?.findRenderObject() as RenderBox?;
-                      if (renderBox == null) return;
-                      final square = widget.offsetSquare(renderBox.globalToLocal(details.offset));
-                      if (_dropHoverSquareNotifier.value != square) {
-                        _dropHoverSquareNotifier.value = square;
-                      }
-                    },
-                    onLeave: (_) => _dropHoverSquareNotifier.value = null,
-                    onAcceptWithDetails: (details) {
-                      _dropHoverSquareNotifier.value = null;
-                      final currentGame = _controller.game;
-                      if (currentGame == null) return;
-                      final renderBox =
-                          _dropTargetKey.currentContext?.findRenderObject() as RenderBox?;
-                      if (renderBox == null) return;
-                      final square = widget.offsetSquare(renderBox.globalToLocal(details.offset));
-                      if (square == null) return;
-                      final piece = details.data;
-                      final backRankPawnDrop =
-                          piece.role == Role.pawn &&
-                          (square.rank == Rank.first || square.rank == Rank.eighth);
-                      if (backRankPawnDrop) return;
-                      final move = DropMove(to: square, role: piece.role);
-                      if (currentGame.sideToMove == piece.color &&
-                          currentGame.validDropSquares?.contains(square) == true) {
-                        widget.onMove?.call(move, viaDragAndDrop: true);
-                      } else if (widget.settings.enablePremoves) {
-                        _controller.premove = move;
-                      }
-                    },
-                    builder: (context, candidateData, _) {
-                      if (candidateData.isEmpty) return const SizedBox.shrink();
-                      return ValueListenableBuilder<Square?>(
-                        valueListenable: _dropHoverSquareNotifier,
-                        builder: (context, square, _) {
-                          if (square == null) return const SizedBox.shrink();
-                          return Stack(
-                            children: [
-                              PositionedSquare(
-                                size: widget.size,
-                                orientation: widget.orientation,
-                                square: square,
-                                child: Transform.scale(
-                                  scale: 2,
-                                  child: Container(
-                                    decoration: const BoxDecoration(
-                                      color: Color(0x33000000),
-                                      shape: BoxShape.circle,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          );
-                        },
-                      );
-                    },
-                  ),
-                );
-              },
-            ),
             ValueListenableBuilder<NormalMove?>(
               valueListenable: _controller.pendingPromotionNotifier,
               builder: (context, pendingMove, _) {
@@ -457,6 +379,47 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
                 );
               },
             ),
+            if (widget.settings.enableDrops)
+              ...Square.values.map((square) {
+                return PositionedSquare(
+                  key: ValueKey('${square.name}-drag-target'),
+                  size: widget.size,
+                  orientation: widget.orientation,
+                  square: square,
+                  child: DragTarget<Piece>(
+                    hitTestBehavior: HitTestBehavior.opaque,
+                    builder:
+                        (context, candidateData, _) =>
+                            candidateData.isNotEmpty
+                                ? Transform.scale(
+                                  scale: 2,
+                                  child: Container(
+                                    decoration: const BoxDecoration(
+                                      color: Color(0x33000000),
+                                      shape: BoxShape.circle,
+                                    ),
+                                  ),
+                                )
+                                : const SizedBox.shrink(),
+                    onAcceptWithDetails: (details) {
+                      final currentGame = _controller.game;
+                      if (currentGame == null) return;
+                      final piece = details.data;
+                      final backRankPawnDrop =
+                          piece.role == Role.pawn &&
+                          (square.rank == Rank.first || square.rank == Rank.eighth);
+                      if (backRankPawnDrop) return;
+                      final move = DropMove(to: square, role: piece.role);
+                      if (currentGame.sideToMove == piece.color &&
+                          currentGame.validDropSquares?.contains(square) == true) {
+                        widget.onMove?.call(move, viaDragAndDrop: true);
+                      } else if (widget.settings.enablePremoves) {
+                        _controller.premove = move;
+                      }
+                    },
+                  ),
+                );
+              }),
           ],
         ),
       ),
@@ -586,7 +549,6 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
     }
     _explosionNotifier.dispose();
     _draggedPieceSquareNotifier.dispose();
-    _dropHoverSquareNotifier.dispose();
     _dragAvatar?.cancel();
     _cancelShapesDoubleTapTimer?.cancel();
     super.dispose();
