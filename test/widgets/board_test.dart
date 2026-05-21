@@ -3005,6 +3005,9 @@ void main() {
         StatefulBuilder(
           builder: (context, setState) {
             return MaterialApp(
+              // NoSplash avoids loading ink_sparkle.frag shader in tests;
+              // Flutter 3.44 changed the shader format and it fails in the test environment.
+              theme: ThemeData(splashFactory: NoSplash.splashFactory),
               home: Column(
                 children: [
                   if (showExtra) const SizedBox(height: 10),
@@ -3039,6 +3042,7 @@ void main() {
         StatefulBuilder(
           builder: (context, setState) {
             return MaterialApp(
+              theme: ThemeData(splashFactory: NoSplash.splashFactory),
               home: Column(
                 children: [
                   if (showExtra) const SizedBox(height: 10),
@@ -3089,6 +3093,7 @@ void main() {
         StatefulBuilder(
           builder: (context, setState) {
             return MaterialApp(
+              theme: ThemeData(splashFactory: NoSplash.splashFactory),
               home: Column(
                 children: [
                   if (showExtra) const SizedBox(height: 10),
@@ -3145,6 +3150,7 @@ void main() {
         StatefulBuilder(
           builder: (context, setState) {
             return MaterialApp(
+              theme: ThemeData(splashFactory: NoSplash.splashFactory),
               home: Column(
                 children: [
                   if (showExtra) const SizedBox(height: 10),
@@ -3182,6 +3188,7 @@ void main() {
         StatefulBuilder(
           builder: (context, setState) {
             return MaterialApp(
+              theme: ThemeData(splashFactory: NoSplash.splashFactory),
               home: Column(
                 children: [
                   if (showExtra) const SizedBox(height: 10),
