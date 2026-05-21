@@ -1280,6 +1280,173 @@ void main() {
         await tester.pumpAndSettle();
       },
     );
+
+    testWidgets('sets drop premove when dragging own pocket piece on opponent\'s turn', (
+      WidgetTester tester,
+    ) async {
+      final pos = Position.setupPosition(
+        Rule.crazyhouse,
+        Setup.parseFen('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[R] b KQkq - 0 1'),
+      );
+      await tester.pumpWidget(
+        _TestApp(
+          initialPlayerSide: PlayerSide.white,
+          rule: Rule.crazyhouse,
+          fen: pos.fen,
+          settings: const ChessboardSettings(enableDrops: true),
+          validDropSquares: pos.legalDrops.squares.toSet(),
+          bottomWidget: Draggable(
+            key: const Key('whiteRook'),
+            dragAnchorStrategy: pointerDragAnchorStrategy,
+            data: Piece.whiteRook,
+            feedback: const SizedBox.shrink(),
+            child: PieceWidget(
+              piece: Piece.whiteRook,
+              size: squareSize,
+              pieceAssets: PieceSet.merida.assets,
+            ),
+          ),
+        ),
+      );
+
+      final whiteRookDraggable = find.byKey(const Key('whiteRook'));
+      await tester.drag(
+        whiteRookDraggable,
+        squareOffset(tester, Square.f3) - tester.getCenter(whiteRookDraggable),
+      );
+      await tester.pumpAndSettle();
+
+      expect(_isPremove(tester, Square.f3), isTrue);
+    });
+
+    testWidgets('does not set drop premove when enablePremoves is false', (
+      WidgetTester tester,
+    ) async {
+      final pos = Position.setupPosition(
+        Rule.crazyhouse,
+        Setup.parseFen('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[R] b KQkq - 0 1'),
+      );
+      await tester.pumpWidget(
+        _TestApp(
+          initialPlayerSide: PlayerSide.white,
+          rule: Rule.crazyhouse,
+          fen: pos.fen,
+          settings: const ChessboardSettings(enableDrops: true, enablePremoves: false),
+          validDropSquares: pos.legalDrops.squares.toSet(),
+          bottomWidget: Draggable(
+            key: const Key('whiteRook'),
+            dragAnchorStrategy: pointerDragAnchorStrategy,
+            data: Piece.whiteRook,
+            feedback: const SizedBox.shrink(),
+            child: PieceWidget(
+              piece: Piece.whiteRook,
+              size: squareSize,
+              pieceAssets: PieceSet.merida.assets,
+            ),
+          ),
+        ),
+      );
+
+      final whiteRookDraggable = find.byKey(const Key('whiteRook'));
+      await tester.drag(
+        whiteRookDraggable,
+        squareOffset(tester, Square.f3) - tester.getCenter(whiteRookDraggable),
+      );
+      await tester.pumpAndSettle();
+
+      expect(_isPremove(tester, Square.f3), isFalse);
+    });
+
+    testWidgets('does not execute drop premove that was set on own turn', (
+      WidgetTester tester,
+    ) async {
+      // Dragging a pocket piece to a square not in validDropSquares while it is
+      // already the player's own turn should NOT register a premove. Without a
+      // sideToMove guard, a stale DropMove would sit in the controller and fire
+      // automatically after the opponent responds.
+      final pos = Position.setupPosition(
+        Rule.crazyhouse,
+        Setup.parseFen('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[R] w KQkq - 0 1'),
+      );
+      await tester.pumpWidget(
+        _TestApp(
+          initialPlayerSide: PlayerSide.white,
+          rule: Rule.crazyhouse,
+          fen: pos.fen,
+          settings: const ChessboardSettings(enableDrops: true, animationDuration: Duration.zero),
+          // f3 is deliberately absent from validDropSquares
+          validDropSquares: const {Square.a1},
+          shouldPlayOpponentMove: true,
+          bottomWidget: Draggable(
+            key: const Key('whiteRook'),
+            dragAnchorStrategy: pointerDragAnchorStrategy,
+            data: Piece.whiteRook,
+            feedback: const SizedBox.shrink(),
+            child: PieceWidget(
+              piece: Piece.whiteRook,
+              size: squareSize,
+              pieceAssets: PieceSet.merida.assets,
+            ),
+          ),
+        ),
+      );
+
+      // Drag pocket rook to f3 while it is white's own turn (f3 not in validDropSquares)
+      final whiteRookDraggable = find.byKey(const Key('whiteRook'));
+      await tester.drag(
+        whiteRookDraggable,
+        squareOffset(tester, Square.f3) - tester.getCenter(whiteRookDraggable),
+      );
+      await tester.pumpAndSettle();
+
+      // White then makes a regular pawn move
+      await makeMove(tester, Square.e2, Square.e4);
+
+      // Wait for the opponent's auto-move and any premove execution
+      await tester.pump(const Duration(milliseconds: 200));
+      await tester.pump(); // drain microtask for premove
+
+      // Rook must NOT be at f3: no premove should have been set
+      expect(_piecesPainter(tester).pieces.containsKey(Square.f3), isFalse);
+    });
+
+    testWidgets('does not set drop premove for pawn dragged to back rank', (
+      WidgetTester tester,
+    ) async {
+      final pos = Position.setupPosition(
+        Rule.crazyhouse,
+        Setup.parseFen('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[P] b KQkq - 0 1'),
+      );
+      await tester.pumpWidget(
+        _TestApp(
+          initialPlayerSide: PlayerSide.white,
+          rule: Rule.crazyhouse,
+          fen: pos.fen,
+          settings: const ChessboardSettings(enableDrops: true),
+          validDropSquares: pos.legalDrops.squares.toSet(),
+          bottomWidget: Draggable(
+            key: const Key('whitePawn'),
+            dragAnchorStrategy: pointerDragAnchorStrategy,
+            data: Piece.whitePawn,
+            feedback: const SizedBox.shrink(),
+            child: PieceWidget(
+              piece: Piece.whitePawn,
+              size: squareSize,
+              pieceAssets: PieceSet.merida.assets,
+            ),
+          ),
+        ),
+      );
+
+      final whitePawnDraggable = find.byKey(const Key('whitePawn'));
+      await tester.drag(
+        whitePawnDraggable,
+        squareOffset(tester, Square.a8) - tester.getCenter(whitePawnDraggable),
+      );
+      await tester.pumpAndSettle();
+
+      expect(_isPremove(tester, Square.a8), isFalse);
+    });
   });
 
   group('Promotion', () {

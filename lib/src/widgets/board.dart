@@ -413,7 +413,8 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
                       if (currentGame.sideToMove == piece.color &&
                           currentGame.validDropSquares?.contains(square) == true) {
                         widget.onMove?.call(move, viaDragAndDrop: true);
-                      } else if (widget.settings.enablePremoves) {
+                      } else if (widget.settings.enablePremoves &&
+                          currentGame.sideToMove != piece.color) {
                         _controller.premove = move;
                       }
                     },
@@ -638,8 +639,8 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
     final game = _controller.game;
     final moveDests =
         widget.settings.showValidMoves && selected != null && game?.validMoves != null
-            ? game!.validMoves[selected!]?.toSet() ?? _emptyValidMoves
-            : _emptyValidMoves;
+            ? game!.validMoves[selected] ?? const <Square>{}
+            : const <Square>{};
     final premoveDests =
         widget.settings.showValidMoves ? _premoveDests ?? const <Square>{} : const <Square>{};
     final premove = _controller.premove;
@@ -1158,5 +1159,3 @@ class _DragAvatar {
     _squareTargetNotifier.dispose();
   }
 }
-
-const Set<Square> _emptyValidMoves = {};
