@@ -43,7 +43,8 @@ class _AtomicGamePageState extends State<AtomicGamePage> {
       playerSide: position.isGameOver ? PlayerSide.none : PlayerSide.white,
       validMoves: makeLegalMoves(position),
       sideToMove: position.turn,
-      kingSquareInCheck: position.isCheck ? position.board.kingOf(position.turn) : null,
+      kingSquareInCheck:
+          position.isCheck ? position.board.kingOf(position.turn) : null,
     );
   }
 
@@ -138,7 +139,7 @@ class _AtomicGamePageState extends State<AtomicGamePage> {
 
     position = position.playUnchecked(move) as Atomic;
     lastMove = move;
-    _controller.updatePosition(
+    _controller.animatePosition(
       position.fen,
       game: _buildGame(),
       lastDrop: viaDragAndDrop == true ? move : null,

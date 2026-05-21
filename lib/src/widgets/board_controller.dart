@@ -18,7 +18,7 @@ import '../models.dart';
 ///
 /// ## Updating the position
 ///
-/// Call [updatePosition] after each move to advance the board with piece
+/// Call [animatePosition] after each move to advance the board with piece
 /// animation. Call [jumpToPosition] to switch positions without animation
 /// (e.g. analysis seeking or history navigation).
 ///
@@ -244,7 +244,7 @@ class ChessboardController extends ChangeNotifier {
   /// Pass [lastDrop] when the triggering move was performed via drag and drop so
   /// the animation engine can suppress the redundant translation of the dragged
   /// piece.
-  void updatePosition(String fen, {GameData? game, Move? lastMove, Move? lastDrop}) {
+  void animatePosition(String fen, {GameData? game, Move? lastMove, Move? lastDrop}) {
     if (fen != _fen) {
       final oldPieces = _piecesNotifier.value;
       _translatingPiecesNotifier.value = {};

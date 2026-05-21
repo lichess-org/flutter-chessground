@@ -7,7 +7,7 @@
 The `Chessboard()` constructor (interactive board) now uses a controller pattern,
 similar to Flutter's `TextEditingController` or `ScrollController`. Instead of
 passing `fen:`, `game:`, and `lastMove:` to the widget on every `setState`, you
-create a `ChessboardController` once and call `updatePosition()` on it when the
+create a `ChessboardController` once and call `animatePosition()` on it when the
 game state changes.
 
 `GameData` is now a pure state snapshot — it holds game state fields
@@ -92,7 +92,7 @@ class _MyBoardState extends State<MyBoard> {
   void _onMove(Move move, {bool? viaDragAndDrop}) {
     _position = _position.playUnchecked(move);
     _lastMove = move;
-    _controller.updatePosition(
+    _controller.animatePosition(
       _position.fen,
       game: _buildGame(),
       lastDrop: viaDragAndDrop == true ? move : null,
@@ -115,9 +115,9 @@ class _MyBoardState extends State<MyBoard> {
 
 | 9.x | 10.0.0 |
 |---|---|
-| `Chessboard(fen: newFen)` | `controller.updatePosition(newFen, game: ...)` |
-| `Chessboard(lastMove: move)` | `GameData(lastMove: move, ...)` passed to `controller.updatePosition()` |
-| `Chessboard(game: newGame)` | `controller.updatePosition(fen, game: newGame)` |
+| `Chessboard(fen: newFen)` | `controller.animatePosition(newFen, game: ...)` |
+| `Chessboard(lastMove: move)` | `GameData(lastMove: move, ...)` passed to `controller.animatePosition()` |
+| `Chessboard(game: newGame)` | `controller.animatePosition(fen, game: newGame)` |
 | `GameData(onMove: fn)` | `Chessboard(onMove: fn)` |
 | `GameData(onPromotionSelection: fn)` | removed — board handles promotion internally |
 | `GameData(promotionMove: move)` | removed — board handles promotion internally |
@@ -126,7 +126,7 @@ class _MyBoardState extends State<MyBoard> {
 | `BoardSettings(enablePremoves: false)` (9.x: pass `premovable: null`) | `ChessboardSettings(enablePremoves: false)` |
 | `explosionSquares: squares` | `controller.triggerExplosion(squares)` |
 
-The `lastDrop:` parameter on `updatePosition()` replaces the internal tracking
+The `lastDrop:` parameter on `animatePosition()` replaces the internal tracking
 that previously happened automatically. Pass the move as `lastDrop:` when
 `viaDragAndDrop == true` to suppress the redundant slide animation for the
 dragged piece.
@@ -150,7 +150,7 @@ Chessboard.fixed(
 
 Previously you could pass `explosionSquares:` directly to the `Chessboard()` widget.
 Now call `controller.triggerExplosion(squares)` instead, typically right after
-`controller.updatePosition(...)`:
+`controller.animatePosition(...)`:
 
 ```dart
 // Before (9.x)
@@ -161,7 +161,7 @@ Chessboard(
 )
 
 // After (10.0.0)
-controller.updatePosition(newFen, game: newGameData);
+controller.animatePosition(newFen, game: newGameData);
 if (explodedSquares != null) {
   controller.triggerExplosion(explodedSquares);
 }
@@ -339,7 +339,7 @@ class _MyBoardState extends State<MyBoard> {
     premovable: (
       onSetPremove: (move) {
         setState(() => _premove = move);
-        _controller.updatePosition(position.fen, game: _buildGame());
+        _controller.animatePosition(position.fen, game: _buildGame());
       },
       premove: _premove,
     ),
@@ -347,7 +347,7 @@ class _MyBoardState extends State<MyBoard> {
 
   void _onOpponentMove(Move opponentMove) {
     position = position.playUnchecked(opponentMove);
-    _controller.updatePosition(position.fen, game: _buildGame());
+    _controller.animatePosition(position.fen, game: _buildGame());
 
     final premove = _premove;
     if (premove != null && position.isLegal(premove)) {
@@ -371,7 +371,7 @@ class _MyBoardState extends State<MyBoard> {
 
   void _onOpponentMove(Move opponentMove) {
     position = position.playUnchecked(opponentMove);
-    _controller.updatePosition(position.fen, game: _buildGame());
+    _controller.animatePosition(position.fen, game: _buildGame());
 
     final premove = _controller.premove;
     if (premove != null && position.isLegal(premove)) {
@@ -452,7 +452,7 @@ Chessboard(
   controller: _controller,
   onMove: (move, {bool? viaDragAndDrop}) {
     _position = _position.playUnchecked(move); // move.promotion is set
-    _controller.updatePosition(_position.fen, game: _buildGame());
+    _controller.animatePosition(_position.fen, game: _buildGame());
   },
 )
 ```
@@ -482,7 +482,7 @@ void _tryPlayPremove() {
   if (move is NormalMove && _isPromotionPawnMove(move)) {
     // Let the board show the selector; onMove fires with the resolved move.
     _controller.pendingPromotion = move;
-    _controller.updatePosition(position.fen, game: _buildGame());
+    _controller.animatePosition(position.fen, game: _buildGame());
   } else {
     _playMove(move);
   }

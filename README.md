@@ -32,12 +32,12 @@ behavior and appearance.
 
 To interact with the board in order to play a game, create a `ChessboardController`
 and pass it to `Chessboard(controller: ...)`. The controller holds the board
-position and game state. Call `controller.updatePosition()` after each move to
+position and game state. Call `controller.animatePosition()` after each move to
 advance the board with animation.
 
 `GameData` is an immutable snapshot of the game state (side to move, valid moves,
 last move, etc.). The board position (FEN) is passed separately — directly to
-`controller.updatePosition()` and the constructor. All chess logic must be handled
+`controller.animatePosition()` and the constructor. All chess logic must be handled
 outside this package.
 
 Callbacks for user interactions (`onMove`, `onSetPremove`) are parameters on
@@ -77,7 +77,7 @@ class _MyBoardState extends State<MyBoard> {
   void _onMove(Move move, {bool? viaDragAndDrop}) {
     position = position.playUnchecked(move);
     lastMove = move;
-    _controller.updatePosition(
+    _controller.animatePosition(
       position.fen,
       game: _buildGame(),
       lastDrop: viaDragAndDrop == true ? move : null,

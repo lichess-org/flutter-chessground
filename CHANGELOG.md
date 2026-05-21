@@ -20,10 +20,10 @@
   Use `ChessboardController.nonInteractive(fen: fen)` for non-interactive
   display boards.
 
-- `ChessboardController.updatePosition(String fen, {GameData? game, Move? lastMove, Move? lastDrop})`
+- `ChessboardController.animatePosition(String fen, {GameData? game, Move? lastMove, Move? lastDrop})`
   takes the board position as its first argument. Pass `game:` for interactive
   boards or `lastMove:` for non-interactive boards. This single method replaces
-  the previous `updatePosition(GameData)` and the separate non-interactive
+  the previous `animatePosition(GameData)` and the separate non-interactive
   `updateFen(String)`.
 
 - `ChessboardController.jumpToPosition(String fen, {GameData? game, Move? lastMove})`
@@ -58,7 +58,7 @@
 
 - `ChessboardController` is now the public API for driving the interactive board.
   Create one in `initState`, pass it to `Chessboard(controller: ...)`, and call
-  `updatePosition()` after each move. The board listens internally and rebuilds
+  `animatePosition()` after each move. The board listens internally and rebuilds
   itself without requiring a parent `setState()`.
 
 - `ChessboardController.nonInteractive({required String fen, Move? lastMove})`

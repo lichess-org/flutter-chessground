@@ -3375,7 +3375,7 @@ void main() {
       );
     });
 
-    testWidgets('controller.updatePosition does not rebuild the board widget', (
+    testWidgets('controller.animatePosition does not rebuild the board widget', (
       WidgetTester tester,
     ) async {
       final gameEventController = StreamController<GameEvent>();
@@ -3523,10 +3523,10 @@ class _TestAppState extends State<_TestApp> {
     switch (event) {
       case GameEvent.nonInteractiveBoardEvent:
         interactiveSide = PlayerSide.none;
-        _controller.updatePosition(position.fen, game: _buildGame());
+        _controller.animatePosition(position.fen, game: _buildGame());
       case GameEvent.interactiveBoardEvent:
         interactiveSide = widget.initialPlayerSide;
-        _controller.updatePosition(position.fen, game: _buildGame());
+        _controller.animatePosition(position.fen, game: _buildGame());
       case GameEvent.externalMove:
         final allMoves = [
           for (final entry in position.legalMoves.entries)
@@ -3535,7 +3535,7 @@ class _TestAppState extends State<_TestApp> {
         if (allMoves.isNotEmpty) {
           position = position.playUnchecked(allMoves.first);
           lastMove = allMoves.first;
-          _controller.updatePosition(position.fen, game: _buildGame());
+          _controller.animatePosition(position.fen, game: _buildGame());
         }
     }
   }
@@ -3550,7 +3550,7 @@ class _TestAppState extends State<_TestApp> {
 
   void _onMove(Move move, {bool? viaDragAndDrop}) {
     _playMove(move);
-    _controller.updatePosition(
+    _controller.animatePosition(
       position.fen,
       game: _buildGame(),
       lastDrop: viaDragAndDrop == true ? move : null,
@@ -3568,7 +3568,7 @@ class _TestAppState extends State<_TestApp> {
           interactiveSide = PlayerSide.none;
         }
         lastMove = opponentMove;
-        _controller.updatePosition(position.fen, game: _buildGame());
+        _controller.animatePosition(position.fen, game: _buildGame());
 
         // play premove just after the opponent move
         final premove = _controller.premove;
@@ -3584,7 +3584,7 @@ class _TestAppState extends State<_TestApp> {
               scheduleMicrotask(() {
                 _controller.pendingPromotion = promoMove;
                 _controller.premove = null;
-                _controller.updatePosition(position.fen, game: _buildGame());
+                _controller.animatePosition(position.fen, game: _buildGame());
               });
             } else {
               scheduleMicrotask(() {
@@ -3592,7 +3592,7 @@ class _TestAppState extends State<_TestApp> {
                 if (position.isGameOver) interactiveSide = PlayerSide.none;
                 lastMove = premove;
                 _controller.premove = null;
-                _controller.updatePosition(position.fen, game: _buildGame());
+                _controller.animatePosition(position.fen, game: _buildGame());
               });
             }
           }

@@ -612,7 +612,7 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
 
     if (_ownsController &&
         (oldBoard._fen != widget._fen || oldBoard._lastMove != widget._lastMove)) {
-      _controller.updatePosition(widget._fen!, lastMove: widget._lastMove);
+      _controller.animatePosition(widget._fen!, lastMove: widget._lastMove);
     }
 
     _syncHighlightNotifier();
