@@ -53,11 +53,11 @@ TranslatingPiecesPainter? _translatingPiecesPainter(WidgetTester tester) {
   return null;
 }
 
-bool _isSelected(WidgetTester tester, Square square) {
+bool _isSelectedHighlight(WidgetTester tester, Square square) {
   return _highlightsPainter(tester).interactionNotifier.selected == square;
 }
 
-bool _isLastMove(WidgetTester tester, Square square) {
+bool _isLastMoveHighlight(WidgetTester tester, Square square) {
   final p = _highlightsPainter(tester);
   return p.showLastMove &&
       p.interactionNotifier.lastMove != null &&
@@ -65,20 +65,20 @@ bool _isLastMove(WidgetTester tester, Square square) {
       (p.interactionNotifier.premove == null || !p.interactionNotifier.premove!.hasSquare(square));
 }
 
-bool _isPremove(WidgetTester tester, Square square) {
+bool _isPremoveHighlight(WidgetTester tester, Square square) {
   final p = _highlightsPainter(tester);
   return p.interactionNotifier.premove != null && p.interactionNotifier.premove!.hasSquare(square);
 }
 
-bool _isCheckSquare(WidgetTester tester, Square square) {
+bool _isCheckSquareHighlight(WidgetTester tester, Square square) {
   return _highlightsPainter(tester).interactionNotifier.checkSquare == square;
 }
 
-int _moveDestCount(WidgetTester tester) {
+int _moveDestHighlightCount(WidgetTester tester) {
   return _highlightsPainter(tester).interactionNotifier.moveDests.length;
 }
 
-int _premoveDestCount(WidgetTester tester) {
+int _premoveDestHighlightCount(WidgetTester tester) {
   return _highlightsPainter(tester).interactionNotifier.premoveDests.length;
 }
 
@@ -113,7 +113,7 @@ void main() {
       await tester.tapAt(squareOffset(tester, Square.e2));
       await tester.pump();
 
-      expect(_isSelected(tester, Square.e2), isFalse);
+      expect(_isSelectedHighlight(tester, Square.e2), isFalse);
 
       verify(() => onTouchedSquare.call(Square.e2)).called(1);
       verifyNoMoreInteractions(onTouchedSquare);
@@ -261,9 +261,9 @@ void main() {
       );
 
       // No interaction required — highlights must be correct from the very first paint.
-      expect(_isLastMove(tester, Square.h5), isTrue);
-      expect(_isLastMove(tester, Square.f7), isTrue);
-      expect(_isCheckSquare(tester, Square.e8), isTrue);
+      expect(_isLastMoveHighlight(tester, Square.h5), isTrue);
+      expect(_isLastMoveHighlight(tester, Square.f7), isTrue);
+      expect(_isCheckSquareHighlight(tester, Square.e8), isTrue);
     });
 
     testWidgets('selecting and deselecting a square', (WidgetTester tester) async {
@@ -283,39 +283,39 @@ void main() {
         await tester.tapAt(squareOffset(tester, Square.a2));
         await tester.pump();
 
-        expect(_isSelected(tester, Square.a2), isTrue);
-        expect(_moveDestCount(tester) + _premoveDestCount(tester), 2);
+        expect(_isSelectedHighlight(tester, Square.a2), isTrue);
+        expect(_moveDestHighlightCount(tester) + _premoveDestHighlightCount(tester), 2);
 
         // selecting same deselects
         await tester.tapAt(squareOffset(tester, Square.a2));
         await tester.pump();
-        expect(_isSelected(tester, Square.a2), isFalse);
-        expect(_moveDestCount(tester) + _premoveDestCount(tester), 0);
+        expect(_isSelectedHighlight(tester, Square.a2), isFalse);
+        expect(_moveDestHighlightCount(tester) + _premoveDestHighlightCount(tester), 0);
 
         // selecting another square
         await tester.tapAt(squareOffset(tester, Square.a1));
         await tester.pump();
-        expect(_isSelected(tester, Square.a1), isTrue);
-        expect(_moveDestCount(tester) + _premoveDestCount(tester), 0);
+        expect(_isSelectedHighlight(tester, Square.a1), isTrue);
+        expect(_moveDestHighlightCount(tester) + _premoveDestHighlightCount(tester), 0);
 
         // selecting an opposite piece deselects
         await tester.tapAt(squareOffset(tester, Square.e7));
         await tester.pump();
-        expect(_isSelected(tester, Square.a1), isFalse);
-        expect(_moveDestCount(tester) + _premoveDestCount(tester), 0);
+        expect(_isSelectedHighlight(tester, Square.a1), isFalse);
+        expect(_moveDestHighlightCount(tester) + _premoveDestHighlightCount(tester), 0);
 
         // selecting an empty square deselects
         await tester.tapAt(squareOffset(tester, Square.a1));
         await tester.pump();
-        expect(_isSelected(tester, Square.a1), isTrue);
+        expect(_isSelectedHighlight(tester, Square.a1), isTrue);
         await tester.tapAt(squareOffset(tester, Square.c4));
         await tester.pump();
-        expect(_isSelected(tester, Square.a1), isFalse);
+        expect(_isSelectedHighlight(tester, Square.a1), isFalse);
 
         // cannot select a piece whose side is not the turn to move
         await tester.tapAt(squareOffset(tester, Square.e7));
         await tester.pump();
-        expect(_isSelected(tester, Square.e7), isFalse);
+        expect(_isSelectedHighlight(tester, Square.e7), isFalse);
 
         verifyInOrder([
           () => onTouchedSquare.call(Square.a2),
@@ -345,23 +345,23 @@ void main() {
         await tester.tapAt(squareOffset(tester, Square.e2));
         await tester.pump();
 
-        expect(_isSelected(tester, Square.e2), isTrue);
-        expect(_moveDestCount(tester) + _premoveDestCount(tester), 2);
+        expect(_isSelectedHighlight(tester, Square.e2), isTrue);
+        expect(_moveDestHighlightCount(tester) + _premoveDestHighlightCount(tester), 2);
 
         await tester.tapAt(squareOffset(tester, Square.e4));
         await tester.pump();
 
         expect(_piecesPainter(tester).pieces[Square.e4], Piece.whitePawn);
-        expect(_isSelected(tester, Square.e2), isFalse);
-        expect(_moveDestCount(tester) + _premoveDestCount(tester), 0);
+        expect(_isSelectedHighlight(tester, Square.e2), isFalse);
+        expect(_moveDestHighlightCount(tester) + _premoveDestHighlightCount(tester), 0);
 
         // wait for the animations to finish
         await tester.pumpAndSettle();
 
         expect(_piecesPainter(tester).pieces[Square.e4], Piece.whitePawn);
         expect(_piecesPainter(tester).pieces.containsKey(Square.e2), isFalse);
-        expect(_isLastMove(tester, Square.e2), isTrue);
-        expect(_isLastMove(tester, Square.e4), isTrue);
+        expect(_isLastMoveHighlight(tester, Square.e2), isTrue);
+        expect(_isLastMoveHighlight(tester, Square.e4), isTrue);
       }
     });
 
@@ -386,16 +386,16 @@ void main() {
         await tester.pump();
 
         // Tapping a square should have no effect...
-        expect(_isSelected(tester, Square.e2), isFalse);
-        expect(_moveDestCount(tester) + _premoveDestCount(tester), 0);
+        expect(_isSelectedHighlight(tester, Square.e2), isFalse);
+        expect(_moveDestHighlightCount(tester) + _premoveDestHighlightCount(tester), 0);
 
         // ... but move by drag should work
         await tester.dragFrom(squareOffset(tester, Square.e2), const Offset(0, -(squareSize * 2)));
         await tester.pumpAndSettle();
         expect(_piecesPainter(tester).pieces[Square.e4], Piece.whitePawn);
         expect(_piecesPainter(tester).pieces.containsKey(Square.e2), isFalse);
-        expect(_isLastMove(tester, Square.e2), isTrue);
-        expect(_isLastMove(tester, Square.e4), isTrue);
+        expect(_isLastMoveHighlight(tester, Square.e2), isTrue);
+        expect(_isLastMoveHighlight(tester, Square.e4), isTrue);
 
         verifyInOrder([
           () => onTouchedSquare.call(Square.e2),
@@ -420,7 +420,7 @@ void main() {
       // simluate a drag that leaves the piece on the same square
       await tester.dragFrom(squareOffset(tester, Square.e2), const Offset(0, -(squareSize / 2)));
       await tester.pumpAndSettle();
-      expect(_isSelected(tester, Square.e2), isFalse);
+      expect(_isSelectedHighlight(tester, Square.e2), isFalse);
     });
 
     testWidgets('castling by selecting king then rook is possible', (WidgetTester tester) async {
@@ -442,8 +442,8 @@ void main() {
       expect(_piecesPainter(tester).pieces.containsKey(Square.h1), isFalse);
       expect(_piecesPainter(tester).pieces[Square.g1], Piece.whiteKing);
       expect(_piecesPainter(tester).pieces[Square.f1], Piece.whiteRook);
-      expect(_isLastMove(tester, Square.e1), isTrue);
-      expect(_isLastMove(tester, Square.h1), isTrue);
+      expect(_isLastMoveHighlight(tester, Square.e1), isTrue);
+      expect(_isLastMoveHighlight(tester, Square.h1), isTrue);
     });
 
     testWidgets('dragging off target', (WidgetTester tester) async {
@@ -463,8 +463,8 @@ void main() {
         await tester.dragFrom(e2, const Offset(0, -(squareSize * 4)));
         await tester.pumpAndSettle();
         expect(_piecesPainter(tester).pieces[Square.e2], Piece.whitePawn);
-        expect(_isSelected(tester, Square.e2), isFalse);
-        expect(_moveDestCount(tester) + _premoveDestCount(tester), 0);
+        expect(_isSelectedHighlight(tester, Square.e2), isFalse);
+        expect(_moveDestHighlightCount(tester) + _premoveDestHighlightCount(tester), 0);
       }
     });
 
@@ -483,8 +483,8 @@ void main() {
         );
         await tester.pumpAndSettle();
         expect(_piecesPainter(tester).pieces[Square.e2], Piece.whitePawn);
-        expect(_isSelected(tester, Square.e2), isFalse);
-        expect(_moveDestCount(tester) + _premoveDestCount(tester), 0);
+        expect(_isSelectedHighlight(tester, Square.e2), isFalse);
+        expect(_moveDestHighlightCount(tester) + _premoveDestHighlightCount(tester), 0);
       }
     });
 
@@ -500,8 +500,8 @@ void main() {
         await tester.pumpAndSettle();
         expect(_piecesPainter(tester).pieces[Square.e4], Piece.whitePawn);
         expect(_piecesPainter(tester).pieces.containsKey(Square.e2), isFalse);
-        expect(_isLastMove(tester, Square.e2), isTrue);
-        expect(_isLastMove(tester, Square.e4), isTrue);
+        expect(_isLastMoveHighlight(tester, Square.e2), isTrue);
+        expect(_isLastMoveHighlight(tester, Square.e4), isTrue);
       }
     });
 
@@ -521,22 +521,22 @@ void main() {
       await tester.pumpAndSettle();
       expect(_piecesPainter(tester).pieces.containsKey(Square.e4), isFalse);
       expect(_piecesPainter(tester).pieces[Square.e2], Piece.whitePawn);
-      expect(_isLastMove(tester, Square.e2), isFalse);
-      expect(_isLastMove(tester, Square.e4), isFalse);
+      expect(_isLastMoveHighlight(tester, Square.e2), isFalse);
+      expect(_isLastMoveHighlight(tester, Square.e4), isFalse);
 
       // Original square is still selected after drag attempt
-      expect(_isSelected(tester, Square.e2), isTrue);
-      expect(_moveDestCount(tester) + _premoveDestCount(tester), 2);
+      expect(_isSelectedHighlight(tester, Square.e2), isTrue);
+      expect(_moveDestHighlightCount(tester) + _premoveDestHighlightCount(tester), 2);
 
       // ...so we can still tap to move
       await tester.tapAt(squareOffset(tester, Square.e4));
       await tester.pump();
-      expect(_isSelected(tester, Square.e2), isFalse);
-      expect(_moveDestCount(tester) + _premoveDestCount(tester), 0);
+      expect(_isSelectedHighlight(tester, Square.e2), isFalse);
+      expect(_moveDestHighlightCount(tester) + _premoveDestHighlightCount(tester), 0);
       expect(_piecesPainter(tester).pieces[Square.e4], Piece.whitePawn);
       expect(_piecesPainter(tester).pieces.containsKey(Square.e2), isFalse);
-      expect(_isLastMove(tester, Square.e2), isTrue);
-      expect(_isLastMove(tester, Square.e4), isTrue);
+      expect(_isLastMoveHighlight(tester, Square.e2), isTrue);
+      expect(_isLastMoveHighlight(tester, Square.e4), isTrue);
     });
 
     testWidgets('2 simultaneous pointer down events will cancel current drag/selection', (
@@ -548,7 +548,7 @@ void main() {
 
         await tester.pump();
 
-        expect(_isSelected(tester, Square.e2), isTrue);
+        expect(_isSelectedHighlight(tester, Square.e2), isTrue);
 
         await tester.startGesture(squareOffset(tester, Square.e4));
 
@@ -558,7 +558,7 @@ void main() {
         expect(_piecesPainter(tester).pieces.containsKey(Square.e4), isFalse);
         expect(_piecesPainter(tester).pieces[Square.e2], Piece.whitePawn);
         // selection is cancelled
-        expect(_isSelected(tester, Square.e2), isFalse);
+        expect(_isSelectedHighlight(tester, Square.e2), isFalse);
       });
     });
 
@@ -578,7 +578,7 @@ void main() {
         await dragGesture.moveTo(const Offset(0, -1));
         await dragGesture.moveTo(const Offset(0, -1));
 
-        expect(_isSelected(tester, Square.e2), isTrue);
+        expect(_isSelectedHighlight(tester, Square.e2), isTrue);
 
         await tester.tapAt(squareOffset(tester, Square.d2));
 
@@ -593,7 +593,7 @@ void main() {
       expect(_piecesPainter(tester).pieces.containsKey(Square.e4), isFalse);
       expect(_piecesPainter(tester).pieces[Square.e2], Piece.whitePawn);
       // the piece should not be selected
-      expect(_isSelected(tester, Square.e2), isFalse);
+      expect(_isSelectedHighlight(tester, Square.e2), isFalse);
 
       // drag a piece and tap on an empty square while dragging
       await TestAsyncUtils.guard<void>(() async {
@@ -606,7 +606,7 @@ void main() {
         await dragGesture.moveTo(const Offset(0, -1));
         await dragGesture.moveTo(const Offset(0, -1));
 
-        expect(_isSelected(tester, Square.d2), isTrue);
+        expect(_isSelectedHighlight(tester, Square.d2), isTrue);
 
         // tap on an empty square
         await tester.tapAt(squareOffset(tester, Square.f5));
@@ -622,7 +622,7 @@ void main() {
       expect(_piecesPainter(tester).pieces.containsKey(Square.d4), isFalse);
       expect(_piecesPainter(tester).pieces[Square.d2], Piece.whitePawn);
       // the piece should not be selected
-      expect(_isSelected(tester, Square.d2), isFalse);
+      expect(_isSelectedHighlight(tester, Square.d2), isFalse);
     });
 
     testWidgets('dragging an unselected piece to the same square should keep the piece selected', (
@@ -634,7 +634,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(_piecesPainter(tester).pieces[Square.e2], Piece.whitePawn);
-      expect(_isSelected(tester, Square.e2), isTrue);
+      expect(_isSelectedHighlight(tester, Square.e2), isTrue);
     });
 
     testWidgets('dragging an already selected piece should not deselect it', (
@@ -651,12 +651,12 @@ void main() {
       );
 
       expectSync(_piecesPainter(tester).pieces[Square.e2], Piece.whitePawn);
-      expectSync(_isSelected(tester, Square.e2), isTrue);
+      expectSync(_isSelectedHighlight(tester, Square.e2), isTrue);
 
       await dragFuture;
       await tester.pumpAndSettle();
 
-      expectSync(_isSelected(tester, Square.e2), isFalse);
+      expectSync(_isSelectedHighlight(tester, Square.e2), isFalse);
     });
 
     testWidgets('king check square black', (WidgetTester tester) async {
@@ -667,7 +667,7 @@ void main() {
         ),
       );
       await makeMove(tester, Square.f1, Square.b5);
-      expect(_isCheckSquare(tester, Square.e8), isTrue);
+      expect(_isCheckSquareHighlight(tester, Square.e8), isTrue);
     });
 
     testWidgets('king check square white', (WidgetTester tester) async {
@@ -678,7 +678,7 @@ void main() {
         ),
       );
       await makeMove(tester, Square.f8, Square.b4);
-      expect(_isCheckSquare(tester, Square.e1), isTrue);
+      expect(_isCheckSquareHighlight(tester, Square.e1), isTrue);
     });
 
     testWidgets('piece is still selected when fen changes externally', (WidgetTester tester) async {
@@ -698,17 +698,17 @@ void main() {
 
       await tester.tapAt(squareOffset(tester, Square.d2));
       await tester.pump();
-      expect(_isSelected(tester, Square.d2), isTrue);
+      expect(_isSelectedHighlight(tester, Square.d2), isTrue);
       // 4 premoves destinations are highlighted
-      expect(_moveDestCount(tester) + _premoveDestCount(tester), 4);
+      expect(_moveDestHighlightCount(tester) + _premoveDestHighlightCount(tester), 4);
 
       controller.add(GameEvent.externalMove);
       await tester.pump(const Duration(milliseconds: 1));
 
       // Selection should not be cleared
-      expect(_isSelected(tester, Square.d2), isTrue);
+      expect(_isSelectedHighlight(tester, Square.d2), isTrue);
       // now 2 moves destinations are highlighted instead of 4
-      expect(_moveDestCount(tester) + _premoveDestCount(tester), 2);
+      expect(_moveDestHighlightCount(tester) + _premoveDestHighlightCount(tester), 2);
     });
 
     testWidgets('cancel piece selection if board is made non interactive again', (
@@ -730,12 +730,12 @@ void main() {
 
       await tester.tapAt(squareOffset(tester, Square.e2));
       await tester.pump();
-      expect(_isSelected(tester, Square.e2), isTrue);
+      expect(_isSelectedHighlight(tester, Square.e2), isTrue);
 
       controller.add(GameEvent.nonInteractiveBoardEvent);
       await tester.pump(const Duration(milliseconds: 1));
 
-      expect(_isSelected(tester, Square.e2), isFalse);
+      expect(_isSelectedHighlight(tester, Square.e2), isFalse);
     });
 
     testWidgets('cancel piece current pointer event if board is made non interactive again', (
@@ -758,19 +758,19 @@ void main() {
       await TestAsyncUtils.guard<void>(() async {
         await tester.startGesture(squareOffset(tester, Square.f3));
         await tester.pump();
-        expect(_isSelected(tester, Square.f3), isTrue);
+        expect(_isSelectedHighlight(tester, Square.f3), isTrue);
       });
 
       // make board non interactive in the middle of the gesture
       controller.add(GameEvent.nonInteractiveBoardEvent);
       await tester.pump(const Duration(milliseconds: 1));
 
-      expect(_isSelected(tester, Square.f3), isFalse);
+      expect(_isSelectedHighlight(tester, Square.f3), isFalse);
 
       // board is not interactive
       await tester.tapAt(squareOffset(tester, Square.f3));
       await tester.pump();
-      expect(_isSelected(tester, Square.f3), isFalse);
+      expect(_isSelectedHighlight(tester, Square.f3), isFalse);
 
       // make board interactive again
       controller.add(GameEvent.interactiveBoardEvent);
@@ -780,7 +780,7 @@ void main() {
       // pointer event was not cancelled)
       await tester.tapAt(squareOffset(tester, Square.f3));
       await tester.pump();
-      expect(_isSelected(tester, Square.f3), isTrue);
+      expect(_isSelectedHighlight(tester, Square.f3), isTrue);
     });
   });
 
@@ -1281,7 +1281,7 @@ void main() {
       },
     );
 
-    testWidgets('sets drop premove when dragging own pocket piece on opponent\'s turn', (
+    testWidgets("sets drop premove when dragging own pocket piece on opponent's turn", (
       WidgetTester tester,
     ) async {
       final pos = Position.setupPosition(
@@ -1316,7 +1316,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(_isPremove(tester, Square.f3), isTrue);
+      expect(_isPremoveHighlight(tester, Square.f3), isTrue);
     });
 
     testWidgets('does not set drop premove when enablePremoves is false', (
@@ -1354,7 +1354,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(_isPremove(tester, Square.f3), isFalse);
+      expect(_isPremoveHighlight(tester, Square.f3), isFalse);
     });
 
     testWidgets('does not execute drop premove that was set on own turn', (
@@ -1445,7 +1445,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(_isPremove(tester, Square.a8), isFalse);
+      expect(_isPremoveHighlight(tester, Square.a8), isFalse);
     });
   });
 
@@ -1998,13 +1998,13 @@ void main() {
 
       await tester.tapAt(squareOffset(tester, Square.f1));
       await tester.pump();
-      expect(_isSelected(tester, Square.f1), isTrue);
-      expect(_moveDestCount(tester) + _premoveDestCount(tester), 7);
+      expect(_isSelectedHighlight(tester, Square.f1), isTrue);
+      expect(_moveDestHighlightCount(tester) + _premoveDestHighlightCount(tester), 7);
 
       await tester.tapAt(squareOffset(tester, Square.b4));
       await tester.pump();
-      expect(_isSelected(tester, Square.f1), isFalse);
-      expect(_moveDestCount(tester) + _premoveDestCount(tester), 0);
+      expect(_isSelectedHighlight(tester, Square.f1), isFalse);
+      expect(_moveDestHighlightCount(tester) + _premoveDestHighlightCount(tester), 0);
     });
 
     testWidgets('select and deselect with opponent piece', (WidgetTester tester) async {
@@ -2017,13 +2017,13 @@ void main() {
 
       await tester.tapAt(squareOffset(tester, Square.f1));
       await tester.pump();
-      expect(_isSelected(tester, Square.f1), isTrue);
-      expect(_moveDestCount(tester) + _premoveDestCount(tester), 7);
+      expect(_isSelectedHighlight(tester, Square.f1), isTrue);
+      expect(_moveDestHighlightCount(tester) + _premoveDestHighlightCount(tester), 7);
 
       await tester.tapAt(squareOffset(tester, Square.f8));
       await tester.pump();
-      expect(_isSelected(tester, Square.f1), isFalse);
-      expect(_moveDestCount(tester) + _premoveDestCount(tester), 0);
+      expect(_isSelectedHighlight(tester, Square.f1), isFalse);
+      expect(_moveDestHighlightCount(tester) + _premoveDestHighlightCount(tester), 0);
     });
 
     testWidgets('select and deselect with same piece', (WidgetTester tester) async {
@@ -2036,13 +2036,13 @@ void main() {
 
       await tester.tapAt(squareOffset(tester, Square.f1));
       await tester.pump();
-      expect(_isSelected(tester, Square.f1), isTrue);
-      expect(_moveDestCount(tester) + _premoveDestCount(tester), 7);
+      expect(_isSelectedHighlight(tester, Square.f1), isTrue);
+      expect(_moveDestHighlightCount(tester) + _premoveDestHighlightCount(tester), 7);
 
       await tester.tapAt(squareOffset(tester, Square.f1));
       await tester.pump();
-      expect(_isSelected(tester, Square.f1), isFalse);
-      expect(_moveDestCount(tester) + _premoveDestCount(tester), 0);
+      expect(_isSelectedHighlight(tester, Square.f1), isFalse);
+      expect(_moveDestHighlightCount(tester) + _premoveDestHighlightCount(tester), 0);
     });
 
     testWidgets('dragging an unselected piece to the same square should keep the piece selected', (
@@ -2059,8 +2059,8 @@ void main() {
       await tester.dragFrom(f1, const Offset(0, -(squareSize / 3)));
       await tester.pumpAndSettle();
 
-      expect(_isSelected(tester, Square.f1), isTrue);
-      expect(_moveDestCount(tester) + _premoveDestCount(tester), 7);
+      expect(_isSelectedHighlight(tester, Square.f1), isTrue);
+      expect(_moveDestHighlightCount(tester) + _premoveDestHighlightCount(tester), 7);
     });
 
     testWidgets('dragging off target unselects', (WidgetTester tester) async {
@@ -2073,8 +2073,8 @@ void main() {
 
       await tester.tapAt(squareOffset(tester, Square.f1));
       await tester.pump();
-      expect(_isSelected(tester, Square.f1), isTrue);
-      expect(_moveDestCount(tester) + _premoveDestCount(tester), 7);
+      expect(_isSelectedHighlight(tester, Square.f1), isTrue);
+      expect(_moveDestHighlightCount(tester) + _premoveDestHighlightCount(tester), 7);
 
       await tester.dragFrom(
         squareOffset(tester, Square.f1),
@@ -2082,8 +2082,8 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(_isSelected(tester, Square.f1), isFalse);
-      expect(_moveDestCount(tester) + _premoveDestCount(tester), 0);
+      expect(_isSelectedHighlight(tester, Square.f1), isFalse);
+      expect(_moveDestHighlightCount(tester) + _premoveDestHighlightCount(tester), 0);
     });
 
     testWidgets('dragging off board unselects', (WidgetTester tester) async {
@@ -2096,8 +2096,8 @@ void main() {
 
       await tester.tapAt(squareOffset(tester, Square.f1));
       await tester.pump();
-      expect(_isSelected(tester, Square.f1), isTrue);
-      expect(_moveDestCount(tester) + _premoveDestCount(tester), 7);
+      expect(_isSelectedHighlight(tester, Square.f1), isTrue);
+      expect(_moveDestHighlightCount(tester) + _premoveDestHighlightCount(tester), 7);
 
       await tester.dragFrom(
         squareOffset(tester, Square.f1),
@@ -2105,8 +2105,8 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(_isSelected(tester, Square.f1), isFalse);
-      expect(_moveDestCount(tester) + _premoveDestCount(tester), 0);
+      expect(_isSelectedHighlight(tester, Square.f1), isFalse);
+      expect(_moveDestHighlightCount(tester) + _premoveDestHighlightCount(tester), 0);
     });
 
     testWidgets('set/unset by tapping empty square or opponent piece', (WidgetTester tester) async {
@@ -2119,23 +2119,23 @@ void main() {
 
       // set premove
       await makeMove(tester, Square.e4, Square.f5);
-      expect(_isPremove(tester, Square.e4), isTrue);
-      expect(_isPremove(tester, Square.f5), isTrue);
+      expect(_isPremoveHighlight(tester, Square.e4), isTrue);
+      expect(_isPremoveHighlight(tester, Square.f5), isTrue);
 
       // unset by tapping empty square
       await tester.tapAt(squareOffset(tester, Square.c5));
       await tester.pump();
-      expect(_isPremove(tester, Square.e4), isFalse);
-      expect(_isPremove(tester, Square.f5), isFalse);
+      expect(_isPremoveHighlight(tester, Square.e4), isFalse);
+      expect(_isPremoveHighlight(tester, Square.f5), isFalse);
 
       // unset by tapping opponent's piece
       await makeMove(tester, Square.d1, Square.f3);
-      expect(_isPremove(tester, Square.d1), isTrue);
-      expect(_isPremove(tester, Square.f3), isTrue);
+      expect(_isPremoveHighlight(tester, Square.d1), isTrue);
+      expect(_isPremoveHighlight(tester, Square.f3), isTrue);
       await tester.tapAt(squareOffset(tester, Square.g8));
       await tester.pump();
-      expect(_isPremove(tester, Square.d1), isFalse);
-      expect(_isPremove(tester, Square.f3), isFalse);
+      expect(_isPremoveHighlight(tester, Square.d1), isFalse);
+      expect(_isPremoveHighlight(tester, Square.f3), isFalse);
     });
 
     testWidgets('unset by dragging off board', (WidgetTester tester) async {
@@ -2148,8 +2148,8 @@ void main() {
 
       // set premove
       await makeMove(tester, Square.e4, Square.f5);
-      expect(_isPremove(tester, Square.e4), isTrue);
-      expect(_isPremove(tester, Square.f5), isTrue);
+      expect(_isPremoveHighlight(tester, Square.e4), isTrue);
+      expect(_isPremoveHighlight(tester, Square.f5), isTrue);
 
       // unset by dragging off board
       await tester.dragFrom(
@@ -2157,8 +2157,8 @@ void main() {
         squareOffset(tester, Square.e4) + const Offset(0, -boardSize + squareSize),
       );
       await tester.pump();
-      expect(_isPremove(tester, Square.e4), isFalse);
-      expect(_isPremove(tester, Square.f5), isFalse);
+      expect(_isPremoveHighlight(tester, Square.e4), isFalse);
+      expect(_isPremoveHighlight(tester, Square.f5), isFalse);
     });
 
     testWidgets('unset by dragging to an empty square', (WidgetTester tester) async {
@@ -2171,8 +2171,8 @@ void main() {
 
       // set premove
       await makeMove(tester, Square.e4, Square.f5);
-      expect(_isPremove(tester, Square.e4), isTrue);
-      expect(_isPremove(tester, Square.f5), isTrue);
+      expect(_isPremoveHighlight(tester, Square.e4), isTrue);
+      expect(_isPremoveHighlight(tester, Square.f5), isTrue);
 
       // unset by dragging to an empty square
       await tester.dragFrom(
@@ -2180,8 +2180,8 @@ void main() {
         squareOffset(tester, Square.e4) + const Offset(0, -squareSize),
       );
       await tester.pump();
-      expect(_isPremove(tester, Square.e4), isFalse);
-      expect(_isPremove(tester, Square.f5), isFalse);
+      expect(_isPremoveHighlight(tester, Square.e4), isFalse);
+      expect(_isPremoveHighlight(tester, Square.f5), isFalse);
     });
 
     testWidgets('unset by tapping same origin square again', (WidgetTester tester) async {
@@ -2194,14 +2194,14 @@ void main() {
 
       // set premove
       await makeMove(tester, Square.e4, Square.f5);
-      expect(_isPremove(tester, Square.e4), isTrue);
-      expect(_isPremove(tester, Square.f5), isTrue);
+      expect(_isPremoveHighlight(tester, Square.e4), isTrue);
+      expect(_isPremoveHighlight(tester, Square.f5), isTrue);
 
       // unset by tapping same origin square again
       await tester.tapAt(squareOffset(tester, Square.e4));
       await tester.pump();
-      expect(_isPremove(tester, Square.e4), isFalse);
-      expect(_isPremove(tester, Square.f5), isFalse);
+      expect(_isPremoveHighlight(tester, Square.e4), isFalse);
+      expect(_isPremoveHighlight(tester, Square.f5), isFalse);
     });
 
     testWidgets('set and change by tap', (WidgetTester tester) async {
@@ -2213,21 +2213,21 @@ void main() {
       );
 
       await makeMove(tester, Square.d1, Square.f3);
-      expect(_isPremove(tester, Square.d1), isTrue);
-      expect(_isPremove(tester, Square.f3), isTrue);
+      expect(_isPremoveHighlight(tester, Square.d1), isTrue);
+      expect(_isPremoveHighlight(tester, Square.f3), isTrue);
       await tester.tapAt(squareOffset(tester, Square.d2));
       await tester.pump();
       // premove is still set
-      expect(_isPremove(tester, Square.d1), isTrue);
-      expect(_isPremove(tester, Square.f3), isTrue);
-      expect(_moveDestCount(tester) + _premoveDestCount(tester), 4);
+      expect(_isPremoveHighlight(tester, Square.d1), isTrue);
+      expect(_isPremoveHighlight(tester, Square.f3), isTrue);
+      expect(_moveDestHighlightCount(tester) + _premoveDestHighlightCount(tester), 4);
       await tester.tapAt(squareOffset(tester, Square.d4));
       await tester.pump();
       // premove is changed
-      expect(_isPremove(tester, Square.d1), isFalse);
-      expect(_isPremove(tester, Square.f3), isFalse);
-      expect(_isPremove(tester, Square.d2), isTrue);
-      expect(_isPremove(tester, Square.d4), isTrue);
+      expect(_isPremoveHighlight(tester, Square.d1), isFalse);
+      expect(_isPremoveHighlight(tester, Square.f3), isFalse);
+      expect(_isPremoveHighlight(tester, Square.d2), isTrue);
+      expect(_isPremoveHighlight(tester, Square.d4), isTrue);
     });
 
     testWidgets('set and change by drag', (WidgetTester tester) async {
@@ -2239,15 +2239,15 @@ void main() {
       );
 
       await makeMove(tester, Square.d1, Square.f3);
-      expect(_isPremove(tester, Square.d1), isTrue);
-      expect(_isPremove(tester, Square.f3), isTrue);
+      expect(_isPremoveHighlight(tester, Square.d1), isTrue);
+      expect(_isPremoveHighlight(tester, Square.f3), isTrue);
       await tester.dragFrom(squareOffset(tester, Square.d2), const Offset(0, -squareSize * 2));
       await tester.pump();
       // premove is changed
-      expect(_isPremove(tester, Square.d1), isFalse);
-      expect(_isPremove(tester, Square.f3), isFalse);
-      expect(_isPremove(tester, Square.d2), isTrue);
-      expect(_isPremove(tester, Square.d4), isTrue);
+      expect(_isPremoveHighlight(tester, Square.d1), isFalse);
+      expect(_isPremoveHighlight(tester, Square.f3), isFalse);
+      expect(_isPremoveHighlight(tester, Square.d2), isTrue);
+      expect(_isPremoveHighlight(tester, Square.d4), isTrue);
     });
 
     testWidgets('drag to set', (WidgetTester tester) async {
@@ -2260,9 +2260,9 @@ void main() {
 
       await tester.dragFrom(squareOffset(tester, Square.e4), const Offset(0, -squareSize));
       await tester.pumpAndSettle();
-      expect(_isPremove(tester, Square.e4), isTrue);
-      expect(_isPremove(tester, Square.e5), isTrue);
-      expect(_isSelected(tester, Square.e4), isFalse);
+      expect(_isPremoveHighlight(tester, Square.e4), isTrue);
+      expect(_isPremoveHighlight(tester, Square.e5), isTrue);
+      expect(_isSelectedHighlight(tester, Square.e4), isFalse);
     });
 
     testWidgets('select another piece from same side does not unset', (WidgetTester tester) async {
@@ -2274,13 +2274,13 @@ void main() {
       );
 
       await makeMove(tester, Square.d1, Square.c2);
-      expect(_isPremove(tester, Square.d1), isTrue);
-      expect(_isPremove(tester, Square.c2), isTrue);
+      expect(_isPremoveHighlight(tester, Square.d1), isTrue);
+      expect(_isPremoveHighlight(tester, Square.c2), isTrue);
 
       await tester.tapAt(squareOffset(tester, Square.e1));
       await tester.pump();
-      expect(_isPremove(tester, Square.d1), isTrue);
-      expect(_isPremove(tester, Square.c2), isTrue);
+      expect(_isPremoveHighlight(tester, Square.d1), isTrue);
+      expect(_isPremoveHighlight(tester, Square.c2), isTrue);
     });
 
     testWidgets('play premove', (WidgetTester tester) async {
@@ -2295,8 +2295,8 @@ void main() {
       await makeMove(tester, Square.e2, Square.e4);
 
       await makeMove(tester, Square.d1, Square.f3);
-      expect(_isPremove(tester, Square.d1), isTrue);
-      expect(_isPremove(tester, Square.f3), isTrue);
+      expect(_isPremoveHighlight(tester, Square.d1), isTrue);
+      expect(_isPremoveHighlight(tester, Square.f3), isTrue);
 
       // wait for opponent move to be played
       await tester.pump(const Duration(milliseconds: 200));
@@ -2307,8 +2307,8 @@ void main() {
       // wait for the premove to be played
       await tester.pump();
 
-      expect(_isPremove(tester, Square.d1), isFalse);
-      expect(_isPremove(tester, Square.f3), isFalse);
+      expect(_isPremoveHighlight(tester, Square.d1), isFalse);
+      expect(_isPremoveHighlight(tester, Square.f3), isFalse);
 
       // premove has been played
       expect(_piecesPainter(tester).pieces.containsKey(Square.d1), isFalse);
@@ -2348,7 +2348,7 @@ void main() {
         squareOffset(tester, Square.f3) - tester.getCenter(whiteRookDraggable),
       );
       await tester.pump(); // Wait for piece to drop and board to redraw
-      expect(_isPremove(tester, Square.f3), isTrue);
+      expect(_isPremoveHighlight(tester, Square.f3), isTrue);
 
       // wait for opponent move to be played
       await tester.pump(const Duration(milliseconds: 200));
@@ -2359,7 +2359,7 @@ void main() {
       // wait for the premove to be played
       await tester.pump();
 
-      expect(_isPremove(tester, Square.f3), isFalse);
+      expect(_isPremoveHighlight(tester, Square.f3), isFalse);
 
       // premove has been played
       expect(_piecesPainter(tester).pieces[Square.f3], Piece.whiteRook);
@@ -2377,8 +2377,8 @@ void main() {
 
       await makeMove(tester, Square.g6, Square.g7);
       await makeMove(tester, Square.g7, Square.g8);
-      expect(_isPremove(tester, Square.g7), isTrue);
-      expect(_isPremove(tester, Square.g8), isTrue);
+      expect(_isPremoveHighlight(tester, Square.g7), isTrue);
+      expect(_isPremoveHighlight(tester, Square.g8), isTrue);
 
       // wait for opponent move to be played
       await tester.pump(const Duration(milliseconds: 200));
@@ -2387,8 +2387,8 @@ void main() {
       expect(_piecesPainter(tester).pieces[Square.d3], Piece.blackKing);
 
       // pawn was promoted to queen
-      expect(_isPremove(tester, Square.g7), isFalse);
-      expect(_isPremove(tester, Square.g8), isFalse);
+      expect(_isPremoveHighlight(tester, Square.g7), isFalse);
+      expect(_isPremoveHighlight(tester, Square.g8), isFalse);
       expect(_piecesPainter(tester).pieces.containsKey(Square.g7), isFalse);
       expect(_piecesPainter(tester).pieces[Square.g8], Piece.whiteQueen);
     });
@@ -2408,8 +2408,8 @@ void main() {
 
       await makeMove(tester, Square.g6, Square.g7);
       await makeMove(tester, Square.g7, Square.g8);
-      expect(_isPremove(tester, Square.g7), isTrue);
-      expect(_isPremove(tester, Square.g8), isTrue);
+      expect(_isPremoveHighlight(tester, Square.g7), isTrue);
+      expect(_isPremoveHighlight(tester, Square.g8), isTrue);
 
       // wait for opponent move to be played
       await tester.pump(const Duration(milliseconds: 200));
@@ -2418,8 +2418,8 @@ void main() {
       expect(find.byType(PromotionSelector), findsOneWidget);
 
       // premove highlight are not shown anymore
-      expect(_isPremove(tester, Square.g7), isFalse);
-      expect(_isPremove(tester, Square.g8), isFalse);
+      expect(_isPremoveHighlight(tester, Square.g7), isFalse);
+      expect(_isPremoveHighlight(tester, Square.g8), isFalse);
 
       // promotion pawn is hidden by painter (still in pieces map but skipped due to promotionMoveFrom)
       expect(_piecesPainter(tester).promotionMoveFrom, Square.g7);
@@ -2450,8 +2450,8 @@ void main() {
 
       await makeMove(tester, Square.g6, Square.g7);
       await makeMove(tester, Square.g7, Square.g8);
-      expect(_isPremove(tester, Square.g7), isTrue);
-      expect(_isPremove(tester, Square.g8), isTrue);
+      expect(_isPremoveHighlight(tester, Square.g7), isTrue);
+      expect(_isPremoveHighlight(tester, Square.g8), isTrue);
 
       // wait for opponent move to be played
       await tester.pump(const Duration(milliseconds: 200));
@@ -2460,8 +2460,8 @@ void main() {
       expect(find.byType(PromotionSelector), findsOneWidget);
 
       // premove highlight are not shown anymore
-      expect(_isPremove(tester, Square.g7), isFalse);
-      expect(_isPremove(tester, Square.g8), isFalse);
+      expect(_isPremoveHighlight(tester, Square.g7), isFalse);
+      expect(_isPremoveHighlight(tester, Square.g8), isFalse);
 
       // cancel promotion dialog
       await tester.tapAt(squareOffset(tester, Square.c3));
@@ -3120,7 +3120,7 @@ void main() {
       await tester.tapAt(squareOffset(tester, Square.e2));
       await tester.pump();
 
-      expect(_isSelected(tester, Square.e2), isTrue);
+      expect(_isSelectedHighlight(tester, Square.e2), isTrue);
     });
 
     // Regression: same bug but in the reverse direction — removing the sibling
@@ -3172,7 +3172,7 @@ void main() {
       await tester.tapAt(squareOffset(tester, Square.e2));
       await tester.pump();
 
-      expect(_isSelected(tester, Square.e2), isTrue);
+      expect(_isSelectedHighlight(tester, Square.e2), isTrue);
     });
 
     testWidgets('board survives repeated back-and-forth tree shifts', (WidgetTester tester) async {
@@ -3291,7 +3291,7 @@ void main() {
       await tester.tapAt(squareOffset(tester, Square.e2));
       await tester.pump();
 
-      expect(_isSelected(tester, Square.e2), isTrue);
+      expect(_isSelectedHighlight(tester, Square.e2), isTrue);
       expect(
         identical(_highlightsPainter(tester), highlightsBefore),
         isTrue,
@@ -3317,7 +3317,7 @@ void main() {
       // Select e2 first.
       await tester.tapAt(squareOffset(tester, Square.e2));
       await tester.pump();
-      expect(_isSelected(tester, Square.e2), isTrue);
+      expect(_isSelectedHighlight(tester, Square.e2), isTrue);
 
       final highlightsBefore = _highlightsPainter(tester);
       final piecesBefore = _piecesPainter(tester);
@@ -3327,7 +3327,7 @@ void main() {
       await tester.tapAt(squareOffset(tester, Square.e2));
       await tester.pump();
 
-      expect(_isSelected(tester, Square.e2), isFalse);
+      expect(_isSelectedHighlight(tester, Square.e2), isFalse);
       expect(
         identical(_highlightsPainter(tester), highlightsBefore),
         isTrue,
@@ -3357,7 +3357,7 @@ void main() {
       await tester.tapAt(squareOffset(tester, Square.e4));
       await tester.pump();
 
-      expect(_isLastMove(tester, Square.e4), isTrue);
+      expect(_isLastMoveHighlight(tester, Square.e4), isTrue);
       expect(
         identical(_highlightsPainter(tester), highlightsBefore),
         isTrue,
