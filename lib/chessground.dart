@@ -8,6 +8,7 @@ export 'src/images.dart';
 export 'src/premove.dart';
 export 'src/widgets/board.dart';
 export 'src/widgets/board_controller.dart';
+export 'src/widgets/board_painter.dart';
 export 'src/widgets/board_border.dart';
 export 'src/widgets/color_filter.dart';
 export 'src/widgets/static_board.dart';

@@ -12,14 +12,30 @@ import 'animation.dart';
 /// Holds the board's interactive highlight state and notifies [HighlightsPainter]
 /// to repaint without triggering a widget rebuild.
 class BoardHighlightNotifier extends ChangeNotifier {
+  /// The currently selected square, if any.
   Square? selected;
+
+  /// The set of squares the selected piece can legally move to.
   Set<Square> moveDests = const {};
+
+  /// The set of squares the selected piece can move to as a premove.
   Set<Square> premoveDests = const {};
+
+  /// The set of squares currently occupied by a piece.
+  ///
+  /// Used to render move destinations differently on occupied squares.
   Set<Square> occupiedSquares = const {};
+
+  /// The last move played, highlighted on the board.
   Move? lastMove;
+
+  /// The premove set by the user, if any.
   Move? premove;
+
+  /// The square of the king in check, if any.
   Square? checkSquare;
 
+  /// Updates all highlight state in one batch and notifies listeners once.
   void update({
     required Square? selected,
     required Set<Square> moveDests,
@@ -40,7 +56,13 @@ class BoardHighlightNotifier extends ChangeNotifier {
   }
 }
 
+/// Paints square highlights: the last move, selection, valid move destinations,
+/// premove squares, user-defined square highlights, and the check square.
+///
+/// Repaints are driven by [interactionNotifier] so highlight changes do not
+/// trigger a widget rebuild.
 class HighlightsPainter extends CustomPainter {
+  /// Creates a painter for the board's square highlights.
   HighlightsPainter({
     required this.interactionNotifier,
     required this.squareSize,
@@ -54,15 +76,37 @@ class HighlightsPainter extends CustomPainter {
     required this.highlightImagesLoaded,
   }) : super(repaint: interactionNotifier);
 
+  /// The mutable highlight state this painter listens to for repaints.
   final BoardHighlightNotifier interactionNotifier;
+
+  /// The size of a single square in logical pixels.
   final double squareSize;
+
+  /// The side the board is oriented towards.
   final Side orientation;
+
+  /// Whether the last move should be highlighted.
   final bool showLastMove;
+
+  /// The color used to highlight premove squares and destinations.
   final Color premoveColor;
+
+  /// How the last move highlight is rendered, or null to use the default.
   final HighlightDetails? lastMoveDetails;
+
+  /// How the selected square highlight is rendered, or null to use the default.
   final HighlightDetails? selectedDetails;
+
+  /// The color used to render valid move destinations.
   final Color validMoveColor;
+
+  /// User-defined highlights keyed by square, painted on top of move highlights.
   final Map<Square, HighlightDetails> squareHighlights;
+
+  /// Whether all highlight images are available in the cache.
+  ///
+  /// Included in [shouldRepaint] so the painter redraws when images finish
+  /// loading.
   final bool highlightImagesLoaded;
 
   @override
@@ -172,7 +216,14 @@ class HighlightsPainter extends CustomPainter {
   }
 }
 
+/// Paints the static pieces on the board.
+///
+/// Pieces that are being dragged, translating (animating), or promoting are
+/// skipped here and painted by their dedicated painters. Repaints are driven by
+/// the merged piece, drag, game, and promotion notifiers so piece changes do
+/// not trigger a widget rebuild.
 class PiecesPainter extends CustomPainter {
+  /// Creates a painter for the board's static pieces.
   PiecesPainter({
     required this.piecesNotifier,
     required this.translatingPiecesNotifier,
@@ -195,21 +246,42 @@ class PiecesPainter extends CustomPainter {
          ]),
        );
 
+  /// The current pieces on the board, keyed by square.
   final ValueNotifier<Pieces> piecesNotifier;
+
+  /// The pieces currently animating between squares, skipped by this painter.
   final ValueNotifier<TranslatingPieces> translatingPiecesNotifier;
 
+  /// The current pieces on the board, keyed by square.
   Pieces get pieces => piecesNotifier.value;
 
+  /// The assets used to render each piece kind.
   final PieceAssets pieceAssets;
+
+  /// The size of a single square in logical pixels.
   final double squareSize;
+
+  /// The side the board is oriented towards.
   final Side orientation;
+
   final ValueNotifier<Square?>? _draggedPieceSquareNotifier;
+
+  /// The current game data, used to determine the side to move.
   final ValueNotifier<GameData?> gameNotifier;
+
+  /// The pending promotion move, whose origin square is skipped while pending.
   final ValueNotifier<NormalMove?> pendingPromotionNotifier;
+
+  /// Whether pieces should be hidden (blindfold mode).
   final bool blindfoldMode;
+
+  /// How pieces are oriented relative to the board.
   final PieceOrientationBehavior pieceOrientationBehavior;
 
+  /// The origin square of the pending promotion, if any.
   Square? get promotionMoveFrom => pendingPromotionNotifier.value?.from;
+
+  /// The side currently to move, if known.
   Side? get sideToMove => gameNotifier.value?.sideToMove;
 
   /// Whether all piece images are available in the cache.
@@ -276,6 +348,7 @@ class PiecesPainter extends CustomPainter {
 /// Driven by [animation] as the repaint listenable — only [paint] runs per
 /// frame, no widget rebuild.
 class FadingPiecesPainter extends CustomPainter {
+  /// Creates a painter for pieces fading out of view.
   FadingPiecesPainter({
     required this.fadingPiecesNotifier,
     required this.squareSize,
@@ -288,16 +361,30 @@ class FadingPiecesPainter extends CustomPainter {
   }) : _animation = animation,
        super(repaint: animation);
 
+  /// The pieces currently fading out, keyed by square.
   final ValueNotifier<FadingPieces> fadingPiecesNotifier;
 
+  /// The pieces currently fading out, keyed by square.
   FadingPieces get fadingPieces => fadingPiecesNotifier.value;
 
+  /// The size of a single square in logical pixels.
   final double squareSize;
+
+  /// The side the board is oriented towards.
   final Side orientation;
+
+  /// The assets used to render each piece kind.
   final PieceAssets pieceAssets;
+
+  /// Whether pieces should be hidden (blindfold mode).
   final bool blindfoldMode;
+
+  /// How pieces are oriented relative to the board.
   final PieceOrientationBehavior pieceOrientationBehavior;
+
+  /// The current game data, used to determine the side to move.
   final ValueNotifier<GameData?> gameNotifier;
+
   final Animation<double> _animation;
 
   @override
@@ -357,6 +444,7 @@ class FadingPiecesPainter extends CustomPainter {
 /// Driven by [animation] as the repaint listenable — only [paint] runs per
 /// frame, no widget rebuild.
 class TranslatingPiecesPainter extends CustomPainter {
+  /// Creates a painter for pieces animating between squares.
   TranslatingPiecesPainter({
     required this.translatingPiecesNotifier,
     required this.squareSize,
@@ -369,16 +457,30 @@ class TranslatingPiecesPainter extends CustomPainter {
   }) : _animation = animation,
        super(repaint: animation);
 
+  /// The pieces currently animating, keyed by destination square.
   final ValueNotifier<TranslatingPieces> translatingPiecesNotifier;
 
+  /// The pieces currently animating, keyed by destination square.
   TranslatingPieces get translatingPieces => translatingPiecesNotifier.value;
 
+  /// The size of a single square in logical pixels.
   final double squareSize;
+
+  /// The side the board is oriented towards.
   final Side orientation;
+
+  /// The assets used to render each piece kind.
   final PieceAssets pieceAssets;
+
+  /// Whether pieces should be hidden (blindfold mode).
   final bool blindfoldMode;
+
+  /// How pieces are oriented relative to the board.
   final PieceOrientationBehavior pieceOrientationBehavior;
+
+  /// The current game data, used to determine the side to move.
   final ValueNotifier<GameData?> gameNotifier;
+
   final Animation<double> _animation;
 
   @override
@@ -441,7 +543,12 @@ class TranslatingPiecesPainter extends CustomPainter {
   }
 }
 
+/// Paints the piece being dragged, following the pointer position.
+///
+/// Repaints are driven by [positionNotifier] so the dragged piece tracks the
+/// pointer without triggering a widget rebuild.
 class DragPiecePainter extends CustomPainter {
+  /// Creates a painter for the piece currently being dragged.
   DragPiecePainter({
     required this.image,
     required this.feedbackSize,
@@ -450,10 +557,19 @@ class DragPiecePainter extends CustomPainter {
     required this.positionNotifier,
   }) : super(repaint: positionNotifier);
 
+  /// The image of the dragged piece, or null if not yet loaded.
   final ui.Image? image;
+
+  /// The size of the dragged piece in logical pixels.
   final double feedbackSize;
+
+  /// The offset applied to the piece relative to the pointer position.
   final Offset feedbackOffset;
+
+  /// Whether the piece should be rendered upside down.
   final bool upsideDown;
+
+  /// The current pointer position the dragged piece follows.
   final ValueNotifier<Offset> positionNotifier;
 
   @override
@@ -490,15 +606,25 @@ class DragPiecePainter extends CustomPainter {
   }
 }
 
+/// Paints the highlight marking the square a dragged piece would land on.
+///
+/// Repaints are driven by [positionNotifier] so the target tracks the pointer
+/// without triggering a widget rebuild.
 class DragSquareTargetPainter extends CustomPainter {
+  /// Creates a painter for the drag target highlight.
   DragSquareTargetPainter({
     required this.squareSize,
     required this.targetKind,
     required this.positionNotifier,
   }) : super(repaint: positionNotifier);
 
+  /// The size of a single square in logical pixels.
   final double squareSize;
+
+  /// The shape used to mark the target square.
   final DragTargetKind targetKind;
+
+  /// The current target position, or null when there is no target.
   final ValueNotifier<Offset?> positionNotifier;
 
   @override

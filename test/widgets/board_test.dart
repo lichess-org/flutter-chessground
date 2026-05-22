@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:ui' as ui;
-import 'package:chessground/src/widgets/board_painter.dart';
 import 'package:chessground/src/widgets/explosion.dart';
 import 'package:chessground/src/widgets/promotion.dart';
 import 'package:flutter/gestures.dart' show PointerDeviceKind;
