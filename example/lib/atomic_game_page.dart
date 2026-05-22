@@ -118,7 +118,7 @@ class _AtomicGamePageState extends State<AtomicGamePage> {
   }
 
   void _onUserMove(Move move, {bool? viaDragAndDrop}) {
-    _applyMove(move, scheduleBotAfter: true, viaDragAndDrop: viaDragAndDrop);
+    _applyMove(move, scheduleBotAfter: true);
   }
 
   bool _isPromotionPawnMove(NormalMove move) {
@@ -128,22 +128,14 @@ class _AtomicGamePageState extends State<AtomicGamePage> {
             (move.to.rank == Rank.first && position.turn == Side.black));
   }
 
-  void _applyMove(
-    Move move, {
-    bool scheduleBotAfter = false,
-    bool? viaDragAndDrop,
-  }) {
+  void _applyMove(Move move, {bool scheduleBotAfter = false}) {
     if (!position.isLegal(move)) return;
 
     final newExplosions = position.explosionSquares(move).squares.toSet();
 
     position = position.playUnchecked(move) as Atomic;
     lastMove = move;
-    _controller.animatePosition(
-      position.fen,
-      game: _buildGame(),
-      lastDrop: viaDragAndDrop == true ? move : null,
-    );
+    _controller.animatePosition(position.fen, game: _buildGame());
     if (newExplosions.isNotEmpty) {
       _controller.triggerExplosion(newExplosions);
     }

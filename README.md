@@ -77,11 +77,7 @@ class _MyBoardState extends State<MyBoard> {
   void _onMove(Move move, {bool? viaDragAndDrop}) {
     position = position.playUnchecked(move);
     lastMove = move;
-    _controller.animatePosition(
-      position.fen,
-      game: _buildGame(),
-      lastDrop: viaDragAndDrop == true ? move : null,
-    );
+    _controller.animatePosition(position.fen, game: _buildGame());
   }
 
   @override

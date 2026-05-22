@@ -92,11 +92,7 @@ class _MyBoardState extends State<MyBoard> {
   void _onMove(Move move, {bool? viaDragAndDrop}) {
     _position = _position.playUnchecked(move);
     _lastMove = move;
-    _controller.animatePosition(
-      _position.fen,
-      game: _buildGame(),
-      lastDrop: viaDragAndDrop == true ? move : null,
-    );
+    _controller.animatePosition(_position.fen, game: _buildGame());
   }
 
   @override
@@ -126,10 +122,10 @@ class _MyBoardState extends State<MyBoard> {
 | `BoardSettings(enablePremoves: false)` (9.x: pass `premovable: null`) | `ChessboardSettings(enablePremoves: false)` |
 | `explosionSquares: squares` | `controller.triggerExplosion(squares)` |
 
-The `lastDrop:` parameter on `animatePosition()` replaces the internal tracking
-that previously happened automatically. Pass the move as `lastDrop:` when
-`viaDragAndDrop == true` to suppress the redundant slide animation for the
-dragged piece.
+Drag-and-drop animation suppression is handled internally, as in 9.x: the board
+records when a move is made by dropping a piece and skips the redundant slide
+animation on the next `animatePosition()`. The parent does not pass any extra
+argument for this.
 
 ### `Chessboard.fixed()` is unchanged
 

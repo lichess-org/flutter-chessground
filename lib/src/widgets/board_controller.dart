@@ -70,6 +70,7 @@ class ChessboardController extends ChangeNotifier {
 
   String _fen;
   Move? _lastMove;
+  Move? _lastDropMove;
   Set<Square>? _pendingExplosionSquares;
 
   late final ValueNotifier<GameData?> _gameNotifier;
@@ -224,6 +225,18 @@ class ChessboardController extends ChangeNotifier {
     _drawnShapesNotifier.value = {};
   }
 
+  /// Records that [move] was just performed via drag and drop.
+  ///
+  /// Called internally by the board when the user completes a move by dropping a
+  /// piece (a board drag or an external pocket drop). The next [animatePosition]
+  /// uses this to suppress the redundant translation of the already-dragged
+  /// piece, then clears it.
+  @internal
+  // ignore: use_setters_to_change_properties
+  void recordDropMove(Move move) {
+    _lastDropMove = move;
+  }
+
   /// Triggers a one-shot explosion animation on the given squares.
   ///
   /// Typically used for atomic chess: pass the set of exploded squares (capture
@@ -241,11 +254,13 @@ class ChessboardController extends ChangeNotifier {
   /// For interactive boards, pass [game] to update the game state.
   /// For non-interactive boards, omit [game] and optionally pass [lastMove].
   ///
-  /// Pass [lastDrop] when the triggering move was performed via drag and drop so
-  /// the animation engine can suppress the redundant translation of the dragged
-  /// piece.
-  void animatePosition(String fen, {GameData? game, Move? lastMove, Move? lastDrop}) {
+  /// If the triggering move was performed via drag and drop (recorded by the
+  /// board through [recordDropMove]), the animation engine automatically
+  /// suppresses the redundant translation of the dragged piece.
+  void animatePosition(String fen, {GameData? game, Move? lastMove}) {
     if (fen != _fen) {
+      final lastDrop = _lastDropMove;
+      _lastDropMove = null;
       final oldPieces = _piecesNotifier.value;
       _translatingPiecesNotifier.value = {};
       _fadingPiecesNotifier.value = {};
@@ -287,6 +302,7 @@ class ChessboardController extends ChangeNotifier {
     _fadingPiecesNotifier.value = {};
 
     _fen = fen;
+    _lastDropMove = null;
     _piecesNotifier.value = readFen(fen);
     _gameNotifier.value = game;
     _lastMove = lastMove;

@@ -178,6 +178,38 @@ void main() {
       await tester.pumpAndSettle();
     });
 
+    testWidgets('a piece moved by drag and drop is not animated', (WidgetTester tester) async {
+      await tester.pumpWidget(const _TestApp(initialPlayerSide: PlayerSide.both));
+
+      await tester.dragFrom(squareOffset(tester, Square.e2), const Offset(0, -(squareSize * 2)));
+      await tester.pump();
+
+      // The dropped pawn is already at its destination, so it must not be
+      // re-animated translating from e2 to e4.
+      expect(_translatingPiecesPainter(tester)!.translatingPieces, isEmpty);
+
+      await tester.pumpAndSettle();
+      expect(_piecesPainter(tester).pieces[Square.e4], Piece.whitePawn);
+      expect(_piecesPainter(tester).pieces.containsKey(Square.e2), isFalse);
+    });
+
+    testWidgets('a piece moved by tap is animated', (WidgetTester tester) async {
+      await tester.pumpWidget(const _TestApp(initialPlayerSide: PlayerSide.both));
+
+      await tester.tapAt(squareOffset(tester, Square.e2));
+      await tester.pump();
+      await tester.tapAt(squareOffset(tester, Square.e4));
+      await tester.pump();
+
+      // A tap move keeps the piece on its origin until the position changes, so
+      // the pawn animates translating from e2 to e4.
+      final painter = _translatingPiecesPainter(tester);
+      expect(painter!.translatingPieces[Square.e4]?.from, Square.e2);
+      expect(painter.translatingPieces[Square.e4]?.piece, Piece.whitePawn);
+
+      await tester.pumpAndSettle();
+    });
+
     testWidgets('background is constrained to the size of the board', (WidgetTester tester) async {
       await tester.pumpWidget(viewOnlyBoard);
 
@@ -3557,11 +3589,7 @@ class _TestAppState extends State<_TestApp> {
 
   void _onMove(Move move, {bool? viaDragAndDrop}) {
     _playMove(move);
-    _controller.animatePosition(
-      position.fen,
-      game: _buildGame(),
-      lastDrop: viaDragAndDrop == true ? move : null,
-    );
+    _controller.animatePosition(position.fen, game: _buildGame());
 
     if (widget.shouldPlayOpponentMove) {
       Timer(const Duration(milliseconds: 200), () {

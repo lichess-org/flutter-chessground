@@ -369,6 +369,7 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
                     final viaDragAndDrop = _pendingPromotionViaDragAndDrop;
                     _pendingPromotionViaDragAndDrop = false;
                     _controller.pendingPromotion = null;
+                    if (viaDragAndDrop) _controller.recordDropMove(resolvedMove);
                     widget.onMove?.call(resolvedMove, viaDragAndDrop: viaDragAndDrop);
                   },
                   onCancel: () {
@@ -412,6 +413,7 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
                       final move = DropMove(to: square, role: piece.role);
                       if (currentGame.sideToMove == piece.color &&
                           currentGame.validDropSquares?.contains(square) == true) {
+                        _controller.recordDropMove(move);
                         widget.onMove?.call(move, viaDragAndDrop: true);
                       } else if (widget.settings.enablePremoves &&
                           currentGame.sideToMove != piece.color) {
@@ -1054,12 +1056,15 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
       final move = NormalMove(from: selected!, to: square);
       if (_isPromoMove(selectedPiece, square)) {
         if (widget.settings.autoQueenPromotion) {
-          widget.onMove?.call(move.withPromotion(Role.queen), viaDragAndDrop: drop);
+          final promoted = move.withPromotion(Role.queen);
+          if (drop) _controller.recordDropMove(promoted);
+          widget.onMove?.call(promoted, viaDragAndDrop: drop);
         } else {
           _pendingPromotionViaDragAndDrop = drop;
           _controller.pendingPromotion = move;
         }
       } else {
+        if (drop) _controller.recordDropMove(move);
         widget.onMove?.call(move, viaDragAndDrop: drop);
       }
       return true;

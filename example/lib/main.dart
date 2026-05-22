@@ -586,7 +586,8 @@ class _HomePageState extends State<HomePage> {
           ? PlayerSide.white
           : (position.turn == Side.white ? PlayerSide.white : PlayerSide.black),
       validMoves: makeLegalMoves(position),
-      validDropSquares: testDropMoves ? position.legalDrops.squares.toSet() : null,
+      validDropSquares:
+          testDropMoves ? position.legalDrops.squares.toSet() : null,
       sideToMove: position.turn == Side.white ? Side.white : Side.black,
       kingSquareInCheck:
           position.isCheck ? position.board.kingOf(position.turn) : null,
@@ -598,11 +599,7 @@ class _HomePageState extends State<HomePage> {
       lastPos = position;
       position = position.playUnchecked(move);
       lastMove = move;
-      _controller.animatePosition(
-        position.fen,
-        game: _buildGame(),
-        lastDrop: viaDragAndDrop == true ? move : null,
-      );
+      _controller.animatePosition(position.fen, game: _buildGame());
       _canUndo.value = true;
       _positionNotifier.value = position;
     }
@@ -613,11 +610,7 @@ class _HomePageState extends State<HomePage> {
       lastPos = position;
       position = position.playUnchecked(move);
       lastMove = move;
-      _controller.animatePosition(
-        position.fen,
-        game: _buildGame(),
-        lastDrop: viaDragAndDrop == true ? move : null,
-      );
+      _controller.animatePosition(position.fen, game: _buildGame());
       _canUndo.value = true;
       _positionNotifier.value = position;
       await _playBlackMove();

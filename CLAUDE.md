@@ -36,7 +36,7 @@ The board is driven by a controller and immutable data objects:
 - **`ChessboardController`** (`src/widgets/board_controller.dart`) — Owns board position, game state, and piece animations. Create once in `initState`, dispose in `dispose`. Two constructors:
   - `ChessboardController(fen: fen, game: game)` — for interactive boards.
   - `ChessboardController.nonInteractive(fen: fen)` — for non-interactive display boards (`Chessboard.fixed()`).
-  - `animatePosition(String fen, {GameData? game, Move? lastMove, Move? lastDrop})` — advance position with animation. Pass `game:` for interactive boards, `lastMove:` for non-interactive.
+  - `animatePosition(String fen, {GameData? game, Move? lastMove})` — advance position with animation. Pass `game:` for interactive boards, `lastMove:` for non-interactive. Drag-and-drop suppression is automatic: the board records drops internally (`recordDropMove`) so the dropped piece is not re-animated.
   - `jumpToPosition(String fen, {GameData? game, Move? lastMove})` — switch position without animation.
 - **`GameData`** — Immutable snapshot of interactive game state: `playerSide`, `sideToMove`, `validMoves`, `lastMove`, `kingSquareInCheck`, `validDropSquares`. Does **not** carry the FEN — that is always passed separately.
 - **`ChessboardSettings`** — All visual and behavioral configuration (theme, animations, piece shift method, draw shapes, coordinates, `enableDrops`, etc.).

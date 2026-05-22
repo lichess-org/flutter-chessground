@@ -15,19 +15,17 @@
   `ChessboardSettings.enablePremoves` (default `true`). See the
   [migration guide](MIGRATION.md) for the before/after pattern.
 
-- `ChessboardController` constructor changed. Use
-  `ChessboardController(fen: fen, game: game)` for interactive boards.
-  Use `ChessboardController.nonInteractive(fen: fen)` for non-interactive
-  display boards.
-
-- `ChessboardController.animatePosition(String fen, {GameData? game, Move? lastMove, Move? lastDrop})`
-  takes the board position as its first argument. Pass `game:` for interactive
-  boards or `lastMove:` for non-interactive boards. This single method replaces
-  the previous `animatePosition(GameData)` and the separate non-interactive
-  `updateFen(String)`.
+- Position updates now go through the controller instead of rebuilding the
+  `Chessboard` widget with a new `fen`. Call
+  `ChessboardController.animatePosition(String fen, {GameData? game, Move? lastMove})`
+  to advance the board with animation, passing `game:` for interactive boards or
+  `lastMove:` for non-interactive boards. Drag-and-drop moves are detected
+  internally by the board, so the redundant translation of a dropped piece is
+  suppressed automatically — the parent no longer passes a `lastDrop` argument.
 
 - `ChessboardController.jumpToPosition(String fen, {GameData? game, Move? lastMove})`
-  similarly unifies the previous `jumpToPosition(GameData)` and `jumpToFen(String)`.
+  switches to a new position without animation (e.g. history navigation) and
+  clears any pending premove.
 
 - `squareHighlights` has been removed from the interactive `Chessboard()` constructor.
   It is only supported by `Chessboard.fixed()`.
@@ -55,6 +53,9 @@
   [migration guide](MIGRATION.md) for the before/after pattern.
 
 ### New
+
+- Faster hit-testing thanks to the `HitTestBehavior.opaque` change in
+  `Chessboard`.
 
 - `ChessboardController` is now the public API for driving the interactive board.
   Create one in `initState`, pass it to `Chessboard(controller: ...)`, and call
