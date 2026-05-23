@@ -30,8 +30,8 @@ import '../models.dart';
 ///
 /// ## Drawn shapes
 ///
-/// Use [addDrawnShape], [toggleDrawnShape], and [clearDrawnShapes] to
-/// manipulate user-drawn shapes programmatically.
+/// User-drawn shapes are managed internally by the board via gestures.
+/// External shapes are supplied via [Chessboard.shapes].
 ///
 /// ## Atomic explosions
 ///
@@ -199,19 +199,7 @@ class ChessboardController extends ChangeNotifier {
     _pendingPromotionNotifier.value = move;
   }
 
-  /// Adds [shape] to the controller's set of user-drawn shapes.
-  ///
-  /// The board re-renders automatically. This is equivalent to what the user
-  /// achieves by drawing with their finger when [DrawShapeOptions.enable] is true.
-  void addDrawnShape(Shape shape) {
-    _drawnShapesNotifier.value = {..._drawnShapesNotifier.value, shape};
-  }
-
-  /// Toggles [shape] in the set of user-drawn shapes.
-  ///
-  /// If [shape] is already present it is removed; otherwise it is added.
-  /// This is the behavior used by the board's drawing gesture — drawing the
-  /// same shape a second time erases it.
+  @internal
   void toggleDrawnShape(Shape shape) {
     final current = _drawnShapesNotifier.value;
     _drawnShapesNotifier.value =
