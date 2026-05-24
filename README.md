@@ -94,7 +94,10 @@ class _MyBoardState extends State<MyBoard> {
 
 ### Non-interactive board
 
-## Piece image cache
+To display a read-only board, use `StaticChessboard`. The example below shows how
+to render a non-interactable position without a controller or move callbacks.
+
+### Piece image cache
 
 Piece images are managed by `ChessgroundImages`, a singleton cache that holds decoded `ui.Image` objects. Board widgets automatically load images on first render if the cache is empty — pieces are invisible for the duration of that load (typically one async frame).
 
