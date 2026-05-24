@@ -45,7 +45,9 @@ enum PieceSet {
   xkcd('xkcd', PieceSet.xkcdAssets),
   letter('Letter', PieceSet.letterAssets),
   disguised('Disguised', PieceSet.disguisedAssets),
-  symmetric('Symmetric', PieceSet.symmetricAssets);
+  symmetric('Symmetric', PieceSet.symmetricAssets),
+  experimental('Experimental', PieceSet.experimentalAssets);
+
 
   const PieceSet(this.label, this.assets);
 
@@ -246,6 +248,25 @@ enum PieceSet {
     PieceKind.whiteQueen: AssetImage('$_pieceSetsPath/dubrovny/wQ.png', package: 'chessground'),
     PieceKind.whiteKing: AssetImage('$_pieceSetsPath/dubrovny/wK.png', package: 'chessground'),
   });
+
+
+  /// The [PieceAssets] for the 'Experimental' piece set.
+  /// //TODO: add flipped pieces
+  static const PieceAssets experimentalAssets = IMapConst({
+    PieceKind.blackRook: AssetImage('$_pieceSetsPath/experimental/bR.png', package: 'chessground'),
+    PieceKind.blackPawn: AssetImage('$_pieceSetsPath/experimental/bP.png', package: 'chessground'),
+    PieceKind.blackKnight: AssetImage('$_pieceSetsPath/experimental/bN.png', package: 'chessground'),
+    PieceKind.blackBishop: AssetImage('$_pieceSetsPath/experimental/bB.png', package: 'chessground'),
+    PieceKind.blackQueen: AssetImage('$_pieceSetsPath/experimental/bQ.png', package: 'chessground'),
+    PieceKind.blackKing: AssetImage('$_pieceSetsPath/experimental/bK.png', package: 'chessground'),
+    PieceKind.whiteRook: AssetImage('$_pieceSetsPath/experimental/wR.png', package: 'chessground'),
+    PieceKind.whitePawn: AssetImage('$_pieceSetsPath/experimental/wP.png', package: 'chessground'),
+    PieceKind.whiteKnight: AssetImage('$_pieceSetsPath/experimental/wN.png', package: 'chessground'),
+    PieceKind.whiteBishop: AssetImage('$_pieceSetsPath/experimental/wB.png', package: 'chessground'),
+    PieceKind.whiteQueen: AssetImage('$_pieceSetsPath/experimental/wQ.png', package: 'chessground'),
+    PieceKind.whiteKing: AssetImage('$_pieceSetsPath/experimental/wK.png', package: 'chessground'),
+  });
+
 
   /// The [PieceAssets] for the 'Fantasy' piece set.
   static const PieceAssets fantasyAssets = IMapConst({
