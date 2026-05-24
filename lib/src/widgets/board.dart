@@ -9,7 +9,6 @@ import 'board_border.dart';
 import 'board_controller.dart';
 import 'board_painter.dart';
 import 'color_filter.dart';
-import 'highlight.dart';
 import 'positioned_square.dart';
 import 'explosion.dart';
 import 'promotion.dart';
@@ -39,6 +38,10 @@ class Chessboard extends StatefulWidget with ChessboardGeometry {
   /// [onMove] is called when the user completes a move, including after a
   /// promotion piece has been selected. The promotion role is already set on
   /// the [Move] at that point.
+  ///
+  /// To make the board non-interactive (e.g. at the end of a game), drive the
+  /// [controller] with game data whose `playerSide` is [PlayerSide.none]. For a
+  /// fully static board, use [StaticChessboard] instead.
   const Chessboard({
     super.key,
     required double size,
@@ -49,31 +52,7 @@ class Chessboard extends StatefulWidget with ChessboardGeometry {
     this.onTouchedSquare,
     this.shapes = const {},
     this.annotations = const {},
-  }) : _size = size,
-       squareHighlights = const {},
-       _fen = null,
-       _lastMove = null;
-
-  /// Creates a new chessboard widget that cannot be interacted with.
-  ///
-  /// Provide a [fen] string to describe the position of the pieces on the board.
-  /// Pieces will be animated when the position changes.
-  const Chessboard.fixed({
-    super.key,
-    required double size,
-    this.settings = const ChessboardSettings(),
-    required this.orientation,
-    required String fen,
-    Move? lastMove,
-    this.squareHighlights = const {},
-    this.onTouchedSquare,
-    this.shapes = const {},
-    this.annotations = const {},
-  }) : _size = size,
-       controller = null,
-       onMove = null,
-       _fen = fen,
-       _lastMove = lastMove;
+  }) : _size = size;
 
   final double _size;
 
@@ -88,23 +67,12 @@ class Chessboard extends StatefulWidget with ChessboardGeometry {
   /// Settings that control the theme and behavior of the board.
   final ChessboardSettings settings;
 
-  /// Squares to highlight on the board.
-  final Map<Square, SquareHighlight> squareHighlights;
-
   /// Controller that drives the board position, game state, and piece animations.
-  ///
-  /// Null only when using [Chessboard.fixed].
-  final ChessboardController? controller;
+  final ChessboardController controller;
 
   /// Called after the user completes a move, including after a promotion piece
   /// has been selected. The promotion role is already set on the [Move].
-  ///
-  /// Null when using [Chessboard.fixed].
   final void Function(Move, {bool? viaDragAndDrop})? onMove;
-
-  // FEN and last move for the fixed (non-interactive) constructor only.
-  final String? _fen;
-  final Move? _lastMove;
 
   /// Callback called after a square has been touched.
   ///
@@ -119,7 +87,7 @@ class Chessboard extends StatefulWidget with ChessboardGeometry {
   final Map<Square, Annotation> annotations;
 
   /// Whether the pieces can be moved by one side or both.
-  bool get interactive => controller?.interactive ?? false;
+  bool get interactive => controller.interactive;
 
   @override
   // No need to make this class public, as it is only used internally.
@@ -128,8 +96,7 @@ class Chessboard extends StatefulWidget with ChessboardGeometry {
 }
 
 class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
-  late ChessboardController _controller;
-  bool _ownsController = false;
+  ChessboardController get _controller => widget.controller;
   bool _controllerDetached = false;
   Side? _lastSideToMove;
 
@@ -222,11 +189,6 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
               : colorScheme.background,
     );
 
-    final Map<Square, HighlightDetails> customHighlights = {
-      for (final MapEntry(key: square, value: highlight) in widget.squareHighlights.entries)
-        square: highlight.details,
-    };
-
     final highlightsPainter = HighlightsPainter(
       interactionNotifier: _controller.highlightNotifier,
       squareSize: widget.squareSize,
@@ -236,7 +198,7 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
       lastMoveDetails: colorScheme.lastMove,
       selectedDetails: colorScheme.selected,
       validMoveColor: colorScheme.validMoves,
-      squareHighlights: customHighlights,
+      squareHighlights: const {},
       highlightImagesLoaded: _highlightImagesLoaded,
     );
 
@@ -451,20 +413,9 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    if (widget.controller != null) {
-      _ownsController = false;
-      _controller = widget.controller!;
-      _controller.attachTo(this, widget.settings.animationDuration);
-      _controller.addListener(_onControllerChange);
-      _lastSideToMove = _controller.game?.sideToMove;
-    } else {
-      _ownsController = true;
-      _controller = ChessboardController.nonInteractive(
-        fen: widget._fen!,
-        lastMove: widget._lastMove,
-      );
-      _controller.attachTo(this, widget.settings.animationDuration);
-    }
+    _controller.attachTo(this, widget.settings.animationDuration);
+    _controller.addListener(_onControllerChange);
+    _lastSideToMove = _controller.game?.sideToMove;
     _controller.drawnShapesNotifier.addListener(_onDrawnShapesChange);
     _controller.premoveNotifier.addListener(_onPremoveChange);
     _explosionNotifier = ExplosionSetNotifier(vsync: this);
@@ -493,12 +444,6 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
         ChessgroundImages.instance.get(colorScheme.selected.image!) == null) {
       return false;
     }
-    for (final highlight in widget.squareHighlights.values) {
-      if (highlight.details.image != null &&
-          ChessgroundImages.instance.get(highlight.details.image!) == null) {
-        return false;
-      }
-    }
     return true;
   }
 
@@ -508,11 +453,8 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
     final images = <AssetImage>[];
     if (colorScheme.lastMove.image != null) images.add(colorScheme.lastMove.image!);
     if (colorScheme.selected.image != null) images.add(colorScheme.selected.image!);
-    for (final highlight in widget.squareHighlights.values) {
-      if (highlight.details.image != null) images.add(highlight.details.image!);
-    }
     if (images.isEmpty) return;
-    await Future.wait([
+    await Future.wait<void>([
       for (final img in images) ChessgroundImages.instance.load(img, devicePixelRatio: dpr),
     ]);
     if (mounted) setState(() => _highlightImagesLoaded = true);
@@ -520,35 +462,27 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
 
   @override
   void deactivate() {
-    if (!_ownsController) {
-      _controller.detach();
-      _controllerDetached = true;
-    }
+    _controller.detach();
+    _controllerDetached = true;
     super.deactivate();
   }
 
   @override
   void activate() {
     super.activate();
-    if (!_ownsController) {
-      _controller.attachTo(this, widget.settings.animationDuration);
-      _controllerDetached = false;
-    }
+    _controller.attachTo(this, widget.settings.animationDuration);
+    _controllerDetached = false;
   }
 
   @override
   void dispose() {
     _controller.drawnShapesNotifier.removeListener(_onDrawnShapesChange);
     _controller.premoveNotifier.removeListener(_onPremoveChange);
-    if (_ownsController) {
-      _controller.dispose();
-    } else {
-      _controller.removeListener(_onControllerChange);
-      // deactivate() already called detach(); only call it here if activate()
-      // re-attached us (i.e. the widget was temporarily removed then reinserted).
-      if (!_controllerDetached) {
-        _controller.detach();
-      }
+    _controller.removeListener(_onControllerChange);
+    // deactivate() already called detach(); only call it here if activate()
+    // re-attached us (i.e. the widget was temporarily removed then reinserted).
+    if (!_controllerDetached) {
+      _controller.detach();
     }
     _explosionNotifier.dispose();
     _draggedPieceSquareNotifier.dispose();
@@ -598,23 +532,17 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
       _shapeAvatar = null;
     }
 
-    if (!_ownsController && oldBoard.controller != widget.controller) {
-      oldBoard.controller!.removeListener(_onControllerChange);
-      oldBoard.controller!.drawnShapesNotifier.removeListener(_onDrawnShapesChange);
-      oldBoard.controller!.premoveNotifier.removeListener(_onPremoveChange);
-      oldBoard.controller!.detach();
-      _controller = widget.controller!;
+    if (oldBoard.controller != widget.controller) {
+      oldBoard.controller.removeListener(_onControllerChange);
+      oldBoard.controller.drawnShapesNotifier.removeListener(_onDrawnShapesChange);
+      oldBoard.controller.premoveNotifier.removeListener(_onPremoveChange);
+      oldBoard.controller.detach();
       _controller.attachTo(this, widget.settings.animationDuration);
       _controller.addListener(_onControllerChange);
       _controller.drawnShapesNotifier.addListener(_onDrawnShapesChange);
       _controller.premoveNotifier.addListener(_onPremoveChange);
       _lastSideToMove = _controller.game?.sideToMove;
       _pendingPromotionViaDragAndDrop = false;
-    }
-
-    if (_ownsController &&
-        (oldBoard._fen != widget._fen || oldBoard._lastMove != widget._lastMove)) {
-      _controller.animatePosition(widget._fen!, lastMove: widget._lastMove);
     }
 
     _syncHighlightNotifier();
@@ -624,8 +552,7 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
       if (!_imagesLoaded) _loadImages(widget.settings.pieceAssets);
     }
 
-    if (oldBoard.settings.colorScheme != widget.settings.colorScheme ||
-        oldBoard.squareHighlights != widget.squareHighlights) {
+    if (oldBoard.settings.colorScheme != widget.settings.colorScheme) {
       _highlightImagesLoaded = _areHighlightImagesLoaded();
       if (!_highlightImagesLoaded) _loadHighlightImages();
     }

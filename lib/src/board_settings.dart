@@ -310,3 +310,153 @@ class ChessboardSettings {
     );
   }
 }
+
+/// Visual settings for a [StaticChessboard].
+///
+/// This is the non-interactive counterpart of [ChessboardSettings]: it exposes
+/// only the options that are meaningful for a board the user cannot play on
+/// (no premoves, drag, promotion, shift method, etc.).
+///
+/// Use [StaticChessboardSettings.fromBoardSettings] to derive one from an
+/// existing [ChessboardSettings].
+@immutable
+class StaticChessboardSettings {
+  const StaticChessboardSettings({
+    this.colorScheme = ChessboardColorScheme.brown,
+    this.pieceAssets = PieceSet.cburnettAssets,
+    this.border,
+    this.borderRadius = BorderRadius.zero,
+    this.boxShadow = const <BoxShadow>[],
+    this.brightness = 1.0,
+    this.hue = 0.0,
+    this.enableCoordinates = false,
+    this.animationDuration = const Duration(milliseconds: 200),
+    this.showLastMove = true,
+    this.blindfoldMode = false,
+    this.pieceOrientationBehavior = PieceOrientationBehavior.facingUser,
+  });
+
+  /// Derives static settings from a full [ChessboardSettings], keeping only the
+  /// options relevant to a non-interactive board.
+  factory StaticChessboardSettings.fromBoardSettings(ChessboardSettings settings) {
+    return StaticChessboardSettings(
+      colorScheme: settings.colorScheme,
+      pieceAssets: settings.pieceAssets,
+      border: settings.border,
+      borderRadius: settings.borderRadius,
+      boxShadow: settings.boxShadow,
+      brightness: settings.brightness,
+      hue: settings.hue,
+      enableCoordinates: settings.enableCoordinates,
+      animationDuration: settings.animationDuration,
+      showLastMove: settings.showLastMove,
+      blindfoldMode: settings.blindfoldMode,
+      pieceOrientationBehavior: settings.pieceOrientationBehavior,
+    );
+  }
+
+  /// Theme of the board
+  final ChessboardColorScheme colorScheme;
+
+  /// Piece set
+  final PieceAssets pieceAssets;
+
+  /// Optional border of the board
+  final BoardBorder? border;
+
+  /// Border radius of the board
+  final BorderRadiusGeometry borderRadius;
+
+  /// Box shadow of the board
+  final List<BoxShadow> boxShadow;
+
+  /// Brightness adjustment of the board
+  final double brightness;
+
+  /// Hue rotation of the board as an angle in degree from 0.0 to 360.0.
+  final double hue;
+
+  /// Whether to show board coordinates
+  final bool enableCoordinates;
+
+  /// Piece animation duration (pieces animate when the position changes)
+  final Duration animationDuration;
+
+  /// Whether to show last move highlight
+  final bool showLastMove;
+
+  /// Pieces are hidden in blindfold mode
+  final bool blindfoldMode;
+
+  /// Controls if any pieces are displayed upside down.
+  final PieceOrientationBehavior pieceOrientationBehavior;
+
+  StaticChessboardSettings copyWith({
+    ChessboardColorScheme? colorScheme,
+    PieceAssets? pieceAssets,
+    BoardBorder? border,
+    BorderRadiusGeometry? borderRadius,
+    List<BoxShadow>? boxShadow,
+    double? brightness,
+    double? hue,
+    bool? enableCoordinates,
+    Duration? animationDuration,
+    bool? showLastMove,
+    bool? blindfoldMode,
+    PieceOrientationBehavior? pieceOrientationBehavior,
+  }) {
+    return StaticChessboardSettings(
+      colorScheme: colorScheme ?? this.colorScheme,
+      pieceAssets: pieceAssets ?? this.pieceAssets,
+      border: border ?? this.border,
+      borderRadius: borderRadius ?? this.borderRadius,
+      boxShadow: boxShadow ?? this.boxShadow,
+      brightness: brightness ?? this.brightness,
+      hue: hue ?? this.hue,
+      enableCoordinates: enableCoordinates ?? this.enableCoordinates,
+      animationDuration: animationDuration ?? this.animationDuration,
+      showLastMove: showLastMove ?? this.showLastMove,
+      blindfoldMode: blindfoldMode ?? this.blindfoldMode,
+      pieceOrientationBehavior: pieceOrientationBehavior ?? this.pieceOrientationBehavior,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
+    return other is StaticChessboardSettings &&
+        other.colorScheme == colorScheme &&
+        other.pieceAssets == pieceAssets &&
+        other.border == border &&
+        other.borderRadius == borderRadius &&
+        other.boxShadow == boxShadow &&
+        other.brightness == brightness &&
+        other.hue == hue &&
+        other.enableCoordinates == enableCoordinates &&
+        other.animationDuration == animationDuration &&
+        other.showLastMove == showLastMove &&
+        other.blindfoldMode == blindfoldMode &&
+        other.pieceOrientationBehavior == pieceOrientationBehavior;
+  }
+
+  @override
+  int get hashCode => Object.hashAll([
+    colorScheme,
+    pieceAssets,
+    border,
+    borderRadius,
+    boxShadow,
+    brightness,
+    hue,
+    enableCoordinates,
+    animationDuration,
+    showLastMove,
+    blindfoldMode,
+    pieceOrientationBehavior,
+  ]);
+}

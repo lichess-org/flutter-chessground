@@ -3,18 +3,20 @@ import 'dart:async';
 import 'package:dartchess/dartchess.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
-import '../board_color_scheme.dart';
 import '../board_settings.dart';
 import '../fen.dart';
 import '../images.dart';
 import '../models.dart';
-import '../piece_set.dart';
 import 'animation.dart';
+import 'board_border.dart';
 import 'board_painter.dart';
 import 'color_filter.dart';
 import 'geometry.dart';
+import 'highlight.dart';
+import 'shape.dart';
 
-/// A chessboard widget that cannot be interacted with.
+/// A chessboard widget that cannot be interacted with (other than an optional
+/// [onTouchedSquare] callback).
 ///
 /// This widget makes use of [Scrollable.recommendDeferredLoadingForContext] to
 /// avoid loading pieces when rapidly scrolling.
@@ -25,24 +27,23 @@ import 'geometry.dart';
 /// Pass a new FEN to update the board position. The board will animate the pieces to their new positions.
 class StaticChessboard extends StatefulWidget with ChessboardGeometry {
   const StaticChessboard({
-    required this.size,
+    required double size,
     required this.orientation,
     required this.fen,
     this.lastMove,
-    this.colorScheme = ChessboardColorScheme.brown,
-    this.brightness = 1.0,
-    this.hue = 0.0,
-    this.pieceAssets = PieceSet.cburnettAssets,
-    this.borderRadius = BorderRadius.zero,
-    this.boxShadow = const <BoxShadow>[],
-    this.enableCoordinates = false,
-    this.animationDuration = const Duration(milliseconds: 200),
+    this.settings = const StaticChessboardSettings(),
+    this.shapes = const {},
+    this.squareHighlights = const {},
+    this.onTouchedSquare,
     super.key,
-  });
+  }) : _size = size;
 
-  /// Size of the board in logical pixels.
+  /// Visual size of the board, including the optional border.
+  final double _size;
+
+  /// Visual size of the board, excluding the optional border.
   @override
-  final double size;
+  double get size => _size - (settings.border?.width ?? 0) * 2;
 
   /// Side by which the board is oriented.
   @override
@@ -54,29 +55,17 @@ class StaticChessboard extends StatefulWidget with ChessboardGeometry {
   /// Last move played, used to highlight corresponding squares.
   final Move? lastMove;
 
-  /// Theme of the board
-  final ChessboardColorScheme colorScheme;
+  /// Visual settings of the board.
+  final StaticChessboardSettings settings;
 
-  /// Brightness adjustment of the board
-  final double brightness;
+  /// Optional set of [Shape] to be drawn on the board.
+  final Set<Shape> shapes;
 
-  /// Hue adjustment of the board
-  final double hue;
+  /// Squares to highlight on the board.
+  final Map<Square, SquareHighlight> squareHighlights;
 
-  /// Piece set
-  final PieceAssets pieceAssets;
-
-  /// Border radius of the board
-  final BorderRadiusGeometry borderRadius;
-
-  /// Box shadow of the board
-  final List<BoxShadow> boxShadow;
-
-  /// Whether to show board coordinates
-  final bool enableCoordinates;
-
-  /// Piece animation duration
-  final Duration animationDuration;
+  /// Called after a square has been touched, with the touched square.
+  final void Function(Square)? onTouchedSquare;
 
   @override
   State<StaticChessboard> createState() => _StaticChessboardState();
@@ -102,6 +91,8 @@ class _StaticChessboardState extends State<StaticChessboard> with SingleTickerPr
   late final CurvedAnimation _translationAnimation;
   late final CurvedAnimation _fadeAnimation;
 
+  StaticChessboardSettings get settings => widget.settings;
+
   @override
   void initState() {
     super.initState();
@@ -111,7 +102,7 @@ class _StaticChessboardState extends State<StaticChessboard> with SingleTickerPr
     _fadingPiecesNotifier = ValueNotifier({});
     _pieceAnimationController = AnimationController(
       animationBehavior: AnimationBehavior.preserve,
-      duration: widget.animationDuration,
+      duration: settings.animationDuration,
       vsync: this,
     );
     _translationAnimation = CurvedAnimation(
@@ -125,12 +116,12 @@ class _StaticChessboardState extends State<StaticChessboard> with SingleTickerPr
           moveDests: const {},
           premoveDests: const {},
           occupiedSquares: const {},
-          lastMove: widget.lastMove,
+          lastMove: settings.showLastMove ? widget.lastMove : null,
           premove: null,
           checkSquare: null,
         );
-    _imagesLoaded = ChessgroundImages.instance.isAllLoaded(widget.pieceAssets);
-    if (!_imagesLoaded) _loadImages(widget.pieceAssets);
+    _imagesLoaded = ChessgroundImages.instance.isAllLoaded(settings.pieceAssets);
+    if (!_imagesLoaded) _loadImages(settings.pieceAssets);
     _highlightImagesLoaded = _areHighlightImagesLoaded();
     if (!_highlightImagesLoaded) _loadHighlightImages();
   }
@@ -142,15 +133,32 @@ class _StaticChessboardState extends State<StaticChessboard> with SingleTickerPr
   }
 
   bool _areHighlightImagesLoaded() {
-    final image = widget.colorScheme.lastMove.image;
-    return image == null || ChessgroundImages.instance.get(image) != null;
+    final lastMoveImage = settings.colorScheme.lastMove.image;
+    if (lastMoveImage != null && ChessgroundImages.instance.get(lastMoveImage) == null) {
+      return false;
+    }
+    for (final highlight in widget.squareHighlights.values) {
+      final image = highlight.details.image;
+      if (image != null && ChessgroundImages.instance.get(image) == null) {
+        return false;
+      }
+    }
+    return true;
   }
 
   Future<void> _loadHighlightImages() async {
-    final image = widget.colorScheme.lastMove.image;
-    if (image == null) return;
     final dpr = WidgetsBinding.instance.platformDispatcher.implicitView?.devicePixelRatio;
-    await ChessgroundImages.instance.load(image, devicePixelRatio: dpr);
+    final images = <AssetImage>[];
+    final lastMoveImage = settings.colorScheme.lastMove.image;
+    if (lastMoveImage != null) images.add(lastMoveImage);
+    for (final highlight in widget.squareHighlights.values) {
+      final image = highlight.details.image;
+      if (image != null) images.add(image);
+    }
+    if (images.isEmpty) return;
+    await Future.wait<void>([
+      for (final img in images) ChessgroundImages.instance.load(img, devicePixelRatio: dpr),
+    ]);
     if (mounted) setState(() => _highlightImagesLoaded = true);
   }
 
@@ -172,27 +180,29 @@ class _StaticChessboardState extends State<StaticChessboard> with SingleTickerPr
   void didUpdateWidget(covariant StaticChessboard oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    if (oldWidget.pieceAssets != widget.pieceAssets) {
-      _imagesLoaded = ChessgroundImages.instance.isAllLoaded(widget.pieceAssets);
-      if (!_imagesLoaded) _loadImages(widget.pieceAssets);
+    if (oldWidget.settings.pieceAssets != settings.pieceAssets) {
+      _imagesLoaded = ChessgroundImages.instance.isAllLoaded(settings.pieceAssets);
+      if (!_imagesLoaded) _loadImages(settings.pieceAssets);
     }
 
-    if (oldWidget.colorScheme != widget.colorScheme) {
+    if (oldWidget.settings.colorScheme != settings.colorScheme ||
+        oldWidget.squareHighlights != widget.squareHighlights) {
       _highlightImagesLoaded = _areHighlightImagesLoaded();
       if (!_highlightImagesLoaded) _loadHighlightImages();
     }
 
-    if (oldWidget.animationDuration != widget.animationDuration) {
-      _pieceAnimationController.duration = widget.animationDuration;
+    if (oldWidget.settings.animationDuration != settings.animationDuration) {
+      _pieceAnimationController.duration = settings.animationDuration;
     }
 
-    if (oldWidget.lastMove != widget.lastMove) {
+    if (oldWidget.lastMove != widget.lastMove ||
+        oldWidget.settings.showLastMove != settings.showLastMove) {
       _highlightNotifier.update(
         selected: null,
         moveDests: const {},
         premoveDests: const {},
         occupiedSquares: const {},
-        lastMove: widget.lastMove,
+        lastMove: settings.showLastMove ? widget.lastMove : null,
         premove: null,
         checkSquare: null,
       );
@@ -207,7 +217,7 @@ class _StaticChessboardState extends State<StaticChessboard> with SingleTickerPr
 
     final newPieces = readFen(widget.fen);
 
-    if (widget.animationDuration > Duration.zero) {
+    if (settings.animationDuration > Duration.zero) {
       final (tp, fp) = preparePieceAnimations(pieces, newPieces);
       _translatingPiecesNotifier.value = tp;
       _fadingPiecesNotifier.value = fp;
@@ -244,25 +254,26 @@ class _StaticChessboardState extends State<StaticChessboard> with SingleTickerPr
   @override
   Widget build(BuildContext context) {
     final imagesLoaded = _imagesLoaded && !_deferImagesLoading;
+    final hasBorder = settings.border != null;
 
     final background =
-        widget.enableCoordinates
+        !hasBorder && settings.enableCoordinates
             ? widget.orientation == Side.white
-                ? widget.colorScheme.whiteCoordBackground
-                : widget.colorScheme.blackCoordBackground
-            : widget.colorScheme.background;
+                ? settings.colorScheme.whiteCoordBackground
+                : settings.colorScheme.blackCoordBackground
+            : settings.colorScheme.background;
 
     final piecesPainter = PiecesPainter(
       piecesNotifier: _piecesNotifier,
       translatingPiecesNotifier: _translatingPiecesNotifier,
-      pieceAssets: widget.pieceAssets,
+      pieceAssets: settings.pieceAssets,
       squareSize: widget.squareSize,
       orientation: widget.orientation,
       draggedPieceSquareNotifier: null,
       gameNotifier: _gameNotifier,
       pendingPromotionNotifier: _noPendingPromotionNotifier,
-      blindfoldMode: false,
-      pieceOrientationBehavior: PieceOrientationBehavior.facingUser,
+      blindfoldMode: settings.blindfoldMode,
+      pieceOrientationBehavior: settings.pieceOrientationBehavior,
       imagesLoaded: imagesLoaded,
     );
 
@@ -270,9 +281,9 @@ class _StaticChessboardState extends State<StaticChessboard> with SingleTickerPr
       fadingPiecesNotifier: _fadingPiecesNotifier,
       squareSize: widget.squareSize,
       orientation: widget.orientation,
-      pieceAssets: widget.pieceAssets,
-      blindfoldMode: false,
-      pieceOrientationBehavior: PieceOrientationBehavior.facingUser,
+      pieceAssets: settings.pieceAssets,
+      blindfoldMode: settings.blindfoldMode,
+      pieceOrientationBehavior: settings.pieceOrientationBehavior,
       gameNotifier: _gameNotifier,
       animation: _fadeAnimation,
     );
@@ -281,46 +292,53 @@ class _StaticChessboardState extends State<StaticChessboard> with SingleTickerPr
       translatingPiecesNotifier: _translatingPiecesNotifier,
       squareSize: widget.squareSize,
       orientation: widget.orientation,
-      pieceAssets: widget.pieceAssets,
-      blindfoldMode: false,
-      pieceOrientationBehavior: PieceOrientationBehavior.facingUser,
+      pieceAssets: settings.pieceAssets,
+      blindfoldMode: settings.blindfoldMode,
+      pieceOrientationBehavior: settings.pieceOrientationBehavior,
       gameNotifier: _gameNotifier,
       animation: _translationAnimation,
     );
+
+    final Map<Square, HighlightDetails> customHighlights = {
+      for (final MapEntry(key: square, value: highlight) in widget.squareHighlights.entries)
+        square: highlight.details,
+    };
 
     final highlightsPainter = HighlightsPainter(
       interactionNotifier: _highlightNotifier,
       squareSize: widget.squareSize,
       orientation: widget.orientation,
-      showLastMove: true,
-      premoveColor: widget.colorScheme.validPremoves,
-      lastMoveDetails: widget.colorScheme.lastMove,
-      selectedDetails: widget.colorScheme.selected,
-      validMoveColor: widget.colorScheme.validMoves,
-      squareHighlights: const {},
+      showLastMove: settings.showLastMove,
+      premoveColor: settings.colorScheme.validPremoves,
+      lastMoveDetails: settings.colorScheme.lastMove,
+      selectedDetails: settings.colorScheme.selected,
+      validMoveColor: settings.colorScheme.validMoves,
+      squareHighlights: customHighlights,
       highlightImagesLoaded: _highlightImagesLoaded,
     );
 
     final List<Widget> highlightedBackground = [
       BrightnessHueFilter(
-        hue: widget.hue,
+        hue: settings.hue,
         child: SizedBox.square(dimension: widget.size, child: background),
       ),
       CustomPaint(size: Size.square(widget.size), painter: highlightsPainter),
     ];
 
-    final board = SizedBox.square(
+    Widget board = SizedBox.square(
+      key: const ValueKey('board-container'),
       dimension: widget.size,
       child: Stack(
         alignment: Alignment.topLeft,
         clipBehavior: Clip.none,
         children: [
-          if (widget.boxShadow.isNotEmpty || widget.borderRadius != BorderRadius.zero)
+          if (!hasBorder &&
+              (settings.boxShadow.isNotEmpty || settings.borderRadius != BorderRadius.zero))
             Container(
               clipBehavior: Clip.hardEdge,
               decoration: BoxDecoration(
-                borderRadius: widget.borderRadius,
-                boxShadow: widget.boxShadow,
+                borderRadius: settings.borderRadius,
+                boxShadow: settings.boxShadow,
               ),
               child: Stack(alignment: Alignment.topLeft, children: highlightedBackground),
             )
@@ -329,10 +347,33 @@ class _StaticChessboardState extends State<StaticChessboard> with SingleTickerPr
           CustomPaint(size: Size.square(widget.size), painter: fadingPiecesPainter),
           CustomPaint(size: Size.square(widget.size), painter: piecesPainter),
           CustomPaint(size: Size.square(widget.size), painter: translatingPiecesPainter),
+          for (final shape in widget.shapes)
+            BoardShapeWidget(shape: shape, size: widget.size, orientation: widget.orientation),
         ],
       ),
     );
 
-    return BrightnessHueFilter(brightness: widget.brightness, child: board);
+    if (widget.onTouchedSquare != null) {
+      board = Listener(
+        behavior: HitTestBehavior.opaque,
+        onPointerDown: (event) {
+          final square = widget.offsetSquare(event.localPosition);
+          if (square != null) widget.onTouchedSquare!(square);
+        },
+        child: board,
+      );
+    }
+
+    if (hasBorder) {
+      board = BorderedChessboard(
+        size: widget.size,
+        orientation: widget.orientation,
+        border: settings.border!,
+        showCoordinates: settings.enableCoordinates,
+        child: board,
+      );
+    }
+
+    return BrightnessHueFilter(brightness: settings.brightness, child: board);
   }
 }

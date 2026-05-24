@@ -9,12 +9,11 @@ import '../models.dart';
 
 /// Controls the board position, game state, and piece animations for a [Chessboard].
 ///
-/// ## Constructors
+/// ## Interactivity
 ///
-/// Use [ChessboardController.new] for interactive boards passed to [Chessboard].
-/// Use [ChessboardController.nonInteractive] with [Chessboard] when you want an
-/// animated, externally-controlled board that the user cannot interact with.
-/// [Chessboard.fixed] manages its own internal controller and does not accept one.
+/// A controller drives a [Chessboard]. To make the board non-interactive (e.g.
+/// at the end of a game), update it with game data whose `playerSide` is
+/// [PlayerSide.none]. For a fully static board, use [StaticChessboard] instead.
 ///
 /// ## Updating the position
 ///
@@ -45,20 +44,6 @@ class ChessboardController extends ChangeNotifier {
     : _fen = fen,
       _lastMove = null {
     _gameNotifier = ValueNotifier(game);
-    _piecesNotifier = ValueNotifier(readFen(fen));
-    _translatingPiecesNotifier = ValueNotifier({});
-    _fadingPiecesNotifier = ValueNotifier({});
-    _highlightNotifier = BoardHighlightNotifier();
-    _drawnShapesNotifier = ValueNotifier({});
-    _pendingPromotionNotifier = ValueNotifier(null);
-    _premoveNotifier = ValueNotifier(null);
-  }
-
-  /// Creates a controller for a non-interactive [Chessboard.fixed] showing [fen].
-  ChessboardController.nonInteractive({required String fen, Move? lastMove})
-    : _fen = fen,
-      _lastMove = lastMove {
-    _gameNotifier = ValueNotifier(null);
     _piecesNotifier = ValueNotifier(readFen(fen));
     _translatingPiecesNotifier = ValueNotifier({});
     _fadingPiecesNotifier = ValueNotifier({});

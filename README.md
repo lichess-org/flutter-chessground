@@ -145,7 +145,7 @@ class _MyHomePageState extends State<MyHomePage> {
         title: const Text('Chessground demo'),
       ),
       body: Center(
-        child: Chessboard.fixed(
+        child: StaticChessboard(
           size: screenWidth,
           orientation: Side.white,
           fen: fen,

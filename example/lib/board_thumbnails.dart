@@ -23,11 +23,13 @@ class BoardThumbnailsPage extends StatelessWidget {
           return LayoutBuilder(builder: (context, constraints) {
             return StaticChessboard(
               size: constraints.biggest.width,
-              enableCoordinates: false,
-              borderRadius: BorderRadius.circular(5),
               orientation: Side.white,
               fen: positions[index],
-              colorScheme: ChessboardColorScheme.brown,
+              settings: StaticChessboardSettings(
+                enableCoordinates: false,
+                borderRadius: BorderRadius.circular(5),
+                colorScheme: ChessboardColorScheme.brown,
+              ),
             );
           });
         },

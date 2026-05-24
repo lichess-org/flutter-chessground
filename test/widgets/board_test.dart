@@ -12,6 +12,18 @@ import 'package:mocktail/mocktail.dart';
 const boardSize = 200.0;
 const squareSize = boardSize / 8;
 
+/// Builds a controller for a non-interactive board (PlayerSide.none).
+ChessboardController nonInteractiveController(String fen) {
+  return ChessboardController(
+    fen: fen,
+    game: GameData(
+      playerSide: PlayerSide.none,
+      sideToMove: Setup.parseFen(fen).turn,
+      validMoves: const <Square, Set<Square>>{},
+    ),
+  );
+}
+
 PiecesPainter _piecesPainter(WidgetTester tester) {
   for (final element in find.byType(CustomPaint).evaluate()) {
     final widget = element.widget as CustomPaint;
@@ -92,18 +104,17 @@ void main() {
       reset(onTouchedSquare);
     });
 
-    final viewOnlyBoard = Chessboard.fixed(
+    final viewOnlyBoard = StaticChessboard(
       size: boardSize,
       orientation: Side.white,
       fen: kInitialFEN,
-      settings: const ChessboardSettings(drawShape: DrawShapeOptions(enable: true)),
       onTouchedSquare: onTouchedSquare.call,
     );
 
     testWidgets('initial position display', (WidgetTester tester) async {
       await tester.pumpWidget(viewOnlyBoard);
 
-      expect(find.byType(Chessboard), findsOneWidget);
+      expect(find.byType(StaticChessboard), findsOneWidget);
       expect(_piecesPainter(tester).pieces.length, 32);
     });
 
@@ -119,14 +130,14 @@ void main() {
     });
 
     testWidgets('moved piece is animated when the position change', (WidgetTester tester) async {
-      const board = Chessboard.fixed(size: boardSize, orientation: Side.white, fen: kInitialFEN);
+      const board = StaticChessboard(size: boardSize, orientation: Side.white, fen: kInitialFEN);
 
       await tester.pumpWidget(board);
 
       expect(_translatingPiecesPainter(tester)!.translatingPieces, isEmpty);
       expect(_piecesPainter(tester).pieces.length, 32);
 
-      const board2 = Chessboard.fixed(
+      const board2 = StaticChessboard(
         size: boardSize,
         orientation: Side.white,
         fen: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
@@ -152,7 +163,7 @@ void main() {
     testWidgets('several pieces can be animated when the position change', (
       WidgetTester tester,
     ) async {
-      const board = Chessboard.fixed(
+      const board = StaticChessboard(
         size: boardSize,
         orientation: Side.white,
         fen: 'rnbqk2r/pppp1ppp/5n2/2b1p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4',
@@ -163,7 +174,7 @@ void main() {
       expect(_translatingPiecesPainter(tester)!.translatingPieces, isEmpty);
       expect(_piecesPainter(tester).pieces.length, 32);
 
-      const board2 = Chessboard.fixed(
+      const board2 = StaticChessboard(
         size: boardSize,
         orientation: Side.white,
         fen: 'rnbqk2r/pppp1ppp/5n2/2b1p3/2B1P3/5N2/PPPP1PPP/RNBQ1RK1 b kq - 5 4',
@@ -218,12 +229,11 @@ void main() {
     });
 
     testWidgets('displays a border', (WidgetTester tester) async {
-      const board = Chessboard.fixed(
+      const board = StaticChessboard(
         size: boardSize,
         orientation: Side.white,
         fen: kInitialFEN,
-        settings: ChessboardSettings(
-          drawShape: DrawShapeOptions(enable: true),
+        settings: StaticChessboardSettings(
           border: BoardBorder(width: 16.0, color: Color(0xFF000000)),
         ),
       );
@@ -236,11 +246,11 @@ void main() {
     });
 
     testWidgets('change in hue will use a color filter', (WidgetTester tester) async {
-      const board = Chessboard.fixed(
+      const board = StaticChessboard(
         size: boardSize,
         orientation: Side.white,
         fen: kInitialFEN,
-        settings: ChessboardSettings(hue: 100.0),
+        settings: StaticChessboardSettings(hue: 100.0),
       );
 
       await tester.pumpWidget(board);
@@ -249,11 +259,11 @@ void main() {
     });
 
     testWidgets('change in brightness will use a color filter', (WidgetTester tester) async {
-      const board = Chessboard.fixed(
+      const board = StaticChessboard(
         size: boardSize,
         orientation: Side.white,
         fen: kInitialFEN,
-        settings: ChessboardSettings(brightness: 0.9),
+        settings: StaticChessboardSettings(brightness: 0.9),
       );
 
       await tester.pumpWidget(board);
@@ -2920,7 +2930,7 @@ void main() {
     late ChessboardController controller;
 
     setUp(() {
-      controller = ChessboardController.nonInteractive(fen: kInitialFEN);
+      controller = nonInteractiveController(kInitialFEN);
     });
 
     tearDown(() {
@@ -3015,7 +3025,7 @@ void main() {
     late ChessboardController controller;
 
     setUp(() {
-      controller = ChessboardController.nonInteractive(fen: kInitialFEN);
+      controller = nonInteractiveController(kInitialFEN);
     });
 
     tearDown(() {
@@ -3258,7 +3268,7 @@ void main() {
     ) async {
       // Cache is empty — pieces should still be tracked in PiecesPainter.
       await tester.pumpWidget(
-        const Chessboard.fixed(size: boardSize, orientation: Side.white, fen: kInitialFEN),
+        const StaticChessboard(size: boardSize, orientation: Side.white, fen: kInitialFEN),
       );
 
       expect(_piecesPainter(tester).pieces.length, 32);
@@ -3280,7 +3290,7 @@ void main() {
       });
 
       await tester.pumpWidget(
-        const Chessboard.fixed(size: boardSize, orientation: Side.white, fen: kInitialFEN),
+        const StaticChessboard(size: boardSize, orientation: Side.white, fen: kInitialFEN),
       );
 
       expect(_piecesPainter(tester).pieces.length, 32);
@@ -3664,8 +3674,11 @@ Offset squareOffset(WidgetTester tester, Square id, {Side orientation = Side.whi
   // rect width — rect is unreliable when the board is pumped without a parent
   // that provides loose constraints (e.g. direct pumpWidget without MaterialApp
   // causes RenderView tight constraints to expand board-container to fill screen).
-  final boardWidget = tester.widget<Chessboard>(find.byType(Chessboard));
-  final sq = boardWidget.squareSize;
+  final chessboardFinder = find.byType(Chessboard);
+  final double sq =
+      chessboardFinder.evaluate().isNotEmpty
+          ? tester.widget<Chessboard>(chessboardFinder).squareSize
+          : tester.widget<StaticChessboard>(find.byType(StaticChessboard)).squareSize;
   final topLeft = tester.getTopLeft(find.byKey(const ValueKey('board-container')));
   final x = orientation == Side.black ? 7 - id.file : id.file;
   final y = orientation == Side.black ? id.rank : 7 - id.rank;

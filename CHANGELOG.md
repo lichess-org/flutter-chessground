@@ -27,11 +27,18 @@
   switches to a new position without animation (e.g. history navigation) and
   clears any pending premove.
 
-- `squareHighlights` has been removed from the interactive `Chessboard()` constructor.
-  It is only supported by `Chessboard.fixed()`.
+- `Chessboard.fixed()` has been removed, along with `ChessboardController.nonInteractive()`.
+  For a non-interactive board, use `StaticChessboard` (which now accepts `settings`,
+  `shapes`, `squareHighlights`, `onTouchedSquare`, and renders an optional border).
+  For a board that is interactive only some of the time (e.g. disabled at the end of a
+  game), use `Chessboard` and drive its controller with game data whose `playerSide` is
+  `PlayerSide.none`. See the [migration guide](MIGRATION.md) for the before/after pattern.
 
-- `explosionSquares` has been removed from both `Chessboard()` and `Chessboard.fixed()`
-  constructors. Use `ChessboardController.triggerExplosion()` instead.
+- `squareHighlights` has been removed from `Chessboard()`. It is now a parameter of
+  `StaticChessboard`.
+
+- `explosionSquares` has been removed from `Chessboard()`. Use
+  `ChessboardController.triggerExplosion()` instead.
 
 - Promotion is now handled fully inside the board. The `onPromotionSelection`
   callback has been removed from `Chessboard`. The `promotionMove` field and
@@ -62,8 +69,10 @@
   `animatePosition()` after each move. The board listens internally and rebuilds
   itself without requiring a parent `setState()`.
 
-- `ChessboardController.nonInteractive({required String fen, Move? lastMove})`
-  named constructor for controllers that drive a non-interactive display board.
+- `StaticChessboard` is now the single non-interactive board. It accepts a
+  `StaticChessboardSettings` (a display-only subset of `ChessboardSettings`, with a
+  `StaticChessboardSettings.fromBoardSettings()` converter) plus `shapes`,
+  `squareHighlights`, and `onTouchedSquare`, and renders an optional board border.
 
 - `ChessboardController.lastMove` getter exposes the last move played.
 

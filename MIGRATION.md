@@ -127,20 +127,39 @@ records when a move is made by dropping a piece and skips the redundant slide
 animation on the next `animatePosition()`. The parent does not pass any extra
 argument for this.
 
-### `Chessboard.fixed()` is unchanged
+### `Chessboard.fixed()` removed → use `StaticChessboard`
 
-The non-interactive constructor keeps the same signature, except `explosionSquares`
-has been removed (it had no effect without a controller):
+The non-interactive `Chessboard.fixed()` constructor (and
+`ChessboardController.nonInteractive()`) have been removed. Use `StaticChessboard`
+for a board the user cannot play on. Its appearance is configured via a
+`StaticChessboardSettings` (a display-only subset of `ChessboardSettings`); derive
+one from an existing `ChessboardSettings` with
+`StaticChessboardSettings.fromBoardSettings()`.
 
 ```dart
-// No changes needed here (unless you were using explosionSquares)
+// Before
 Chessboard.fixed(
   size: 400,
   orientation: Side.white,
   fen: fen,
   lastMove: lastMove,
+  settings: boardSettings,
+)
+
+// After
+StaticChessboard(
+  size: 400,
+  orientation: Side.white,
+  fen: fen,
+  lastMove: lastMove,
+  settings: StaticChessboardSettings.fromBoardSettings(boardSettings),
 )
 ```
+
+For a board that is interactive only part of the time (e.g. disabled at the end of a
+game), keep using `Chessboard` and drive its controller with game data whose
+`playerSide` is `PlayerSide.none` — `controller.interactive` will then be `false`
+and the user cannot move.
 
 ### Explosion squares: widget parameter → controller method
 
@@ -163,11 +182,12 @@ if (explodedSquares != null) {
 }
 ```
 
-### `squareHighlights` removed from interactive `Chessboard()`
+### `squareHighlights` moved to `StaticChessboard`
 
-This parameter was only useful for `Chessboard.fixed()` and has been removed from
-the interactive constructor. If you were passing `squareHighlights:` to `Chessboard()`,
-remove it — it had no meaningful effect for an interactive board.
+This parameter was only useful for non-interactive boards. It has been removed from
+the interactive `Chessboard()` constructor and is now a parameter of
+`StaticChessboard`. If you were passing `squareHighlights:` to an interactive
+`Chessboard()`, remove it — it had no meaningful effect there.
 
 ### Ownership and lifecycle
 

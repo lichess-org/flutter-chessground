@@ -48,7 +48,7 @@ void main() {
       size: boardSize,
       orientation: Side.white,
       fen: kInitialFEN,
-      hue: 100.0,
+      settings: StaticChessboardSettings(hue: 100.0),
     );
 
     await tester.pumpWidget(board);
@@ -61,7 +61,7 @@ void main() {
       size: boardSize,
       orientation: Side.white,
       fen: kInitialFEN,
-      brightness: 0.9,
+      settings: StaticChessboardSettings(brightness: 0.9),
     );
 
     await tester.pumpWidget(board);

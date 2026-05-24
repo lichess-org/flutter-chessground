@@ -26,17 +26,16 @@ All public exports go through `lib/chessground.dart`. Internal implementation li
 
 ### Three Board Widgets
 
-- **`Chessboard`** (`src/widgets/board.dart`) — Main interactive board. Two constructors: `Chessboard()` for interactive play (requires a `ChessboardController`) and `Chessboard.fixed()` for non-interactive display with animations.
-- **`StaticChessboard`** (`src/widgets/static_board.dart`) — Read-only board optimized for scrollable contexts (uses deferred loading).
+- **`Chessboard`** (`src/widgets/board.dart`) — The interactive board. Always requires a `ChessboardController`. To disable interaction (e.g. at game end) drive it with game data whose `playerSide` is `PlayerSide.none` (`controller.interactive` becomes `false`).
+- **`StaticChessboard`** (`src/widgets/static_board.dart`) — The non-interactive board, optimized for scrollable contexts (deferred loading). Animates on FEN change. Configured via `StaticChessboardSettings` and supports `shapes`, `squareHighlights`, `onTouchedSquare`, and a border.
 - **`ChessboardEditor`** (`src/widgets/board_editor.dart`) — Position editor with drag and edit pointer modes.
 
 ### Core Data Flow
 
 The board is driven by a controller and immutable data objects:
-- **`ChessboardController`** (`src/widgets/board_controller.dart`) — Owns board position, game state, and piece animations. Create once in `initState`, dispose in `dispose`. Two constructors:
-  - `ChessboardController(fen: fen, game: game)` — for interactive boards.
-  - `ChessboardController.nonInteractive(fen: fen)` — for non-interactive display boards (`Chessboard.fixed()`).
-  - `animatePosition(String fen, {GameData? game, Move? lastMove})` — advance position with animation. Pass `game:` for interactive boards, `lastMove:` for non-interactive. Drag-and-drop suppression is automatic: the board records drops internally (`recordDropMove`) so the dropped piece is not re-animated.
+- **`ChessboardController`** (`src/widgets/board_controller.dart`) — Owns board position, game state, and piece animations. Create once in `initState`, dispose in `dispose`.
+  - `ChessboardController(fen: fen, game: game)` — the only constructor; drives a `Chessboard`. Use `game.playerSide == PlayerSide.none` for a non-interactive (but externally animated) board.
+  - `animatePosition(String fen, {GameData? game, Move? lastMove})` — advance position with animation. Drag-and-drop suppression is automatic: the board records drops internally (`recordDropMove`) so the dropped piece is not re-animated.
   - `jumpToPosition(String fen, {GameData? game, Move? lastMove})` — switch position without animation.
 - **`GameData`** — Immutable snapshot of interactive game state: `playerSide`, `sideToMove`, `validMoves`, `lastMove`, `kingSquareInCheck`, `validDropSquares`. Does **not** carry the FEN — that is always passed separately.
 - **`ChessboardSettings`** — All visual and behavioral configuration (theme, animations, piece shift method, draw shapes, coordinates, `enableDrops`, etc.).
