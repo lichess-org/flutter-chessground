@@ -36,6 +36,7 @@ flutter:
     - assets/piece_sets/companion/
     - assets/piece_sets/disguised/
     - assets/piece_sets/dubrovny/
+    - assets/piece_sets/experimental/
     - assets/piece_sets/fantasy/
     - assets/piece_sets/firi/
     - assets/piece_sets/fresca/
