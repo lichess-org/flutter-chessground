@@ -1,5 +1,27 @@
 ## 10.0.0
 
+This is a major release with significant internal changes to the board rendering
+and interaction model, in order to improve performance during gameplay and to
+simplify the public API.
+
+It replaces the widget-tree-driven board rendering with a CustomPainter-based approach to bypass
+Flutter's build and layout phases for frequent interactions (piece selection, moves).
+
+### New
+
+- `ChessboardController` is now the public API for driving the interactive board.
+  Position updates, premoves, promotion, user-drawn shapes, and the atomic
+  explosion animation are all managed through the controller instead of through
+  widget rebuilds and `GameData` callbacks.
+- `StaticChessboard` is now the single non-interactive board, with its own
+  `StaticChessboardSettings` and support for shapes, square highlights, touched
+  squares, and a board border.
+- New `ChessboardSettings` flags: `enableDrops`, `enablePremoves`, and
+  `canPromoteToKing`.
+- Faster hit-testing in `Chessboard` (`HitTestBehavior.opaque`).
+
+See the [migration guide](MIGRATION.md) and the breaking changes below for details.
+
 ### BREAKING CHANGES
 
 - The interactive `Chessboard()` constructor now requires a `controller:` parameter
@@ -58,72 +80,6 @@
   `ChessboardSettings(enableDrops: true)` to activate the drop target.
   The `Droppable` typedef has been removed. See the
   [migration guide](MIGRATION.md) for the before/after pattern.
-
-### New
-
-- Faster hit-testing thanks to the `HitTestBehavior.opaque` change in
-  `Chessboard`.
-
-- `ChessboardController` is now the public API for driving the interactive board.
-  Create one in `initState`, pass it to `Chessboard(controller: ...)`, and call
-  `animatePosition()` after each move. The board listens internally and rebuilds
-  itself without requiring a parent `setState()`.
-
-- `StaticChessboard` is now the single non-interactive board. It accepts a
-  `StaticChessboardSettings` (a display-only subset of `ChessboardSettings`, with a
-  `StaticChessboardSettings.fromBoardSettings()` converter) plus `shapes`,
-  `squareHighlights`, and `onTouchedSquare`, and renders an optional board border.
-
-- `ChessboardController.lastMove` getter exposes the last move played.
-
-- `ChessboardController.interactive` getter (true when a `GameData` with a
-  non-`none` `playerSide` is set).
-
-- `ChessboardController.triggerExplosion(Set<Square>)` triggers a one-shot atomic
-  chess explosion animation on the given squares.
-
-- `ChessboardController.pendingPromotion` getter and setter. The getter exposes
-  the promotion move currently awaiting piece selection (`null` when idle). The
-  setter lets the parent show the promotion selector programmatically — useful
-  when executing a promotion premove: set `controller.pendingPromotion = move`
-  after detecting that the premove would promote, and `onMove` will fire once
-  the user selects a piece.
-
-- `ChessboardController.premove` getter and setter. Assign a `Move` to register
-  a premove; assign `null` to clear it. The board updates its highlight display
-  immediately. The parent is still responsible for executing the premove at the
-  right time (typically after the opponent moves).
-
-- `ChessboardController.premoveNotifier` — a `ValueNotifier<Move?>` that fires
-  whenever the premove is set or cleared, useful for reacting outside the board
-  (e.g. pocket highlights, haptics, or analytics).
-
-- `ChessboardSettings.enableDrops` (default `false`) — enables the drop target
-  for Crazyhouse and other drop-move variants. Replaces the implicit on/off
-  behaviour that was controlled by the nullability of the removed
-  `GameData.droppable`. Set alongside `GameData.validDropSquares`.
-
-- `ChessboardSettings.enablePremoves` (default `true`) — the on/off switch for
-  premoves, replacing the nullability of the removed `GameData.premovable`.
-
-- `ChessboardSettings.canPromoteToKing` (default `false`) allows promotion to
-  king in variants such as Antichess.
-
-- `ChessboardController.addDrawnShape(Shape shape)` adds a shape to the
-  controller's internally managed set of user-drawn shapes.
-
-- `ChessboardController.toggleDrawnShape(Shape shape)` adds the shape if
-  absent, or removes it if already present, so drawing the same shape a second
-  time erases it.
-
-- `ChessboardController.clearDrawnShapes()` clears all user-drawn shapes.
-
-- `ChessboardController.drawnShapes` getter exposes the current set of
-  user-drawn shapes.
-
-- The board renders the union of `drawnShapes` (controller-managed) and the
-  externally supplied `Chessboard.shapes` set, so analysis arrows and
-  user-drawn shapes coexist without any extra wiring.
 
 ## 9.1.0
 
