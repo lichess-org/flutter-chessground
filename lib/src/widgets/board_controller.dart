@@ -39,12 +39,10 @@ import '../models.dart';
 ///
 /// The controller must be disposed when no longer needed.
 class ChessboardController extends ChangeNotifier {
-  /// Creates a controller for an interactive [Chessboard] showing [fen] and driven by [game].
-  ChessboardController({required String fen, required GameData game})
-    : _fen = fen,
-      _lastMove = null {
+  /// Creates a controller for an interactive [Chessboard] driven by [game].
+  ChessboardController({required GameData game}) {
     _gameNotifier = ValueNotifier(game);
-    _piecesNotifier = ValueNotifier(readFen(fen));
+    _piecesNotifier = ValueNotifier(readFen(game.fen));
     _translatingPiecesNotifier = ValueNotifier({});
     _fadingPiecesNotifier = ValueNotifier({});
     _highlightNotifier = BoardHighlightNotifier();
@@ -53,12 +51,10 @@ class ChessboardController extends ChangeNotifier {
     _premoveNotifier = ValueNotifier(null);
   }
 
-  String _fen;
-  Move? _lastMove;
   Move? _lastDropMove;
   Set<Square>? _pendingExplosionSquares;
 
-  late final ValueNotifier<GameData?> _gameNotifier;
+  late final ValueNotifier<GameData> _gameNotifier;
   late final ValueNotifier<Pieces> _piecesNotifier;
   late final ValueNotifier<TranslatingPieces> _translatingPiecesNotifier;
   late final ValueNotifier<FadingPieces> _fadingPiecesNotifier;
@@ -73,11 +69,10 @@ class ChessboardController extends ChangeNotifier {
 
   // --- Public API ---
 
-  String get fen => _fen;
-  GameData? get game => _gameNotifier.value;
-  Move? get lastMove => _gameNotifier.value?.lastMove ?? _lastMove;
-  bool get interactive =>
-      _gameNotifier.value != null && _gameNotifier.value!.playerSide != PlayerSide.none;
+  String get fen => _gameNotifier.value.fen;
+  GameData get game => _gameNotifier.value;
+  Move? get lastMove => _gameNotifier.value.lastMove;
+  bool get interactive => _gameNotifier.value.playerSide != PlayerSide.none;
   Pieces get pieces => _piecesNotifier.value;
 
   /// The currently registered premove, or `null` if none is set.
@@ -222,23 +217,20 @@ class ChessboardController extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Updates the board to [fen] with piece animation.
-  ///
-  /// For interactive boards, pass [game] to update the game state.
-  /// For non-interactive boards, omit [game] and optionally pass [lastMove].
+  /// Updates the board to [game] with piece animation.
   ///
   /// If the triggering move was performed via drag and drop (recorded by the
   /// board through [recordDropMove]), the animation engine automatically
   /// suppresses the redundant translation of the dragged piece.
-  void animatePosition(String fen, {GameData? game, Move? lastMove}) {
-    if (fen != _fen) {
+  void animatePosition(GameData game) {
+    if (game.fen != fen) {
       final lastDrop = _lastDropMove;
       _lastDropMove = null;
       final oldPieces = _piecesNotifier.value;
       _translatingPiecesNotifier.value = {};
       _fadingPiecesNotifier.value = {};
 
-      final newPieces = readFen(fen);
+      final newPieces = readFen(game.fen);
 
       if ((_animationController?.duration ?? Duration.zero) > Duration.zero) {
         final (tp, fp) = preparePieceAnimations(oldPieces, newPieces, lastDrop: lastDrop);
@@ -252,33 +244,26 @@ class ChessboardController extends ChangeNotifier {
         _animationController?.stop();
       }
 
-      _fen = fen;
       _piecesNotifier.value = newPieces;
     }
 
     _gameNotifier.value = game;
-    _lastMove = lastMove;
 
     notifyListeners();
   }
 
-  /// Updates the board to [fen] without animation (e.g. analysis seeking).
-  ///
-  /// For interactive boards, pass [game] to update the game state.
-  /// For non-interactive boards, omit [game] and optionally pass [lastMove].
+  /// Updates the board to [game] without animation (e.g. analysis seeking).
   ///
   /// Any registered premove is cleared, since it is no longer meaningful after
   /// jumping to an arbitrary position.
-  void jumpToPosition(String fen, {GameData? game, Move? lastMove}) {
+  void jumpToPosition(GameData game) {
     _animationController?.stop();
     _translatingPiecesNotifier.value = {};
     _fadingPiecesNotifier.value = {};
 
-    _fen = fen;
     _lastDropMove = null;
-    _piecesNotifier.value = readFen(fen);
+    _piecesNotifier.value = readFen(game.fen);
     _gameNotifier.value = game;
-    _lastMove = lastMove;
     _premoveNotifier.value = null;
 
     notifyListeners();

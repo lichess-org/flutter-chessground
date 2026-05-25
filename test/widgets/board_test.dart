@@ -15,8 +15,8 @@ const squareSize = boardSize / 8;
 /// Builds a controller for a non-interactive board (PlayerSide.none).
 ChessboardController nonInteractiveController(String fen) {
   return ChessboardController(
-    fen: fen,
     game: GameData(
+      fen: fen,
       playerSide: PlayerSide.none,
       sideToMove: Setup.parseFen(fen).turn,
       validMoves: const <Square, Set<Square>>{},
@@ -281,8 +281,8 @@ void main() {
       const lastMove = NormalMove(from: Square.h5, to: Square.f7);
 
       final controller = ChessboardController(
-        fen: fen,
         game: const GameData(
+          fen: fen,
           playerSide: PlayerSide.white,
           sideToMove: Side.black,
           validMoves: {},
@@ -1566,8 +1566,8 @@ void main() {
         Setup.parseFen('8/5P2/2RK2P1/8/4k3/8/8/7r w - - 0 1'),
       );
       final controller = ChessboardController(
-        fen: position.fen,
         game: GameData(
+          fen: position.fen,
           playerSide: PlayerSide.both,
           sideToMove: Side.white,
           validMoves: makeLegalMoves(position),
@@ -1619,8 +1619,8 @@ void main() {
         Setup.parseFen('8/5P2/2RK2P1/8/4k3/8/8/7r w - - 0 1'),
       );
       final controller = ChessboardController(
-        fen: position.fen,
         game: GameData(
+          fen: position.fen,
           playerSide: PlayerSide.both,
           sideToMove: Side.white,
           validMoves: makeLegalMoves(position),
@@ -1667,8 +1667,8 @@ void main() {
         Setup.parseFen('8/5P2/2RK2P1/8/4k3/8/8/7r w - - 0 1'),
       );
       final controller = ChessboardController(
-        fen: position.fen,
         game: GameData(
+          fen: position.fen,
           playerSide: PlayerSide.both,
           sideToMove: Side.white,
           validMoves: makeLegalMoves(position),
@@ -3104,7 +3104,14 @@ void main() {
       await tester.pump();
 
       // Controller should still drive the board correctly.
-      controller.jumpToPosition('rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1');
+      controller.jumpToPosition(
+        const GameData(
+          fen: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
+          playerSide: PlayerSide.none,
+          sideToMove: Side.black,
+          validMoves: {},
+        ),
+      );
       await tester.pump();
 
       expect(_piecesPainter(tester).pieces.containsKey(Square.e4), isTrue);
@@ -3121,8 +3128,8 @@ void main() {
       bool showExtra = false;
       const position = Chess.initial;
       final interactiveController = ChessboardController(
-        fen: kInitialFEN,
         game: GameData(
+          fen: kInitialFEN,
           playerSide: PlayerSide.both,
           sideToMove: Side.white,
           validMoves: makeLegalMoves(position),
@@ -3178,8 +3185,8 @@ void main() {
       bool showExtra = true;
       const position = Chess.initial;
       final interactiveController = ChessboardController(
-        fen: kInitialFEN,
         game: GameData(
+          fen: kInitialFEN,
           playerSide: PlayerSide.both,
           sideToMove: Side.white,
           validMoves: makeLegalMoves(position),
@@ -3253,7 +3260,15 @@ void main() {
       for (var i = 0; i < 3; i++) {
         await tester.tap(find.text('toggle'));
         await tester.pump();
-        controller.jumpToPosition(i.isEven ? altFen : kInitialFEN);
+        final fen = i.isEven ? altFen : kInitialFEN;
+        controller.jumpToPosition(
+          GameData(
+            fen: fen,
+            playerSide: PlayerSide.none,
+            sideToMove: Setup.parseFen(fen).turn,
+            validMoves: const {},
+          ),
+        );
         await tester.pump();
       }
 
@@ -3542,7 +3557,7 @@ class _TestAppState extends State<_TestApp> {
     interactiveSide = widget.initialPlayerSide;
     position = Position.setupPosition(widget.rule, Setup.parseFen(widget.fen));
     lastMove = widget.initialPromotionMove;
-    _controller = ChessboardController(fen: position.fen, game: _buildGame());
+    _controller = ChessboardController(game: _buildGame());
     if (widget.initialPromotionMove != null) {
       _controller.pendingPromotion = widget.initialPromotionMove;
     }
@@ -3558,6 +3573,7 @@ class _TestAppState extends State<_TestApp> {
 
   GameData _buildGame() {
     return GameData(
+      fen: position.fen,
       lastMove: lastMove,
       playerSide: interactiveSide,
       kingSquareInCheck: position.isCheck ? position.board.kingOf(position.turn) : null,
@@ -3571,10 +3587,10 @@ class _TestAppState extends State<_TestApp> {
     switch (event) {
       case GameEvent.nonInteractiveBoardEvent:
         interactiveSide = PlayerSide.none;
-        _controller.animatePosition(position.fen, game: _buildGame());
+        _controller.animatePosition(_buildGame());
       case GameEvent.interactiveBoardEvent:
         interactiveSide = widget.initialPlayerSide;
-        _controller.animatePosition(position.fen, game: _buildGame());
+        _controller.animatePosition(_buildGame());
       case GameEvent.externalMove:
         final allMoves = [
           for (final entry in position.legalMoves.entries)
@@ -3583,7 +3599,7 @@ class _TestAppState extends State<_TestApp> {
         if (allMoves.isNotEmpty) {
           position = position.playUnchecked(allMoves.first);
           lastMove = allMoves.first;
-          _controller.animatePosition(position.fen, game: _buildGame());
+          _controller.animatePosition(_buildGame());
         }
     }
   }
@@ -3598,7 +3614,7 @@ class _TestAppState extends State<_TestApp> {
 
   void _onMove(Move move, {bool? viaDragAndDrop}) {
     _playMove(move);
-    _controller.animatePosition(position.fen, game: _buildGame());
+    _controller.animatePosition(_buildGame());
 
     if (widget.shouldPlayOpponentMove) {
       Timer(const Duration(milliseconds: 200), () {
@@ -3612,7 +3628,7 @@ class _TestAppState extends State<_TestApp> {
           interactiveSide = PlayerSide.none;
         }
         lastMove = opponentMove;
-        _controller.animatePosition(position.fen, game: _buildGame());
+        _controller.animatePosition(_buildGame());
 
         // play premove just after the opponent move
         final premove = _controller.premove;
@@ -3628,7 +3644,7 @@ class _TestAppState extends State<_TestApp> {
               scheduleMicrotask(() {
                 _controller.pendingPromotion = promoMove;
                 _controller.premove = null;
-                _controller.animatePosition(position.fen, game: _buildGame());
+                _controller.animatePosition(_buildGame());
               });
             } else {
               scheduleMicrotask(() {
@@ -3636,7 +3652,7 @@ class _TestAppState extends State<_TestApp> {
                 if (position.isGameOver) interactiveSide = PlayerSide.none;
                 lastMove = premove;
                 _controller.premove = null;
-                _controller.animatePosition(position.fen, game: _buildGame());
+                _controller.animatePosition(_buildGame());
               });
             }
           }

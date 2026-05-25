@@ -112,7 +112,7 @@ class _HomePageState extends State<HomePage> {
         lastMove = null;
         _canUndo.value = false;
         _positionNotifier.value = position;
-        _controller.jumpToPosition(position.fen, game: _buildGame());
+        _controller.jumpToPosition(_buildGame());
       },
     );
 
@@ -137,10 +137,7 @@ class _HomePageState extends State<HomePage> {
                           lastMove = null;
                           _canUndo.value = false;
                           _positionNotifier.value = position;
-                          _controller.jumpToPosition(
-                            position.fen,
-                            game: _buildGame(),
-                          );
+                          _controller.jumpToPosition(_buildGame());
                         }
                       : null,
                 ),
@@ -274,8 +271,7 @@ class _HomePageState extends State<HomePage> {
                     lastMove = null;
                     _canUndo.value = false;
                     _positionNotifier.value = position;
-                    _controller.jumpToPosition(position.fen,
-                        game: _buildGame());
+                    _controller.jumpToPosition(_buildGame());
                     setState(() {}); // Show/hide CrazyhouseMenu.
                   },
                 ),
@@ -380,7 +376,7 @@ class _HomePageState extends State<HomePage> {
             title: const Text('Random Bot'),
             onTap: () {
               playMode = Mode.botPlay;
-              _controller.animatePosition(position.fen, game: _buildGame());
+              _controller.animatePosition(_buildGame());
               setState(() {}); // Update app bar title and button visibility.
               if (position.turn == Side.black) {
                 _playBlackMove();
@@ -392,7 +388,7 @@ class _HomePageState extends State<HomePage> {
             title: const Text('Enter opponent move'),
             onTap: () {
               playMode = Mode.inputMove;
-              _controller.animatePosition(position.fen, game: _buildGame());
+              _controller.animatePosition(_buildGame());
               setState(() {}); // Update app bar title and button visibility.
               Navigator.pop(context);
             },
@@ -401,7 +397,7 @@ class _HomePageState extends State<HomePage> {
             title: const Text('Free Play'),
             onTap: () {
               playMode = Mode.freePlay;
-              _controller.animatePosition(position.fen, game: _buildGame());
+              _controller.animatePosition(_buildGame());
               setState(() {}); // Update app bar title and button visibility.
               Navigator.pop(context);
             },
@@ -511,7 +507,7 @@ class _HomePageState extends State<HomePage> {
       Timer.run(() async {
         if (move is NormalMove && _isPromotionPawnMove(move)) {
           _controller.pendingPromotion = move;
-          _controller.animatePosition(position.fen, game: _buildGame());
+          _controller.animatePosition(_buildGame());
         } else {
           _playMove(move);
           if (playMode == Mode.botPlay) {
@@ -566,7 +562,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    _controller = ChessboardController(fen: position.fen, game: _buildGame());
+    _controller = ChessboardController(game: _buildGame());
     _canUndo = ValueNotifier(false);
     _positionNotifier = ValueNotifier(position);
   }
@@ -581,6 +577,7 @@ class _HomePageState extends State<HomePage> {
 
   GameData _buildGame() {
     return GameData(
+      fen: position.fen,
       lastMove: lastMove,
       playerSide: (playMode == Mode.botPlay || playMode == Mode.inputMove)
           ? PlayerSide.white
@@ -599,7 +596,7 @@ class _HomePageState extends State<HomePage> {
       lastPos = position;
       position = position.playUnchecked(move);
       lastMove = move;
-      _controller.animatePosition(position.fen, game: _buildGame());
+      _controller.animatePosition(_buildGame());
       _canUndo.value = true;
       _positionNotifier.value = position;
     }
@@ -610,7 +607,7 @@ class _HomePageState extends State<HomePage> {
       lastPos = position;
       position = position.playUnchecked(move);
       lastMove = move;
-      _controller.animatePosition(position.fen, game: _buildGame());
+      _controller.animatePosition(_buildGame());
       _canUndo.value = true;
       _positionNotifier.value = position;
       await _playBlackMove();
@@ -643,7 +640,7 @@ class _HomePageState extends State<HomePage> {
       position = position.playUnchecked(mv);
       lastPos = position;
       lastMove = NormalMove(from: mv.from, to: mv.to, promotion: mv.promotion);
-      _controller.animatePosition(position.fen, game: _buildGame());
+      _controller.animatePosition(_buildGame());
       _canUndo.value = true;
       _positionNotifier.value = position;
     }

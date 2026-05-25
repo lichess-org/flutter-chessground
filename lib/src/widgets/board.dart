@@ -317,8 +317,7 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
               valueListenable: _controller.pendingPromotionNotifier,
               builder: (context, pendingMove, _) {
                 if (pendingMove == null) return const SizedBox.shrink();
-                final pawnColor =
-                    pieces[pendingMove.from]?.color ?? _controller.game?.sideToMove ?? Side.white;
+                final pawnColor = pieces[pendingMove.from]?.color ?? _controller.game.sideToMove;
                 return PromotionSelector(
                   pieceAssets: settings.pieceAssets,
                   move: pendingMove,
@@ -366,7 +365,6 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
                                 : const SizedBox.shrink(),
                     onAcceptWithDetails: (details) {
                       final currentGame = _controller.game;
-                      if (currentGame == null) return;
                       final piece = details.data;
                       final backRankPawnDrop =
                           piece.role == Role.pawn &&
@@ -415,7 +413,7 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
     super.initState();
     _controller.attachTo(this, widget.settings.animationDuration);
     _controller.addListener(_onControllerChange);
-    _lastSideToMove = _controller.game?.sideToMove;
+    _lastSideToMove = _controller.game.sideToMove;
     _controller.drawnShapesNotifier.addListener(_onDrawnShapesChange);
     _controller.premoveNotifier.addListener(_onPremoveChange);
     _explosionNotifier = ExplosionSetNotifier(vsync: this);
@@ -510,7 +508,7 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
       _controller.pendingPromotion = null;
       _pendingPromotionViaDragAndDrop = false;
     }
-    final currentSideToMove = _controller.game?.sideToMove;
+    final currentSideToMove = _controller.game.sideToMove;
     if (currentSideToMove != _lastSideToMove) {
       _premoveDests = null;
       _lastSideToMove = currentSideToMove;
@@ -541,7 +539,7 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
       _controller.addListener(_onControllerChange);
       _controller.drawnShapesNotifier.addListener(_onDrawnShapesChange);
       _controller.premoveNotifier.addListener(_onPremoveChange);
-      _lastSideToMove = _controller.game?.sideToMove;
+      _lastSideToMove = _controller.game.sideToMove;
       _pendingPromotionViaDragAndDrop = false;
     }
 
@@ -567,14 +565,14 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
   void _syncHighlightNotifier() {
     final game = _controller.game;
     final moveDests =
-        widget.settings.showValidMoves && selected != null && game?.validMoves != null
-            ? game!.validMoves[selected] ?? const <Square>{}
+        widget.settings.showValidMoves && selected != null
+            ? game.validMoves[selected] ?? const <Square>{}
             : const <Square>{};
     final premoveDests =
         widget.settings.showValidMoves ? _premoveDests ?? const <Square>{} : const <Square>{};
     final premove = _controller.premove;
     final premoveHighlight =
-        premove != null && game?.playerSide.name == game?.sideToMove.opposite.name ? premove : null;
+        premove != null && game.playerSide.name == game.sideToMove.opposite.name ? premove : null;
     _controller.highlightNotifier.update(
       selected: selected,
       moveDests: moveDests,
@@ -582,7 +580,7 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
       occupiedSquares: _controller.pieces.keys.toSet(),
       lastMove: _controller.lastMove,
       premove: premoveHighlight,
-      checkSquare: game?.kingSquareInCheck,
+      checkSquare: game.kingSquareInCheck,
     );
   }
 
@@ -936,15 +934,15 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
     PieceOrientationBehavior.facingUser => false,
     PieceOrientationBehavior.opponentUpsideDown => pieceColor == widget.orientation.opposite,
     PieceOrientationBehavior.sideToPlay =>
-      _controller.game?.sideToMove == widget.orientation.opposite,
+      _controller.game.sideToMove == widget.orientation.opposite,
   };
 
   /// Whether the piece is movable by the current side to move.
   bool _isMovable(Piece? piece) {
     final game = _controller.game;
     return piece != null &&
-        (game?.playerSide == PlayerSide.both || game?.playerSide.name == piece.color.name) &&
-        game?.sideToMove == piece.color;
+        (game.playerSide == PlayerSide.both || game.playerSide.name == piece.color.name) &&
+        game.sideToMove == piece.color;
   }
 
   /// Whether the piece is premovable by the current side to move.
@@ -952,13 +950,13 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
     final game = _controller.game;
     return piece != null &&
         widget.settings.enablePremoves &&
-        game?.playerSide.name == piece.color.name &&
-        game?.sideToMove != piece.color;
+        game.playerSide.name == piece.color.name &&
+        game.sideToMove != piece.color;
   }
 
   /// Whether the piece is allowed to be moved to the target square.
   bool _canMoveTo(Square orig, Square dest) {
-    final validDests = _controller.game?.validMoves[orig];
+    final validDests = _controller.game.validMoves[orig];
     return orig != dest && validDests != null && validDests.contains(dest);
   }
 

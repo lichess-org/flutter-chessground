@@ -35,9 +35,9 @@ and pass it to `Chessboard(controller: ...)`. The controller holds the board
 position and game state. Call `controller.animatePosition()` after each move to
 advance the board with animation.
 
-`GameData` is an immutable snapshot of the game state (side to move, valid moves,
-last move, etc.). The board position (FEN) is passed separately — directly to
-`controller.animatePosition()` and the constructor. All chess logic must be handled
+`GameData` is an immutable snapshot of the board and game state (the position FEN,
+side to move, valid moves, last move, etc.). It is the single source of truth passed
+to `controller.animatePosition()` and the constructor. All chess logic must be handled
 outside this package.
 
 Callbacks for user interactions (`onMove`, `onSetPremove`) are parameters on
@@ -57,7 +57,7 @@ class _MyBoardState extends State<MyBoard> {
   @override
   void initState() {
     super.initState();
-    _controller = ChessboardController(fen: position.fen, game: _buildGame());
+    _controller = ChessboardController(game: _buildGame());
   }
 
   @override
@@ -67,6 +67,7 @@ class _MyBoardState extends State<MyBoard> {
   }
 
   GameData _buildGame() => GameData(
+    fen: position.fen,
     lastMove: lastMove,
     playerSide: PlayerSide.white,
     sideToMove: position.turn == Side.white ? Side.white : Side.black,
@@ -77,7 +78,7 @@ class _MyBoardState extends State<MyBoard> {
   void _onMove(Move move, {bool? viaDragAndDrop}) {
     position = position.playUnchecked(move);
     lastMove = move;
-    _controller.animatePosition(position.fen, game: _buildGame());
+    _controller.animatePosition(_buildGame());
   }
 
   @override

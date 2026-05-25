@@ -28,7 +28,7 @@ class _AtomicGamePageState extends State<AtomicGamePage> {
   @override
   void initState() {
     super.initState();
-    _controller = ChessboardController(fen: position.fen, game: _buildGame());
+    _controller = ChessboardController(game: _buildGame());
   }
 
   @override
@@ -39,6 +39,7 @@ class _AtomicGamePageState extends State<AtomicGamePage> {
 
   GameData _buildGame() {
     return GameData(
+      fen: position.fen,
       lastMove: lastMove,
       playerSide: position.isGameOver ? PlayerSide.none : PlayerSide.white,
       validMoves: makeLegalMoves(position),
@@ -113,7 +114,7 @@ class _AtomicGamePageState extends State<AtomicGamePage> {
   void _newGame() {
     position = Atomic.initial;
     lastMove = null;
-    _controller.jumpToPosition(position.fen, game: _buildGame());
+    _controller.jumpToPosition(_buildGame());
     setState(() {});
   }
 
@@ -135,7 +136,7 @@ class _AtomicGamePageState extends State<AtomicGamePage> {
 
     position = position.playUnchecked(move) as Atomic;
     lastMove = move;
-    _controller.animatePosition(position.fen, game: _buildGame());
+    _controller.animatePosition(_buildGame());
     if (newExplosions.isNotEmpty) {
       _controller.triggerExplosion(newExplosions);
     }

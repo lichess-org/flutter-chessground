@@ -10,10 +10,10 @@ passing `fen:`, `game:`, and `lastMove:` to the widget on every `setState`, you
 create a `ChessboardController` once and call `animatePosition()` on it when the
 game state changes.
 
-`GameData` is now a pure state snapshot — it holds game state fields
-(`sideToMove`, `validMoves`, `lastMove`, etc.), but no callbacks and no FEN.
-The board position (FEN) is passed directly to the controller constructor and
-update methods. `onMove` is a parameter on the `Chessboard` widget. Premove and
+`GameData` is now a pure state snapshot — it holds the board position (`fen`) and
+game state fields (`sideToMove`, `validMoves`, `lastMove`, etc.), but no callbacks.
+It is the single object passed to the controller constructor and update methods.
+`onMove` is a parameter on the `Chessboard` widget. Premove and
 promotion state are both managed internally by `ChessboardController` — see the
 [Premove section](#premove-handling-premovable-removed) and the
 [Promotion section](#promotion-handling-onpromotionselection-removed) below.
@@ -73,7 +73,7 @@ class _MyBoardState extends State<MyBoard> {
   @override
   void initState() {
     super.initState();
-    _controller = ChessboardController(fen: _position.fen, game: _buildGame());
+    _controller = ChessboardController(game: _buildGame());
   }
 
   @override
@@ -83,6 +83,7 @@ class _MyBoardState extends State<MyBoard> {
   }
 
   GameData _buildGame() => GameData(
+    fen: _position.fen,
     lastMove: _lastMove,
     playerSide: PlayerSide.white,
     sideToMove: _position.turn == Side.white ? Side.white : Side.black,
@@ -92,7 +93,7 @@ class _MyBoardState extends State<MyBoard> {
   void _onMove(Move move, {bool? viaDragAndDrop}) {
     _position = _position.playUnchecked(move);
     _lastMove = move;
-    _controller.animatePosition(_position.fen, game: _buildGame());
+    _controller.animatePosition(_buildGame());
   }
 
   @override
@@ -111,9 +112,9 @@ class _MyBoardState extends State<MyBoard> {
 
 | 9.x | 10.0.0 |
 |---|---|
-| `Chessboard(fen: newFen)` | `controller.animatePosition(newFen, game: ...)` |
+| `Chessboard(fen: newFen)` | `GameData(fen: newFen, ...)` passed to `controller.animatePosition()` |
 | `Chessboard(lastMove: move)` | `GameData(lastMove: move, ...)` passed to `controller.animatePosition()` |
-| `Chessboard(game: newGame)` | `controller.animatePosition(fen, game: newGame)` |
+| `Chessboard(game: newGame)` | `controller.animatePosition(newGame)` (the `GameData` carries `fen`) |
 | `GameData(onMove: fn)` | `Chessboard(onMove: fn)` |
 | `GameData(onPromotionSelection: fn)` | removed — board handles promotion internally |
 | `GameData(promotionMove: move)` | removed — board handles promotion internally |
@@ -129,9 +130,8 @@ argument for this.
 
 ### `Chessboard.fixed()` removed → use `StaticChessboard`
 
-The non-interactive `Chessboard.fixed()` constructor (and
-`ChessboardController.nonInteractive()`) have been removed. Use `StaticChessboard`
-for a board the user cannot play on. Its appearance is configured via a
+The non-interactive `Chessboard.fixed()` constructor has been removed. Use
+`StaticChessboard` for a board the user cannot play on. Its appearance is configured via a
 `StaticChessboardSettings` (a display-only subset of `ChessboardSettings`); derive
 one from an existing `ChessboardSettings` with
 `StaticChessboardSettings.fromBoardSettings()`.
@@ -176,7 +176,7 @@ Chessboard(
 )
 
 // After (10.0.0)
-controller.animatePosition(newFen, game: newGameData);
+controller.animatePosition(newGameData); // newGameData carries the new fen
 if (explodedSquares != null) {
   controller.triggerExplosion(explodedSquares);
 }
@@ -252,7 +252,7 @@ class _MyBoardState extends State<MyBoard> {
   @override
   void initState() {
     super.initState();
-    _controller = ChessboardController(fen: Chess.initial.fen, game: _buildGame());
+    _controller = ChessboardController(game: _buildGame());
   }
 
   @override
@@ -387,7 +387,7 @@ class _MyBoardState extends State<MyBoard> {
 
   void _onOpponentMove(Move opponentMove) {
     position = position.playUnchecked(opponentMove);
-    _controller.animatePosition(position.fen, game: _buildGame());
+    _controller.animatePosition(_buildGame());
 
     final premove = _controller.premove;
     if (premove != null && position.isLegal(premove)) {
@@ -468,7 +468,7 @@ Chessboard(
   controller: _controller,
   onMove: (move, {bool? viaDragAndDrop}) {
     _position = _position.playUnchecked(move); // move.promotion is set
-    _controller.animatePosition(_position.fen, game: _buildGame());
+    _controller.animatePosition(_buildGame());
   },
 )
 ```
@@ -498,7 +498,7 @@ void _tryPlayPremove() {
   if (move is NormalMove && _isPromotionPawnMove(move)) {
     // Let the board show the selector; onMove fires with the resolved move.
     _controller.pendingPromotion = move;
-    _controller.animatePosition(position.fen, game: _buildGame());
+    _controller.animatePosition(_buildGame());
   } else {
     _playMove(move);
   }

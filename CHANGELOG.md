@@ -17,18 +17,18 @@
 
 - Position updates now go through the controller instead of rebuilding the
   `Chessboard` widget with a new `fen`. Call
-  `ChessboardController.animatePosition(String fen, {GameData? game, Move? lastMove})`
-  to advance the board with animation, passing `game:` for interactive boards or
-  `lastMove:` for non-interactive boards. Drag-and-drop moves are detected
-  internally by the board, so the redundant translation of a dropped piece is
-  suppressed automatically — the parent no longer passes a `lastDrop` argument.
+  `ChessboardController.animatePosition(GameData game)` to advance the board with
+  animation. The position `fen` now lives on `GameData` (alongside `lastMove`, side
+  to move, valid moves, etc.), so a single object describes the whole board state.
+  Drag-and-drop moves are detected internally by the board, so the redundant
+  translation of a dropped piece is suppressed automatically — the parent no longer
+  passes a `lastDrop` argument.
 
-- `ChessboardController.jumpToPosition(String fen, {GameData? game, Move? lastMove})`
-  switches to a new position without animation (e.g. history navigation) and
-  clears any pending premove.
+- `ChessboardController.jumpToPosition(GameData game)` switches to a new position
+  without animation (e.g. history navigation) and clears any pending premove.
 
-- `Chessboard.fixed()` has been removed, along with `ChessboardController.nonInteractive()`.
-  For a non-interactive board, use `StaticChessboard` (which now accepts `settings`,
+- `Chessboard.fixed()` has been removed. For a non-interactive board, use
+  `StaticChessboard` (which now accepts `settings`,
   `shapes`, `squareHighlights`, `onTouchedSquare`, and renders an optional border).
   For a board that is interactive only some of the time (e.g. disabled at the end of a
   game), use `Chessboard` and drive its controller with game data whose `playerSide` is
@@ -113,8 +113,8 @@
   controller's internally managed set of user-drawn shapes.
 
 - `ChessboardController.toggleDrawnShape(Shape shape)` adds the shape if
-  absent, or removes it if already present. Drawing the same shape a second
-  time now erases it (the behavior previously left to caller code).
+  absent, or removes it if already present, so drawing the same shape a second
+  time erases it.
 
 - `ChessboardController.clearDrawnShapes()` clears all user-drawn shapes.
 
