@@ -4,7 +4,6 @@ import 'package:board_example/atomic_game_page.dart';
 import 'package:board_example/board_editor_page.dart';
 import 'package:flutter/material.dart';
 import 'package:chessground/chessground.dart';
-import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:dartchess/dartchess.dart';
 
 import 'board_theme.dart';
@@ -75,13 +74,11 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   Position position = Chess.initial;
   Side orientation = Side.white;
-  String fen = kInitialBoardFEN;
   Move? lastMove;
-  NormalMove? promotionMove;
-  Move? premove;
-  ValidMoves validMoves = IMap(const {});
-  Side sideToMove = Side.white;
   PieceSet pieceSet = PieceSet.gioco;
+  late ChessboardController _controller;
+  late final ValueNotifier<bool> _canUndo;
+  late final ValueNotifier<Position> _positionNotifier;
   PieceShiftMethod pieceShiftMethod = PieceShiftMethod.either;
   DragTargetKind dragTargetKind = DragTargetKind.circle;
   BoardTheme boardTheme = BoardTheme.brown;
@@ -91,7 +88,6 @@ class _HomePageState extends State<HomePage> {
   bool testDropMoves = false;
   Mode playMode = Mode.botPlay;
   Position? lastPos;
-  ISet<Shape> shapes = ISet();
   bool showBorder = false;
 
   Position get initialPosition => testDropMoves
@@ -107,77 +103,49 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    Widget _buildNewRoundButton() => FilledButton.icon(
-        icon: const Icon(Icons.refresh_rounded),
-        label: const Text('New Round'),
-        onPressed: () {
-          setState(() {
-            position = initialPosition;
-            fen = position.fen;
-            validMoves = makeLegalMoves(position);
-            lastMove = null;
-            lastPos = null;
-          });
-        });
+    final newRoundButton = FilledButton.icon(
+      icon: const Icon(Icons.refresh_rounded),
+      label: const Text('New Round'),
+      onPressed: () {
+        position = initialPosition;
+        lastPos = null;
+        lastMove = null;
+        _canUndo.value = false;
+        _positionNotifier.value = position;
+        _controller.jumpToPosition(_buildGame());
+      },
+    );
 
-    Widget _buildUndoButton() => FilledButton.icon(
-          icon: const Icon(Icons.undo_rounded),
-          label: const Text('Undo'),
-          onPressed: lastPos != null
-              ? () => setState(() {
-                    position = lastPos!;
-                    fen = position.fen;
-                    validMoves = makeLegalMoves(position);
-                    lastPos = null;
-                  })
-              : null,
-        );
-
-    Widget _buildControlButtons() => SizedBox(
-          height: buttonHeight,
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Expanded(
-                child: _buildNewRoundButton(),
-              ),
-              if (playMode == Mode.freePlay)
-                const SizedBox(width: buttonsSplitter),
-              if (playMode == Mode.freePlay)
-                Expanded(
-                  child: _buildUndoButton(),
+    final controlButtons = SizedBox(
+      height: buttonHeight,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(child: newRoundButton),
+          if (playMode == Mode.freePlay) const SizedBox(width: buttonsSplitter),
+          if (playMode == Mode.freePlay)
+            Expanded(
+              child: ValueListenableBuilder<bool>(
+                valueListenable: _canUndo,
+                builder: (context, canUndo, _) => FilledButton.icon(
+                  icon: const Icon(Icons.undo_rounded),
+                  label: const Text('Undo'),
+                  onPressed: canUndo
+                      ? () {
+                          position = lastPos!;
+                          lastPos = null;
+                          lastMove = null;
+                          _canUndo.value = false;
+                          _positionNotifier.value = position;
+                          _controller.jumpToPosition(_buildGame());
+                        }
+                      : null,
                 ),
-            ],
-          ),
-        );
-
-    Widget _buildSettingsButton({
-      required String label,
-      required String value,
-      required VoidCallback onPressed,
-    }) =>
-        ElevatedButton(
-          child: Column(
-            children: [
-              Text(label,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey,
-                  )),
-              Text(value,
-                  style: const TextStyle(
-                    fontSize: 12,
-                  )),
-            ],
-          ),
-          style: ElevatedButton.styleFrom(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 18.0,
-              vertical: 4,
+              ),
             ),
-          ),
-          onPressed: onPressed,
-        );
+        ],
+      ),
+    );
 
     final settingsWidgets = ListView(
       children: [
@@ -192,7 +160,7 @@ class _HomePageState extends State<HomePage> {
               runSpacing: smallButtonsSplitter,
               alignment: WrapAlignment.spaceBetween,
               children: [
-                _buildSettingsButton(
+                SettingsButton(
                     label: 'Magnify drag',
                     value: dragMagnify ? 'ON' : 'OFF',
                     onPressed: () {
@@ -200,7 +168,7 @@ class _HomePageState extends State<HomePage> {
                         dragMagnify = !dragMagnify;
                       });
                     }),
-                _buildSettingsButton(
+                SettingsButton(
                   label: 'Drag target',
                   value: dragTargetKind.name,
                   onPressed: () => _showChoicesPicker<DragTargetKind>(
@@ -215,7 +183,7 @@ class _HomePageState extends State<HomePage> {
                     },
                   ),
                 ),
-                _buildSettingsButton(
+                SettingsButton(
                   label: 'Orientation',
                   value: orientation.name,
                   onPressed: () {
@@ -224,7 +192,7 @@ class _HomePageState extends State<HomePage> {
                     });
                   },
                 ),
-                _buildSettingsButton(
+                SettingsButton(
                   label: 'Show border',
                   value: showBorder ? 'ON' : 'OFF',
                   onPressed: () {
@@ -233,7 +201,7 @@ class _HomePageState extends State<HomePage> {
                     });
                   },
                 ),
-                _buildSettingsButton(
+                SettingsButton(
                   label: 'Piece set',
                   value: pieceSet.label,
                   onPressed: () => _showChoicesPicker<PieceSet>(
@@ -250,7 +218,7 @@ class _HomePageState extends State<HomePage> {
                     },
                   ),
                 ),
-                _buildSettingsButton(
+                SettingsButton(
                   label: 'Board theme',
                   value: boardTheme.label,
                   onPressed: () => _showChoicesPicker<BoardTheme>(
@@ -267,7 +235,7 @@ class _HomePageState extends State<HomePage> {
                     },
                   ),
                 ),
-                _buildSettingsButton(
+                SettingsButton(
                   label: 'Piece animation',
                   value: pieceAnimation ? 'ON' : 'OFF',
                   onPressed: () {
@@ -276,7 +244,7 @@ class _HomePageState extends State<HomePage> {
                     });
                   },
                 ),
-                _buildSettingsButton(
+                SettingsButton(
                   label: 'Piece Shift',
                   value: pieceShiftMethodLabel(pieceShiftMethod),
                   onPressed: () => _showChoicesPicker<PieceShiftMethod>(
@@ -293,15 +261,20 @@ class _HomePageState extends State<HomePage> {
                     },
                   ),
                 ),
-                _buildSettingsButton(
-                    label: 'Test Crazyhouse drop moves',
-                    value: testDropMoves ? 'ON' : 'OFF',
-                    onPressed: () {
-                      setState(() {
-                        testDropMoves = !testDropMoves;
-                        position = initialPosition;
-                      });
-                    }),
+                SettingsButton(
+                  label: 'Test Crazyhouse drop moves',
+                  value: testDropMoves ? 'ON' : 'OFF',
+                  onPressed: () {
+                    testDropMoves = !testDropMoves;
+                    position = initialPosition;
+                    lastPos = null;
+                    lastMove = null;
+                    _canUndo.value = false;
+                    _positionNotifier.value = position;
+                    _controller.jumpToPosition(_buildGame());
+                    setState(() {}); // Show/hide CrazyhouseMenu.
+                  },
+                ),
               ],
             ),
           ],
@@ -335,142 +308,58 @@ class _HomePageState extends State<HomePage> {
           pieceAnimation ? const Duration(milliseconds: 200) : Duration.zero,
       dragFeedbackScale: dragMagnify ? 2.0 : 1.0,
       dragTargetKind: dragTargetKind,
-      drawShape: DrawShapeOptions(
-        enable: drawMode,
-        onCompleteShape: _onCompleteShape,
-        onClearShapes: () {
-          setState(() {
-            shapes = ISet();
-          });
-        },
-      ),
+      drawShape: DrawShapeOptions(enable: drawMode),
+      enableDrops: testDropMoves,
       pieceShiftMethod: pieceShiftMethod,
       autoQueenPromotionOnPremove: false,
       pieceOrientationBehavior: playMode == Mode.freePlay
           ? PieceOrientationBehavior.opponentUpsideDown
           : PieceOrientationBehavior.facingUser,
     );
-    Widget _buildChessBoardWidget() => Center(
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              final chessboard = Chessboard(
-                size: min(constraints.maxWidth, constraints.maxHeight),
-                settings: settings,
-                orientation: orientation,
-                fen: fen,
-                lastMove: lastMove,
-                game: GameData(
-                  playerSide:
-                      (playMode == Mode.botPlay || playMode == Mode.inputMove)
-                          ? PlayerSide.white
-                          : (position.turn == Side.white
-                              ? PlayerSide.white
-                              : PlayerSide.black),
-                  validMoves: validMoves,
-                  droppable: testDropMoves
-                      ? (validDropSquares: position.legalDrops.squares.toISet())
-                      : null,
-                  sideToMove:
-                      position.turn == Side.white ? Side.white : Side.black,
-                  isCheck: position.isCheck,
-                  promotionMove: promotionMove,
-                  onMove: playMode == Mode.botPlay
-                      ? _onUserMoveAgainstBot
-                      : _playMove,
-                  onPromotionSelection: _onPromotionSelection,
-                  premovable: (
-                    onSetPremove: _onSetPremove,
-                    premove: premove,
-                  ),
-                ),
-                shapes: shapes.isNotEmpty ? shapes : null,
-              );
 
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  if (testDropMoves)
-                    CrazyhouseMenu(
-                      position: position,
-                      side: Side.black,
-                      pieceSet: pieceSet,
-                      squareSize: chessboard.squareSize,
-                      settings: settings,
-                    ),
-                  chessboard,
-                  if (testDropMoves)
-                    CrazyhouseMenu(
-                      position: position,
-                      side: Side.white,
-                      pieceSet: pieceSet,
-                      squareSize: chessboard.squareSize,
-                      settings: settings,
-                    ),
-                ],
-              );
-            },
-          ),
-        );
+    final Widget chessboardWidget = Center(
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final chessboard = Chessboard(
+            controller: _controller,
+            size: min(constraints.maxWidth, constraints.maxHeight),
+            settings: settings,
+            orientation: orientation,
+            onMove:
+                playMode == Mode.botPlay ? _onUserMoveAgainstBot : _playMove,
+          );
 
-    Widget _buildPortrait() => Padding(
-          padding: const EdgeInsets.only(
-            bottom: screenPadding,
-          ),
-          child: Column(
+          return Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _buildChessBoardWidget(),
-              if (playMode == Mode.inputMove)
-                const SizedBox(height: screenPortraitSplitter),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: screenPadding,
+              if (testDropMoves)
+                ValueListenableBuilder<Position>(
+                  valueListenable: _positionNotifier,
+                  builder: (context, pos, _) => CrazyhouseMenu(
+                    position: pos,
+                    side: Side.black,
+                    pieceSet: pieceSet,
+                    squareSize: chessboard.squareSize,
+                    settings: settings,
                   ),
-                  child: playMode == Mode.inputMove
-                      ? inputMoveWidgets
-                      : settingsWidgets,
                 ),
-              ),
-              if (playMode != Mode.inputMove)
-                const SizedBox(height: screenPortraitSplitter),
-              if (playMode != Mode.inputMove)
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: screenPadding,
+              chessboard,
+              if (testDropMoves)
+                ValueListenableBuilder<Position>(
+                  valueListenable: _positionNotifier,
+                  builder: (context, pos, _) => CrazyhouseMenu(
+                    position: pos,
+                    side: Side.white,
+                    pieceSet: pieceSet,
+                    squareSize: chessboard.squareSize,
+                    settings: settings,
                   ),
-                  child: _buildControlButtons(),
                 ),
             ],
-          ),
-        );
-
-    Widget _buildLandscape() => Padding(
-          padding: const EdgeInsets.all(screenPadding),
-          child: Row(
-            children: [
-              Expanded(
-                child: _buildChessBoardWidget(),
-              ),
-              const SizedBox(width: screenLandscapeSplitter),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Expanded(
-                      child: playMode == Mode.inputMove
-                          ? inputMoveWidgets
-                          : settingsWidgets,
-                    ),
-                    if (playMode != Mode.inputMove)
-                      const SizedBox(height: screenPortraitSplitter),
-                    if (playMode != Mode.inputMove) _buildControlButtons(),
-                  ],
-                ),
-              )
-            ],
-          ),
-        );
+          );
+        },
+      ),
+    );
 
     return Scaffold(
       primary: MediaQuery.of(context).orientation == Orientation.portrait,
@@ -486,9 +375,9 @@ class _HomePageState extends State<HomePage> {
           ListTile(
             title: const Text('Random Bot'),
             onTap: () {
-              setState(() {
-                playMode = Mode.botPlay;
-              });
+              playMode = Mode.botPlay;
+              _controller.animatePosition(_buildGame());
+              setState(() {}); // Update app bar title and button visibility.
               if (position.turn == Side.black) {
                 _playBlackMove();
               }
@@ -498,18 +387,18 @@ class _HomePageState extends State<HomePage> {
           ListTile(
             title: const Text('Enter opponent move'),
             onTap: () {
-              setState(() {
-                playMode = Mode.inputMove;
-              });
+              playMode = Mode.inputMove;
+              _controller.animatePosition(_buildGame());
+              setState(() {}); // Update app bar title and button visibility.
               Navigator.pop(context);
             },
           ),
           ListTile(
             title: const Text('Free Play'),
             onTap: () {
-              setState(() {
-                playMode = Mode.freePlay;
-              });
+              playMode = Mode.freePlay;
+              _controller.animatePosition(_buildGame());
+              setState(() {}); // Update app bar title and button visibility.
               Navigator.pop(context);
             },
           ),
@@ -549,30 +438,83 @@ class _HomePageState extends State<HomePage> {
         ],
       )),
       body: OrientationBuilder(
-        builder: (context, orientation) => orientation == Orientation.portrait
-            ? _buildPortrait()
-            : _buildLandscape(),
-      ),
+          builder: (context, orientation) => orientation == Orientation.portrait
+              ? Padding(
+                  padding: const EdgeInsets.only(
+                    bottom: screenPadding,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      chessboardWidget,
+                      if (playMode == Mode.inputMove)
+                        const SizedBox(height: screenPortraitSplitter),
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: screenPadding,
+                          ),
+                          child: playMode == Mode.inputMove
+                              ? inputMoveWidgets
+                              : settingsWidgets,
+                        ),
+                      ),
+                      if (playMode != Mode.inputMove)
+                        const SizedBox(height: screenPortraitSplitter),
+                      if (playMode != Mode.inputMove)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: screenPadding,
+                          ),
+                          child: controlButtons,
+                        ),
+                    ],
+                  ),
+                )
+              : Padding(
+                  padding: const EdgeInsets.all(screenPadding),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: chessboardWidget,
+                      ),
+                      const SizedBox(width: screenLandscapeSplitter),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Expanded(
+                              child: playMode == Mode.inputMove
+                                  ? inputMoveWidgets
+                                  : settingsWidgets,
+                            ),
+                            if (playMode != Mode.inputMove)
+                              const SizedBox(height: screenPortraitSplitter),
+                            if (playMode != Mode.inputMove) controlButtons,
+                          ],
+                        ),
+                      )
+                    ],
+                  ),
+                )),
     );
   }
 
   void _tryPlayPremove() {
-    if (premove != null) {
-      Timer.run(() {
-        _playMove(premove!, isPremove: true);
-      });
-    }
-  }
-
-  void _onCompleteShape(Shape shape) {
-    if (shapes.any((element) => element == shape)) {
-      setState(() {
-        shapes = shapes.remove(shape);
-      });
-      return;
-    } else {
-      setState(() {
-        shapes = shapes.add(shape);
+    final move = _controller.premove;
+    if (move != null) {
+      _controller.premove = null;
+      Timer.run(() async {
+        if (move is NormalMove && _isPromotionPawnMove(move)) {
+          _controller.pendingPromotion = move;
+          _controller.animatePosition(_buildGame());
+        } else {
+          _playMove(move);
+          if (playMode == Mode.botPlay) {
+            await _playBlackMove();
+            _tryPlayPremove();
+          }
+        }
       });
     }
   }
@@ -619,108 +561,92 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void initState() {
-    validMoves = makeLegalMoves(position);
     super.initState();
+    _controller = ChessboardController(game: _buildGame());
+    _canUndo = ValueNotifier(false);
+    _positionNotifier = ValueNotifier(position);
   }
 
-  void _onSetPremove(Move? move) {
-    setState(() {
-      premove = move;
-    });
+  @override
+  void dispose() {
+    _controller.dispose();
+    _canUndo.dispose();
+    _positionNotifier.dispose();
+    super.dispose();
   }
 
-  void _onPromotionSelection(Role? role) {
-    if (role == null) {
-      _onPromotionCancel();
-    } else if (promotionMove != null) {
-      if (playMode == Mode.botPlay) {
-        _onUserMoveAgainstBot(promotionMove!.withPromotion(role));
-      } else {
-        _playMove(promotionMove!.withPromotion(role));
-      }
+  GameData _buildGame() {
+    return GameData(
+      fen: position.fen,
+      lastMove: lastMove,
+      playerSide: (playMode == Mode.botPlay || playMode == Mode.inputMove)
+          ? PlayerSide.white
+          : (position.turn == Side.white ? PlayerSide.white : PlayerSide.black),
+      validMoves: makeLegalMoves(position),
+      validDropSquares:
+          testDropMoves ? position.legalDrops.squares.toSet() : null,
+      sideToMove: position.turn == Side.white ? Side.white : Side.black,
+      kingSquareInCheck:
+          position.isCheck ? position.board.kingOf(position.turn) : null,
+    );
+  }
+
+  void _playMove(Move move, {bool? viaDragAndDrop}) {
+    if (position.isLegal(move)) {
+      lastPos = position;
+      position = position.playUnchecked(move);
+      lastMove = move;
+      _controller.animatePosition(_buildGame());
+      _canUndo.value = true;
+      _positionNotifier.value = position;
     }
   }
 
-  void _onPromotionCancel() {
-    setState(() {
-      promotionMove = null;
-    });
-  }
-
-  void _playMove(Move move, {bool? viaDragAndDrop, bool? isPremove}) {
-    lastPos = position;
-    if (move is NormalMove && isPromotionPawnMove(move)) {
-      setState(() {
-        promotionMove = move;
-      });
-    } else if (position.isLegal(move)) {
-      setState(() {
-        position = position.playUnchecked(move);
-        lastMove = move;
-        fen = position.fen;
-        validMoves = makeLegalMoves(position);
-        promotionMove = null;
-        if (isPremove == true) {
-          premove = null;
-        }
-      });
-    }
-  }
-
-  void _onUserMoveAgainstBot(Move move, {viaDragAndDrop}) async {
-    lastPos = position;
-    if (move is NormalMove && isPromotionPawnMove(move)) {
-      setState(() {
-        promotionMove = move;
-      });
-    } else {
-      setState(() {
-        position = position.playUnchecked(move);
-        lastMove = move;
-        fen = position.fen;
-        validMoves = IMap(const {});
-        promotionMove = null;
-      });
+  void _onUserMoveAgainstBot(Move move, {bool? viaDragAndDrop}) async {
+    if (position.isLegal(move)) {
+      lastPos = position;
+      position = position.playUnchecked(move);
+      lastMove = move;
+      _controller.animatePosition(_buildGame());
+      _canUndo.value = true;
+      _positionNotifier.value = position;
       await _playBlackMove();
       _tryPlayPremove();
     }
   }
 
   Future<void> _playBlackMove() async {
-    Future.delayed(const Duration(milliseconds: 100)).then((value) {
-      setState(() {});
-    });
     if (position.isGameOver) return;
 
     final random = Random();
     await Future.delayed(Duration(milliseconds: random.nextInt(1000) + 500));
+    if (!mounted) return;
+
     final allMoves = [
       for (final entry in position.legalMoves.entries)
         for (final dest in entry.value.squares)
-          NormalMove(from: entry.key, to: dest)
+          NormalMove(from: entry.key, to: dest),
     ];
     if (allMoves.isNotEmpty) {
       NormalMove mv = (allMoves..shuffle()).first;
-      // Auto promote to a random non-pawn role
-      if (isPromotionPawnMove(mv)) {
+      // Auto promote to a random non-pawn role.
+      if (_isPromotionPawnMove(mv)) {
         final potentialRoles =
             Role.values.where((role) => role != Role.pawn).toList();
         final role = potentialRoles[random.nextInt(potentialRoles.length)];
         mv = mv.withPromotion(role);
       }
 
-      setState(() {
-        position = position.playUnchecked(mv);
-        lastMove =
-            NormalMove(from: mv.from, to: mv.to, promotion: mv.promotion);
-        fen = position.fen;
-        validMoves = makeLegalMoves(position);
-      });
+      position = position.playUnchecked(mv);
       lastPos = position;
+      lastMove = NormalMove(from: mv.from, to: mv.to, promotion: mv.promotion);
+      _controller.animatePosition(_buildGame());
+      _canUndo.value = true;
+      _positionNotifier.value = position;
     }
   }
 
-  bool isPromotionPawnMove(NormalMove move) {
+  bool _isPromotionPawnMove(NormalMove move) {
     return move.promotion == null &&
         position.board.roleAt(move.from) == Role.pawn &&
         ((move.to.rank == Rank.first && position.turn == Side.black) ||
@@ -731,6 +657,45 @@ class _HomePageState extends State<HomePage> {
 Color _darken(Color c, [double amount = .1]) {
   assert(amount >= 0 && amount <= 1);
   return Color.lerp(c, const Color(0xFF000000), amount) ?? c;
+}
+
+class SettingsButton extends StatelessWidget {
+  const SettingsButton({
+    super.key,
+    required this.label,
+    required this.value,
+    required this.onPressed,
+  });
+
+  final String label;
+  final String value;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      child: Column(
+        children: [
+          Text(label,
+              style: const TextStyle(
+                fontSize: 12,
+                color: Colors.grey,
+              )),
+          Text(value,
+              style: const TextStyle(
+                fontSize: 12,
+              )),
+        ],
+      ),
+      style: ElevatedButton.styleFrom(
+        padding: const EdgeInsets.symmetric(
+          horizontal: 18.0,
+          vertical: 4,
+        ),
+      ),
+      onPressed: onPressed,
+    );
+  }
 }
 
 class CrazyhouseMenu extends StatelessWidget {
@@ -767,6 +732,7 @@ class CrazyhouseMenu extends StatelessWidget {
             return IgnorePointer(
               ignoring: !hasPieceInPocket,
               child: Draggable(
+                dragAnchorStrategy: pointerDragAnchorStrategy,
                 data: piece,
                 feedback: PieceDragFeedback(
                   scale: settings.dragFeedbackScale,

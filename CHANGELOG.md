@@ -1,3 +1,86 @@
+## 10.0.0
+
+This is a major release with significant internal changes to the board rendering
+and interaction model, in order to improve performance during gameplay and to
+simplify the public API.
+
+It replaces the widget-tree-driven board rendering with a CustomPainter-based approach to bypass
+Flutter's build and layout phases for frequent interactions (piece selection, moves).
+
+### New
+
+- `ChessboardController` is now the public API for driving the interactive board.
+  Position updates, premoves, promotion, user-drawn shapes, and the atomic
+  explosion animation are all managed through the controller instead of through
+  widget rebuilds and `GameData` callbacks.
+- `StaticChessboard` is now the single non-interactive board, with its own
+  `StaticChessboardSettings` and support for shapes, square highlights, touched
+  squares, and a board border.
+- New `ChessboardSettings` flags: `enableDrops`, `enablePremoves`, and
+  `canPromoteToKing`.
+- Faster hit-testing in `Chessboard` (`HitTestBehavior.opaque`).
+
+See the [migration guide](MIGRATION.md) and the breaking changes below for details.
+
+### BREAKING CHANGES
+
+- The interactive `Chessboard()` constructor now requires a `controller:` parameter
+  of type `ChessboardController` instead of separate `fen:`, `game:`, and `lastMove:`
+  parameters. See the [migration guide](MIGRATION.md) for the before/after pattern.
+
+- Callbacks (`onMove`) have been removed from `GameData` and is now an optional
+  parameter on the `Chessboard` widget itself.
+
+- `Premovable` typedef and `GameData.premovable` have been removed. Premove state
+  is now managed entirely by `ChessboardController`. The `onSetPremove` callback
+  has been removed from `Chessboard`. Enable or disable premoves via
+  `ChessboardSettings.enablePremoves` (default `true`). See the
+  [migration guide](MIGRATION.md) for the before/after pattern.
+
+- Position updates now go through the controller instead of rebuilding the
+  `Chessboard` widget with a new `fen`. Call
+  `ChessboardController.animatePosition(GameData game)` to advance the board with
+  animation. The position `fen` now lives on `GameData` (alongside `lastMove`, side
+  to move, valid moves, etc.), so a single object describes the whole board state.
+  Drag-and-drop moves are detected internally by the board, so the redundant
+  translation of a dropped piece is suppressed automatically — the parent no longer
+  passes a `lastDrop` argument.
+
+- `ChessboardController.jumpToPosition(GameData game)` switches to a new position
+  without animation (e.g. history navigation) and clears any pending premove.
+
+- `Chessboard.fixed()` has been removed. For a non-interactive board, use
+  `StaticChessboard` (which now accepts `settings`,
+  `shapes`, `squareHighlights`, `onTouchedSquare`, and renders an optional border).
+  For a board that is interactive only some of the time (e.g. disabled at the end of a
+  game), use `Chessboard` and drive its controller with game data whose `playerSide` is
+  `PlayerSide.none`. See the [migration guide](MIGRATION.md) for the before/after pattern.
+
+- `squareHighlights` has been removed from `Chessboard()`. It is now a parameter of
+  `StaticChessboard`.
+
+- `explosionSquares` has been removed from `Chessboard()`. Use
+  `ChessboardController.triggerExplosion()` instead.
+
+- Promotion is now handled fully inside the board. The `onPromotionSelection`
+  callback has been removed from `Chessboard`. The `promotionMove` field and
+  `canPromoteToKing` flag have been removed from `GameData`. `canPromoteToKing`
+  is now a field on `ChessboardSettings`. The board calls `onMove` exactly once,
+  after the user has selected a promotion piece, with a fully-resolved
+  `NormalMove` (promotion role already set). See the
+  [migration guide](MIGRATION.md) for details.
+
+- `DrawShapeOptions` no longer accepts `onCompleteShape` or `onClearShapes`
+  callbacks. Shape state drawn by the user is now managed internally by
+  `ChessboardController`. See the [migration guide](MIGRATION.md) for the
+  before/after pattern.
+
+- `GameData.droppable` (the `Droppable` record wrapper) has been removed.
+  Pass `validDropSquares` directly on `GameData` instead, and set
+  `ChessboardSettings(enableDrops: true)` to activate the drop target.
+  The `Droppable` typedef has been removed. See the
+  [migration guide](MIGRATION.md) for the before/after pattern.
+
 ## 9.1.0
 
 - Added a Swift Package exposing Chessground board textures and piece images as an

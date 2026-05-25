@@ -42,18 +42,20 @@ class PieceWidget extends StatelessWidget {
       return SizedBox(width: size, height: size);
     }
 
-    final fromCache = ChessgroundImages.instance.get(imageProvider);
+    final cachedImage = ChessgroundImages.instance.get(imageProvider);
+    if (cachedImage == null) {
+      // Transparent but opaque to hit tests, so Draggable children remain
+      // interactive while the image loads.
+      return SizedBox.square(dimension: size, child: const ColoredBox(color: Color(0x00000000)));
+    }
 
-    final image =
-        fromCache != null
-            ? RawImage(
-              image: fromCache,
-              debugImageLabel: 'PieceWidgetCache(${imageProvider.assetName})',
-              width: size,
-              height: size,
-              opacity: opacity,
-            )
-            : Image(image: imageProvider, width: size, height: size, opacity: opacity);
+    final image = RawImage(
+      image: cachedImage,
+      debugImageLabel: 'PieceWidgetCache(${imageProvider.assetName})',
+      width: size,
+      height: size,
+      opacity: opacity,
+    );
 
     return upsideDown ? Transform.flip(flipY: true, child: image) : image;
   }

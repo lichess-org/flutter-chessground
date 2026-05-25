@@ -1,23 +1,22 @@
 import 'dart:async';
+import 'dart:ui' as ui;
 import 'package:chessground/src/widgets/geometry.dart';
 import 'package:dartchess/dartchess.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
-import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 
 import 'board_border.dart';
+import 'board_controller.dart';
+import 'board_painter.dart';
 import 'color_filter.dart';
-import 'piece.dart';
-import 'highlight.dart';
 import 'positioned_square.dart';
-import 'animation.dart';
 import 'explosion.dart';
 import 'promotion.dart';
 import 'shape.dart';
 import 'board_annotation.dart';
 import 'static_board.dart';
+import '../images.dart';
 import '../models.dart';
-import '../fen.dart';
 import '../premove.dart';
 import '../board_settings.dart';
 
@@ -34,43 +33,26 @@ const _kCancelShapesDoubleTapDelay = Duration(milliseconds: 200);
 class Chessboard extends StatefulWidget with ChessboardGeometry {
   /// Creates a new chessboard widget with interactive pieces.
   ///
-  /// Provide a [game] state to enable interaction with the board.
-  /// The [fen] string should be updated when the position changes.
+  /// Provide a [controller] to control the board position and game state.
+  ///
+  /// [onMove] is called when the user completes a move, including after a
+  /// promotion piece has been selected. The promotion role is already set on
+  /// the [Move] at that point.
+  ///
+  /// To make the board non-interactive (e.g. at the end of a game), drive the
+  /// [controller] with game data whose `playerSide` is [PlayerSide.none]. For a
+  /// fully static board, use [StaticChessboard] instead.
   const Chessboard({
     super.key,
     required double size,
+    required this.controller,
     this.settings = const ChessboardSettings(),
     required this.orientation,
-    required this.fen,
-    this.opponentsPiecesUpsideDown = false,
-    this.lastMove,
-    this.squareHighlights = const IMapConst({}),
+    this.onMove,
     this.onTouchedSquare,
-    required this.game,
-    this.shapes,
-    this.annotations,
-    this.explosionSquares,
+    this.shapes = const {},
+    this.annotations = const {},
   }) : _size = size;
-
-  /// Creates a new chessboard widget that cannot be interacted with.
-  ///
-  /// Provide a [fen] string to describe the position of the pieces on the board.
-  /// Pieces will be animated when the position changes.
-  const Chessboard.fixed({
-    super.key,
-    required double size,
-    this.settings = const ChessboardSettings(),
-    required this.orientation,
-    required this.fen,
-    this.lastMove,
-    this.squareHighlights = const IMapConst({}),
-    this.onTouchedSquare,
-    this.shapes,
-    this.annotations,
-    this.explosionSquares,
-  }) : _size = size,
-       game = null,
-       opponentsPiecesUpsideDown = false;
 
   final double _size;
 
@@ -85,17 +67,12 @@ class Chessboard extends StatefulWidget with ChessboardGeometry {
   /// Settings that control the theme and behavior of the board.
   final ChessboardSettings settings;
 
-  /// If `true` the opponent`s pieces are displayed rotated by 180 degrees.
-  final bool opponentsPiecesUpsideDown;
+  /// Controller that drives the board position, game state, and piece animations.
+  final ChessboardController controller;
 
-  /// Squares to highlight on the board.
-  final IMap<Square, SquareHighlight> squareHighlights;
-
-  /// FEN string describing the position of the board.
-  final String fen;
-
-  /// Last move played, used to highlight corresponding squares.
-  final Move? lastMove;
+  /// Called after the user completes a move, including after a promotion piece
+  /// has been selected. The promotion role is already set on the [Move].
+  final void Function(Move, {bool? viaDragAndDrop})? onMove;
 
   /// Callback called after a square has been touched.
   ///
@@ -103,29 +80,14 @@ class Chessboard extends StatefulWidget with ChessboardGeometry {
   /// targets a square.
   final void Function(Square)? onTouchedSquare;
 
-  /// Game state of the board.
-  ///
-  /// If `null`, the board cannot be interacted with.
-  final GameData? game;
-
   /// Optional set of [Shape] to be drawn on the board.
-  final ISet<Shape>? shapes;
+  final Set<Shape> shapes;
 
   /// Move annotations to be displayed on the board.
-  final IMap<Square, Annotation>? annotations;
-
-  /// Squares on which an atomic chess explosion should be shown.
-  ///
-  /// Whenever this value changes to a new non-null set the board will play a
-  /// one-shot explosion animation on each listed square.  Typically this is the
-  /// set of squares returned by the dartchess atomic-explosion computation
-  /// (capture square + all adjacent non-pawn pieces).
-  ///
-  /// Set to `null` or to the same value to suppress re-triggering.
-  final ISet<Square>? explosionSquares;
+  final Map<Square, Annotation> annotations;
 
   /// Whether the pieces can be moved by one side or both.
-  bool get interactive => game != null && game!.playerSide != PlayerSide.none;
+  bool get interactive => controller.interactive;
 
   @override
   // No need to make this class public, as it is only used internally.
@@ -133,26 +95,21 @@ class Chessboard extends StatefulWidget with ChessboardGeometry {
   _BoardState createState() => _BoardState();
 }
 
-class _BoardState extends State<Chessboard> {
-  /// Pieces on the board.
-  Pieces pieces = {};
+class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
+  ChessboardController get _controller => widget.controller;
+  bool _controllerDetached = false;
+  Side? _lastSideToMove;
 
-  /// Pieces that are currently being translated from one square to another.
-  ///
-  /// The key is the target square of the piece.
-  TranslatingPieces translatingPieces = {};
+  Pieces get pieces => _controller.pieces;
 
-  /// Pieces that are currently fading out.
-  FadingPieces fadingPieces = {};
+  /// Manages active explosion animations.
+  late ExplosionSetNotifier _explosionNotifier;
 
-  /// Squares that currently have an active explosion animation.
-  final Set<Square> _activeExplosions = {};
+  /// Last explosion set consumed from the controller, used to detect new triggers.
+  Set<Square>? _lastSeenExplosionSquares;
 
   /// Currently selected square.
   Square? selected;
-
-  /// Last move that was played using drag and drop.
-  Move? _lastDrop;
 
   /// Squares that the selected piece can premove to.
   Set<Square>? _premoveDests;
@@ -173,7 +130,7 @@ class _BoardState extends State<Chessboard> {
   _DragAvatar? _dragAvatar;
 
   /// Once a piece is dragged, holds the square id of the piece.
-  Square? _draggedPieceSquare;
+  late final ValueNotifier<Square?> _draggedPieceSquareNotifier;
 
   /// Current pointer down event.
   ///
@@ -206,19 +163,21 @@ class _BoardState extends State<Chessboard> {
   /// Avatar of the shape being drawn.
   Shape? _shapeAvatar;
 
+  /// Whether all piece images are available in the cache.
+  bool _imagesLoaded = false;
+
+  /// Whether all highlight images are available in the cache.
+  bool _highlightImagesLoaded = false;
+
+  /// Whether the pending promotion move was initiated via drag and drop.
+  bool _pendingPromotionViaDragAndDrop = false;
+
   @override
   Widget build(BuildContext context) {
     final settings = widget.settings;
     final colorScheme = settings.colorScheme;
-    final ISet<Square> moveDests =
-        settings.showValidMoves && selected != null && widget.game?.validMoves != null
-            ? widget.game?.validMoves[selected!] ?? _emptyValidMoves
-            : _emptyValidMoves;
-    final Set<Square> premoveDests = settings.showValidMoves ? _premoveDests ?? {} : {};
-    final shapes = widget.shapes ?? _emptyShapes;
-    final annotations = widget.annotations ?? _emptyAnnotations;
-    final checkSquare = widget.game?.isCheck == true ? _getKingSquare() : null;
-    final premove = widget.game?.premovable?.premove;
+    final shapes = {...widget.shapes, ..._controller.drawnShapes};
+    final annotations = widget.annotations;
 
     final background = BrightnessHueFilter(
       hue: widget.settings.hue,
@@ -230,225 +189,58 @@ class _BoardState extends State<Chessboard> {
               : colorScheme.background,
     );
 
+    final highlightsPainter = HighlightsPainter(
+      interactionNotifier: _controller.highlightNotifier,
+      squareSize: widget.squareSize,
+      orientation: widget.orientation,
+      showLastMove: settings.showLastMove,
+      premoveColor: colorScheme.validPremoves,
+      lastMoveDetails: colorScheme.lastMove,
+      selectedDetails: colorScheme.selected,
+      validMoveColor: colorScheme.validMoves,
+      squareHighlights: const {},
+      highlightImagesLoaded: _highlightImagesLoaded,
+    );
+
+    final piecesPainter = PiecesPainter(
+      piecesNotifier: _controller.piecesNotifier,
+      translatingPiecesNotifier: _controller.translatingPiecesNotifier,
+      pieceAssets: settings.pieceAssets,
+      squareSize: widget.squareSize,
+      orientation: widget.orientation,
+      draggedPieceSquareNotifier: _draggedPieceSquareNotifier,
+      gameNotifier: _controller.gameNotifier,
+      pendingPromotionNotifier: _controller.pendingPromotionNotifier,
+      blindfoldMode: settings.blindfoldMode,
+      pieceOrientationBehavior: settings.pieceOrientationBehavior,
+      imagesLoaded: _imagesLoaded,
+    );
+
+    final fadingPiecesPainter = FadingPiecesPainter(
+      fadingPiecesNotifier: _controller.fadingPiecesNotifier,
+      squareSize: widget.squareSize,
+      orientation: widget.orientation,
+      pieceAssets: settings.pieceAssets,
+      blindfoldMode: settings.blindfoldMode,
+      pieceOrientationBehavior: settings.pieceOrientationBehavior,
+      gameNotifier: _controller.gameNotifier,
+      animation: _controller.fadeAnimation,
+    );
+
+    final translatingPiecesPainter = TranslatingPiecesPainter(
+      translatingPiecesNotifier: _controller.translatingPiecesNotifier,
+      squareSize: widget.squareSize,
+      orientation: widget.orientation,
+      pieceAssets: settings.pieceAssets,
+      blindfoldMode: settings.blindfoldMode,
+      pieceOrientationBehavior: settings.pieceOrientationBehavior,
+      gameNotifier: _controller.gameNotifier,
+      animation: _controller.translationAnimation,
+    );
+
     final List<Widget> highlightedBackground = [
-      SizedBox.square(
-        key: const ValueKey('board-background'),
-        dimension: widget.size,
-        child: background,
-      ),
-      if (settings.showLastMove && widget.lastMove != null)
-        for (final square in widget.lastMove!.squares)
-          if (premove == null || !premove.hasSquare(square))
-            PositionedSquare(
-              key: ValueKey('${square.name}-lastMove'),
-              size: widget.size,
-              orientation: widget.orientation,
-              square: square,
-              child: SquareHighlight(details: colorScheme.lastMove),
-            ),
-      if (premove != null && widget.game?.playerSide.name == widget.game?.sideToMove.opposite.name)
-        for (final square in premove.squares)
-          PositionedSquare(
-            key: ValueKey('${square.name}-premove'),
-            size: widget.size,
-            orientation: widget.orientation,
-            square: square,
-            child: SquareHighlight(
-              details: HighlightDetails(solidColor: colorScheme.validPremoves),
-            ),
-          ),
-      if (selected != null)
-        PositionedSquare(
-          key: ValueKey('${selected!.name}-selected'),
-          size: widget.size,
-          orientation: widget.orientation,
-          square: selected!,
-          child: SquareHighlight(details: colorScheme.selected),
-        ),
-      for (final dest in moveDests)
-        PositionedSquare(
-          key: ValueKey('${dest.name}-dest'),
-          size: widget.size,
-          orientation: widget.orientation,
-          square: dest,
-          child: ValidMoveHighlight(
-            size: widget.squareSize,
-            color: colorScheme.validMoves,
-            occupied: pieces.containsKey(dest),
-          ),
-        ),
-      for (final dest in premoveDests)
-        PositionedSquare(
-          key: ValueKey('${dest.name}-premove-dest'),
-          size: widget.size,
-          orientation: widget.orientation,
-          square: dest,
-          child: ValidMoveHighlight(
-            size: widget.squareSize,
-            color: colorScheme.validPremoves,
-            occupied: pieces.containsKey(dest),
-          ),
-        ),
-      if (checkSquare != null)
-        PositionedSquare(
-          key: ValueKey('${checkSquare.name}-check'),
-          size: widget.size,
-          orientation: widget.orientation,
-          square: checkSquare,
-          child: CheckHighlight(size: widget.squareSize),
-        ),
-      for (final MapEntry(key: square, value: highlight) in widget.squareHighlights.entries)
-        PositionedSquare(
-          key: ValueKey('${square.name}-highlight'),
-          size: widget.size,
-          orientation: widget.orientation,
-          square: square,
-          child: highlight,
-        ),
-    ];
-
-    final List<Widget> objects = [
-      for (final entry in fadingPieces.entries)
-        PositionedSquare(
-          key: ValueKey('${entry.key.name}-${entry.value}-fading'),
-          size: widget.size,
-          orientation: widget.orientation,
-          square: entry.key,
-          child: AnimatedPieceFadeOut(
-            duration: settings.animationDuration,
-            piece: entry.value,
-            size: widget.squareSize,
-            pieceAssets: settings.pieceAssets,
-            blindfoldMode: settings.blindfoldMode,
-            upsideDown: _isUpsideDown(entry.value.color),
-            onComplete: () {
-              setState(() {
-                fadingPieces.remove(entry.key);
-              });
-            },
-          ),
-        ),
-      for (final entry in pieces.entries)
-        if (!translatingPieces.containsKey(entry.key) &&
-            entry.key != _draggedPieceSquare &&
-            entry.key != widget.game?.promotionMove?.from)
-          PositionedSquare(
-            key: ValueKey('${entry.key.name}-${entry.value}'),
-            size: widget.size,
-            orientation: widget.orientation,
-            square: entry.key,
-            child: PieceWidget(
-              piece: entry.value,
-              size: widget.squareSize,
-              pieceAssets: settings.pieceAssets,
-              blindfoldMode: settings.blindfoldMode,
-              upsideDown: _isUpsideDown(entry.value.color),
-            ),
-          ),
-      for (final entry in translatingPieces.entries)
-        PositionedSquare(
-          key: ValueKey('${entry.key.name}-${entry.value.piece}'),
-          size: widget.size,
-          orientation: widget.orientation,
-          square: entry.key,
-          child: AnimatedPieceTranslation(
-            fromSquare: entry.value.from,
-            toSquare: entry.key,
-            orientation: widget.orientation,
-            duration: settings.animationDuration,
-            onComplete: () {
-              setState(() {
-                translatingPieces.remove(entry.key);
-              });
-            },
-            child: PieceWidget(
-              piece: entry.value.piece,
-              size: widget.squareSize,
-              pieceAssets: settings.pieceAssets,
-              blindfoldMode: settings.blindfoldMode,
-              upsideDown: _isUpsideDown(entry.value.piece.color),
-            ),
-          ),
-        ),
-      for (final shape in shapes)
-        BoardShapeWidget(shape: shape, size: widget.size, orientation: widget.orientation),
-      if (_shapeAvatar != null)
-        BoardShapeWidget(shape: _shapeAvatar!, size: widget.size, orientation: widget.orientation),
-      for (final entry in annotations.entries)
-        BoardAnnotation(
-          key: ValueKey('${entry.key.name}-${entry.value.symbol}-${entry.value.color}'),
-          size: widget.size,
-          orientation: widget.orientation,
-          square: entry.key,
-          annotation: entry.value,
-        ),
-      for (final square in _activeExplosions)
-        PositionedSquare(
-          key: ValueKey('${square.name}-explosion'),
-          size: widget.size,
-          orientation: widget.orientation,
-          square: square,
-          child: IgnorePointer(
-            child: OverflowBox(
-              maxWidth: widget.squareSize * 1.5,
-              maxHeight: widget.squareSize * 1.5,
-              child: ExplosionWidget(
-                size: widget.squareSize * 1.5,
-                onComplete: () {
-                  setState(() {
-                    _activeExplosions.remove(square);
-                  });
-                },
-              ),
-            ),
-          ),
-        ),
-      if (widget.game?.droppable != null)
-        ...Square.values.map((square) {
-          return PositionedSquare(
-            key: ValueKey('${square.name}-drag-target'),
-            size: widget.size,
-            orientation: widget.orientation,
-            square: square,
-            child: DragTarget<Piece>(
-              hitTestBehavior: HitTestBehavior.opaque, // stops hit test traversal immediately
-              builder:
-                  (context, candidateData, _) =>
-                      candidateData.isNotEmpty
-                          ? Transform.scale(
-                            scale: 2,
-                            child: Container(
-                              decoration: const BoxDecoration(
-                                color: Color(0x33000000),
-                                shape: BoxShape.circle,
-                              ),
-                            ),
-                          )
-                          : const SizedBox.shrink(),
-
-              onAcceptWithDetails: (details) {
-                final game = widget.game;
-                if (game == null) return;
-
-                final piece = details.data;
-                final backRankPawnDrop =
-                    piece.role == Role.pawn &&
-                    (square.rank == Rank.first || square.rank == Rank.eighth);
-                if (backRankPawnDrop) return;
-
-                final move = DropMove(to: square, role: details.data.role);
-                if (game.sideToMove == piece.color &&
-                    game.droppable != null &&
-                    game.droppable!.validDropSquares.contains(square)) {
-                  game.onMove(move, viaDragAndDrop: true);
-                  _lastDrop = move;
-                } else if (game.premovable != null) {
-                  game.premovable?.onSetPremove.call(move);
-                }
-              },
-            ),
-          );
-        }),
+      SizedBox.square(dimension: widget.size, child: background),
+      CustomPaint(size: Size.square(widget.size), painter: highlightsPainter),
     ];
 
     final board = Listener(
@@ -467,7 +259,6 @@ class _BoardState extends State<Chessboard> {
             if (settings.border == null &&
                 (settings.boxShadow.isNotEmpty || settings.borderRadius != BorderRadius.zero))
               Container(
-                key: const ValueKey('background-container'),
                 clipBehavior: Clip.hardEdge,
                 decoration: BoxDecoration(
                   borderRadius: settings.borderRadius,
@@ -477,21 +268,121 @@ class _BoardState extends State<Chessboard> {
               )
             else
               ...highlightedBackground,
-            ...objects,
-            if (widget.game?.promotionMove != null)
-              PromotionSelector(
-                pieceAssets: settings.pieceAssets,
-                move: widget.game!.promotionMove!,
-                size: widget.size,
-                color: widget.game!.sideToMove,
-                orientation: widget.orientation,
-                piecesUpsideDown: _isUpsideDown(widget.game!.sideToMove),
-                onSelect: widget.game!.onPromotionSelection,
-                onCancel: () {
-                  widget.game!.onPromotionSelection(null);
-                },
-                canPromoteToKing: widget.game!.canPromoteToKing,
+            CustomPaint(
+              size: Size.square(widget.size),
+              painter: fadingPiecesPainter,
+              willChange: true,
+            ),
+            // RepaintBoundary isolates this layer so that animation ticks from the
+            // fading/translating painters and highlight changes do not cause the
+            // static pieces to be re-rasterized. isComplex hints to the raster cache
+            // that this picture (up to 32 drawImageRect calls) is worth keeping.
+            RepaintBoundary(
+              child: CustomPaint(
+                size: Size.square(widget.size),
+                isComplex: true,
+                painter: piecesPainter,
               ),
+            ),
+            CustomPaint(
+              size: Size.square(widget.size),
+              painter: translatingPiecesPainter,
+              willChange: true,
+            ),
+            for (final shape in shapes)
+              BoardShapeWidget(shape: shape, size: widget.size, orientation: widget.orientation),
+            if (_shapeAvatar != null)
+              BoardShapeWidget(
+                shape: _shapeAvatar!,
+                size: widget.size,
+                orientation: widget.orientation,
+              ),
+            for (final entry in annotations.entries)
+              BoardAnnotation(
+                size: widget.size,
+                orientation: widget.orientation,
+                square: entry.key,
+                annotation: entry.value,
+              ),
+            CustomPaint(
+              size: Size.square(widget.size),
+              painter: ExplosionsPainter(
+                notifier: _explosionNotifier,
+                squareSize: widget.squareSize,
+                orientation: widget.orientation,
+              ),
+              willChange: true,
+            ),
+            ValueListenableBuilder<NormalMove?>(
+              valueListenable: _controller.pendingPromotionNotifier,
+              builder: (context, pendingMove, _) {
+                if (pendingMove == null) return const SizedBox.shrink();
+                final pawnColor = pieces[pendingMove.from]?.color ?? _controller.game.sideToMove;
+                return PromotionSelector(
+                  pieceAssets: settings.pieceAssets,
+                  move: pendingMove,
+                  size: widget.size,
+                  color: pawnColor,
+                  orientation: widget.orientation,
+                  piecesUpsideDown: _isUpsideDown(pawnColor),
+                  onSelect: (role) {
+                    final resolvedMove = pendingMove.withPromotion(role);
+                    final viaDragAndDrop = _pendingPromotionViaDragAndDrop;
+                    _pendingPromotionViaDragAndDrop = false;
+                    _controller.pendingPromotion = null;
+                    if (viaDragAndDrop) _controller.recordDropMove(resolvedMove);
+                    widget.onMove?.call(resolvedMove, viaDragAndDrop: viaDragAndDrop);
+                  },
+                  onCancel: () {
+                    _pendingPromotionViaDragAndDrop = false;
+                    _controller.pendingPromotion = null;
+                  },
+                  canPromoteToKing: widget.settings.canPromoteToKing,
+                );
+              },
+            ),
+            if (widget.settings.enableDrops)
+              ...Square.values.map((square) {
+                return PositionedSquare(
+                  key: ValueKey('${square.name}-drag-target'),
+                  size: widget.size,
+                  orientation: widget.orientation,
+                  square: square,
+                  child: DragTarget<Piece>(
+                    hitTestBehavior: HitTestBehavior.opaque,
+                    builder:
+                        (context, candidateData, _) =>
+                            candidateData.isNotEmpty
+                                ? Transform.scale(
+                                  scale: 2,
+                                  child: Container(
+                                    decoration: const BoxDecoration(
+                                      color: Color(0x33000000),
+                                      shape: BoxShape.circle,
+                                    ),
+                                  ),
+                                )
+                                : const SizedBox.shrink(),
+                    onAcceptWithDetails: (details) {
+                      final currentGame = _controller.game;
+                      final piece = details.data;
+                      final backRankPawnDrop =
+                          piece.role == Role.pawn &&
+                          (square.rank == Rank.first || square.rank == Rank.eighth);
+                      if (backRankPawnDrop) return;
+                      final move = DropMove(to: square, role: piece.role);
+                      if (currentGame.sideToMove == piece.color &&
+                          currentGame.validDropSquares?.contains(square) == true) {
+                        _controller.recordDropMove(move);
+                        widget.onMove?.call(move, viaDragAndDrop: true);
+                      } else if (widget.settings.enablePremoves &&
+                          currentGame.sideToMove != piece.color) {
+                        _controller.premove = move;
+                      }
+                    },
+                  ),
+                );
+              }),
           ],
         ),
       ),
@@ -508,20 +399,126 @@ class _BoardState extends State<Chessboard> {
             )
             : board;
 
-    return BrightnessHueFilter(brightness: widget.settings.brightness, child: borderedChessboard);
+    // RepaintBoundary stops board repaints from propagating to the app's widget
+    // tree. Without it, every animation tick or piece selection would dirty the
+    // nearest ancestor compositing layer outside the board.
+    return BrightnessHueFilter(
+      brightness: widget.settings.brightness,
+      child: RepaintBoundary(child: borderedChessboard),
+    );
   }
 
   @override
   void initState() {
     super.initState();
-    pieces = readFen(widget.fen);
+    _controller.attachTo(this, widget.settings.animationDuration);
+    _controller.addListener(_onControllerChange);
+    _lastSideToMove = _controller.game.sideToMove;
+    _controller.drawnShapesNotifier.addListener(_onDrawnShapesChange);
+    _controller.premoveNotifier.addListener(_onPremoveChange);
+    _explosionNotifier = ExplosionSetNotifier(vsync: this);
+    _lastSeenExplosionSquares = _controller.pendingExplosionSquares;
+    _syncHighlightNotifier();
+    _draggedPieceSquareNotifier = ValueNotifier<Square?>(null);
+    _imagesLoaded = ChessgroundImages.instance.isAllLoaded(widget.settings.pieceAssets);
+    if (!_imagesLoaded) _loadImages(widget.settings.pieceAssets);
+    _highlightImagesLoaded = _areHighlightImagesLoaded();
+    if (!_highlightImagesLoaded) _loadHighlightImages();
+  }
+
+  Future<void> _loadImages(PieceAssets assets) async {
+    final dpr = WidgetsBinding.instance.platformDispatcher.implicitView?.devicePixelRatio;
+    await ChessgroundImages.instance.loadAll(assets, devicePixelRatio: dpr);
+    if (mounted) setState(() => _imagesLoaded = true);
+  }
+
+  bool _areHighlightImagesLoaded() {
+    final colorScheme = widget.settings.colorScheme;
+    if (colorScheme.lastMove.image != null &&
+        ChessgroundImages.instance.get(colorScheme.lastMove.image!) == null) {
+      return false;
+    }
+    if (colorScheme.selected.image != null &&
+        ChessgroundImages.instance.get(colorScheme.selected.image!) == null) {
+      return false;
+    }
+    return true;
+  }
+
+  Future<void> _loadHighlightImages() async {
+    final dpr = WidgetsBinding.instance.platformDispatcher.implicitView?.devicePixelRatio;
+    final colorScheme = widget.settings.colorScheme;
+    final images = <AssetImage>[];
+    if (colorScheme.lastMove.image != null) images.add(colorScheme.lastMove.image!);
+    if (colorScheme.selected.image != null) images.add(colorScheme.selected.image!);
+    if (images.isEmpty) return;
+    await Future.wait<void>([
+      for (final img in images) ChessgroundImages.instance.load(img, devicePixelRatio: dpr),
+    ]);
+    if (mounted) setState(() => _highlightImagesLoaded = true);
+  }
+
+  @override
+  void deactivate() {
+    _controller.detach();
+    _controllerDetached = true;
+    super.deactivate();
+  }
+
+  @override
+  void activate() {
+    super.activate();
+    _controller.attachTo(this, widget.settings.animationDuration);
+    _controllerDetached = false;
   }
 
   @override
   void dispose() {
-    super.dispose();
+    _controller.drawnShapesNotifier.removeListener(_onDrawnShapesChange);
+    _controller.premoveNotifier.removeListener(_onPremoveChange);
+    _controller.removeListener(_onControllerChange);
+    // deactivate() already called detach(); only call it here if activate()
+    // re-attached us (i.e. the widget was temporarily removed then reinserted).
+    if (!_controllerDetached) {
+      _controller.detach();
+    }
+    _explosionNotifier.dispose();
+    _draggedPieceSquareNotifier.dispose();
     _dragAvatar?.cancel();
     _cancelShapesDoubleTapTimer?.cancel();
+    super.dispose();
+  }
+
+  void _onDrawnShapesChange() {
+    setState(() {});
+  }
+
+  void _onPremoveChange() {
+    _syncHighlightNotifier();
+  }
+
+  void _onControllerChange() {
+    if (!_controller.interactive) {
+      _currentPointerDownEvent = null;
+      _dragAvatar?.cancel();
+      _dragAvatar = null;
+      _draggedPieceSquareNotifier.value = null;
+      selected = null;
+      _premoveDests = null;
+      _controller.pendingPromotion = null;
+      _pendingPromotionViaDragAndDrop = false;
+    }
+    final currentSideToMove = _controller.game.sideToMove;
+    if (currentSideToMove != _lastSideToMove) {
+      _premoveDests = null;
+      _lastSideToMove = currentSideToMove;
+    }
+    _syncHighlightNotifier();
+    final newExplosions = _controller.pendingExplosionSquares;
+    if (newExplosions != null && newExplosions != _lastSeenExplosionSquares) {
+      _lastSeenExplosionSquares = newExplosions;
+      _explosionNotifier.trigger(newExplosions);
+    }
   }
 
   @override
@@ -532,55 +529,66 @@ class _BoardState extends State<Chessboard> {
       _drawOrigin = null;
       _shapeAvatar = null;
     }
-    if (widget.interactive == false) {
-      _currentPointerDownEvent = null;
-      _dragAvatar?.cancel();
-      _dragAvatar = null;
-      _draggedPieceSquare = null;
-      selected = null;
-      _premoveDests = null;
-    }
-    if (oldBoard.game?.sideToMove != widget.game?.sideToMove) {
-      _premoveDests = null;
-    }
 
-    // Trigger explosion animations when the set of explosion squares changes.
-    if (widget.explosionSquares != null && widget.explosionSquares != oldBoard.explosionSquares) {
-      _activeExplosions.addAll(widget.explosionSquares!);
+    if (oldBoard.controller != widget.controller) {
+      oldBoard.controller.removeListener(_onControllerChange);
+      oldBoard.controller.drawnShapesNotifier.removeListener(_onDrawnShapesChange);
+      oldBoard.controller.premoveNotifier.removeListener(_onPremoveChange);
+      oldBoard.controller.detach();
+      _controller.attachTo(this, widget.settings.animationDuration);
+      _controller.addListener(_onControllerChange);
+      _controller.drawnShapesNotifier.addListener(_onDrawnShapesChange);
+      _controller.premoveNotifier.addListener(_onPremoveChange);
+      _lastSideToMove = _controller.game.sideToMove;
+      _pendingPromotionViaDragAndDrop = false;
     }
 
-    if (oldBoard.fen == widget.fen) {
-      _lastDrop = null;
-      // as long as the fen is the same as before let's keep animations
-      return;
+    _syncHighlightNotifier();
+
+    if (oldBoard.settings.pieceAssets != widget.settings.pieceAssets) {
+      _imagesLoaded = ChessgroundImages.instance.isAllLoaded(widget.settings.pieceAssets);
+      if (!_imagesLoaded) _loadImages(widget.settings.pieceAssets);
     }
 
-    translatingPieces = {};
-    fadingPieces = {};
-
-    final newPieces = readFen(widget.fen);
-
-    if (widget.settings.animationDuration > Duration.zero) {
-      final (translatingPieces, fadingPieces) = preparePieceAnimations(
-        pieces,
-        newPieces,
-        lastDrop: _lastDrop,
-      );
-      this.translatingPieces = translatingPieces;
-      this.fadingPieces = fadingPieces;
+    if (oldBoard.settings.colorScheme != widget.settings.colorScheme) {
+      _highlightImagesLoaded = _areHighlightImagesLoaded();
+      if (!_highlightImagesLoaded) _loadHighlightImages();
     }
 
-    _lastDrop = null;
-    pieces = newPieces;
+    if (oldBoard.settings.animationDuration != widget.settings.animationDuration) {
+      _controller.animationDuration = widget.settings.animationDuration;
+    }
   }
 
-  Square? _getKingSquare() {
-    for (final square in pieces.keys) {
-      if (pieces[square]!.color == widget.game?.sideToMove && pieces[square]!.role == Role.king) {
-        return square;
-      }
-    }
-    return null;
+  /// Updates the highlight notifier with the current selection state so
+  /// [HighlightsPainter] repaints without a full widget rebuild.
+  void _syncHighlightNotifier() {
+    final game = _controller.game;
+    final moveDests =
+        widget.settings.showValidMoves && selected != null
+            ? game.validMoves[selected] ?? const <Square>{}
+            : const <Square>{};
+    final premoveDests =
+        widget.settings.showValidMoves ? _premoveDests ?? const <Square>{} : const <Square>{};
+    final premove = _controller.premove;
+    final premoveHighlight =
+        premove != null && game.playerSide.name == game.sideToMove.opposite.name ? premove : null;
+    _controller.highlightNotifier.update(
+      selected: selected,
+      moveDests: moveDests,
+      premoveDests: premoveDests,
+      occupiedSquares: _controller.pieces.keys.toSet(),
+      lastMove: _controller.lastMove,
+      premove: premoveHighlight,
+      checkSquare: game.kingSquareInCheck,
+    );
+  }
+
+  /// Sets interaction state and triggers a highlights repaint via the notifier.
+  void _setSelection(Square? newSelected, {Set<Square>? newPremoveDests}) {
+    selected = newSelected;
+    _premoveDests = newPremoveDests;
+    _syncHighlightNotifier();
   }
 
   /// Returns the position of the square target during drag as a global offset.
@@ -622,7 +630,7 @@ class _BoardState extends State<Chessboard> {
 
           // double tap on empty square to clear shapes
           if (_cancelShapesDoubleTapTimer != null) {
-            widget.settings.drawShape.onClearShapes?.call();
+            _controller.clearDrawnShapes();
             _cancelShapesDoubleTapTimer?.cancel();
             _cancelShapesDoubleTapTimer = null;
           } else {
@@ -631,10 +639,12 @@ class _BoardState extends State<Chessboard> {
             });
           }
         }
-        // selecting a piece to move should clear shapes
+        // selecting a piece to move should clear drawn shapes
         else if (_isMovable(piece) || _isPremovable(piece)) {
           _cancelShapesDoubleTapTimer?.cancel();
-          widget.settings.drawShape.onClearShapes?.call();
+          if (_controller.drawnShapes.isNotEmpty) {
+            _controller.clearDrawnShapes();
+          }
         }
       }
       // draw mode takes priority over play mode when the draw mode lock is set
@@ -651,7 +661,7 @@ class _BoardState extends State<Chessboard> {
       }
     }
 
-    if (widget.interactive == false) return;
+    if (!_controller.interactive) return;
 
     // From here on, we only allow 1 pointer to interact with the board. Other
     // pointers will cancel any current gesture.
@@ -671,14 +681,9 @@ class _BoardState extends State<Chessboard> {
     if (selected != null && square != selected) {
       final couldMove = _tryMoveOrPremoveTo(square);
       if (!couldMove && _isMovable(piece)) {
-        setState(() {
-          selected = square;
-        });
+        _setSelection(square);
       } else {
-        setState(() {
-          selected = null;
-          _premoveDests = null;
-        });
+        _setSelection(null);
       }
     }
     // the selected piece is touched again:
@@ -690,37 +695,32 @@ class _BoardState extends State<Chessboard> {
     // no piece was selected yet and a movable piece is touched:
     // - select the piece
     else if (_isMovable(piece)) {
-      setState(() {
-        selected = square;
-      });
+      _setSelection(square);
     }
     // no piece was selected yet and a premovable piece is touched:
     // - select the piece
     // - make the premove destinations
     else if (_isPremovable(piece)) {
-      setState(() {
-        selected = square;
-        _premoveDests = premovesOf(
+      _setSelection(
+        square,
+        newPremoveDests: premovesOf(
           square,
           pieces,
           canCastle: widget.settings.enablePremoveCastling,
-        );
-      });
+        ),
+      );
     }
     // pointer down on empty square:
     // - cancel premove
     // - unselect piece
-    else if (widget.game?.premovable?.premove != null) {
-      widget.game?.premovable?.onSetPremove.call(null);
-      setState(() {
-        selected = null;
-        _premoveDests = null;
-      });
+    else if (_controller.premove != null) {
+      _controller.premove = null;
+      _setSelection(null);
     }
 
     // there is a premove set from the touched square:
     // - cancel the premove on the next tap up event
-    if (widget.game?.premovable?.premove case NormalMove(:final from) when from == square) {
+    if (_controller.premove case NormalMove(:final from) when from == square) {
       _shouldCancelPremoveOnTapUp = true;
     }
 
@@ -777,7 +777,7 @@ class _BoardState extends State<Chessboard> {
     } else if (_shapeAvatar != null &&
         _drawOrigin != null &&
         _drawOrigin!.pointer == details.pointer) {
-      widget.settings.drawShape.onCompleteShape?.call(_shapeAvatar!.withScale(1.0));
+      _controller.toggleDrawnShape(_shapeAvatar!.withScale(1.0));
       setState(() {
         _shapeAvatar = null;
       });
@@ -799,8 +799,8 @@ class _BoardState extends State<Chessboard> {
         if (square != selected) {
           final couldMove = _tryMoveOrPremoveTo(square, drop: true);
           // if the premove was not possible, cancel the current premove
-          if (!couldMove && widget.game?.premovable?.premove != null) {
-            widget.game?.premovable?.onSetPremove.call(null);
+          if (!couldMove && _controller.premove != null) {
+            _controller.premove = null;
           }
         } else {
           // if piece shift method is drag only we always deselect the piece after a drag
@@ -808,34 +808,26 @@ class _BoardState extends State<Chessboard> {
         }
       }
       // if the user drags a piece outside the board, cancel the premove
-      else if (widget.game?.premovable?.premove != null) {
-        widget.game?.premovable?.onSetPremove.call(null);
+      else if (_controller.premove != null) {
+        _controller.premove = null;
       }
       _onDragEnd();
-      setState(() {
-        if (shouldDeselect) {
-          selected = null;
-          _premoveDests = null;
-        }
-        _draggedPieceSquare = null;
-      });
+      if (shouldDeselect) _setSelection(null);
+      _draggedPieceSquareNotifier.value = null;
     }
     // handle pointer up while not dragging a piece
     else if (selected != null) {
       if (square == selected && _shouldDeselectOnTapUp) {
         _shouldDeselectOnTapUp = false;
-        setState(() {
-          selected = null;
-          _premoveDests = null;
-        });
+        _setSelection(null);
       }
     }
 
     // cancel premove if the user taps on the origin square of the premove
     if (_shouldCancelPremoveOnTapUp) {
-      if (widget.game?.premovable?.premove case NormalMove(:final from) when from == square) {
+      if (_controller.premove case NormalMove(:final from) when from == square) {
         _shouldCancelPremoveOnTapUp = false;
-        widget.game?.premovable?.onSetPremove.call(null);
+        _controller.premove = null;
       }
     }
 
@@ -864,9 +856,7 @@ class _BoardState extends State<Chessboard> {
     }
 
     _onDragEnd();
-    setState(() {
-      _draggedPieceSquare = null;
-    });
+    _draggedPieceSquareNotifier.value = null;
     _currentPointerDownEvent = null;
     _shouldCancelPremoveOnTapUp = false;
     _shouldDeselectOnTapUp = false;
@@ -879,9 +869,7 @@ class _BoardState extends State<Chessboard> {
     final feedbackSize =
         widget.squareSize * (isMousePointer ? 1 : widget.settings.dragFeedbackScale);
     if (square != null && piece != null && (_isMovable(piece) || _isPremovable(piece))) {
-      setState(() {
-        _draggedPieceSquare = square;
-      });
+      _draggedPieceSquareNotifier.value = square;
       _renderBox ??= context.findRenderObject()! as RenderBox;
 
       final dragFeedbackOffsetY =
@@ -900,21 +888,9 @@ class _BoardState extends State<Chessboard> {
               ? DragTargetKind.square
               : widget.settings.dragTargetKind;
 
-      final targetWidget = switch (targetKind) {
-        DragTargetKind.circle => Container(
-          key: const ValueKey('drag-target-circle'),
-          width: widget.squareSize * 2,
-          height: widget.squareSize * 2,
-          decoration: const BoxDecoration(color: Color(0x33000000), shape: BoxShape.circle),
-        ),
-        DragTargetKind.square => Container(
-          key: const ValueKey('drag-target-square'),
-          width: widget.squareSize,
-          height: widget.squareSize,
-          decoration: const BoxDecoration(color: Color(0x33000000)),
-        ),
-        DragTargetKind.none => const SizedBox.shrink(),
-      };
+      final asset = widget.settings.pieceAssets[piece.kind]!;
+      final image = ChessgroundImages.instance.get(asset);
+      final upsideDown = _isUpsideDown(piece.color);
 
       _dragAvatar = _DragAvatar(
         overlayState: Overlay.of(context, debugRequiredFor: widget),
@@ -924,17 +900,12 @@ class _BoardState extends State<Chessboard> {
           _renderBox!,
           isLargeCircle: targetKind == DragTargetKind.circle,
         ),
-        squareTargetFeedback: targetWidget,
-        pieceFeedback: Transform.translate(
-          offset: feedbackOffset,
-          child: PieceWidget(
-            piece: piece,
-            size: feedbackSize,
-            pieceAssets: widget.settings.pieceAssets,
-            blindfoldMode: widget.settings.blindfoldMode,
-            upsideDown: _isUpsideDown(piece.color),
-          ),
-        ),
+        image: image,
+        feedbackSize: feedbackSize,
+        feedbackOffset: feedbackOffset,
+        upsideDown: upsideDown,
+        targetKind: targetKind,
+        squareSize: widget.squareSize,
       );
     }
   }
@@ -950,10 +921,8 @@ class _BoardState extends State<Chessboard> {
     _dragAvatar?.end();
     _dragAvatar = null;
     _renderBox = null;
-    setState(() {
-      _draggedPieceSquare = null;
-      selected = null;
-    });
+    _setSelection(null);
+    _draggedPieceSquareNotifier.value = null;
     _currentPointerDownEvent = null;
     _shouldDeselectOnTapUp = false;
     _shouldCancelPremoveOnTapUp = false;
@@ -964,28 +933,30 @@ class _BoardState extends State<Chessboard> {
   bool _isUpsideDown(Side pieceColor) => switch (widget.settings.pieceOrientationBehavior) {
     PieceOrientationBehavior.facingUser => false,
     PieceOrientationBehavior.opponentUpsideDown => pieceColor == widget.orientation.opposite,
-    PieceOrientationBehavior.sideToPlay => widget.game?.sideToMove == widget.orientation.opposite,
+    PieceOrientationBehavior.sideToPlay =>
+      _controller.game.sideToMove == widget.orientation.opposite,
   };
 
   /// Whether the piece is movable by the current side to move.
   bool _isMovable(Piece? piece) {
+    final game = _controller.game;
     return piece != null &&
-        (widget.game?.playerSide == PlayerSide.both ||
-            widget.game?.playerSide.name == piece.color.name) &&
-        widget.game?.sideToMove == piece.color;
+        (game.playerSide == PlayerSide.both || game.playerSide.name == piece.color.name) &&
+        game.sideToMove == piece.color;
   }
 
   /// Whether the piece is premovable by the current side to move.
   bool _isPremovable(Piece? piece) {
+    final game = _controller.game;
     return piece != null &&
-        (widget.game?.premovable != null &&
-            widget.game?.playerSide.name == piece.color.name &&
-            widget.game?.sideToMove != piece.color);
+        widget.settings.enablePremoves &&
+        game.playerSide.name == piece.color.name &&
+        game.sideToMove != piece.color;
   }
 
   /// Whether the piece is allowed to be moved to the target square.
   bool _canMoveTo(Square orig, Square dest) {
-    final validDests = widget.game?.validMoves[orig];
+    final validDests = _controller.game.validMoves[orig];
     return orig != dest && validDests != null && validDests.contains(dest);
   }
 
@@ -1008,17 +979,18 @@ class _BoardState extends State<Chessboard> {
     final selectedPiece = selected != null ? pieces[selected] : null;
     if (selectedPiece != null && _canMoveTo(selected!, square)) {
       final move = NormalMove(from: selected!, to: square);
-      if (drop) {
-        _lastDrop = move;
-      }
       if (_isPromoMove(selectedPiece, square)) {
         if (widget.settings.autoQueenPromotion) {
-          widget.game?.onMove.call(move.withPromotion(Role.queen), viaDragAndDrop: drop);
+          final promoted = move.withPromotion(Role.queen);
+          if (drop) _controller.recordDropMove(promoted);
+          widget.onMove?.call(promoted, viaDragAndDrop: drop);
         } else {
-          widget.game?.onMove.call(move, viaDragAndDrop: drop);
+          _pendingPromotionViaDragAndDrop = drop;
+          _controller.pendingPromotion = move;
         }
       } else {
-        widget.game?.onMove.call(move, viaDragAndDrop: drop);
+        if (drop) _controller.recordDropMove(move);
+        widget.onMove?.call(move, viaDragAndDrop: drop);
       }
       return true;
     } else if (_isPremovable(selectedPiece) && _canPremoveTo(selected!, square)) {
@@ -1027,7 +999,7 @@ class _BoardState extends State<Chessboard> {
           widget.settings.autoQueenPromotionOnPremove && isPromoPremove
               ? NormalMove(from: selected!, to: square, promotion: Role.queen)
               : NormalMove(from: selected!, to: square);
-      widget.game?.premovable?.onSetPremove.call(premove);
+      _controller.premove = premove;
       return true;
     }
     return false;
@@ -1039,11 +1011,9 @@ class _BoardState extends State<Chessboard> {
 // and:
 // https://github.com/flutter/flutter/blob/ee4e09cce01d6f2d7f4baebd247fde02e5008851/packages/flutter/lib/src/widgets/overlay.dart#L58
 class _DragAvatar {
-  final Widget pieceFeedback;
-  final Widget squareTargetFeedback;
   final OverlayState overlayState;
-  Offset _position;
-  Offset? _squareTargetPosition;
+  final ValueNotifier<Offset> _positionNotifier;
+  final ValueNotifier<Offset?> _squareTargetNotifier;
   late final OverlayEntry _pieceEntry;
   late final OverlayEntry _squareTargetEntry;
 
@@ -1051,67 +1021,71 @@ class _DragAvatar {
     required this.overlayState,
     required Offset initialPosition,
     Offset? initialTargetPosition,
-    required this.pieceFeedback,
-    required this.squareTargetFeedback,
-  }) : _position = initialPosition,
-       _squareTargetPosition = initialTargetPosition {
-    _pieceEntry = OverlayEntry(builder: _buildPieceFeedback);
-    _squareTargetEntry = OverlayEntry(builder: _buildSquareTargetFeedback);
+    required ui.Image? image,
+    required double feedbackSize,
+    required Offset feedbackOffset,
+    required bool upsideDown,
+    required DragTargetKind targetKind,
+    required double squareSize,
+  }) : _positionNotifier = ValueNotifier<Offset>(initialPosition),
+       _squareTargetNotifier = ValueNotifier<Offset?>(initialTargetPosition) {
+    // Only the paint phase runs on each pointer move.
+    _pieceEntry = OverlayEntry(
+      builder:
+          (_) => Positioned.fill(
+            child: IgnorePointer(
+              child: CustomPaint(
+                painter: DragPiecePainter(
+                  image: image,
+                  feedbackSize: feedbackSize,
+                  feedbackOffset: feedbackOffset,
+                  upsideDown: upsideDown,
+                  positionNotifier: _positionNotifier,
+                ),
+              ),
+            ),
+          ),
+    );
+    _squareTargetEntry = OverlayEntry(
+      builder:
+          (_) => Positioned.fill(
+            child: IgnorePointer(
+              child: CustomPaint(
+                painter: DragSquareTargetPainter(
+                  squareSize: squareSize,
+                  targetKind: targetKind,
+                  positionNotifier: _squareTargetNotifier,
+                ),
+              ),
+            ),
+          ),
+    );
     overlayState.insert(_squareTargetEntry);
     overlayState.insert(_pieceEntry);
-    _updateDrag();
   }
 
   void update(PointerEvent details) {
-    _position += details.delta;
-    _updateDrag();
+    _positionNotifier.value = _positionNotifier.value + details.delta;
   }
 
   void updateSquareTarget(Offset? squareTargetOffset) {
-    if (_squareTargetPosition != squareTargetOffset) {
-      _squareTargetPosition = squareTargetOffset;
-      _squareTargetEntry.markNeedsBuild();
+    if (_squareTargetNotifier.value != squareTargetOffset) {
+      _squareTargetNotifier.value = squareTargetOffset;
     }
   }
 
   void end() {
-    finishDrag();
+    _finishDrag();
   }
 
   void cancel() {
-    finishDrag();
+    _finishDrag();
   }
 
-  void _updateDrag() {
-    _pieceEntry.markNeedsBuild();
-  }
-
-  void finishDrag() {
+  void _finishDrag() {
     _pieceEntry.remove();
     _squareTargetEntry.remove();
-  }
-
-  Widget _buildPieceFeedback(BuildContext context) {
-    return Positioned(
-      left: _position.dx,
-      top: _position.dy,
-      child: IgnorePointer(child: pieceFeedback),
-    );
-  }
-
-  Widget _buildSquareTargetFeedback(BuildContext context) {
-    if (_squareTargetPosition != null) {
-      return Positioned(
-        left: _squareTargetPosition!.dx,
-        top: _squareTargetPosition!.dy,
-        child: IgnorePointer(child: squareTargetFeedback),
-      );
-    } else {
-      return const SizedBox.shrink();
-    }
+    _positionNotifier.dispose();
+    _squareTargetNotifier.dispose();
   }
 }
-
-const ISet<Square> _emptyValidMoves = ISetConst({});
-const ISet<Shape> _emptyShapes = ISetConst({});
-const IMap<Square, Annotation> _emptyAnnotations = IMapConst({});

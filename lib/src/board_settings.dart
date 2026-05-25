@@ -74,8 +74,8 @@ class BoardBorder {
 
 /// Board settings that controls visual aspects and behavior of the board.
 ///
-/// This is meant for fixed settings that don't change during a game. Sensible
-/// defaults are provided.
+/// This is meant for fixed settings that don't change during a game. Sensible defaults are
+/// provided.
 @immutable
 class ChessboardSettings {
   const ChessboardSettings({
@@ -102,10 +102,13 @@ class ChessboardSettings {
     this.drawShape = const DrawShapeOptions(),
 
     // behavior settings
+    this.enableDrops = false,
+    this.enablePremoves = true,
     this.enablePremoveCastling = true,
     this.autoQueenPromotion = false,
     this.autoQueenPromotionOnPremove = true,
     this.pieceShiftMethod = PieceShiftMethod.either,
+    this.canPromoteToKing = false,
   });
 
   /// Theme of the board
@@ -161,11 +164,17 @@ class ChessboardSettings {
   /// Controls if any pieces are displayed upside down.
   final PieceOrientationBehavior pieceOrientationBehavior;
 
+  /// Whether drop moves are enabled (for variants such as Crazyhouse).
+  final bool enableDrops;
+
+  /// Whether premoves are enabled.
+  final bool enablePremoves;
+
   /// Whether castling is enabled with a premove.
   final bool enablePremoveCastling;
 
   /// If true the promotion selector won't appear and pawn will be promoted
-  // automatically to queen
+  /// automatically to queen.
   final bool autoQueenPromotion;
 
   /// If true the promotion selector won't appear and pawn will be promoted
@@ -175,7 +184,13 @@ class ChessboardSettings {
   /// Controls how moves are made.
   final PieceShiftMethod pieceShiftMethod;
 
-  /// Shape drawing options object containing data about how new shapes can be drawn.
+  /// Whether the pawn can be promoted to a king (for example in Antichess).
+  final bool canPromoteToKing;
+
+  /// Options that control the shape drawing gesture (enable/disable and color).
+  ///
+  /// Drawn shapes are stored in [ChessboardController] and can be cleared with
+  /// [ChessboardController.clearDrawnShapes].
   final DrawShapeOptions drawShape;
 
   @override
@@ -192,6 +207,8 @@ class ChessboardSettings {
         other.border == border &&
         other.borderRadius == borderRadius &&
         other.boxShadow == boxShadow &&
+        other.brightness == brightness &&
+        other.hue == hue &&
         other.enableCoordinates == enableCoordinates &&
         other.animationDuration == animationDuration &&
         other.showLastMove == showLastMove &&
@@ -201,20 +218,25 @@ class ChessboardSettings {
         other.dragFeedbackOffset == dragFeedbackOffset &&
         other.dragTargetKind == dragTargetKind &&
         other.pieceOrientationBehavior == pieceOrientationBehavior &&
+        other.enableDrops == enableDrops &&
+        other.enablePremoves == enablePremoves &&
         other.enablePremoveCastling == enablePremoveCastling &&
         other.autoQueenPromotion == autoQueenPromotion &&
         other.autoQueenPromotionOnPremove == autoQueenPromotionOnPremove &&
         other.pieceShiftMethod == pieceShiftMethod &&
+        other.canPromoteToKing == canPromoteToKing &&
         other.drawShape == drawShape;
   }
 
   @override
-  int get hashCode => Object.hash(
+  int get hashCode => Object.hashAll([
     colorScheme,
     pieceAssets,
     border,
     borderRadius,
     boxShadow,
+    brightness,
+    hue,
     enableCoordinates,
     animationDuration,
     showLastMove,
@@ -224,18 +246,22 @@ class ChessboardSettings {
     dragFeedbackOffset,
     dragTargetKind,
     pieceOrientationBehavior,
+    enableDrops,
+    enablePremoves,
     enablePremoveCastling,
     autoQueenPromotion,
     autoQueenPromotionOnPremove,
     pieceShiftMethod,
+    canPromoteToKing,
     drawShape,
-  );
+  ]);
 
   ChessboardSettings copyWith({
     ChessboardColorScheme? colorScheme,
     double? brightness,
     double? hue,
     PieceAssets? pieceAssets,
+    BoardBorder? border,
     BorderRadiusGeometry? borderRadius,
     List<BoxShadow>? boxShadow,
     bool? enableCoordinates,
@@ -247,10 +273,13 @@ class ChessboardSettings {
     Offset? dragFeedbackOffset,
     DragTargetKind? dragTargetKind,
     PieceOrientationBehavior? pieceOrientationBehavior,
+    bool? enableDrops,
+    bool? enablePremoves,
     bool? enablePremoveCastling,
     bool? autoQueenPromotion,
     bool? autoQueenPromotionOnPremove,
     PieceShiftMethod? pieceShiftMethod,
+    bool? canPromoteToKing,
     DrawShapeOptions? drawShape,
   }) {
     return ChessboardSettings(
@@ -258,7 +287,7 @@ class ChessboardSettings {
       brightness: brightness ?? this.brightness,
       hue: hue ?? this.hue,
       pieceAssets: pieceAssets ?? this.pieceAssets,
-      border: border,
+      border: border ?? this.border,
       borderRadius: borderRadius ?? this.borderRadius,
       boxShadow: boxShadow ?? this.boxShadow,
       enableCoordinates: enableCoordinates ?? this.enableCoordinates,
@@ -270,11 +299,164 @@ class ChessboardSettings {
       dragFeedbackOffset: dragFeedbackOffset ?? this.dragFeedbackOffset,
       dragTargetKind: dragTargetKind ?? this.dragTargetKind,
       pieceOrientationBehavior: pieceOrientationBehavior ?? this.pieceOrientationBehavior,
+      enableDrops: enableDrops ?? this.enableDrops,
+      enablePremoves: enablePremoves ?? this.enablePremoves,
       enablePremoveCastling: enablePremoveCastling ?? this.enablePremoveCastling,
       autoQueenPromotionOnPremove: autoQueenPromotionOnPremove ?? this.autoQueenPromotionOnPremove,
       autoQueenPromotion: autoQueenPromotion ?? this.autoQueenPromotion,
       pieceShiftMethod: pieceShiftMethod ?? this.pieceShiftMethod,
+      canPromoteToKing: canPromoteToKing ?? this.canPromoteToKing,
       drawShape: drawShape ?? this.drawShape,
     );
   }
+}
+
+/// Visual settings for a [StaticChessboard].
+///
+/// This is the non-interactive counterpart of [ChessboardSettings]: it exposes
+/// only the options that are meaningful for a board the user cannot play on
+/// (no premoves, drag, promotion, shift method, etc.).
+///
+/// Use [StaticChessboardSettings.fromBoardSettings] to derive one from an
+/// existing [ChessboardSettings].
+@immutable
+class StaticChessboardSettings {
+  const StaticChessboardSettings({
+    this.colorScheme = ChessboardColorScheme.brown,
+    this.pieceAssets = PieceSet.cburnettAssets,
+    this.border,
+    this.borderRadius = BorderRadius.zero,
+    this.boxShadow = const <BoxShadow>[],
+    this.brightness = 1.0,
+    this.hue = 0.0,
+    this.enableCoordinates = false,
+    this.animationDuration = const Duration(milliseconds: 200),
+    this.showLastMove = true,
+    this.blindfoldMode = false,
+    this.pieceOrientationBehavior = PieceOrientationBehavior.facingUser,
+  });
+
+  /// Derives static settings from a full [ChessboardSettings], keeping only the
+  /// options relevant to a non-interactive board.
+  factory StaticChessboardSettings.fromBoardSettings(ChessboardSettings settings) {
+    return StaticChessboardSettings(
+      colorScheme: settings.colorScheme,
+      pieceAssets: settings.pieceAssets,
+      border: settings.border,
+      borderRadius: settings.borderRadius,
+      boxShadow: settings.boxShadow,
+      brightness: settings.brightness,
+      hue: settings.hue,
+      enableCoordinates: settings.enableCoordinates,
+      animationDuration: settings.animationDuration,
+      showLastMove: settings.showLastMove,
+      blindfoldMode: settings.blindfoldMode,
+      pieceOrientationBehavior: settings.pieceOrientationBehavior,
+    );
+  }
+
+  /// Theme of the board
+  final ChessboardColorScheme colorScheme;
+
+  /// Piece set
+  final PieceAssets pieceAssets;
+
+  /// Optional border of the board
+  final BoardBorder? border;
+
+  /// Border radius of the board
+  final BorderRadiusGeometry borderRadius;
+
+  /// Box shadow of the board
+  final List<BoxShadow> boxShadow;
+
+  /// Brightness adjustment of the board
+  final double brightness;
+
+  /// Hue rotation of the board as an angle in degree from 0.0 to 360.0.
+  final double hue;
+
+  /// Whether to show board coordinates
+  final bool enableCoordinates;
+
+  /// Piece animation duration (pieces animate when the position changes)
+  final Duration animationDuration;
+
+  /// Whether to show last move highlight
+  final bool showLastMove;
+
+  /// Pieces are hidden in blindfold mode
+  final bool blindfoldMode;
+
+  /// Controls if any pieces are displayed upside down.
+  final PieceOrientationBehavior pieceOrientationBehavior;
+
+  StaticChessboardSettings copyWith({
+    ChessboardColorScheme? colorScheme,
+    PieceAssets? pieceAssets,
+    BoardBorder? border,
+    BorderRadiusGeometry? borderRadius,
+    List<BoxShadow>? boxShadow,
+    double? brightness,
+    double? hue,
+    bool? enableCoordinates,
+    Duration? animationDuration,
+    bool? showLastMove,
+    bool? blindfoldMode,
+    PieceOrientationBehavior? pieceOrientationBehavior,
+  }) {
+    return StaticChessboardSettings(
+      colorScheme: colorScheme ?? this.colorScheme,
+      pieceAssets: pieceAssets ?? this.pieceAssets,
+      border: border ?? this.border,
+      borderRadius: borderRadius ?? this.borderRadius,
+      boxShadow: boxShadow ?? this.boxShadow,
+      brightness: brightness ?? this.brightness,
+      hue: hue ?? this.hue,
+      enableCoordinates: enableCoordinates ?? this.enableCoordinates,
+      animationDuration: animationDuration ?? this.animationDuration,
+      showLastMove: showLastMove ?? this.showLastMove,
+      blindfoldMode: blindfoldMode ?? this.blindfoldMode,
+      pieceOrientationBehavior: pieceOrientationBehavior ?? this.pieceOrientationBehavior,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
+    return other is StaticChessboardSettings &&
+        other.colorScheme == colorScheme &&
+        other.pieceAssets == pieceAssets &&
+        other.border == border &&
+        other.borderRadius == borderRadius &&
+        other.boxShadow == boxShadow &&
+        other.brightness == brightness &&
+        other.hue == hue &&
+        other.enableCoordinates == enableCoordinates &&
+        other.animationDuration == animationDuration &&
+        other.showLastMove == showLastMove &&
+        other.blindfoldMode == blindfoldMode &&
+        other.pieceOrientationBehavior == pieceOrientationBehavior;
+  }
+
+  @override
+  int get hashCode => Object.hashAll([
+    colorScheme,
+    pieceAssets,
+    border,
+    borderRadius,
+    boxShadow,
+    brightness,
+    hue,
+    enableCoordinates,
+    animationDuration,
+    showLastMove,
+    blindfoldMode,
+    pieceOrientationBehavior,
+  ]);
 }

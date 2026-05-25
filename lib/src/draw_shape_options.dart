@@ -1,24 +1,25 @@
 import 'package:flutter/widgets.dart';
 import 'models.dart';
 
-/// Settings for drawing shapes on the board.
+/// Options that control the shape drawing gesture on the board.
+///
+/// When [enable] is true, the user can hold an empty square with one finger
+/// and tap or drag with another to draw [Circle]s and [Arrow]s. Completed
+/// shapes are stored in [ChessboardController.drawnShapes] and can be
+/// cleared with [ChessboardController.clearDrawnShapes].
+///
+/// Externally supplied shapes (engine arrows, analysis annotations, etc.)
+/// are passed separately via [Chessboard.shapes]; the board renders the
+/// union of both sets.
 @immutable
 class DrawShapeOptions {
   const DrawShapeOptions({
     this.enable = false,
-    this.onCompleteShape,
-    this.onClearShapes,
     this.newShapeColor = const Color(0xAA15781b), // default to lichess.org green
   });
 
   /// Whether to enable shape drawing.
   final bool enable;
-
-  /// A callback for when shape drawing gesture is completed.
-  final void Function(Shape shape)? onCompleteShape;
-
-  /// A callback for when the user clears all shapes.
-  final void Function()? onClearShapes;
 
   /// The color of the shape being drawn.
   final Color newShapeColor;
@@ -30,11 +31,9 @@ class DrawShapeOptions {
 
     return other is DrawShapeOptions &&
         other.enable == enable &&
-        other.newShapeColor == newShapeColor &&
-        other.onCompleteShape == onCompleteShape &&
-        other.onClearShapes == onClearShapes;
+        other.newShapeColor == newShapeColor;
   }
 
   @override
-  int get hashCode => Object.hash(enable, newShapeColor, onCompleteShape, onClearShapes);
+  int get hashCode => Object.hash(enable, newShapeColor);
 }

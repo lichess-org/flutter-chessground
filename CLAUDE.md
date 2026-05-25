@@ -13,6 +13,7 @@ flutter pub get          # Install dependencies
 flutter test             # Run all tests
 flutter test test/fen_test.dart  # Run a single test file
 flutter analyze          # Run static analysis (strict mode: strict-casts, strict-inference, strict-raw-types)
+dart format lib/ test/   # Format all source files
 ```
 
 CI uses Flutter **beta** channel.
@@ -25,15 +26,19 @@ All public exports go through `lib/chessground.dart`. Internal implementation li
 
 ### Three Board Widgets
 
-- **`Chessboard`** (`src/widgets/board.dart`) — Main interactive board. Two constructors: `Chessboard()` for interactive play (requires `GameData`) and `Chessboard.fixed()` for non-interactive display with animations.
-- **`StaticChessboard`** (`src/widgets/static_board.dart`) — Read-only board optimized for scrollable contexts (uses deferred loading).
+- **`Chessboard`** (`src/widgets/board.dart`) — The interactive board. Always requires a `ChessboardController`. To disable interaction (e.g. at game end) drive it with game data whose `playerSide` is `PlayerSide.none` (`controller.interactive` becomes `false`).
+- **`StaticChessboard`** (`src/widgets/static_board.dart`) — The non-interactive board, optimized for scrollable contexts (deferred loading). Animates on FEN change. Configured via `StaticChessboardSettings` and supports `shapes`, `squareHighlights`, `onTouchedSquare`, and a border.
 - **`ChessboardEditor`** (`src/widgets/board_editor.dart`) — Position editor with drag and edit pointer modes.
 
 ### Core Data Flow
 
-The board is driven by immutable data objects:
-- **`GameData`** — Holds game state (side to move, valid moves, premove state) and callbacks (`onMove`, `onPremove`). Any game state change requires creating a new `GameData` instance.
-- **`ChessboardSettings`** — All visual and behavioral configuration (theme, animations, piece shift method, draw shapes, coordinates, etc.).
+The board is driven by a controller and immutable data objects:
+- **`ChessboardController`** (`src/widgets/board_controller.dart`) — Owns board position, game state, and piece animations. Create once in `initState`, dispose in `dispose`.
+  - `ChessboardController(game: game)` — the only constructor; drives a `Chessboard`. Use `game.playerSide == PlayerSide.none` for a non-interactive (but externally animated) board.
+  - `animatePosition(GameData game)` — advance position with animation. Drag-and-drop suppression is automatic: the board records drops internally (`recordDropMove`) so the dropped piece is not re-animated.
+  - `jumpToPosition(GameData game)` — switch position without animation.
+- **`GameData`** — Immutable snapshot of board and game state: `fen`, `playerSide`, `sideToMove`, `validMoves`, `lastMove`, `kingSquareInCheck`, `validDropSquares`. It is the single source of truth driving the controller.
+- **`ChessboardSettings`** — All visual and behavioral configuration (theme, animations, piece shift method, draw shapes, coordinates, `enableDrops`, etc.).
 - **`Pieces`** (`Map<Square, Piece>`) — Board position, typically derived from FEN via `readFen()`.
 
 ### Shape System
@@ -53,3 +58,4 @@ The board is driven by immutable data objects:
 - Immutable data classes with `@immutable`, `copyWith()`, manual `==`/`hashCode`
 - Single quotes for strings (enforced by linter)
 - Linting via `package:lint/package.yaml` with all strict modes enabled
+- All files must be formatted with `dart format` before committing

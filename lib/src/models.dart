@@ -1,6 +1,5 @@
 import 'package:dartchess/dartchess.dart';
 import 'package:flutter/widgets.dart';
-import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 
 /// The side that can interact with the board.
 enum PlayerSide {
@@ -20,23 +19,24 @@ enum PlayerSide {
 }
 
 /// Game data for an interactive chessboard.
-///
-/// This is used to control the state of the chessboard and to provide callbacks for user interactions.
 @immutable
 class GameData {
   /// Creates a new [GameData] with the provided values.
   const GameData({
+    required this.fen,
     required this.playerSide,
     required this.sideToMove,
     required this.validMoves,
-    required this.promotionMove,
-    required this.onMove,
-    required this.onPromotionSelection,
-    this.isCheck,
-    this.premovable,
-    this.droppable,
-    this.canPromoteToKing = false,
+    this.lastMove,
+    this.kingSquareInCheck,
+    this.validDropSquares,
   });
+
+  /// The board position as a FEN string.
+  final String fen;
+
+  /// The last move played, used to highlight the origin and destination squares.
+  final Move? lastMove;
 
   /// Side that is allowed to move.
   final PlayerSide playerSide;
@@ -44,77 +44,29 @@ class GameData {
   /// Side which is to move.
   final Side sideToMove;
 
-  /// A pawn move that should be promoted.
-  ///
-  /// Will show a promotion dialog if not null.
-  final NormalMove? promotionMove;
-
-  /// Highlight the king of current side to move
-  final bool? isCheck;
+  /// The king square in check. If non-null, the king of the side to move is in check and will be highlighted.
+  final Square? kingSquareInCheck;
 
   /// Set of moves allowed to be played by current side to move.
   final ValidMoves validMoves;
 
-  /// Callback called after a move has been made.
-  ///
-  /// If the move has been made with drag and drop, `viaDragAndDrop` will be true.
-  final void Function(Move, {bool? viaDragAndDrop}) onMove;
-
-  /// Callback called after a piece has been selected for promotion.
-  ///
-  /// If the argument is `null`, the promotion should be canceled.
-  final void Function(Role? role) onPromotionSelection;
-
-  /// Optional premovable state of the board.
-  ///
-  /// If `null`, the board will not allow premoves.
-  final Premovable? premovable;
-
-  /// Optional droppable state of the board for variants such as Crazyhouse.
-  ///
-  /// If `null`, the board will not allow drops.
-  final Droppable? droppable;
-
-  /// Whether the pawn can be promoted to a king (possible for example in Antichess).
-  final bool canPromoteToKing;
+  /// Set of squares where the current side to move can drop a piece, for variants such as Crazyhouse.
+  final ValidDropSquares? validDropSquares;
 }
-
-/// State of a premovable chessboard.
-typedef Premovable =
-    ({
-      /// Registered premove.
-      ///
-      /// Will be shown on the board as a preview move.
-      ///
-      /// Chessground will not play the premove automatically, it is up to the library user to play it.
-      Move? premove,
-
-      /// Callback called after a premove has been set/unset.
-      ///
-      /// If `null`, the premove will be unset.
-      void Function(Move?) onSetPremove,
-    });
-
-/// State of a droppable chessboard for variants such as Crazyhouse.
-typedef Droppable =
-    ({
-      /// Set of squares where the current side to move can drop a piece in variants such as Crazyhouse.
-      ValidDropSquares validDropSquares,
-    });
 
 /// Describes a set of piece assets.
 ///
 /// The [PieceAssets] must be complete with all the pieces for both sides.
-typedef PieceAssets = IMap<PieceKind, AssetImage>;
+typedef PieceAssets = Map<PieceKind, AssetImage>;
 
 /// Representation of the piece positions on a board.
 typedef Pieces = Map<Square, Piece>;
 
 /// Sets of each valid destinations for an origin square.
-typedef ValidMoves = IMap<Square, ISet<Square>>;
+typedef ValidMoves = Map<Square, Set<Square>>;
 
 /// Set of squares where a piece can be dropped in variants such as Crazyhouse.
-typedef ValidDropSquares = ISet<Square>;
+typedef ValidDropSquares = Set<Square>;
 
 /// Square highlight color or image on the chessboard.
 @immutable
@@ -127,6 +79,18 @@ class HighlightDetails {
 
   final Color? solidColor;
   final AssetImage? image;
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        other is HighlightDetails &&
+            other.runtimeType == runtimeType &&
+            other.solidColor == solidColor &&
+            other.image == image;
+  }
+
+  @override
+  int get hashCode => Object.hash(solidColor, image);
 }
 
 /// A chess move annotation represented by a symbol and a color.
@@ -159,7 +123,7 @@ class Annotation {
 
 /// Base class for shapes that can be drawn on the board.
 sealed class Shape {
-  /// Scale factor for the shape. Must be between 0.0 and 1.0.
+  /// Scale factor for the shape. Must be greater than 0.0 and at most 1.0.
   double get scale => 1.0;
 
   /// Decides what shape to draw based on the current shape and the new destination.
@@ -174,7 +138,7 @@ sealed class Shape {
 class Circle implements Shape {
   /// Creates a new [Circle] with the provided values.
   ///
-  /// The [scale] must be between 0.0 and 1.0.
+  /// The [scale] must be greater than 0.0 and at most 1.0.
   const Circle({required this.color, required this.orig, this.scale = 1.0})
     : assert(scale > 0.0 && scale <= 1.0);
 
@@ -232,7 +196,7 @@ class Arrow implements Shape {
   /// Creates a new [Arrow] with the provided values.
   ///
   /// The [orig] and [dest] must be different squares.
-  /// The [scale] must be between 0.0 and 1.0.
+  /// The [scale] must be greater than 0.0 and at most 1.0.
   const Arrow({required this.color, required this.orig, required this.dest, this.scale = 1.0})
     : assert(orig != dest && scale > 0.0 && scale <= 1.0);
 
@@ -286,7 +250,7 @@ class PieceShape implements Shape {
 
   /// Creates a new [PieceShape] with the provided values.
   ///
-  /// The [scale] must be between 0.0 and 1.0.
+  /// The [scale] must be greater than 0.0 and at most 1.0.
   /// The default [opacity] is 0.5 and the default [scale] is 0.9.
   const PieceShape({
     this.color,

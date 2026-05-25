@@ -1,5 +1,6 @@
 import 'package:dartchess/dartchess.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/gestures.dart' show PointerDeviceKind;
 import 'package:dartchess/dartchess.dart' as dc;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:chessground/chessground.dart';
@@ -8,6 +9,58 @@ const boardSize = 200.0;
 const squareSize = boardSize / 8;
 
 void main() {
+  group('PieceDragFeedback', () {
+    testWidgets('applies correct translation for default settings', (tester) async {
+      // Default: scale = 2.0, offset = Offset(0, -1).
+      // Formula: dx = (0 - 1) * feedbackSize / 2 = -feedbackSize / 2
+      //          dy = (-1 - 1) * feedbackSize / 2 = -feedbackSize
+      // This centers the feedback horizontally at the pointer and shifts it up
+      // by squareSize, matching how board piece drag positions the avatar.
+      const squareSize = 50.0;
+      const feedbackSize = squareSize * 2.0;
+      await tester.pumpWidget(
+        MaterialApp(
+          home: PieceDragFeedback(
+            piece: Piece.whitePawn,
+            squareSize: squareSize,
+            pieceAssets: PieceSet.merida.assets,
+          ),
+        ),
+      );
+      // Matrix4 stores translation at storage[12] (x) and storage[13] (y).
+      final transform = tester.widget<Transform>(find.byType(Transform));
+      expect(transform.transform.storage[12], closeTo(-feedbackSize / 2, 0.001));
+      expect(transform.transform.storage[13], closeTo(-feedbackSize, 0.001));
+    });
+
+    testWidgets('applies correct translation for custom scale and offset', (tester) async {
+      const squareSize = 40.0;
+      const scale = 1.5;
+      const feedbackOffset = Offset(0.5, -0.5);
+      const feedbackSize = squareSize * scale;
+      await tester.pumpWidget(
+        MaterialApp(
+          home: PieceDragFeedback(
+            piece: Piece.whitePawn,
+            squareSize: squareSize,
+            pieceAssets: PieceSet.merida.assets,
+            scale: scale,
+            offset: feedbackOffset,
+          ),
+        ),
+      );
+      final transform = tester.widget<Transform>(find.byType(Transform));
+      expect(
+        transform.transform.storage[12],
+        closeTo((feedbackOffset.dx - 1) * feedbackSize / 2, 0.001),
+      );
+      expect(
+        transform.transform.storage[13],
+        closeTo((feedbackOffset.dy - 1) * feedbackSize / 2, 0.001),
+      );
+    });
+  });
+
   group('BoardEditor', () {
     testWidgets('empty board has no pieces', (WidgetTester tester) async {
       await tester.pumpWidget(buildBoard(pieces: {}));
@@ -265,6 +318,61 @@ void main() {
       await tester.pumpAndSettle();
       expect(discardedSquare, Square.e1);
     });
+
+    testWidgets('piece draggable uses pointer drag anchor strategy', (tester) async {
+      await tester.pumpWidget(buildBoard(pieces: readFen(dc.kInitialFEN)));
+      final draggable = tester.widget<Draggable<Piece>>(find.byType(Draggable<Piece>).first);
+      expect(draggable.dragAnchorStrategy, pointerDragAnchorStrategy);
+    });
+
+    testWidgets(
+      'drag feedback layout position matches pointer regardless of where within the piece the drag starts',
+      (tester) async {
+        await tester.pumpWidget(buildBoard(pieces: readFen(dc.kInitialFEN)));
+
+        // squareOffset returns the center; pieceTopLeft is the top-left of e2.
+        final pieceTopLeft = squareOffset(Square.e2) - const Offset(squareSize / 2, squareSize / 2);
+        // Use mouse pointer: its hit slop is 1px, so any small move triggers the
+        // drag (touch slop is 18px and would require a larger moveBy).
+        const move = Offset(0.0, -10.0);
+
+        // Drag starting near the top-left corner of the piece.
+        final gesture1 = await tester.startGesture(
+          pieceTopLeft + const Offset(2.0, 2.0),
+          kind: PointerDeviceKind.mouse,
+        );
+        await gesture1.moveBy(move);
+        await tester.pump();
+
+        // With pointerDragAnchorStrategy the overlay Positioned is placed exactly
+        // at the pointer, so getTopLeft == current pointer position.
+        expect(
+          tester.getTopLeft(find.byType(PieceDragFeedback)),
+          pieceTopLeft + const Offset(2.0, -8.0),
+        );
+
+        await gesture1.cancel();
+        await tester.pumpAndSettle();
+
+        // Drag starting near the bottom-right corner of the same piece.
+        final gesture2 = await tester.startGesture(
+          pieceTopLeft + const Offset(squareSize - 2.0, squareSize - 2.0),
+          kind: PointerDeviceKind.mouse,
+        );
+        await gesture2.moveBy(move);
+        await tester.pump();
+
+        // Pointer is now at a different absolute position, but the invariant
+        // holds: feedback top-left == current pointer position.
+        expect(
+          tester.getTopLeft(find.byType(PieceDragFeedback)),
+          pieceTopLeft + const Offset(squareSize - 2.0, squareSize - 12.0),
+        );
+
+        await gesture2.cancel();
+        await tester.pumpAndSettle();
+      },
+    );
   });
 }
 

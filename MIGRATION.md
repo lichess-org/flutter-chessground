@@ -1,0 +1,506 @@
+# Migration Guide
+
+## 9.x → 10.0.0
+
+### Interactive board: controller replaces widget parameters
+
+The `Chessboard()` constructor (interactive board) now uses a controller pattern,
+similar to Flutter's `TextEditingController` or `ScrollController`. Instead of
+passing `fen:`, `game:`, and `lastMove:` to the widget on every `setState`, you
+create a `ChessboardController` once and call `animatePosition()` on it when the
+game state changes.
+
+`GameData` is now a pure state snapshot — it holds the board position (`fen`) and
+game state fields (`sideToMove`, `validMoves`, `lastMove`, etc.), but no callbacks.
+It is the single object passed to the controller constructor and update methods.
+`onMove` is a parameter on the `Chessboard` widget. Premove and
+promotion state are both managed internally by `ChessboardController` — see the
+[Premove section](#premove-handling-premovable-removed) and the
+[Promotion section](#promotion-handling-onpromotionselection-removed) below.
+
+**Before (9.x)**
+
+```dart
+class _MyBoardState extends State<MyBoard> {
+  Position _position = Chess.initial;
+  Move? _lastMove;
+  NormalMove? _promotionMove;
+
+  GameData _buildGame() => GameData(
+    playerSide: PlayerSide.white,
+    sideToMove: _position.turn == Side.white ? Side.white : Side.black,
+    validMoves: makeLegalMoves(_position),
+    promotionMove: _promotionMove,
+    onMove: (move, {viaDragAndDrop}) {
+      setState(() {
+        _position = _position.playUnchecked(move);
+        _lastMove = move;
+      });
+    },
+    onPromotionSelection: (role) {
+      setState(() {
+        if (role != null) {
+          _position = _position.playUnchecked(
+            _promotionMove!.withPromotion(role),
+          );
+        }
+        _promotionMove = null;
+      });
+    },
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    return Chessboard(
+      size: 400,
+      orientation: Side.white,
+      fen: _position.fen,
+      lastMove: _lastMove,
+      game: _buildGame(),
+    );
+  }
+}
+```
+
+**After (10.0.0)**
+
+```dart
+class _MyBoardState extends State<MyBoard> {
+  late ChessboardController _controller;
+  Position _position = Chess.initial;
+  Move? _lastMove;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = ChessboardController(game: _buildGame());
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  GameData _buildGame() => GameData(
+    fen: _position.fen,
+    lastMove: _lastMove,
+    playerSide: PlayerSide.white,
+    sideToMove: _position.turn == Side.white ? Side.white : Side.black,
+    validMoves: makeLegalMoves(_position),
+  );
+
+  void _onMove(Move move, {bool? viaDragAndDrop}) {
+    _position = _position.playUnchecked(move);
+    _lastMove = move;
+    _controller.animatePosition(_buildGame());
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Chessboard(
+      controller: _controller,
+      size: 400,
+      orientation: Side.white,
+      onMove: _onMove,
+    );
+  }
+}
+```
+
+### Parameter mapping
+
+| 9.x | 10.0.0 |
+|---|---|
+| `Chessboard(fen: newFen)` | `GameData(fen: newFen, ...)` passed to `controller.animatePosition()` |
+| `Chessboard(lastMove: move)` | `GameData(lastMove: move, ...)` passed to `controller.animatePosition()` |
+| `Chessboard(game: newGame)` | `controller.animatePosition(newGame)` (the `GameData` carries `fen`) |
+| `GameData(onMove: fn)` | `Chessboard(onMove: fn)` |
+| `GameData(onPromotionSelection: fn)` | removed — board handles promotion internally |
+| `GameData(promotionMove: move)` | removed — board handles promotion internally |
+| `GameData(canPromoteToKing: true)` | `ChessboardSettings(canPromoteToKing: true)` |
+| `GameData(premovable: (onSetPremove: fn, premove: m))` | removed — see [Premove section](#premove-handling-premovable-removed) |
+| `BoardSettings(enablePremoves: false)` (9.x: pass `premovable: null`) | `ChessboardSettings(enablePremoves: false)` |
+| `explosionSquares: squares` | `controller.triggerExplosion(squares)` |
+
+Drag-and-drop animation suppression is handled internally, as in 9.x: the board
+records when a move is made by dropping a piece and skips the redundant slide
+animation on the next `animatePosition()`. The parent does not pass any extra
+argument for this.
+
+### `Chessboard.fixed()` removed → use `StaticChessboard`
+
+The non-interactive `Chessboard.fixed()` constructor has been removed. Use
+`StaticChessboard` for a board the user cannot play on. Its appearance is configured via a
+`StaticChessboardSettings` (a display-only subset of `ChessboardSettings`); derive
+one from an existing `ChessboardSettings` with
+`StaticChessboardSettings.fromBoardSettings()`.
+
+```dart
+// Before
+Chessboard.fixed(
+  size: 400,
+  orientation: Side.white,
+  fen: fen,
+  lastMove: lastMove,
+  settings: boardSettings,
+)
+
+// After
+StaticChessboard(
+  size: 400,
+  orientation: Side.white,
+  fen: fen,
+  lastMove: lastMove,
+  settings: StaticChessboardSettings.fromBoardSettings(boardSettings),
+)
+```
+
+For a board that is interactive only part of the time (e.g. disabled at the end of a
+game), keep using `Chessboard` and drive its controller with game data whose
+`playerSide` is `PlayerSide.none` — `controller.interactive` will then be `false`
+and the user cannot move.
+
+### Explosion squares: widget parameter → controller method
+
+Previously you could pass `explosionSquares:` directly to the `Chessboard()` widget.
+Now call `controller.triggerExplosion(squares)` instead, typically right after
+`controller.animatePosition(...)`:
+
+```dart
+// Before (9.x)
+Chessboard(
+  fen: newFen,
+  game: game,
+  explosionSquares: explodedSquares,
+)
+
+// After (10.0.0)
+controller.animatePosition(newGameData); // newGameData carries the new fen
+if (explodedSquares != null) {
+  controller.triggerExplosion(explodedSquares);
+}
+```
+
+### `squareHighlights` moved to `StaticChessboard`
+
+This parameter was only useful for non-interactive boards. It has been removed from
+the interactive `Chessboard()` constructor and is now a parameter of
+`StaticChessboard`. If you were passing `squareHighlights:` to an interactive
+`Chessboard()`, remove it — it had no meaningful effect there.
+
+### Ownership and lifecycle
+
+The caller creates and owns the controller. The board attaches to it in
+`initState` and detaches in `dispose` — it does **not** dispose the controller.
+You are responsible for calling `controller.dispose()` when the owning state is
+disposed.
+
+```dart
+@override
+void dispose() {
+  _controller.dispose(); // required
+  super.dispose();
+}
+```
+
+### Shape drawing: callbacks removed, controller manages drawn shapes
+
+`DrawShapeOptions` no longer takes `onCompleteShape` or `onClearShapes`
+callbacks. The controller now owns the set of user-drawn shapes and the board
+updates itself automatically — no parent `setState` required.
+
+The externally supplied `Chessboard.shapes` parameter still works the same way
+and is intended for shapes you control from outside (engine arrows, analysis
+annotations, etc.). The board renders the union of both sets.
+
+**Before (9.x)**
+
+```dart
+class _MyBoardState extends State<MyBoard> {
+  Set<Shape> _shapes = {};
+
+  ChessboardSettings get _settings => ChessboardSettings(
+    drawShape: DrawShapeOptions(
+      enable: true,
+      onCompleteShape: (shape) {
+        setState(() => _shapes = {..._shapes, shape});
+      },
+      onClearShapes: () {
+        setState(() => _shapes = {});
+      },
+    ),
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    return Chessboard(
+      // ...
+      settings: _settings,
+      shapes: _shapes,
+    );
+  }
+}
+```
+
+**After (10.0.0)**
+
+```dart
+class _MyBoardState extends State<MyBoard> {
+  late ChessboardController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = ChessboardController(game: _buildGame());
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Chessboard(
+      controller: _controller,
+      // ...
+      settings: const ChessboardSettings(
+        drawShape: DrawShapeOptions(enable: true),
+      ),
+      // shapes: externalShapes,  ← only needed for externally supplied shapes
+    );
+  }
+}
+```
+
+To clear drawn shapes from outside the board (e.g. when the position advances):
+
+```dart
+_controller.clearDrawnShapes();
+```
+
+To read the current drawn shapes (e.g. to persist them):
+
+```dart
+final drawn = _controller.drawnShapes; // Set<Shape>
+```
+
+### Parameter mapping (shape drawing)
+
+| 9.x | 10.0.0 |
+|---|---|
+| `DrawShapeOptions(onCompleteShape: fn)` | removed — controller handles it internally |
+| `DrawShapeOptions(onClearShapes: fn)` | removed — call `controller.clearDrawnShapes()` instead |
+| `setState(() => shapes.add(shape))` in `onCompleteShape` | automatic — board calls `controller.toggleDrawnShape()` internally |
+| toggle-on-redraw logic in `onCompleteShape` | built into the board — drawing the same shape twice removes it |
+| `setState(() => shapes = {})` in `onClearShapes` | `controller.clearDrawnShapes()` |
+| `Chessboard(shapes: userDrawnShapes)` | use `Chessboard(shapes: ...)` for *external* shapes only |
+
+### Drop moves: `Droppable` removed
+
+`GameData.droppable` and the `Droppable` record typedef have been removed.
+Pass the valid drop squares directly on `GameData`, and enable the drop target
+via `ChessboardSettings`.
+
+**Before (9.x)**
+
+```dart
+GameData(
+  // ...
+  droppable: (validDropSquares: position.legalDrops.squares.toSet()),
+)
+```
+
+**After (10.0.0)**
+
+```dart
+// In GameData
+GameData(
+  // ...
+  validDropSquares: position.legalDrops.squares.toSet(),
+)
+
+// In ChessboardSettings — required to activate the drop target
+ChessboardSettings(
+  enableDrops: true,
+  // ...
+)
+```
+
+When drop moves are not applicable (standard chess), omit `validDropSquares`
+(it defaults to `null`) and leave `enableDrops` at its default `false`.
+
+### Premove handling: `Premovable` removed
+
+Premove state is now owned by `ChessboardController`. You no longer need to track
+the current premove in parent state, wire up an `onSetPremove` callback, or
+round-trip the move back into `GameData` on every rebuild.
+
+Enable or disable premoves via `ChessboardSettings.enablePremoves` (default `true`).
+The board sets and clears the premove internally as the user interacts. Read
+`controller.premove` (or listen to `controller.premoveNotifier`) to know when a
+premove is pending. You are still responsible for *executing* the premove at the
+right time (typically right after the opponent moves).
+
+**Before (9.x)**
+
+```dart
+class _MyBoardState extends State<MyBoard> {
+  Move? _premove;
+
+  GameData _buildGame() => GameData(
+    // ...
+    premovable: (
+      onSetPremove: (move) {
+        setState(() => _premove = move);
+        _controller.animatePosition(position.fen, game: _buildGame());
+      },
+      premove: _premove,
+    ),
+  );
+
+  void _onOpponentMove(Move opponentMove) {
+    position = position.playUnchecked(opponentMove);
+    _controller.animatePosition(position.fen, game: _buildGame());
+
+    final premove = _premove;
+    if (premove != null && position.isLegal(premove)) {
+      _premove = null;
+      _playMove(premove);
+    }
+  }
+}
+```
+
+**After (10.0.0)**
+
+```dart
+class _MyBoardState extends State<MyBoard> {
+  // No _premove field needed.
+
+  GameData _buildGame() => GameData(
+    // premovable removed — enablePremoves is in ChessboardSettings (default true)
+    // ...
+  );
+
+  void _onOpponentMove(Move opponentMove) {
+    position = position.playUnchecked(opponentMove);
+    _controller.animatePosition(_buildGame());
+
+    final premove = _controller.premove;
+    if (premove != null && position.isLegal(premove)) {
+      _controller.premove = null;
+      _playMove(premove);
+    }
+  }
+}
+```
+
+To disable premoves entirely:
+
+```dart
+// Before (9.x): pass premovable: null in GameData
+// After (10.0.0):
+ChessboardSettings(enablePremoves: false)
+```
+
+To set or clear a premove programmatically (e.g. to cancel it when the game
+ends):
+
+```dart
+_controller.premove = null;
+```
+
+To react to premove changes outside the board (e.g. pocket highlights):
+
+```dart
+_controller.premoveNotifier.addListener(() {
+  final premove = _controller.premove;
+  // update pocket UI, trigger haptics, etc.
+});
+```
+
+### Promotion handling: `onPromotionSelection` removed
+
+Promotion is now handled entirely inside the board. You no longer need to track a
+`promotionMove` in parent state or wire up an `onPromotionSelection` callback.
+When a pawn reaches the back rank, the board shows the selector automatically.
+`onMove` fires exactly once — after the user picks a piece — with a
+fully-resolved `NormalMove` whose `promotion` field is already set.
+
+**Before (9.x)**
+
+```dart
+NormalMove? _promotionMove;
+
+// GameData carried the pending move
+GameData _buildGame() => GameData(
+  ...
+  promotionMove: _promotionMove,
+);
+
+// Chessboard had onPromotionSelection
+Chessboard(
+  game: _buildGame(),
+  onMove: (move, {viaDragAndDrop}) {
+    if (isPromotionPawnMove(move)) {
+      setState(() => _promotionMove = move);
+    } else {
+      // play move
+    }
+  },
+  onPromotionSelection: (role) {
+    if (role != null) _playMove(_promotionMove!.withPromotion(role));
+    setState(() => _promotionMove = null);
+  },
+)
+```
+
+**After (10.0.0)**
+
+```dart
+// No promotionMove state needed.
+// onMove always receives the complete move.
+
+Chessboard(
+  controller: _controller,
+  onMove: (move, {bool? viaDragAndDrop}) {
+    _position = _position.playUnchecked(move); // move.promotion is set
+    _controller.animatePosition(_buildGame());
+  },
+)
+```
+
+#### `canPromoteToKing` moved to `ChessboardSettings`
+
+```dart
+// Before (9.x)
+GameData(canPromoteToKing: true, ...)
+
+// After (10.0.0)
+ChessboardSettings(canPromoteToKing: true)
+```
+
+#### Promotion premoves
+
+If `autoQueenPromotionOnPremove` is `false` and you execute a premove that
+turns out to be a promotion, use `controller.pendingPromotion` to show the
+selector:
+
+```dart
+void _tryPlayPremove() {
+  final move = _controller.premove;
+  if (move == null) return;
+  _controller.premove = null;
+
+  if (move is NormalMove && _isPromotionPawnMove(move)) {
+    // Let the board show the selector; onMove fires with the resolved move.
+    _controller.pendingPromotion = move;
+    _controller.animatePosition(_buildGame());
+  } else {
+    _playMove(move);
+  }
+}
+```
