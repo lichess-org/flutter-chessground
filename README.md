@@ -23,7 +23,9 @@ chess logic so you can use it with different chess variants.
 
 ## Getting started
 
-This package exports a `Chessboard` widget which can be interactable or not.
+This package exports a `Chessboard` widget for interactive boards and a
+`StaticChessboard` for non-interactive display. Both are highly customizable and
+support the same themes, piece sets, and configuration options.
 
 It is configurable with a `ChessboardSettings` object which defines the board
 behavior and appearance.
@@ -41,12 +43,12 @@ to `controller.animatePosition()` and the constructor. All chess logic must be h
 outside this package.
 
 Callbacks for user interactions (`onMove`, `onSetPremove`) are parameters on
-the `Chessboard` widget rather than on `GameData`. Promotion is handled
-internally — `onMove` fires once with a fully-resolved move after the user
-picks a promotion piece.
+the `Chessboard` widget. Promotion is handled internally — `onMove` fires once
+with a fully-resolved move after the user picks a promotion piece.
 
 The controller pattern means the board rebuilds itself in response to controller
-updates, without requiring a parent `setState()`.
+updates, without requiring a parent `setState()`. This allows the board to
+remain performant even when embedded in a larger widget tree.
 
 ```dart
 class _MyBoardState extends State<MyBoard> {
@@ -96,34 +98,7 @@ class _MyBoardState extends State<MyBoard> {
 ### Non-interactive board
 
 To display a read-only board, use `StaticChessboard`. The example below shows how
-to render a non-interactable position without a controller or move callbacks.
-
-### Piece image cache
-
-Piece images are managed by `ChessgroundImages`, a singleton cache that holds decoded `ui.Image` objects. Board widgets automatically load images on first render if the cache is empty — pieces are invisible for the duration of that load (typically one async frame).
-
-To guarantee pieces are visible on the very first frame, pre-populate the cache before the board is displayed:
-
-```dart
-// in main() or your app startup, before showing any board
-await ChessgroundImages.instance.loadAll(
-  PieceSet.stauntyAssets,
-  devicePixelRatio: WidgetsBinding
-      .instance.platformDispatcher.implicitView?.devicePixelRatio,
-);
-```
-
-When switching piece sets at runtime, clear the old images first:
-
-```dart
-ChessgroundImages.instance.clear();
-await ChessgroundImages.instance.loadAll(newPieceAssets);
-```
-
-If you only need to evict a single image, use `ChessgroundImages.instance.evict(asset)`.
-
-This will display a non-interactable board from the starting position, using the
-default theme:
+to render a board from the starting position, but any FEN string can be used.
 
 ```dart
 import 'package:flutter/material.dart';
@@ -159,6 +134,30 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 }
 ```
+
+### Piece image cache
+
+Piece images are managed by `ChessgroundImages`, a singleton cache that holds decoded `ui.Image` objects. Board widgets automatically load images on first render if the cache is empty — pieces are invisible for the duration of that load (typically one async frame).
+
+To guarantee pieces are visible on the very first frame, pre-populate the cache before the board is displayed:
+
+```dart
+// in main() or your app startup, before showing any board
+await ChessgroundImages.instance.loadAll(
+  PieceSet.stauntyAssets,
+  devicePixelRatio: WidgetsBinding
+      .instance.platformDispatcher.implicitView?.devicePixelRatio,
+);
+```
+
+When switching piece sets at runtime, clear the old images first:
+
+```dart
+ChessgroundImages.instance.clear();
+await ChessgroundImages.instance.loadAll(newPieceAssets);
+```
+
+If you only need to evict a single image, use `ChessgroundImages.instance.evict(asset)`.
 
 ## Usage
 
