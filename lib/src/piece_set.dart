@@ -57,6 +57,7 @@ enum PieceSet {
   /// The [PieceAssets] for this [PieceSet].
   final PieceAssets assets;
 
+
   /// The [PieceAssets] for the 'Alpha' piece set.
   static const PieceAssets alphaAssets = IMapConst({
     PieceKind.blackRook: AssetImage('$_pieceSetsPath/alpha/bR.png', package: 'chessground'),
@@ -253,18 +254,18 @@ enum PieceSet {
   /// The [PieceAssets] for the 'Experimental' piece set.
   /// //TODO: add flipped pieces
   static const PieceAssets experimentalAssets = IMapConst({
-    PieceKind.blackRook: AssetImage('$_pieceSetsPath/experimental/bR.png', package: 'chessground'),
-    PieceKind.blackPawn: AssetImage('$_pieceSetsPath/experimental/bP.png', package: 'chessground'),
-    PieceKind.blackKnight: AssetImage('$_pieceSetsPath/experimental/bN.png', package: 'chessground'),
-    PieceKind.blackBishop: AssetImage('$_pieceSetsPath/experimental/bB.png', package: 'chessground'),
-    PieceKind.blackQueen: AssetImage('$_pieceSetsPath/experimental/bQ.png', package: 'chessground'),
-    PieceKind.blackKing: AssetImage('$_pieceSetsPath/experimental/bK.png', package: 'chessground'),
-    PieceKind.whiteRook: AssetImage('$_pieceSetsPath/experimental/wR.png', package: 'chessground'),
-    PieceKind.whitePawn: AssetImage('$_pieceSetsPath/experimental/wP.png', package: 'chessground'),
-    PieceKind.whiteKnight: AssetImage('$_pieceSetsPath/experimental/wN.png', package: 'chessground'),
-    PieceKind.whiteBishop: AssetImage('$_pieceSetsPath/experimental/wB.png', package: 'chessground'),
-    PieceKind.whiteQueen: AssetImage('$_pieceSetsPath/experimental/wQ.png', package: 'chessground'),
-    PieceKind.whiteKing: AssetImage('$_pieceSetsPath/experimental/wK.png', package: 'chessground'),
+    PieceKind.blackRook: AssetImage('$_pieceSetsPath/experimental/Black-Rook.png', package: 'chessground'),
+    PieceKind.blackPawn: AssetImage('$_pieceSetsPath/experimental/Black-Pawn.png', package: 'chessground'),
+    PieceKind.blackKnight: AssetImage('$_pieceSetsPath/experimental/Black-Knight.png', package: 'chessground'),
+    PieceKind.blackBishop: AssetImage('$_pieceSetsPath/experimental/Black-Bishop.png', package: 'chessground'),
+    PieceKind.blackQueen: AssetImage('$_pieceSetsPath/experimental/Black-Queen.png', package: 'chessground'),
+    PieceKind.blackKing: AssetImage('$_pieceSetsPath/experimental/Black-King.png', package: 'chessground'),
+    PieceKind.whiteRook: AssetImage('$_pieceSetsPath/experimental/White-Rook.png', package: 'chessground'),
+    PieceKind.whitePawn: AssetImage('$_pieceSetsPath/experimental/White-Pawn.png', package: 'chessground'),
+    PieceKind.whiteKnight: AssetImage('$_pieceSetsPath/experimental/White-Knight.png', package: 'chessground'),
+    PieceKind.whiteBishop: AssetImage('$_pieceSetsPath/experimental/White-Bishop.png', package: 'chessground'),
+    PieceKind.whiteQueen: AssetImage('$_pieceSetsPath/experimental/White-Queen.png', package: 'chessground'),
+    PieceKind.whiteKing: AssetImage('$_pieceSetsPath/experimental/White-King.png', package: 'chessground'),
   });
 
 
@@ -699,4 +700,16 @@ enum PieceSet {
     PieceKind.whiteQueen: AssetImage('$_pieceSetsPath/rhosgfx/wQ.png', package: 'chessground'),
     PieceKind.whiteKing: AssetImage('$_pieceSetsPath/rhosgfx/wK.png', package: 'chessground'),
   });
+}
+
+
+extension PieceSet3DExtension on PieceSet {
+  bool get is3d {
+    switch (this) {
+      case PieceSet.experimental:
+        return true;
+      default:
+        return false;
+    }
+  }
 }
