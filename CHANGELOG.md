@@ -39,15 +39,15 @@ See the [migration guide](MIGRATION.md) and the breaking changes below for detai
 
 - Position updates now go through the controller instead of rebuilding the
   `Chessboard` widget with a new `fen`. Call
-  `ChessboardController.animatePosition(GameData game)` to advance the board with
-  animation. The position `fen` now lives on `GameData` (alongside `lastMove`, side
-  to move, valid moves, etc.), so a single object describes the whole board state.
-  Drag-and-drop moves are detected internally by the board, so the redundant
-  translation of a dropped piece is suppressed automatically — the parent no longer
-  passes a `lastDrop` argument.
-
-- `ChessboardController.jumpToPosition(GameData game)` switches to a new position
-  without animation (e.g. history navigation) and clears any pending premove.
+  `ChessboardController.updatePosition(GameData game)` to advance the board with
+  animation, `updatePosition(game, animate: false)` to switch positions instantly
+  (e.g. history navigation), and `updatePosition(game, resetPremove: true)` to
+  clear any pending premove when jumping to an arbitrary position. The position
+  `fen` now lives on `GameData` (alongside `lastMove`, side to move, valid moves,
+  etc.), so a single object describes the whole board state. Drag-and-drop moves
+  are detected internally by the board, so the redundant translation of a dropped
+  piece is suppressed automatically — the parent no longer passes a `lastDrop`
+  argument.
 
 - `Chessboard.fixed()` has been removed. For a non-interactive board, use
   `StaticChessboard` (which now accepts `settings`,

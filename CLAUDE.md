@@ -35,8 +35,7 @@ All public exports go through `lib/chessground.dart`. Internal implementation li
 The board is driven by a controller and immutable data objects:
 - **`ChessboardController`** (`src/widgets/board_controller.dart`) — Owns board position, game state, and piece animations. Create once in `initState`, dispose in `dispose`.
   - `ChessboardController(game: game)` — the only constructor; drives a `Chessboard`. Use `game.playerSide == PlayerSide.none` for a non-interactive (but externally animated) board.
-  - `animatePosition(GameData game)` — advance position with animation. Drag-and-drop suppression is automatic: the board records drops internally (`recordDropMove`) so the dropped piece is not re-animated.
-  - `jumpToPosition(GameData game)` — switch position without animation.
+  - `updatePosition(GameData game, {bool animate = true, bool resetPremove = false})` — update the board position. Pass `animate: false` to switch without animation (e.g. history navigation). Pass `resetPremove: true` to clear any pending premove when jumping to an arbitrary position. Drag-and-drop suppression is automatic: the board records drops internally (`recordDropMove`) so the dropped piece is not re-animated.
 - **`GameData`** — Immutable snapshot of board and game state: `fen`, `playerSide`, `sideToMove`, `validMoves`, `lastMove`, `kingSquareInCheck`, `validDropSquares`. It is the single source of truth driving the controller.
 - **`ChessboardSettings`** — All visual and behavioral configuration (theme, animations, piece shift method, draw shapes, coordinates, `enableDrops`, etc.).
 - **`Pieces`** (`Map<Square, Piece>`) — Board position, typically derived from FEN via `readFen()`.

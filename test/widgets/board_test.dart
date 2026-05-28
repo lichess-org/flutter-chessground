@@ -3104,13 +3104,15 @@ void main() {
       await tester.pump();
 
       // Controller should still drive the board correctly.
-      controller.jumpToPosition(
+      controller.updatePosition(
         const GameData(
           fen: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
           playerSide: PlayerSide.none,
           sideToMove: Side.black,
           validMoves: {},
         ),
+        animate: false,
+        resetPremove: true,
       );
       await tester.pump();
 
@@ -3254,20 +3256,22 @@ void main() {
 
       // Toggle three times. Each toggle shifts the board in the Column and
       // goes through the full deactivate → new initState → old dispose cycle.
-      // jumpToPosition forces a rebuild after each shift so that any broken
-      // animation state is exercised immediately.
+      // updatePosition(animate: false) forces a rebuild after each shift so
+      // that any broken animation state is exercised immediately.
       const altFen = 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1';
       for (var i = 0; i < 3; i++) {
         await tester.tap(find.text('toggle'));
         await tester.pump();
         final fen = i.isEven ? altFen : kInitialFEN;
-        controller.jumpToPosition(
+        controller.updatePosition(
           GameData(
             fen: fen,
             playerSide: PlayerSide.none,
             sideToMove: Setup.parseFen(fen).turn,
             validMoves: const {},
           ),
+          animate: false,
+          resetPremove: true,
         );
         await tester.pump();
       }
@@ -3438,7 +3442,7 @@ void main() {
       );
     });
 
-    testWidgets('controller.animatePosition does not rebuild the board widget', (
+    testWidgets('controller.updatePosition does not rebuild the board widget', (
       WidgetTester tester,
     ) async {
       final gameEventController = StreamController<GameEvent>();
@@ -3587,10 +3591,10 @@ class _TestAppState extends State<_TestApp> {
     switch (event) {
       case GameEvent.nonInteractiveBoardEvent:
         interactiveSide = PlayerSide.none;
-        _controller.animatePosition(_buildGame());
+        _controller.updatePosition(_buildGame());
       case GameEvent.interactiveBoardEvent:
         interactiveSide = widget.initialPlayerSide;
-        _controller.animatePosition(_buildGame());
+        _controller.updatePosition(_buildGame());
       case GameEvent.externalMove:
         final allMoves = [
           for (final entry in position.legalMoves.entries)
@@ -3599,7 +3603,7 @@ class _TestAppState extends State<_TestApp> {
         if (allMoves.isNotEmpty) {
           position = position.playUnchecked(allMoves.first);
           lastMove = allMoves.first;
-          _controller.animatePosition(_buildGame());
+          _controller.updatePosition(_buildGame());
         }
     }
   }
@@ -3614,7 +3618,7 @@ class _TestAppState extends State<_TestApp> {
 
   void _onMove(Move move, {bool? viaDragAndDrop}) {
     _playMove(move);
-    _controller.animatePosition(_buildGame());
+    _controller.updatePosition(_buildGame());
 
     if (widget.shouldPlayOpponentMove) {
       Timer(const Duration(milliseconds: 200), () {
@@ -3628,7 +3632,7 @@ class _TestAppState extends State<_TestApp> {
           interactiveSide = PlayerSide.none;
         }
         lastMove = opponentMove;
-        _controller.animatePosition(_buildGame());
+        _controller.updatePosition(_buildGame());
 
         // play premove just after the opponent move
         final premove = _controller.premove;
@@ -3644,7 +3648,7 @@ class _TestAppState extends State<_TestApp> {
               scheduleMicrotask(() {
                 _controller.pendingPromotion = promoMove;
                 _controller.premove = null;
-                _controller.animatePosition(_buildGame());
+                _controller.updatePosition(_buildGame());
               });
             } else {
               scheduleMicrotask(() {
@@ -3652,7 +3656,7 @@ class _TestAppState extends State<_TestApp> {
                 if (position.isGameOver) interactiveSide = PlayerSide.none;
                 lastMove = premove;
                 _controller.premove = null;
-                _controller.animatePosition(_buildGame());
+                _controller.updatePosition(_buildGame());
               });
             }
           }

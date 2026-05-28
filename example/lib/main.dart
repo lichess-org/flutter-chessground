@@ -112,7 +112,7 @@ class _HomePageState extends State<HomePage> {
         lastMove = null;
         _canUndo.value = false;
         _positionNotifier.value = position;
-        _controller.jumpToPosition(_buildGame());
+        _controller.updatePosition(_buildGame(), animate: false, resetPremove: true);
       },
     );
 
@@ -137,7 +137,7 @@ class _HomePageState extends State<HomePage> {
                           lastMove = null;
                           _canUndo.value = false;
                           _positionNotifier.value = position;
-                          _controller.jumpToPosition(_buildGame());
+                          _controller.updatePosition(_buildGame(), animate: false, resetPremove: true);
                         }
                       : null,
                 ),
@@ -271,7 +271,7 @@ class _HomePageState extends State<HomePage> {
                     lastMove = null;
                     _canUndo.value = false;
                     _positionNotifier.value = position;
-                    _controller.jumpToPosition(_buildGame());
+                    _controller.updatePosition(_buildGame(), animate: false, resetPremove: true);
                     setState(() {}); // Show/hide CrazyhouseMenu.
                   },
                 ),
@@ -376,7 +376,7 @@ class _HomePageState extends State<HomePage> {
             title: const Text('Random Bot'),
             onTap: () {
               playMode = Mode.botPlay;
-              _controller.animatePosition(_buildGame());
+              _controller.updatePosition(_buildGame());
               setState(() {}); // Update app bar title and button visibility.
               if (position.turn == Side.black) {
                 _playBlackMove();
@@ -388,7 +388,7 @@ class _HomePageState extends State<HomePage> {
             title: const Text('Enter opponent move'),
             onTap: () {
               playMode = Mode.inputMove;
-              _controller.animatePosition(_buildGame());
+              _controller.updatePosition(_buildGame());
               setState(() {}); // Update app bar title and button visibility.
               Navigator.pop(context);
             },
@@ -397,7 +397,7 @@ class _HomePageState extends State<HomePage> {
             title: const Text('Free Play'),
             onTap: () {
               playMode = Mode.freePlay;
-              _controller.animatePosition(_buildGame());
+              _controller.updatePosition(_buildGame());
               setState(() {}); // Update app bar title and button visibility.
               Navigator.pop(context);
             },
@@ -507,7 +507,7 @@ class _HomePageState extends State<HomePage> {
       Timer.run(() async {
         if (move is NormalMove && _isPromotionPawnMove(move)) {
           _controller.pendingPromotion = move;
-          _controller.animatePosition(_buildGame());
+          _controller.updatePosition(_buildGame());
         } else {
           _playMove(move);
           if (playMode == Mode.botPlay) {
@@ -596,7 +596,7 @@ class _HomePageState extends State<HomePage> {
       lastPos = position;
       position = position.playUnchecked(move);
       lastMove = move;
-      _controller.animatePosition(_buildGame());
+      _controller.updatePosition(_buildGame());
       _canUndo.value = true;
       _positionNotifier.value = position;
     }
@@ -607,7 +607,7 @@ class _HomePageState extends State<HomePage> {
       lastPos = position;
       position = position.playUnchecked(move);
       lastMove = move;
-      _controller.animatePosition(_buildGame());
+      _controller.updatePosition(_buildGame());
       _canUndo.value = true;
       _positionNotifier.value = position;
       await _playBlackMove();
@@ -640,7 +640,7 @@ class _HomePageState extends State<HomePage> {
       position = position.playUnchecked(mv);
       lastPos = position;
       lastMove = NormalMove(from: mv.from, to: mv.to, promotion: mv.promotion);
-      _controller.animatePosition(_buildGame());
+      _controller.updatePosition(_buildGame());
       _canUndo.value = true;
       _positionNotifier.value = position;
     }

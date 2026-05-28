@@ -114,7 +114,7 @@ class _AtomicGamePageState extends State<AtomicGamePage> {
   void _newGame() {
     position = Atomic.initial;
     lastMove = null;
-    _controller.jumpToPosition(_buildGame());
+    _controller.updatePosition(_buildGame(), animate: false, resetPremove: true);
     setState(() {});
   }
 
@@ -136,7 +136,7 @@ class _AtomicGamePageState extends State<AtomicGamePage> {
 
     position = position.playUnchecked(move) as Atomic;
     lastMove = move;
-    _controller.animatePosition(_buildGame());
+    _controller.updatePosition(_buildGame());
     if (newExplosions.isNotEmpty) {
       _controller.triggerExplosion(newExplosions);
     }

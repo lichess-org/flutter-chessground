@@ -17,9 +17,9 @@ import '../models.dart';
 ///
 /// ## Updating the position
 ///
-/// Call [animatePosition] after each move to advance the board with piece
-/// animation. Call [jumpToPosition] to switch positions without animation
-/// (e.g. analysis seeking or history navigation).
+/// Call [updatePosition] after each move to advance the board. Pass
+/// `animate: false` to switch positions without animation, and `resetPremove: true` to clear any
+/// registered premove when jumping to an arbitrary position.
 ///
 /// ## Premoves
 ///
@@ -196,7 +196,7 @@ class ChessboardController extends ChangeNotifier {
   /// Records that [move] was just performed via drag and drop.
   ///
   /// Called internally by the board when the user completes a move by dropping a
-  /// piece (a board drag or an external pocket drop). The next [animatePosition]
+  /// piece (a board drag or an external pocket drop). The next [updatePosition]
   /// uses this to suppress the redundant translation of the already-dragged
   /// piece, then clears it.
   @internal
@@ -217,12 +217,32 @@ class ChessboardController extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Updates the board to [game] with piece animation.
+  /// Updates the board to [game].
+  ///
+  /// By default, pieces are animated to their new positions. Pass
+  /// `animate: false` to switch positions instantly (e.g. analysis seeking or
+  /// history navigation).
+  ///
+  /// By default, any registered premove is preserved. Pass `resetPremove: true`
+  /// to clear it — appropriate whenever the new position is not a direct
+  /// continuation of the current one (e.g. jumping to an arbitrary position).
   ///
   /// If the triggering move was performed via drag and drop (recorded by the
   /// board through [recordDropMove]), the animation engine automatically
   /// suppresses the redundant translation of the dragged piece.
-  void animatePosition(GameData game) {
+  void updatePosition(GameData game, {bool animate = true, bool resetPremove = false}) {
+    if (!animate) {
+      _animationController?.stop();
+      _translatingPiecesNotifier.value = {};
+      _fadingPiecesNotifier.value = {};
+      _lastDropMove = null;
+      _piecesNotifier.value = readFen(game.fen);
+      _gameNotifier.value = game;
+      if (resetPremove) _premoveNotifier.value = null;
+      notifyListeners();
+      return;
+    }
+
     if (game.fen != fen) {
       final lastDrop = _lastDropMove;
       _lastDropMove = null;
@@ -248,23 +268,7 @@ class ChessboardController extends ChangeNotifier {
     }
 
     _gameNotifier.value = game;
-
-    notifyListeners();
-  }
-
-  /// Updates the board to [game] without animation (e.g. analysis seeking).
-  ///
-  /// Any registered premove is cleared, since it is no longer meaningful after
-  /// jumping to an arbitrary position.
-  void jumpToPosition(GameData game) {
-    _animationController?.stop();
-    _translatingPiecesNotifier.value = {};
-    _fadingPiecesNotifier.value = {};
-
-    _lastDropMove = null;
-    _piecesNotifier.value = readFen(game.fen);
-    _gameNotifier.value = game;
-    _premoveNotifier.value = null;
+    if (resetPremove) _premoveNotifier.value = null;
 
     notifyListeners();
   }
