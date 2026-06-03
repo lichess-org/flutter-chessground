@@ -13,7 +13,7 @@ dependencies:
   dartchess: ^0.13.0
   flutter:
     sdk: flutter
-  meta: any
+  meta: ^1.18.0
 
 dev_dependencies:
   flutter_test:
