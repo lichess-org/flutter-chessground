@@ -4,6 +4,7 @@ import 'package:chessground/src/widgets/explosion.dart';
 import 'package:chessground/src/widgets/promotion.dart';
 import 'package:flutter/gestures.dart' show PointerDeviceKind;
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart' show RenderRepaintBoundary;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:dartchess/dartchess.dart';
 import 'package:chessground/chessground.dart';
@@ -3290,15 +3291,15 @@ void main() {
       expect(_piecesPainter(tester).pieces.length, 32);
     });
 
-    // Regression (lichess-org/mobile#3272): an animated move leaves the
-    // fading/translating notifiers populated (they are only cleared by the next
-    // updatePosition) and relies on the animation resting at value 1.0 to render
-    // them invisibly. A tree shift detaches and re-attaches the controller,
-    // creating a fresh AnimationController at value 0.0. Without clearing the
-    // notifiers on detach, the board then repaints the captured piece at full
-    // opacity and the moved piece at its origin — overlapping ghosts on the
-    // board. On device this is hit by reparenting during an Android
-    // predictive-back gesture after navigating a move.
+    // Regression (lichess-org/mobile#3272): a tree shift detaches and re-attaches
+    // the controller, creating a fresh AnimationController at value 0.0. If an
+    // animated move had left the fading/translating notifiers populated, that
+    // fresh controller would repaint the captured piece at full opacity and the
+    // moved piece at its origin — overlapping ghosts on the board. On device this
+    // is hit by reparenting during an Android predictive-back gesture after
+    // navigating a move. The controller now commits a finished animation to the
+    // static position as soon as it completes, so by the time the board settles
+    // there are no stale animation pieces left to resurrect.
     testWidgets('tree shift after an animated capture leaves no stale animation pieces', (
       WidgetTester tester,
     ) async {
@@ -3351,23 +3352,168 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      // Precondition: the animation has finished (resting at value 1.0) but the
-      // notifiers are still populated — rendered invisibly at this point.
-      expect(_translatingPiecesPainter(tester)!.translatingPieces, isNotEmpty);
-      expect(_fadingPiecesPainter(tester)!.fadingPieces, isNotEmpty);
+      // Precondition: the animation has finished and been committed to the static
+      // position, so no animation pieces linger.
+      expect(_translatingPiecesPainter(tester)?.translatingPieces ?? const {}, isEmpty);
+      expect(_fadingPiecesPainter(tester)?.fadingPieces ?? const {}, isEmpty);
 
       // Reparent the board: detaches and re-attaches the controller.
       await tester.tap(find.text('toggle'));
       await tester.pump();
 
-      // The freshly attached controller is at value 0.0; the stale pieces must
-      // have been dropped so nothing is repainted over the static position.
-      expect(_translatingPiecesPainter(tester)!.translatingPieces, isEmpty);
-      expect(_fadingPiecesPainter(tester)!.fadingPieces, isEmpty);
+      // The freshly attached controller is at value 0.0; with nothing committed
+      // to animate, no ghosts are painted over the static position.
+      expect(_translatingPiecesPainter(tester)?.translatingPieces ?? const {}, isEmpty);
+      expect(_fadingPiecesPainter(tester)?.fadingPieces ?? const {}, isEmpty);
 
       // The static position is intact: knight on e5, pawn gone.
       expect(_piecesPainter(tester).pieces[Square.e5], Piece.whiteKnight);
       expect(_piecesPainter(tester).pieces.containsKey(Square.e5), isTrue);
+      expect(_piecesPainter(tester).pieces.values.where((p) => p == Piece.blackPawn), isEmpty);
+    });
+
+    // Regression (lichess-org/mobile#3272 follow-up): clearing the translating
+    // notifier on detach (above) is not enough — the static PiecesPainter skips
+    // squares listed in that notifier, so an animated piece is drawn only by the
+    // TranslatingPiecesPainter while the move is in flight or resting. The static
+    // painter must repaint when the notifier is cleared, otherwise it keeps a
+    // stale frame in which the destination square was left blank and the animated
+    // piece visibly disappears on the canvas. This asserts the actual rendered
+    // pixels, which the notifier-only check above cannot catch.
+    testWidgets('animated piece stays painted after a tree shift clears the animation', (
+      WidgetTester tester,
+    ) async {
+      // Render real (solid blue) piece images so we can read painted pixels.
+      final pieceAssets = const ChessboardSettings().pieceAssets;
+      for (final asset in pieceAssets.values.toSet()) {
+        ChessgroundImages.instance.add(asset, await _createFakeImage(45, 45));
+      }
+      addTearDown(() {
+        for (final asset in pieceAssets.values.toSet()) {
+          ChessgroundImages.instance.evict(asset);
+        }
+      });
+
+      final captureController = nonInteractiveController('4k3/8/8/4p3/8/5N2/8/4K3 w - - 0 1');
+      addTearDown(captureController.dispose);
+
+      final boundaryKey = GlobalKey();
+      final boardKey = GlobalKey();
+      bool moved = false;
+      await tester.pumpWidget(
+        StatefulBuilder(
+          builder: (context, setState) {
+            final board = RepaintBoundary(
+              key: boundaryKey,
+              child: Chessboard(
+                key: boardKey,
+                controller: captureController,
+                size: boardSize,
+                orientation: Side.white,
+              ),
+            );
+            return MaterialApp(
+              theme: ThemeData(splashFactory: NoSplash.splashFactory),
+              home: Column(
+                children: [
+                  Expanded(child: moved ? const SizedBox.shrink() : board),
+                  Expanded(child: moved ? board : const SizedBox.shrink()),
+                  ElevatedButton(
+                    onPressed: () => setState(() => moved = !moved),
+                    child: const Text('toggle'),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+      );
+
+      // Animate Nxe5: the knight translates f3 -> e5 (skipped by the static
+      // painter) and the captured pawn fades out on e5.
+      captureController.updatePosition(
+        const GameData(
+          fen: '4k3/8/8/4N3/8/8/8/4K3 b - - 0 1',
+          playerSide: PlayerSide.none,
+          sideToMove: Side.black,
+          validMoves: {},
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Reparent the board: deactivate() -> detach() clears the translating
+      // notifier, activate() -> attachTo() re-attaches a fresh controller.
+      await tester.tap(find.text('toggle'));
+      await tester.pumpAndSettle();
+
+      // The knight must remain visible on e5 (solid blue piece), not vanish.
+      // Offset is relative to the board's own origin (the RepaintBoundary), white
+      // orientation: file e -> x index 4, rank 5 -> y index 7 - 4 = 3.
+      const e5Center = Offset(4 * squareSize + squareSize / 2, 3 * squareSize + squareSize / 2);
+      final color = await _renderedColorAt(tester, boundaryKey, e5Center);
+      expect(color.a, greaterThan(0.75), reason: 'e5 should be opaque (piece present)');
+      expect(color.b, greaterThan(0.75), reason: 'e5 should show the blue knight');
+      expect(color.r, lessThan(0.3), reason: 'e5 should not show the bare board square');
+    });
+
+    // When a tree shift interrupts an animation that is still in flight, the
+    // fresh controller is re-attached at value 0.0. Re-attaching commits the
+    // interrupted pieces to the static position so the translating painter does
+    // not leave the knight frozen at its origin.
+    testWidgets('interrupting an in-flight animation with a tree shift commits the pieces', (
+      WidgetTester tester,
+    ) async {
+      final captureController = nonInteractiveController('4k3/8/8/4p3/8/5N2/8/4K3 w - - 0 1');
+      addTearDown(captureController.dispose);
+
+      final boardKey = GlobalKey();
+      bool moved = false;
+      await tester.pumpWidget(
+        StatefulBuilder(
+          builder: (context, setState) {
+            final board = Chessboard(
+              key: boardKey,
+              controller: captureController,
+              size: boardSize,
+              orientation: Side.white,
+            );
+            return MaterialApp(
+              theme: ThemeData(splashFactory: NoSplash.splashFactory),
+              home: Column(
+                children: [
+                  Expanded(child: moved ? const SizedBox.shrink() : board),
+                  Expanded(child: moved ? board : const SizedBox.shrink()),
+                  ElevatedButton(
+                    onPressed: () => setState(() => moved = !moved),
+                    child: const Text('toggle'),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+      );
+
+      captureController.updatePosition(
+        const GameData(
+          fen: '4k3/8/8/4N3/8/8/8/4K3 b - - 0 1',
+          playerSide: PlayerSide.none,
+          sideToMove: Side.black,
+          validMoves: {},
+        ),
+      );
+      // Pump only partway through the 250ms animation: it is still in flight.
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(_translatingPiecesPainter(tester)!.translatingPieces, isNotEmpty);
+
+      // Reparent mid-animation: detach disposes the controller, attachTo commits
+      // the interrupted pieces straight to the static position.
+      await tester.tap(find.text('toggle'));
+      await tester.pump();
+
+      expect(_translatingPiecesPainter(tester)?.translatingPieces ?? const {}, isEmpty);
+      expect(_fadingPiecesPainter(tester)?.fadingPieces ?? const {}, isEmpty);
+      expect(_piecesPainter(tester).pieces[Square.e5], Piece.whiteKnight);
       expect(_piecesPainter(tester).pieces.values.where((p) => p == Piece.blackPawn), isEmpty);
     });
   });
@@ -3801,4 +3947,21 @@ Future<ui.Image> _createFakeImage(int width, int height) {
   final recorder = ui.PictureRecorder();
   Canvas(recorder).drawPaint(Paint()..color = const Color(0xFF0000FF));
   return recorder.endRecording().toImage(width, height);
+}
+
+/// Reads the rendered color at [offset] (in logical pixels) from the
+/// [RenderRepaintBoundary] identified by [boundaryKey].
+///
+/// `toImage` only completes outside the test's fake-async zone, so the capture
+/// must run inside [WidgetTester.runAsync].
+Future<Color> _renderedColorAt(WidgetTester tester, GlobalKey boundaryKey, Offset offset) async {
+  final boundary = boundaryKey.currentContext!.findRenderObject()! as RenderRepaintBoundary;
+  final color = await tester.runAsync(() async {
+    final image = await boundary.toImage();
+    final byteData = (await image.toByteData())!;
+    final bytes = byteData.buffer.asUint8List();
+    final i = ((offset.dy.toInt() * image.width) + offset.dx.toInt()) * 4;
+    return Color.fromARGB(bytes[i + 3], bytes[i], bytes[i + 1], bytes[i + 2]);
+  });
+  return color!;
 }

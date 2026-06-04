@@ -240,6 +240,11 @@ class PiecesPainter extends CustomPainter {
        super(
          repaint: Listenable.merge([
            piecesNotifier,
+           // The static painter skips squares listed here (they are drawn by the
+           // translating painter instead), so it must repaint when that set
+           // changes — e.g. when an animation is committed and the destination
+           // pieces become static again.
+           translatingPiecesNotifier,
            draggedPieceSquareNotifier,
            gameNotifier,
            pendingPromotionNotifier,

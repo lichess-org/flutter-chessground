@@ -1,3 +1,10 @@
+## 10.0.2
+
+Fixed a bug where pieces from a finished move animation would disappear when the
+board was reparented (e.g. during an Android predictive-back gesture). The
+controller now commits a finished or interrupted animation to the static
+position instead of relying on the animation notifiers staying populated.
+
 ## 10.0.1
 
 Fixed a bug where tree shift after an animated capture would leave stale animation pieces.

@@ -134,26 +134,53 @@ class ChessboardController extends ChangeNotifier {
       curve: Curves.easeInOutCubic,
     );
     _fadeAnimation = CurvedAnimation(parent: _animationController!, curve: Curves.easeInQuad);
+    _animationController!.addStatusListener(_onAnimationStatusChanged);
+    // Re-attaching with animation pieces still pending means an animation was
+    // interrupted by a detach/attach cycle (e.g. the board being reparented
+    // during an Android predictive-back gesture). The fresh controller sits at
+    // value 0.0, so the translating painter would otherwise draw those pieces
+    // frozen at their origin. Commit them straight to the static position; the
+    // destination is already reflected in [_piecesNotifier].
+    _commitAnimationPieces();
+  }
+
+  void _onAnimationStatusChanged(AnimationStatus status) {
+    if (status == AnimationStatus.completed) _commitAnimationPieces();
+  }
+
+  /// Drops the translating/fading pieces into the static position.
+  ///
+  /// The translating pieces have reached their destination (already present in
+  /// [_piecesNotifier]) and the fading pieces are gone, so clearing the notifiers
+  /// while attached lets the static painter — which skips translating squares —
+  /// repaint them, leaving the board in a clean resting state with no lingering
+  /// animation pieces that a later detach/attach could resurrect as ghosts.
+  void _commitAnimationPieces() {
+    if (_translatingPiecesNotifier.value.isNotEmpty) {
+      _translatingPiecesNotifier.value = {};
+    }
+    if (_fadingPiecesNotifier.value.isNotEmpty) {
+      _fadingPiecesNotifier.value = {};
+    }
   }
 
   @internal
   void detach() {
+    _animationController?.removeStatusListener(_onAnimationStatusChanged);
     _fadeAnimation?.dispose();
     _translationAnimation?.dispose();
     _animationController?.dispose();
     _fadeAnimation = null;
     _translationAnimation = null;
     _animationController = null;
-    // Drop any in-flight animation pieces. The fading/translating notifiers are
-    // only cleared by the next `updatePosition`, so after an animated move they
-    // stay populated and rely on the animation resting at value 1.0 to render
-    // invisibly (faded out / at destination). A subsequent `attachTo` creates a
-    // fresh controller at value 0.0, which would repaint these as opaque,
-    // origin-positioned ghosts overlapping the static pieces. Clearing them here
-    // ensures a detach/attach cycle (e.g. the board being reparented during an
-    // Android predictive-back gesture) leaves no stale animation state.
-    _translatingPiecesNotifier.value = {};
-    _fadingPiecesNotifier.value = {};
+    // Note: the translating/fading notifiers are intentionally left untouched
+    // here. A completed animation is already committed to the static position by
+    // [_onAnimationStatusChanged], and an interrupted one is committed on the next
+    // [attachTo], so a detach/attach cycle (e.g. the board being reparented during
+    // an Android predictive-back gesture) finds no stale animation state to
+    // resurrect. Clearing them here instead would race with the static layer's
+    // retained picture on reattach and make the destination pieces briefly
+    // disappear.
   }
 
   @internal
