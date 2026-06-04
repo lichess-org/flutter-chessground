@@ -1,3 +1,7 @@
+## 10.0.1
+
+Fixed a bug where tree shift after an animated capture would leave stale animation pieces.
+
 ## 10.0.0
 
 This is a major release with significant internal changes to the board rendering
