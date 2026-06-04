@@ -144,6 +144,16 @@ class ChessboardController extends ChangeNotifier {
     _fadeAnimation = null;
     _translationAnimation = null;
     _animationController = null;
+    // Drop any in-flight animation pieces. The fading/translating notifiers are
+    // only cleared by the next `updatePosition`, so after an animated move they
+    // stay populated and rely on the animation resting at value 1.0 to render
+    // invisibly (faded out / at destination). A subsequent `attachTo` creates a
+    // fresh controller at value 0.0, which would repaint these as opaque,
+    // origin-positioned ghosts overlapping the static pieces. Clearing them here
+    // ensures a detach/attach cycle (e.g. the board being reparented during an
+    // Android predictive-back gesture) leaves no stale animation state.
+    _translatingPiecesNotifier.value = {};
+    _fadingPiecesNotifier.value = {};
   }
 
   @internal

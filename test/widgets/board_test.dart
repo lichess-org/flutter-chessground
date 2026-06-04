@@ -64,6 +64,16 @@ TranslatingPiecesPainter? _translatingPiecesPainter(WidgetTester tester) {
   return null;
 }
 
+FadingPiecesPainter? _fadingPiecesPainter(WidgetTester tester) {
+  for (final element in find.byType(CustomPaint).evaluate()) {
+    final widget = element.widget as CustomPaint;
+    if (widget.painter is FadingPiecesPainter) {
+      return widget.painter! as FadingPiecesPainter;
+    }
+  }
+  return null;
+}
+
 bool _isSelectedHighlight(WidgetTester tester, Square square) {
   return _highlightsPainter(tester).interactionNotifier.selected == square;
 }
@@ -3278,6 +3288,87 @@ void main() {
 
       expect(find.byType(Chessboard), findsOneWidget);
       expect(_piecesPainter(tester).pieces.length, 32);
+    });
+
+    // Regression (lichess-org/mobile#3272): an animated move leaves the
+    // fading/translating notifiers populated (they are only cleared by the next
+    // updatePosition) and relies on the animation resting at value 1.0 to render
+    // them invisibly. A tree shift detaches and re-attaches the controller,
+    // creating a fresh AnimationController at value 0.0. Without clearing the
+    // notifiers on detach, the board then repaints the captured piece at full
+    // opacity and the moved piece at its origin — overlapping ghosts on the
+    // board. On device this is hit by reparenting during an Android
+    // predictive-back gesture after navigating a move.
+    testWidgets('tree shift after an animated capture leaves no stale animation pieces', (
+      WidgetTester tester,
+    ) async {
+      // White knight on f3, black pawn on e5 (plus kings).
+      final captureController = nonInteractiveController('4k3/8/8/4p3/8/5N2/8/4K3 w - - 0 1');
+      addTearDown(captureController.dispose);
+
+      // The board carries a GlobalKey and lives in one of two branches. Flipping
+      // `moved` relocates it to the other branch, which forces Flutter to
+      // reparent the element (deactivate then activate) — the same lifecycle the
+      // Android predictive-back gesture triggers, and which detaches then
+      // re-attaches the controller.
+      final boardKey = GlobalKey();
+      bool moved = false;
+      await tester.pumpWidget(
+        StatefulBuilder(
+          builder: (context, setState) {
+            final board = Chessboard(
+              key: boardKey,
+              controller: captureController,
+              size: boardSize,
+              orientation: Side.white,
+            );
+            return MaterialApp(
+              theme: ThemeData(splashFactory: NoSplash.splashFactory),
+              home: Column(
+                children: [
+                  Expanded(child: moved ? const SizedBox.shrink() : board),
+                  Expanded(child: moved ? board : const SizedBox.shrink()),
+                  ElevatedButton(
+                    onPressed: () => setState(() => moved = !moved),
+                    child: const Text('toggle'),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+      );
+
+      // Animate Nxe5: the knight translates f3 -> e5 and the captured pawn fades
+      // out on e5.
+      captureController.updatePosition(
+        const GameData(
+          fen: '4k3/8/8/4N3/8/8/8/4K3 b - - 0 1',
+          playerSide: PlayerSide.none,
+          sideToMove: Side.black,
+          validMoves: {},
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Precondition: the animation has finished (resting at value 1.0) but the
+      // notifiers are still populated — rendered invisibly at this point.
+      expect(_translatingPiecesPainter(tester)!.translatingPieces, isNotEmpty);
+      expect(_fadingPiecesPainter(tester)!.fadingPieces, isNotEmpty);
+
+      // Reparent the board: detaches and re-attaches the controller.
+      await tester.tap(find.text('toggle'));
+      await tester.pump();
+
+      // The freshly attached controller is at value 0.0; the stale pieces must
+      // have been dropped so nothing is repainted over the static position.
+      expect(_translatingPiecesPainter(tester)!.translatingPieces, isEmpty);
+      expect(_fadingPiecesPainter(tester)!.fadingPieces, isEmpty);
+
+      // The static position is intact: knight on e5, pawn gone.
+      expect(_piecesPainter(tester).pieces[Square.e5], Piece.whiteKnight);
+      expect(_piecesPainter(tester).pieces.containsKey(Square.e5), isTrue);
+      expect(_piecesPainter(tester).pieces.values.where((p) => p == Piece.blackPawn), isEmpty);
     });
   });
 
