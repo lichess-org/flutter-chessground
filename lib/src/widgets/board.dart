@@ -313,34 +313,6 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
               ),
               willChange: true,
             ),
-            ValueListenableBuilder<NormalMove?>(
-              valueListenable: _controller.pendingPromotionNotifier,
-              builder: (context, pendingMove, _) {
-                if (pendingMove == null) return const SizedBox.shrink();
-                final pawnColor = pieces[pendingMove.from]?.color ?? _controller.game.sideToMove;
-                return PromotionSelector(
-                  pieceAssets: settings.pieceAssets,
-                  move: pendingMove,
-                  size: widget.size,
-                  color: pawnColor,
-                  orientation: widget.orientation,
-                  piecesUpsideDown: _isUpsideDown(pawnColor),
-                  onSelect: (role) {
-                    final resolvedMove = pendingMove.withPromotion(role);
-                    final viaDragAndDrop = _pendingPromotionViaDragAndDrop;
-                    _pendingPromotionViaDragAndDrop = false;
-                    _controller.pendingPromotion = null;
-                    if (viaDragAndDrop) _controller.recordDropMove(resolvedMove);
-                    widget.onMove?.call(resolvedMove, viaDragAndDrop: viaDragAndDrop);
-                  },
-                  onCancel: () {
-                    _pendingPromotionViaDragAndDrop = false;
-                    _controller.pendingPromotion = null;
-                  },
-                  canPromoteToKing: widget.settings.canPromoteToKing,
-                );
-              },
-            ),
             if (widget.settings.enableDrops)
               ...Square.values.map((square) {
                 return PositionedSquare(
@@ -383,6 +355,34 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
                   ),
                 );
               }),
+            ValueListenableBuilder<NormalMove?>(
+              valueListenable: _controller.pendingPromotionNotifier,
+              builder: (context, pendingMove, _) {
+                if (pendingMove == null) return const SizedBox.shrink();
+                final pawnColor = pieces[pendingMove.from]?.color ?? _controller.game.sideToMove;
+                return PromotionSelector(
+                  pieceAssets: settings.pieceAssets,
+                  move: pendingMove,
+                  size: widget.size,
+                  color: pawnColor,
+                  orientation: widget.orientation,
+                  piecesUpsideDown: _isUpsideDown(pawnColor),
+                  onSelect: (role) {
+                    final resolvedMove = pendingMove.withPromotion(role);
+                    final viaDragAndDrop = _pendingPromotionViaDragAndDrop;
+                    _pendingPromotionViaDragAndDrop = false;
+                    _controller.pendingPromotion = null;
+                    if (viaDragAndDrop) _controller.recordDropMove(resolvedMove);
+                    widget.onMove?.call(resolvedMove, viaDragAndDrop: viaDragAndDrop);
+                  },
+                  onCancel: () {
+                    _pendingPromotionViaDragAndDrop = false;
+                    _controller.pendingPromotion = null;
+                  },
+                  canPromoteToKing: widget.settings.canPromoteToKing,
+                );
+              },
+            ),
           ],
         ),
       ),

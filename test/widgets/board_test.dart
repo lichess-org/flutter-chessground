@@ -2037,6 +2037,43 @@ void main() {
       expect(_piecesPainter(tester).pieces[Square.f8], Piece.whiteQueen);
       expect(_piecesPainter(tester).pieces.containsKey(Square.f7), isFalse);
     });
+    testWidgets('promotion works when enableDrops is true', (WidgetTester tester) async {
+      final pos = Position.setupPosition(
+        Rule.crazyhouse,
+        Setup.parseFen('8/5P2/2RK2P1/8/4k3/8/8/7r[P] w - - 0 1'),
+      );
+
+      await tester.pumpWidget(
+        _TestApp(
+          initialPlayerSide: PlayerSide.both,
+          rule: Rule.crazyhouse,
+          fen: pos.fen,
+          settings: const ChessboardSettings(enableDrops: true),
+          validDropSquares: pos.legalDrops.squares.toSet(),
+        ),
+      );
+
+      // Drag pawn to promotion square
+      await tester.dragFrom(squareOffset(tester, Square.f7), const Offset(0, -squareSize));
+      await tester.pump();
+
+      // promotion dialog should show
+      expect(find.byType(PromotionSelector), findsOneWidget);
+
+      // promote
+      await tester.tapAt(squareOffset(tester, Square.f8));
+      await tester.pump();
+
+      // Check that the dialog disappeared
+      expect(find.byType(PromotionSelector), findsNothing);
+
+      // Queen is here, pawn is gone
+      expect(
+        _piecesPainter(tester).pieces[Square.f8],
+        const Piece(color: Side.white, role: Role.queen, promoted: true),
+      );
+      expect(_piecesPainter(tester).pieces.containsKey(Square.f7), isFalse);
+    });
   });
 
   group('premoves', () {
