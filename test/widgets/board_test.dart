@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:chessground/src/widgets/explosion.dart';
 import 'package:chessground/src/widgets/promotion.dart';
@@ -3421,9 +3420,16 @@ void main() {
     testWidgets('animated piece stays painted after a tree shift clears the animation', (
       WidgetTester tester,
     ) async {
-      // Render each piece kind as a distinct solid color so the painted pixel
-      // at a square identifies the piece on it.
-      await _installPieceColorImages();
+      // Render real (solid blue) piece images so we can read painted pixels.
+      final pieceAssets = const ChessboardSettings().pieceAssets;
+      for (final asset in pieceAssets.values.toSet()) {
+        ChessgroundImages.instance.add(asset, await _createFakeImage(45, 45));
+      }
+      addTearDown(() {
+        for (final asset in pieceAssets.values.toSet()) {
+          ChessgroundImages.instance.evict(asset);
+        }
+      });
 
       final captureController = nonInteractiveController('4k3/8/8/4p3/8/5N2/8/4K3 w - - 0 1');
       addTearDown(captureController.dispose);
@@ -3477,13 +3483,14 @@ void main() {
       await tester.tap(find.text('toggle'));
       await tester.pumpAndSettle();
 
-      // The knight must remain painted on e5, not vanish.
-      final board = await _captureBoard(tester, boundaryKey);
-      expect(
-        board.pieceAt(Square.e5),
-        PieceKind.whiteKnight,
-        reason: 'the knight should still be painted on e5',
-      );
+      // The knight must remain visible on e5 (solid blue piece), not vanish.
+      // Offset is relative to the board's own origin (the RepaintBoundary), white
+      // orientation: file e -> x index 4, rank 5 -> y index 7 - 4 = 3.
+      const e5Center = Offset(4 * squareSize + squareSize / 2, 3 * squareSize + squareSize / 2);
+      final color = await _renderedColorAt(tester, boundaryKey, e5Center);
+      expect(color.a, greaterThan(0.75), reason: 'e5 should be opaque (piece present)');
+      expect(color.b, greaterThan(0.75), reason: 'e5 should show the blue knight');
+      expect(color.r, lessThan(0.3), reason: 'e5 should not show the bare board square');
     });
 
     // When a tree shift interrupts an animation that is still in flight, the
@@ -3973,126 +3980,25 @@ Offset squareOffset(WidgetTester tester, Square id, {Side orientation = Side.whi
 }
 
 /// Creates a minimal in-memory [ui.Image] for tests that need a cached piece image.
-Future<ui.Image> _createFakeImage(int width, int height) =>
-    _createSolidColorImage(const Color(0xFF0000FF), width, height);
-
-/// Renders a [width] x [height] image filled with a single solid [color].
-Future<ui.Image> _createSolidColorImage(Color color, [int width = 45, int height = 45]) {
+Future<ui.Image> _createFakeImage(int width, int height) {
   final recorder = ui.PictureRecorder();
-  Canvas(recorder).drawPaint(Paint()..color = color);
+  Canvas(recorder).drawPaint(Paint()..color = const Color(0xFF0000FF));
   return recorder.endRecording().toImage(width, height);
 }
 
-/// A distinct, fully opaque color for each piece kind.
-///
-/// When these are installed into the image cache (see [_installPieceColorImages])
-/// the painted pixel at a square's center identifies the piece on it. The colors
-/// are kept well clear of the default board square colors so empty squares read
-/// back as `null` from [_BoardSnapshot.pieceAt].
-const Map<PieceKind, Color> _pieceColors = {
-  PieceKind.whitePawn: Color(0xFFFF0000),
-  PieceKind.whiteKnight: Color(0xFF00FF00),
-  PieceKind.whiteBishop: Color(0xFF0000FF),
-  PieceKind.whiteRook: Color(0xFFFFFF00),
-  PieceKind.whiteQueen: Color(0xFFFF00FF),
-  PieceKind.whiteKing: Color(0xFF00FFFF),
-  PieceKind.blackPawn: Color(0xFF800000),
-  PieceKind.blackKnight: Color(0xFF008000),
-  PieceKind.blackBishop: Color(0xFF000080),
-  PieceKind.blackRook: Color(0xFF808000),
-  PieceKind.blackQueen: Color(0xFF800080),
-  PieceKind.blackKing: Color(0xFF008080),
-};
-
-/// Renders each piece kind as its [_pieceColors] color into the image cache and
-/// registers a tear-down that evicts them.
-///
-/// With these installed, assert the painted board state with [_captureBoard] and
-/// [_BoardSnapshot.pieceAt] instead of inspecting painter state.
-Future<void> _installPieceColorImages() async {
-  final pieceAssets = const ChessboardSettings().pieceAssets;
-  for (final MapEntry(key: kind, value: asset) in pieceAssets.entries) {
-    ChessgroundImages.instance.add(asset, await _createSolidColorImage(_pieceColors[kind]!));
-  }
-  addTearDown(() {
-    for (final asset in pieceAssets.values) {
-      ChessgroundImages.instance.evict(asset);
-    }
-  });
-}
-
-/// Captures the board rendered under [boundaryKey] into a [_BoardSnapshot] that
-/// can be queried per square.
+/// Reads the rendered color at [offset] (in logical pixels) from the
+/// [RenderRepaintBoundary] identified by [boundaryKey].
 ///
 /// `toImage` only completes outside the test's fake-async zone, so the capture
-/// runs inside [WidgetTester.runAsync].
-Future<_BoardSnapshot> _captureBoard(
-  WidgetTester tester,
-  GlobalKey boundaryKey, {
-  Side orientation = Side.white,
-}) async {
+/// must run inside [WidgetTester.runAsync].
+Future<Color> _renderedColorAt(WidgetTester tester, GlobalKey boundaryKey, Offset offset) async {
   final boundary = boundaryKey.currentContext!.findRenderObject()! as RenderRepaintBoundary;
-  final snapshot = await tester.runAsync(() async {
+  final color = await tester.runAsync(() async {
     final image = await boundary.toImage();
     final byteData = (await image.toByteData())!;
-    return _BoardSnapshot._(byteData.buffer.asUint8List(), image.width, orientation);
+    final bytes = byteData.buffer.asUint8List();
+    final i = ((offset.dy.toInt() * image.width) + offset.dx.toInt()) * 4;
+    return Color.fromARGB(bytes[i + 3], bytes[i], bytes[i + 1], bytes[i + 2]);
   });
-  return snapshot!;
-}
-
-/// A captured frame of the board, used to assert the actually painted pixels.
-///
-/// Pixel offsets assume a device pixel ratio of 1 (the test environment default)
-/// so logical offsets map directly to image pixels.
-class _BoardSnapshot {
-  _BoardSnapshot._(this._bytes, this._width, this._orientation);
-
-  final Uint8List _bytes;
-  final int _width;
-  final Side _orientation;
-
-  /// The piece painted at the center of [square], or `null` if the square shows
-  /// a bare board square.
-  PieceKind? pieceAt(Square square) => _pieceKindForColor(colorAt(_squareCenter(square)));
-
-  /// The rendered color at the center of [square].
-  Color squareColor(Square square) => colorAt(_squareCenter(square));
-
-  /// The rendered color at [offset] (logical pixels, relative to the board's
-  /// own origin).
-  Color colorAt(Offset offset) {
-    final i = ((offset.dy.toInt() * _width) + offset.dx.toInt()) * 4;
-    return Color.fromARGB(_bytes[i + 3], _bytes[i], _bytes[i + 1], _bytes[i + 2]);
-  }
-
-  Offset _squareCenter(Square square) {
-    final x = _orientation == Side.black ? 7 - square.file : square.file;
-    final y = _orientation == Side.black ? square.rank : 7 - square.rank;
-    return Offset(x * squareSize + squareSize / 2, y * squareSize + squareSize / 2);
-  }
-}
-
-/// Maps a rendered [color] back to the nearest piece kind, or `null` if no piece
-/// color is close enough (i.e. the pixel is a board square).
-///
-/// At a square's center the opaque, untinted piece image rasterizes bit-exact,
-/// so the match is effectively exact. The tolerance does not absorb sampling
-/// noise — its job is to cleanly separate "a piece" from a bare board square.
-PieceKind? _pieceKindForColor(Color color) {
-  // 0.35 sits comfortably below the closest any board square color comes to a
-  // piece color, so board squares fall through to `null`.
-  const toleranceSquared = 0.35 * 0.35;
-  PieceKind? best;
-  var bestDistance = double.infinity;
-  for (final MapEntry(key: kind, value: c) in _pieceColors.entries) {
-    final dr = color.r - c.r;
-    final dg = color.g - c.g;
-    final db = color.b - c.b;
-    final distance = dr * dr + dg * dg + db * db;
-    if (distance < bestDistance) {
-      bestDistance = distance;
-      best = kind;
-    }
-  }
-  return bestDistance <= toleranceSquared ? best : null;
+  return color!;
 }
