@@ -70,6 +70,7 @@ void main() {
     testWidgets('draws each piece into its own square rect', (tester) async {
       await _installFakePieceImages();
       final pieceAssets = const ChessboardSettings().pieceAssets;
+      final whitePawnImage = ChessgroundImages.instance.get(pieceAssets[PieceKind.whitePawn]!);
       final blackKnightImage = ChessgroundImages.instance.get(pieceAssets[PieceKind.blackKnight]!);
 
       final painter = buildPainter(
@@ -79,7 +80,7 @@ void main() {
       expect(
         (Canvas canvas) => painter.paint(canvas, const Size.square(boardSize)),
         paints
-          ..drawImageRect(destination: _squareRect(Square.e4))
+          ..drawImageRect(destination: _squareRect(Square.e4), image: whitePawnImage)
           ..drawImageRect(destination: _squareRect(Square.d5), image: blackKnightImage),
       );
     });
