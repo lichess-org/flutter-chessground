@@ -1,3 +1,8 @@
+## 10.0.3
+
+Fixed promotion that was not working when `ChessboardSettings.enableDrops` was set to
+true (for crazyhouse chess variant). The promotion dialog now shows up correctly.
+
 ## 10.0.2
 
 Fixed a bug where pieces from a finished move animation would disappear when the
