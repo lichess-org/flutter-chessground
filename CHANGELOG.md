@@ -1,3 +1,7 @@
+## 10.1.0
+
+- Add Totoy piece set.
+
 ## 10.0.3
 
 Fixed promotion that was not working when `ChessboardSettings.enableDrops` was set to
