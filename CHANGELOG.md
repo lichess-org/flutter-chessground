@@ -1,3 +1,9 @@
+## 10.2.0
+
+- Add `ChessboardSettings.moveOnRelease`: when enabled, a tap-to-move is
+  committed on pointer release instead of pointer press, and a square target
+  follows the finger so the destination can be adjusted before releasing.
+
 ## 10.1.0
 
 - Add Totoy piece set.

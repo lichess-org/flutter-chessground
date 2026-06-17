@@ -75,6 +75,16 @@ FadingPiecesPainter? _fadingPiecesPainter(WidgetTester tester) {
   return null;
 }
 
+DragSquareTargetPainter? _dragSquareTargetPainter(WidgetTester tester) {
+  for (final element in find.byType(CustomPaint).evaluate()) {
+    final widget = element.widget as CustomPaint;
+    if (widget.painter is DragSquareTargetPainter) {
+      return widget.painter! as DragSquareTargetPainter;
+    }
+  }
+  return null;
+}
+
 bool _isSelectedHighlight(WidgetTester tester, Square square) {
   return _highlightsPainter(tester).interactionNotifier.selected == square;
 }
@@ -885,6 +895,131 @@ void main() {
       () => onTouchedSquare(Square.e3),
     ]);
     verifyNoMoreInteractions(onTouchedSquare);
+  });
+
+  group('moveOnRelease', () {
+    const settings = ChessboardSettings(animationDuration: Duration.zero, moveOnRelease: true);
+
+    testWidgets('move is committed on pointer up, not on pointer down', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        const _TestApp(settings: settings, initialPlayerSide: PlayerSide.white),
+      );
+
+      // Select the pawn.
+      await tester.tapAt(squareOffset(tester, Square.e2));
+      await tester.pump();
+      expect(_isSelectedHighlight(tester, Square.e2), isTrue);
+
+      await TestAsyncUtils.guard<void>(() async {
+        // Press on the destination square: the move must NOT be made yet.
+        final gesture = await tester.startGesture(squareOffset(tester, Square.e4));
+        await tester.pump();
+        expect(_piecesPainter(tester).pieces.containsKey(Square.e4), isFalse);
+        expect(_piecesPainter(tester).pieces[Square.e2], Piece.whitePawn);
+
+        // Releasing commits the move.
+        await gesture.up();
+        await tester.pump();
+      });
+
+      expect(_piecesPainter(tester).pieces[Square.e4], Piece.whitePawn);
+      expect(_piecesPainter(tester).pieces.containsKey(Square.e2), isFalse);
+      expect(_isLastMoveHighlight(tester, Square.e2), isTrue);
+      expect(_isLastMoveHighlight(tester, Square.e4), isTrue);
+    });
+
+    testWidgets('sliding the finger changes the destination before release', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        const _TestApp(settings: settings, initialPlayerSide: PlayerSide.white),
+      );
+
+      // Select the pawn.
+      await tester.tapAt(squareOffset(tester, Square.e2));
+      await tester.pump();
+
+      await TestAsyncUtils.guard<void>(() async {
+        // Press on e3, then slide to e4 and release there.
+        final gesture = await tester.startGesture(squareOffset(tester, Square.e3));
+        await tester.pump();
+        await gesture.moveTo(squareOffset(tester, Square.e4));
+        await tester.pump();
+        await gesture.up();
+        await tester.pump();
+      });
+
+      // The move lands on the square under the released pointer (e4), not e3.
+      expect(_piecesPainter(tester).pieces[Square.e4], Piece.whitePawn);
+      expect(_piecesPainter(tester).pieces.containsKey(Square.e3), isFalse);
+      expect(_piecesPainter(tester).pieces.containsKey(Square.e2), isFalse);
+    });
+
+    testWidgets('square target follows the finger before release', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        const _TestApp(settings: settings, initialPlayerSide: PlayerSide.white),
+      );
+
+      // Select the pawn.
+      await tester.tapAt(squareOffset(tester, Square.e2));
+      await tester.pump();
+
+      await TestAsyncUtils.guard<void>(() async {
+        // No target is shown before a destination is pressed.
+        expect(_dragSquareTargetPainter(tester), isNull);
+
+        // Press on e3: a square target appears.
+        final gesture = await tester.startGesture(squareOffset(tester, Square.e3));
+        await tester.pump();
+        final posOnE3 = _dragSquareTargetPainter(tester)?.positionNotifier.value;
+        expect(posOnE3, isNotNull);
+
+        // Slide up one rank to e4: the target tracks the finger by one square.
+        await gesture.moveTo(squareOffset(tester, Square.e4));
+        await tester.pump();
+        final posOnE4 = _dragSquareTargetPainter(tester)?.positionNotifier.value;
+        expect(posOnE4, isNotNull);
+        expect(posOnE4! - posOnE3!, const Offset(0, -squareSize));
+
+        // Slide right one file to f4: the target tracks the finger horizontally.
+        await gesture.moveTo(squareOffset(tester, Square.f4));
+        await tester.pump();
+        final posOnF4 = _dragSquareTargetPainter(tester)?.positionNotifier.value;
+        expect(posOnF4, isNotNull);
+        expect(posOnF4! - posOnE4, const Offset(squareSize, 0));
+
+        await gesture.up();
+        await tester.pump();
+      });
+
+      // The target is removed once the pointer is released.
+      expect(_dragSquareTargetPainter(tester), isNull);
+    });
+
+    testWidgets('releasing on an invalid square keeps the piece in place', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        const _TestApp(settings: settings, initialPlayerSide: PlayerSide.white),
+      );
+
+      await tester.tapAt(squareOffset(tester, Square.e2));
+      await tester.pump();
+
+      await TestAsyncUtils.guard<void>(() async {
+        // e5 is not a legal destination for the e2 pawn.
+        final gesture = await tester.startGesture(squareOffset(tester, Square.e5));
+        await tester.pump();
+        await gesture.up();
+        await tester.pump();
+      });
+
+      expect(_piecesPainter(tester).pieces[Square.e2], Piece.whitePawn);
+      expect(_piecesPainter(tester).pieces.containsKey(Square.e5), isFalse);
+      expect(_isSelectedHighlight(tester, Square.e2), isFalse);
+    });
   });
 
   group('Drop squares enabled', () {

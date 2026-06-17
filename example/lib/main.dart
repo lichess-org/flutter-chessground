@@ -80,6 +80,7 @@ class _HomePageState extends State<HomePage> {
   late final ValueNotifier<bool> _canUndo;
   late final ValueNotifier<Position> _positionNotifier;
   PieceShiftMethod pieceShiftMethod = PieceShiftMethod.either;
+  bool moveOnRelease = false;
   DragTargetKind dragTargetKind = DragTargetKind.circle;
   BoardTheme boardTheme = BoardTheme.brown;
   bool drawMode = true;
@@ -112,7 +113,8 @@ class _HomePageState extends State<HomePage> {
         lastMove = null;
         _canUndo.value = false;
         _positionNotifier.value = position;
-        _controller.updatePosition(_buildGame(), animate: false, resetPremove: true);
+        _controller.updatePosition(_buildGame(),
+            animate: false, resetPremove: true);
       },
     );
 
@@ -137,7 +139,8 @@ class _HomePageState extends State<HomePage> {
                           lastMove = null;
                           _canUndo.value = false;
                           _positionNotifier.value = position;
-                          _controller.updatePosition(_buildGame(), animate: false, resetPremove: true);
+                          _controller.updatePosition(_buildGame(),
+                              animate: false, resetPremove: true);
                         }
                       : null,
                 ),
@@ -262,6 +265,15 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
                 SettingsButton(
+                  label: 'Move on release',
+                  value: moveOnRelease ? 'ON' : 'OFF',
+                  onPressed: () {
+                    setState(() {
+                      moveOnRelease = !moveOnRelease;
+                    });
+                  },
+                ),
+                SettingsButton(
                   label: 'Test Crazyhouse drop moves',
                   value: testDropMoves ? 'ON' : 'OFF',
                   onPressed: () {
@@ -271,7 +283,8 @@ class _HomePageState extends State<HomePage> {
                     lastMove = null;
                     _canUndo.value = false;
                     _positionNotifier.value = position;
-                    _controller.updatePosition(_buildGame(), animate: false, resetPremove: true);
+                    _controller.updatePosition(_buildGame(),
+                        animate: false, resetPremove: true);
                     setState(() {}); // Show/hide CrazyhouseMenu.
                   },
                 ),
@@ -311,6 +324,7 @@ class _HomePageState extends State<HomePage> {
       drawShape: DrawShapeOptions(enable: drawMode),
       enableDrops: testDropMoves,
       pieceShiftMethod: pieceShiftMethod,
+      moveOnRelease: moveOnRelease,
       autoQueenPromotionOnPremove: false,
       pieceOrientationBehavior: playMode == Mode.freePlay
           ? PieceOrientationBehavior.opponentUpsideDown

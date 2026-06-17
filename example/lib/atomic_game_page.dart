@@ -114,7 +114,8 @@ class _AtomicGamePageState extends State<AtomicGamePage> {
   void _newGame() {
     position = Atomic.initial;
     lastMove = null;
-    _controller.updatePosition(_buildGame(), animate: false, resetPremove: true);
+    _controller.updatePosition(_buildGame(),
+        animate: false, resetPremove: true);
     setState(() {});
   }
 
