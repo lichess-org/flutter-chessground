@@ -108,6 +108,7 @@ class ChessboardSettings {
     this.autoQueenPromotion = false,
     this.autoQueenPromotionOnPremove = true,
     this.pieceShiftMethod = PieceShiftMethod.either,
+    this.moveOnRelease = false,
     this.canPromoteToKing = false,
   });
 
@@ -184,6 +185,19 @@ class ChessboardSettings {
   /// Controls how moves are made.
   final PieceShiftMethod pieceShiftMethod;
 
+  /// Whether a tap-to-move (selecting a piece, then a destination) is triggered
+  /// when the pointer is released rather than when it is pressed.
+  ///
+  /// By default (`false`) the move is made as soon as the destination square is
+  /// touched. When set to `true`, after a piece has been selected, touching a
+  /// square only arms the move: the user can slide their finger to change the
+  /// destination, and the move is committed on the square where the pointer is
+  /// released. A square target follows the finger while choosing, like when
+  /// dragging a piece but without the piece, and uses [dragTargetKind].
+  ///
+  /// This has no effect on drag-and-drop, which always commits on release.
+  final bool moveOnRelease;
+
   /// Whether the pawn can be promoted to a king (for example in Antichess).
   final bool canPromoteToKing;
 
@@ -224,6 +238,7 @@ class ChessboardSettings {
         other.autoQueenPromotion == autoQueenPromotion &&
         other.autoQueenPromotionOnPremove == autoQueenPromotionOnPremove &&
         other.pieceShiftMethod == pieceShiftMethod &&
+        other.moveOnRelease == moveOnRelease &&
         other.canPromoteToKing == canPromoteToKing &&
         other.drawShape == drawShape;
   }
@@ -252,6 +267,7 @@ class ChessboardSettings {
     autoQueenPromotion,
     autoQueenPromotionOnPremove,
     pieceShiftMethod,
+    moveOnRelease,
     canPromoteToKing,
     drawShape,
   ]);
@@ -279,6 +295,7 @@ class ChessboardSettings {
     bool? autoQueenPromotion,
     bool? autoQueenPromotionOnPremove,
     PieceShiftMethod? pieceShiftMethod,
+    bool? moveOnRelease,
     bool? canPromoteToKing,
     DrawShapeOptions? drawShape,
   }) {
@@ -305,6 +322,7 @@ class ChessboardSettings {
       autoQueenPromotionOnPremove: autoQueenPromotionOnPremove ?? this.autoQueenPromotionOnPremove,
       autoQueenPromotion: autoQueenPromotion ?? this.autoQueenPromotion,
       pieceShiftMethod: pieceShiftMethod ?? this.pieceShiftMethod,
+      moveOnRelease: moveOnRelease ?? this.moveOnRelease,
       canPromoteToKing: canPromoteToKing ?? this.canPromoteToKing,
       drawShape: drawShape ?? this.drawShape,
     );
