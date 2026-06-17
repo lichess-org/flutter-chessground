@@ -82,6 +82,30 @@ class ChessboardColorScheme {
     validPremoves,
   );
 
+  ChessboardColorScheme copyWith({
+    Color? lightSquare,
+    Color? darkSquare,
+    ChessboardBackground? background,
+    ChessboardBackground? whiteCoordBackground,
+    ChessboardBackground? blackCoordBackground,
+    HighlightDetails? lastMove,
+    HighlightDetails? selected,
+    Color? validMoves,
+    Color? validPremoves,
+  }) {
+    return ChessboardColorScheme(
+      lightSquare: lightSquare ?? this.lightSquare,
+      darkSquare: darkSquare ?? this.darkSquare,
+      background: background ?? this.background,
+      whiteCoordBackground: whiteCoordBackground ?? this.whiteCoordBackground,
+      blackCoordBackground: blackCoordBackground ?? this.blackCoordBackground,
+      lastMove: lastMove ?? this.lastMove,
+      selected: selected ?? this.selected,
+      validMoves: validMoves ?? this.validMoves,
+      validPremoves: validPremoves ?? this.validPremoves,
+    );
+  }
+
   static const brown = ChessboardColorScheme(
     lightSquare: Color(0xfff0d9b6),
     darkSquare: Color(0xffb58863),
