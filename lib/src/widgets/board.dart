@@ -989,7 +989,6 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
         _renderBox!,
         isLargeCircle: targetKind == DragTargetKind.circle,
       ),
-      // No piece is shown, only the square target following the finger.
       image: null,
       feedbackSize: widget.squareSize,
       feedbackOffset: Offset.zero,
