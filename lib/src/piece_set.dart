@@ -617,18 +617,18 @@ enum PieceSet {
 
   /// The [PieceAssets] for the 'Staunty' piece set.
   static const PieceAssets stauntyAssets = {
-    PieceKind.blackRook: AssetImage('$_pieceSetsPath/staunty/bR.png', package: 'chessground'),
-    PieceKind.blackPawn: AssetImage('$_pieceSetsPath/staunty/bP.png', package: 'chessground'),
-    PieceKind.blackKnight: AssetImage('$_pieceSetsPath/staunty/bN.png', package: 'chessground'),
-    PieceKind.blackBishop: AssetImage('$_pieceSetsPath/staunty/bB.png', package: 'chessground'),
-    PieceKind.blackQueen: AssetImage('$_pieceSetsPath/staunty/bQ.png', package: 'chessground'),
-    PieceKind.blackKing: AssetImage('$_pieceSetsPath/staunty/bK.png', package: 'chessground'),
-    PieceKind.whiteRook: AssetImage('$_pieceSetsPath/staunty/wR.png', package: 'chessground'),
-    PieceKind.whitePawn: AssetImage('$_pieceSetsPath/staunty/wP.png', package: 'chessground'),
-    PieceKind.whiteKnight: AssetImage('$_pieceSetsPath/staunty/wN.png', package: 'chessground'),
-    PieceKind.whiteBishop: AssetImage('$_pieceSetsPath/staunty/wB.png', package: 'chessground'),
-    PieceKind.whiteQueen: AssetImage('$_pieceSetsPath/staunty/wQ.png', package: 'chessground'),
-    PieceKind.whiteKing: AssetImage('$_pieceSetsPath/staunty/wK.png', package: 'chessground'),
+    PieceKind.blackRook: AssetImage('$_pieceSetsPath/staunty/bR.webp', package: 'chessground'),
+    PieceKind.blackPawn: AssetImage('$_pieceSetsPath/staunty/bP.webp', package: 'chessground'),
+    PieceKind.blackKnight: AssetImage('$_pieceSetsPath/staunty/bN.webp', package: 'chessground'),
+    PieceKind.blackBishop: AssetImage('$_pieceSetsPath/staunty/bB.webp', package: 'chessground'),
+    PieceKind.blackQueen: AssetImage('$_pieceSetsPath/staunty/bQ.webp', package: 'chessground'),
+    PieceKind.blackKing: AssetImage('$_pieceSetsPath/staunty/bK.webp', package: 'chessground'),
+    PieceKind.whiteRook: AssetImage('$_pieceSetsPath/staunty/wR.webp', package: 'chessground'),
+    PieceKind.whitePawn: AssetImage('$_pieceSetsPath/staunty/wP.webp', package: 'chessground'),
+    PieceKind.whiteKnight: AssetImage('$_pieceSetsPath/staunty/wN.webp', package: 'chessground'),
+    PieceKind.whiteBishop: AssetImage('$_pieceSetsPath/staunty/wB.webp', package: 'chessground'),
+    PieceKind.whiteQueen: AssetImage('$_pieceSetsPath/staunty/wQ.webp', package: 'chessground'),
+    PieceKind.whiteKing: AssetImage('$_pieceSetsPath/staunty/wK.webp', package: 'chessground'),
   };
 
   /// The [PieceAssets] for the 'Tatiana' piece set.
