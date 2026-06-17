@@ -129,6 +129,12 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
   /// Avatar for the piece that is currently being dragged.
   _DragAvatar? _dragAvatar;
 
+  /// Target follower shown while a tap-to-move destination is being chosen with
+  /// the pointer still down, when [ChessboardSettings.moveOnRelease] is enabled.
+  ///
+  /// When non-null, the move is deferred until the pointer is released.
+  _DragAvatar? _releaseMoveTarget;
+
   /// Once a piece is dragged, holds the square id of the piece.
   late final ValueNotifier<Square?> _draggedPieceSquareNotifier;
 
@@ -485,6 +491,7 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
     _explosionNotifier.dispose();
     _draggedPieceSquareNotifier.dispose();
     _dragAvatar?.cancel();
+    _releaseMoveTarget?.cancel();
     _cancelShapesDoubleTapTimer?.cancel();
     super.dispose();
   }
@@ -502,6 +509,8 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
       _currentPointerDownEvent = null;
       _dragAvatar?.cancel();
       _dragAvatar = null;
+      _releaseMoveTarget?.cancel();
+      _releaseMoveTarget = null;
       _draggedPieceSquareNotifier.value = null;
       selected = null;
       _premoveDests = null;
@@ -679,11 +688,12 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
     // - if the move was not possible but there is a movable piece under the
     // target square, select it
     if (selected != null && square != selected) {
-      final couldMove = _tryMoveOrPremoveTo(square);
-      if (!couldMove && _isMovable(piece)) {
-        _setSelection(square);
+      // When moveOnRelease is enabled, don't move yet: arm the move and show a
+      // target following the finger. The move is committed on pointer up.
+      if (widget.settings.moveOnRelease) {
+        _beginReleaseMove(details);
       } else {
-        _setSelection(null);
+        _moveSelectedOrSelect(square);
       }
     }
     // the selected piece is touched again:
@@ -746,6 +756,24 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
       }
     }
 
+    // While a moveOnRelease destination is being chosen, the square target
+    // follows the finger; the move is committed on pointer up.
+    if (_releaseMoveTarget != null) {
+      if (_currentPointerDownEvent != null &&
+          _currentPointerDownEvent!.pointer == details.pointer) {
+        final bool isMousePointer = details.kind == PointerDeviceKind.mouse;
+        _releaseMoveTarget!.updateSquareTarget(
+          _squareTargetGlobalOffset(
+            details.localPosition,
+            _renderBox!,
+            isLargeCircle:
+                !isMousePointer && widget.settings.dragTargetKind == DragTargetKind.circle,
+          ),
+        );
+      }
+      return;
+    }
+
     if (_currentPointerDownEvent == null ||
         _currentPointerDownEvent!.pointer != details.pointer ||
         widget.settings.pieceShiftMethod == PieceShiftMethod.tapTwoSquares) {
@@ -790,6 +818,21 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
     }
 
     final square = widget.offsetSquare(details.localPosition);
+
+    // handle pointer up while choosing a moveOnRelease destination: commit the
+    // move on the square under the released pointer
+    if (_releaseMoveTarget != null) {
+      _endReleaseMoveTarget();
+      if (square != null && square != selected) {
+        _moveSelectedOrSelect(square);
+      } else {
+        _setSelection(null);
+      }
+      _shouldDeselectOnTapUp = false;
+      _shouldCancelPremoveOnTapUp = false;
+      _currentPointerDownEvent = null;
+      return;
+    }
 
     // handle pointer up while dragging a piece
     if (_dragAvatar != null) {
@@ -856,6 +899,7 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
     }
 
     _onDragEnd();
+    _endReleaseMoveTarget();
     _draggedPieceSquareNotifier.value = null;
     _currentPointerDownEvent = null;
     _shouldCancelPremoveOnTapUp = false;
@@ -916,10 +960,56 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
     _renderBox = null;
   }
 
+  /// Tries to move the selected piece to [square]; if that is not possible but a
+  /// movable piece sits on [square], selects it instead; otherwise clears the
+  /// selection.
+  void _moveSelectedOrSelect(Square square) {
+    final couldMove = _tryMoveOrPremoveTo(square);
+    if (!couldMove && _isMovable(pieces[square])) {
+      _setSelection(square);
+    } else {
+      _setSelection(null);
+    }
+  }
+
+  /// Starts following the pointer with a square target so the user can choose a
+  /// move destination, committed on pointer up (see [ChessboardSettings.moveOnRelease]).
+  void _beginReleaseMove(PointerDownEvent origin) {
+    _renderBox ??= context.findRenderObject()! as RenderBox;
+    final bool isMousePointer = origin.kind == PointerDeviceKind.mouse;
+    final targetKind =
+        isMousePointer && widget.settings.dragTargetKind != DragTargetKind.none
+            ? DragTargetKind.square
+            : widget.settings.dragTargetKind;
+    _releaseMoveTarget = _DragAvatar(
+      overlayState: Overlay.of(context, debugRequiredFor: widget),
+      initialPosition: origin.position,
+      initialTargetPosition: _squareTargetGlobalOffset(
+        origin.localPosition,
+        _renderBox!,
+        isLargeCircle: targetKind == DragTargetKind.circle,
+      ),
+      image: null,
+      feedbackSize: widget.squareSize,
+      feedbackOffset: Offset.zero,
+      upsideDown: false,
+      targetKind: targetKind,
+      squareSize: widget.squareSize,
+    );
+  }
+
+  void _endReleaseMoveTarget() {
+    _releaseMoveTarget?.end();
+    _releaseMoveTarget = null;
+    _renderBox = null;
+  }
+
   /// Cancels the current gesture and stops current selection/drag.
   void _cancelGesture() {
     _dragAvatar?.end();
     _dragAvatar = null;
+    _releaseMoveTarget?.end();
+    _releaseMoveTarget = null;
     _renderBox = null;
     _setSelection(null);
     _draggedPieceSquareNotifier.value = null;
