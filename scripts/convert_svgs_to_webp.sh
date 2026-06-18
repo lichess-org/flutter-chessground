@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# This script converts all SVGs in the lila/public/piece folder to PNGs in the output folder using Inkscape.
+# This script converts all SVGs in the lila/public/piece folder to WebP in the output folder using Inkscape.
 # Script taken from @tiagoamaro's PR: https://github.com/lichess-org/flutter-chessground/pull/28
 
 SOURCE_DIR="./lila/public/piece"
@@ -20,10 +20,13 @@ for dname in $(ls -d $SOURCE_DIR/*); do
                     echo $out_folder
                     mkdir -p $out_folder
                     fname_without_extension="${fname%.*}"
-                    png="$out_folder/$fname_without_extension.png"
-                    echo "Converting $fpath to $png"
+                    png_temp="/tmp/${fname_without_extension}_$factor.png"
+                    webp="$out_folder/$fname_without_extension.webp"
+                    echo "Converting $fpath to $webp"
                     size=$((128 * factor))
-                    inkscape --export-type="png" --export-width="$size" --export-height="$size" --export-filename="$png" $fpath &
+                    inkscape --export-type="png" --export-width="$size" --export-height="$size" --export-filename="$png_temp" $fpath
+                    cwebp -lossless -z 9 "$png_temp" -o "$webp"
+                    rm -f "$png_temp" &
                 fi
             done
         done
