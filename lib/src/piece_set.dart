@@ -201,18 +201,18 @@ enum PieceSet {
 
   /// The [PieceAssets] for the 'Companion' piece set.
   static const PieceAssets companionAssets = {
-    PieceKind.blackRook: AssetImage('$_pieceSetsPath/companion/bR.png', package: 'chessground'),
-    PieceKind.blackPawn: AssetImage('$_pieceSetsPath/companion/bP.png', package: 'chessground'),
-    PieceKind.blackKnight: AssetImage('$_pieceSetsPath/companion/bN.png', package: 'chessground'),
-    PieceKind.blackBishop: AssetImage('$_pieceSetsPath/companion/bB.png', package: 'chessground'),
-    PieceKind.blackQueen: AssetImage('$_pieceSetsPath/companion/bQ.png', package: 'chessground'),
-    PieceKind.blackKing: AssetImage('$_pieceSetsPath/companion/bK.png', package: 'chessground'),
-    PieceKind.whiteRook: AssetImage('$_pieceSetsPath/companion/wR.png', package: 'chessground'),
-    PieceKind.whitePawn: AssetImage('$_pieceSetsPath/companion/wP.png', package: 'chessground'),
-    PieceKind.whiteKnight: AssetImage('$_pieceSetsPath/companion/wN.png', package: 'chessground'),
-    PieceKind.whiteBishop: AssetImage('$_pieceSetsPath/companion/wB.png', package: 'chessground'),
-    PieceKind.whiteQueen: AssetImage('$_pieceSetsPath/companion/wQ.png', package: 'chessground'),
-    PieceKind.whiteKing: AssetImage('$_pieceSetsPath/companion/wK.png', package: 'chessground'),
+    PieceKind.blackRook: AssetImage('$_pieceSetsPath/companion/bR.webp', package: 'chessground'),
+    PieceKind.blackPawn: AssetImage('$_pieceSetsPath/companion/bP.webp', package: 'chessground'),
+    PieceKind.blackKnight: AssetImage('$_pieceSetsPath/companion/bN.webp', package: 'chessground'),
+    PieceKind.blackBishop: AssetImage('$_pieceSetsPath/companion/bB.webp', package: 'chessground'),
+    PieceKind.blackQueen: AssetImage('$_pieceSetsPath/companion/bQ.webp', package: 'chessground'),
+    PieceKind.blackKing: AssetImage('$_pieceSetsPath/companion/bK.webp', package: 'chessground'),
+    PieceKind.whiteRook: AssetImage('$_pieceSetsPath/companion/wR.webp', package: 'chessground'),
+    PieceKind.whitePawn: AssetImage('$_pieceSetsPath/companion/wP.webp', package: 'chessground'),
+    PieceKind.whiteKnight: AssetImage('$_pieceSetsPath/companion/wN.webp', package: 'chessground'),
+    PieceKind.whiteBishop: AssetImage('$_pieceSetsPath/companion/wB.webp', package: 'chessground'),
+    PieceKind.whiteQueen: AssetImage('$_pieceSetsPath/companion/wQ.webp', package: 'chessground'),
+    PieceKind.whiteKing: AssetImage('$_pieceSetsPath/companion/wK.webp', package: 'chessground'),
   };
 
   /// The [PieceAssets] for the 'Disguised' piece set.
@@ -297,18 +297,18 @@ enum PieceSet {
 
   /// The [PieceAssets] for the 'Governor' piece set.
   static const PieceAssets governorAssets = {
-    PieceKind.blackRook: AssetImage('$_pieceSetsPath/governor/bR.png', package: 'chessground'),
-    PieceKind.blackPawn: AssetImage('$_pieceSetsPath/governor/bP.png', package: 'chessground'),
-    PieceKind.blackKnight: AssetImage('$_pieceSetsPath/governor/bN.png', package: 'chessground'),
-    PieceKind.blackBishop: AssetImage('$_pieceSetsPath/governor/bB.png', package: 'chessground'),
-    PieceKind.blackQueen: AssetImage('$_pieceSetsPath/governor/bQ.png', package: 'chessground'),
-    PieceKind.blackKing: AssetImage('$_pieceSetsPath/governor/bK.png', package: 'chessground'),
-    PieceKind.whiteRook: AssetImage('$_pieceSetsPath/governor/wR.png', package: 'chessground'),
-    PieceKind.whitePawn: AssetImage('$_pieceSetsPath/governor/wP.png', package: 'chessground'),
-    PieceKind.whiteKnight: AssetImage('$_pieceSetsPath/governor/wN.png', package: 'chessground'),
-    PieceKind.whiteBishop: AssetImage('$_pieceSetsPath/governor/wB.png', package: 'chessground'),
-    PieceKind.whiteQueen: AssetImage('$_pieceSetsPath/governor/wQ.png', package: 'chessground'),
-    PieceKind.whiteKing: AssetImage('$_pieceSetsPath/governor/wK.png', package: 'chessground'),
+    PieceKind.blackRook: AssetImage('$_pieceSetsPath/governor/bR.webp', package: 'chessground'),
+    PieceKind.blackPawn: AssetImage('$_pieceSetsPath/governor/bP.webp', package: 'chessground'),
+    PieceKind.blackKnight: AssetImage('$_pieceSetsPath/governor/bN.webp', package: 'chessground'),
+    PieceKind.blackBishop: AssetImage('$_pieceSetsPath/governor/bB.webp', package: 'chessground'),
+    PieceKind.blackQueen: AssetImage('$_pieceSetsPath/governor/bQ.webp', package: 'chessground'),
+    PieceKind.blackKing: AssetImage('$_pieceSetsPath/governor/bK.webp', package: 'chessground'),
+    PieceKind.whiteRook: AssetImage('$_pieceSetsPath/governor/wR.webp', package: 'chessground'),
+    PieceKind.whitePawn: AssetImage('$_pieceSetsPath/governor/wP.webp', package: 'chessground'),
+    PieceKind.whiteKnight: AssetImage('$_pieceSetsPath/governor/wN.webp', package: 'chessground'),
+    PieceKind.whiteBishop: AssetImage('$_pieceSetsPath/governor/wB.webp', package: 'chessground'),
+    PieceKind.whiteQueen: AssetImage('$_pieceSetsPath/governor/wQ.webp', package: 'chessground'),
+    PieceKind.whiteKing: AssetImage('$_pieceSetsPath/governor/wK.webp', package: 'chessground'),
   };
 
   /// The [PieceAssets] for the 'Horsey' piece set.
