@@ -361,18 +361,18 @@ enum PieceSet {
 
   /// The [PieceAssets] for the 'Kosal' piece set.
   static const PieceAssets kosalAssets = {
-    PieceKind.blackRook: AssetImage('$_pieceSetsPath/kosal/bR.png', package: 'chessground'),
-    PieceKind.blackPawn: AssetImage('$_pieceSetsPath/kosal/bP.png', package: 'chessground'),
-    PieceKind.blackKnight: AssetImage('$_pieceSetsPath/kosal/bN.png', package: 'chessground'),
-    PieceKind.blackBishop: AssetImage('$_pieceSetsPath/kosal/bB.png', package: 'chessground'),
-    PieceKind.blackQueen: AssetImage('$_pieceSetsPath/kosal/bQ.png', package: 'chessground'),
-    PieceKind.blackKing: AssetImage('$_pieceSetsPath/kosal/bK.png', package: 'chessground'),
-    PieceKind.whiteRook: AssetImage('$_pieceSetsPath/kosal/wR.png', package: 'chessground'),
-    PieceKind.whitePawn: AssetImage('$_pieceSetsPath/kosal/wP.png', package: 'chessground'),
-    PieceKind.whiteKnight: AssetImage('$_pieceSetsPath/kosal/wN.png', package: 'chessground'),
-    PieceKind.whiteBishop: AssetImage('$_pieceSetsPath/kosal/wB.png', package: 'chessground'),
-    PieceKind.whiteQueen: AssetImage('$_pieceSetsPath/kosal/wQ.png', package: 'chessground'),
-    PieceKind.whiteKing: AssetImage('$_pieceSetsPath/kosal/wK.png', package: 'chessground'),
+    PieceKind.blackRook: AssetImage('$_pieceSetsPath/kosal/bR.webp', package: 'chessground'),
+    PieceKind.blackPawn: AssetImage('$_pieceSetsPath/kosal/bP.webp', package: 'chessground'),
+    PieceKind.blackKnight: AssetImage('$_pieceSetsPath/kosal/bN.webp', package: 'chessground'),
+    PieceKind.blackBishop: AssetImage('$_pieceSetsPath/kosal/bB.webp', package: 'chessground'),
+    PieceKind.blackQueen: AssetImage('$_pieceSetsPath/kosal/bQ.webp', package: 'chessground'),
+    PieceKind.blackKing: AssetImage('$_pieceSetsPath/kosal/bK.webp', package: 'chessground'),
+    PieceKind.whiteRook: AssetImage('$_pieceSetsPath/kosal/wR.webp', package: 'chessground'),
+    PieceKind.whitePawn: AssetImage('$_pieceSetsPath/kosal/wP.webp', package: 'chessground'),
+    PieceKind.whiteKnight: AssetImage('$_pieceSetsPath/kosal/wN.webp', package: 'chessground'),
+    PieceKind.whiteBishop: AssetImage('$_pieceSetsPath/kosal/wB.webp', package: 'chessground'),
+    PieceKind.whiteQueen: AssetImage('$_pieceSetsPath/kosal/wQ.webp', package: 'chessground'),
+    PieceKind.whiteKing: AssetImage('$_pieceSetsPath/kosal/wK.webp', package: 'chessground'),
   };
 
   /// The [PieceAssets] for the 'Leipzig' piece set.
