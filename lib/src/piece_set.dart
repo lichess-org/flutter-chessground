@@ -409,18 +409,18 @@ enum PieceSet {
 
   /// The [PieceAssets] for the 'Maestro' piece set.
   static const PieceAssets maestroAssets = {
-    PieceKind.blackRook: AssetImage('$_pieceSetsPath/maestro/bR.png', package: 'chessground'),
-    PieceKind.blackPawn: AssetImage('$_pieceSetsPath/maestro/bP.png', package: 'chessground'),
-    PieceKind.blackKnight: AssetImage('$_pieceSetsPath/maestro/bN.png', package: 'chessground'),
-    PieceKind.blackBishop: AssetImage('$_pieceSetsPath/maestro/bB.png', package: 'chessground'),
-    PieceKind.blackQueen: AssetImage('$_pieceSetsPath/maestro/bQ.png', package: 'chessground'),
-    PieceKind.blackKing: AssetImage('$_pieceSetsPath/maestro/bK.png', package: 'chessground'),
-    PieceKind.whiteRook: AssetImage('$_pieceSetsPath/maestro/wR.png', package: 'chessground'),
-    PieceKind.whitePawn: AssetImage('$_pieceSetsPath/maestro/wP.png', package: 'chessground'),
-    PieceKind.whiteKnight: AssetImage('$_pieceSetsPath/maestro/wN.png', package: 'chessground'),
-    PieceKind.whiteBishop: AssetImage('$_pieceSetsPath/maestro/wB.png', package: 'chessground'),
-    PieceKind.whiteQueen: AssetImage('$_pieceSetsPath/maestro/wQ.png', package: 'chessground'),
-    PieceKind.whiteKing: AssetImage('$_pieceSetsPath/maestro/wK.png', package: 'chessground'),
+    PieceKind.blackRook: AssetImage('$_pieceSetsPath/maestro/bR.webp', package: 'chessground'),
+    PieceKind.blackPawn: AssetImage('$_pieceSetsPath/maestro/bP.webp', package: 'chessground'),
+    PieceKind.blackKnight: AssetImage('$_pieceSetsPath/maestro/bN.webp', package: 'chessground'),
+    PieceKind.blackBishop: AssetImage('$_pieceSetsPath/maestro/bB.webp', package: 'chessground'),
+    PieceKind.blackQueen: AssetImage('$_pieceSetsPath/maestro/bQ.webp', package: 'chessground'),
+    PieceKind.blackKing: AssetImage('$_pieceSetsPath/maestro/bK.webp', package: 'chessground'),
+    PieceKind.whiteRook: AssetImage('$_pieceSetsPath/maestro/wR.webp', package: 'chessground'),
+    PieceKind.whitePawn: AssetImage('$_pieceSetsPath/maestro/wP.webp', package: 'chessground'),
+    PieceKind.whiteKnight: AssetImage('$_pieceSetsPath/maestro/wN.webp', package: 'chessground'),
+    PieceKind.whiteBishop: AssetImage('$_pieceSetsPath/maestro/wB.webp', package: 'chessground'),
+    PieceKind.whiteQueen: AssetImage('$_pieceSetsPath/maestro/wQ.webp', package: 'chessground'),
+    PieceKind.whiteKing: AssetImage('$_pieceSetsPath/maestro/wK.webp', package: 'chessground'),
   };
 
   /// The [PieceAssets] for the 'Merida' piece set.
