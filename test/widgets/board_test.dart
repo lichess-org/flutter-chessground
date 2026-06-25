@@ -687,6 +687,34 @@ void main() {
       expect(_isSelectedHighlight(tester, Square.d2), isFalse);
     });
 
+testWidgets('holding down a second finger must not brick the board for subsequent moves', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(const _TestApp(initialPlayerSide: PlayerSide.both));
+
+      // Start dragging a piece with finger 1
+      final finger1 = await tester.startGesture(squareOffset(tester, Square.e2));
+      await tester.pump();
+      await finger1.moveBy(const Offset(0, -squareSize));
+      await tester.pump();
+
+      // Finger 2 touches down on the board while finger 1 is still dragging
+      final finger2 = await tester.startGesture(squareOffset(tester, Square.e4));
+      await tester.pump();
+
+      // Finger 1 completes its lift up
+      await finger1.up();
+      await tester.pumpAndSettle();
+
+      // Previously this was ignored because Pointer 2 had hijacked the interaction ID
+      await tester.tapAt(squareOffset(tester, Square.a2));
+      await tester.pump();
+
+      expect(_isSelectedHighlight(tester, Square.a2), isTrue);
+
+      await finger2.up();
+    });
+
     testWidgets('dragging an unselected piece to the same square should keep the piece selected', (
       WidgetTester tester,
     ) async {

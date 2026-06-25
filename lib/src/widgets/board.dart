@@ -623,6 +623,17 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
   void _onPointerDown(PointerDownEvent details) {
     if (details.buttons != kPrimaryButton) return;
 
+    // If a second, distinct finger touches down while we are already tracking a primary finger,
+    // and we are not intentionally drawing board shapes (_drawModeLockOrigin == null),
+    // this is a rogue multi-touch event. Cleanly abort the active gesture and kill the pointer state.
+    if (_currentPointerDownEvent != null && _currentPointerDownEvent!.pointer != details.pointer) {
+      if (_drawModeLockOrigin == null) {
+        _cancelGesture();
+        _currentPointerDownEvent = null;
+        return; // Reject this second finger completely
+      }
+    }
+
     final square = widget.offsetSquare(details.localPosition);
     if (square == null) return;
 
