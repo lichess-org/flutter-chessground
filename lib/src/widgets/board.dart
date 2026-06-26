@@ -138,17 +138,21 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
   /// Once a piece is dragged, holds the square id of the piece.
   late final ValueNotifier<Square?> _draggedPieceSquareNotifier;
 
-  /// Current pointer down event.
+  /// Pointer down event that owns the current play gesture.
   ///
-  /// This field is reset to null when the pointer is released (up or cancel).
+  /// Reset to null when the pointer is released (up or cancel) or when the
+  /// gesture is cancelled. Used to match subsequent move and up events against
+  /// the pointer that started the gesture (e.g. a drag).
+  PointerDownEvent? _gesturePointerDownEvent;
+
+  /// Number of pointers currently down on the board.
   ///
-  /// This is used to track board gestures, the pointer that started the drag,
-  /// and to prevent other pointers from starting a drag while a piece is being
-  /// dragged.
-  ///
-  /// Other simultaneous pointer events are ignored and will cancel the current
-  /// gesture.
-  PointerDownEvent? _currentPointerDownEvent;
+  /// The board only allows a single pointer to drive a play gesture: while more
+  /// than one pointer is down, any additional pointer cancels the current
+  /// gesture and is ignored. This ensures a finger left on the board keeps
+  /// blocking gestures, even after the pointer that started the gesture has been
+  /// lifted.
+  int _activePointers = 0;
 
   /// Current render box during drag.
   // ignore: use_late_for_private_fields_and_variables
@@ -251,10 +255,19 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
 
     final board = Listener(
       behavior: HitTestBehavior.opaque, // stops hit test traversal immediately
-      onPointerDown: _onPointerDown,
+      onPointerDown: (event) {
+        _activePointers++;
+        _onPointerDown(event);
+      },
       onPointerMove: _onPointerMove,
-      onPointerUp: _onPointerUp,
-      onPointerCancel: _onPointerCancel,
+      onPointerUp: (event) {
+        if (_activePointers > 0) _activePointers--;
+        _onPointerUp(event);
+      },
+      onPointerCancel: (event) {
+        if (_activePointers > 0) _activePointers--;
+        _onPointerCancel(event);
+      },
       child: SizedBox.square(
         key: const ValueKey('board-container'),
         dimension: widget.size,
@@ -506,7 +519,8 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
 
   void _onControllerChange() {
     if (!_controller.interactive) {
-      _currentPointerDownEvent = null;
+      _gesturePointerDownEvent = null;
+      _activePointers = 0;
       _dragAvatar?.cancel();
       _dragAvatar = null;
       _releaseMoveTarget?.cancel();
@@ -672,16 +686,17 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
 
     if (!_controller.interactive) return;
 
-    // From here on, we only allow 1 pointer to interact with the board. Other
-    // pointers will cancel any current gesture.
-    if (_currentPointerDownEvent != null) {
+    // From here on, we only allow 1 pointer to interact with the board. While
+    // more than one pointer is down, any additional pointer cancels the current
+    // gesture and is ignored.
+    if (_activePointers > 1) {
       _cancelGesture();
       return;
     }
 
-    // keep a reference to the current pointer down event to handle simultaneous
-    // pointer events
-    _currentPointerDownEvent = details;
+    // keep a reference to the pointer that owns this gesture, so its move and up
+    // events can be matched against it
+    _gesturePointerDownEvent = details;
 
     // a piece was selected and the user taps on a different square:
     // - try to move the piece to the target square
@@ -759,8 +774,8 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
     // While a moveOnRelease destination is being chosen, the square target
     // follows the finger; the move is committed on pointer up.
     if (_releaseMoveTarget != null) {
-      if (_currentPointerDownEvent != null &&
-          _currentPointerDownEvent!.pointer == details.pointer) {
+      if (_gesturePointerDownEvent != null &&
+          _gesturePointerDownEvent!.pointer == details.pointer) {
         final bool isMousePointer = details.kind == PointerDeviceKind.mouse;
         _releaseMoveTarget!.updateSquareTarget(
           _squareTargetGlobalOffset(
@@ -774,15 +789,15 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
       return;
     }
 
-    if (_currentPointerDownEvent == null ||
-        _currentPointerDownEvent!.pointer != details.pointer ||
+    if (_gesturePointerDownEvent == null ||
+        _gesturePointerDownEvent!.pointer != details.pointer ||
         widget.settings.pieceShiftMethod == PieceShiftMethod.tapTwoSquares) {
       return;
     }
 
-    final distance = (details.position - _currentPointerDownEvent!.position).distance;
+    final distance = (details.position - _gesturePointerDownEvent!.position).distance;
     if (_dragAvatar == null && distance > _kDragDistanceThreshold) {
-      _onDragStart(_currentPointerDownEvent!);
+      _onDragStart(_gesturePointerDownEvent!);
     }
 
     final bool isMousePointer = details.kind == PointerDeviceKind.mouse;
@@ -813,7 +828,7 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
       return;
     }
 
-    if (_currentPointerDownEvent == null || _currentPointerDownEvent!.pointer != details.pointer) {
+    if (_gesturePointerDownEvent == null || _gesturePointerDownEvent!.pointer != details.pointer) {
       return;
     }
 
@@ -830,7 +845,7 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
       }
       _shouldDeselectOnTapUp = false;
       _shouldCancelPremoveOnTapUp = false;
-      _currentPointerDownEvent = null;
+      _gesturePointerDownEvent = null;
       return;
     }
 
@@ -876,7 +891,7 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
 
     _shouldDeselectOnTapUp = false;
     _shouldCancelPremoveOnTapUp = false;
-    _currentPointerDownEvent = null;
+    _gesturePointerDownEvent = null;
   }
 
   void _onPointerCancel(PointerCancelEvent details) {
@@ -894,14 +909,14 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
       return;
     }
 
-    if (_currentPointerDownEvent == null || _currentPointerDownEvent!.pointer != details.pointer) {
+    if (_gesturePointerDownEvent == null || _gesturePointerDownEvent!.pointer != details.pointer) {
       return;
     }
 
     _onDragEnd();
     _endReleaseMoveTarget();
     _draggedPieceSquareNotifier.value = null;
-    _currentPointerDownEvent = null;
+    _gesturePointerDownEvent = null;
     _shouldCancelPremoveOnTapUp = false;
     _shouldDeselectOnTapUp = false;
   }
@@ -1013,6 +1028,7 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
     _renderBox = null;
     _setSelection(null);
     _draggedPieceSquareNotifier.value = null;
+    _gesturePointerDownEvent = null;
     _shouldDeselectOnTapUp = false;
     _shouldCancelPremoveOnTapUp = false;
   }
