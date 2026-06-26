@@ -1,3 +1,11 @@
+## 10.1.1
+
+- Fixed multitouch gesture handling: a second finger could start a new gesture
+  (selecting or moving a piece) while another finger was still resting on the
+  board. The board now tracks the number of active pointers and ignores any
+  gesture while more than one finger is down, even after the finger that
+  started the gesture has been lifted.
+
 ## 10.1.0
 
 - Add `ChessboardSettings.moveOnRelease`: when enabled, a tap-to-move is
