@@ -1013,7 +1013,6 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
     _renderBox = null;
     _setSelection(null);
     _draggedPieceSquareNotifier.value = null;
-    _currentPointerDownEvent = null;
     _shouldDeselectOnTapUp = false;
     _shouldCancelPremoveOnTapUp = false;
   }
