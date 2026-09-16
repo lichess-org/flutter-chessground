@@ -2904,6 +2904,48 @@ void main() {
       expect(shapeSize.height, squareSize);
     });
 
+    testWidgets('preconfigure board to draw a custom shape', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        _TestApp(
+          initialPlayerSide: PlayerSide.both,
+          initialShapes: {
+            const CustomShape(
+              orig: Square.e4,
+              scale: 0.5,
+              child: Icon(IconData(0x2605, fontFamily: 'MaterialIcons')),
+            ),
+          },
+        ),
+      );
+
+      expect(find.byType(Icon), findsOneWidget);
+
+      // The child is laid out in a box of `scale` times the square size, centered on the square.
+      final iconSize = tester.getSize(find.byType(Icon));
+      expect(iconSize.width, squareSize * 0.5);
+      expect(iconSize.height, squareSize * 0.5);
+      expect(tester.getCenter(find.byType(Icon)), squareOffset(tester, Square.e4));
+    });
+
+    testWidgets('a custom shape does not intercept board gestures', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        _TestApp(
+          initialPlayerSide: PlayerSide.both,
+          initialShapes: {
+            const CustomShape(
+              orig: Square.e2,
+              child: Icon(IconData(0x2605, fontFamily: 'MaterialIcons')),
+            ),
+          },
+        ),
+      );
+
+      await tester.tapAt(squareOffset(tester, Square.e2));
+      await tester.pump();
+
+      expect(_isSelectedHighlight(tester, Square.e2), isTrue);
+    });
+
     testWidgets('cannot draw if not enabled', (WidgetTester tester) async {
       await tester.pumpWidget(const _TestApp(initialPlayerSide: PlayerSide.both));
 
