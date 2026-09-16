@@ -1,3 +1,7 @@
+## 10.2.0
+
+- Add `CustomShape`: a `Shape` that draws an arbitrary widget on a square.
+
 ## 10.1.1
 
 - Fixed multitouch gesture handling: a second finger could start a new gesture
