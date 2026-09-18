@@ -313,3 +313,58 @@ class PieceShape implements Shape {
     );
   }
 }
+
+/// An arbitrary widget drawn on a square of the board.
+///
+/// Use it to decorate a square with something the built-in shapes cannot express, such as an icon
+/// or a badge.
+@immutable
+class CustomShape implements Shape {
+  /// Creates a new [CustomShape] with the provided values.
+  ///
+  /// The [scale] must be greater than 0.0 and at most 1.0.
+  const CustomShape({required this.orig, required this.child, this.scale = 1.0})
+    : assert(scale > 0.0 && scale <= 1.0);
+
+  /// The square on which the widget is drawn.
+  final Square orig;
+
+  /// The widget to draw, centered on [orig].
+  final Widget child;
+
+  /// The widget is laid out in a box of `scale` times the square size.
+  @override
+  final double scale;
+
+  @override
+  Shape newDest(Square newDest) {
+    return this;
+  }
+
+  @override
+  Shape withScale(double newScale) {
+    return CustomShape(orig: orig, child: child, scale: newScale);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        other is CustomShape &&
+            other.runtimeType == runtimeType &&
+            other.orig == orig &&
+            other.child == child &&
+            other.scale == scale;
+  }
+
+  @override
+  int get hashCode => Object.hash(orig, child, scale);
+
+  /// Creates a copy of this [CustomShape] with the given fields replaced by the new values.
+  CustomShape copyWith({Square? orig, Widget? child, double? scale}) {
+    return CustomShape(
+      orig: orig ?? this.orig,
+      child: child ?? this.child,
+      scale: scale ?? this.scale,
+    );
+  }
+}

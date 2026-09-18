@@ -20,7 +20,7 @@ class BoardShapeWidget extends StatelessWidget with ChessboardGeometry {
 
   /// The shape to display on the board.
   ///
-  /// Currently supported shapes are [Arrow], [Circle], and [PieceShape].
+  /// Currently supported shapes are [Arrow], [Circle], [PieceShape] and [CustomShape].
   final Shape shape;
 
   @override
@@ -77,6 +77,15 @@ class BoardShapeWidget extends StatelessWidget with ChessboardGeometry {
             ),
           );
         }
+      case CustomShape(orig: final orig, child: final child, scale: final scale):
+        return PositionedSquare(
+          size: size,
+          orientation: orientation,
+          square: orig,
+          child: IgnorePointer(
+            child: Center(child: SizedBox.square(dimension: scale * squareSize, child: child)),
+          ),
+        );
     }
   }
 }
