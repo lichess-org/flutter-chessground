@@ -433,7 +433,8 @@ class FadingPiecesPainter extends CustomPainter {
       final image = ChessgroundImages.instance.get(asset);
       if (image == null) continue;
 
-      final dst = _squareRect(square, squareSize, orientation);
+      final dst = (enable3dAssets)? _oblongRect(square,squareSize,orientation, image.width.toDouble(), image.height.toDouble()) : _squareRect(square, squareSize, orientation) ; 
+ ;
       final src = Rect.fromLTWH(0, 0, image.width.toDouble(), image.height.toDouble());
 
       if (_isUpsideDown(
@@ -535,16 +536,15 @@ class TranslatingPiecesPainter extends CustomPainter {
       final dx = -(toSquare.file - fromSquare.file).toDouble() * orientationFactor;
       final dy = (toSquare.rank - fromSquare.rank).toDouble() * orientationFactor;
 
-      final toRect = _squareRect(toSquare, squareSize, orientation);
+      final toRect = (enable3dAssets)? _oblongRect(toSquare,squareSize,orientation, image.width.toDouble(), image.height.toDouble()) :  _squareRect(toSquare, squareSize, orientation);
       
       final width = (enable3dAssets)? squareSize*_3dScaleFactor : squareSize;
       final height = (enable3dAssets)? (width/image.width.toDouble()) * image.height.toDouble() : squareSize; 
       
       
-      //TODO FIX MOVEMENT TO LOOK NICER
       final dst = Rect.fromLTWH(
-       toRect.left + dx * squareSize * (1.0 - t),
-       toRect.top + dy * squareSize * (1.0 - t),
+       toRect.left + dx * width * (1.0 - t),
+       toRect.top + dy * height * (1.0 - t),
        width,
        height,
       );
@@ -612,12 +612,18 @@ class DragPiecePainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final img = image;
     if (img == null) return;
+    
+   // final feedbackWidth = (enable3dAssets)? feedbackSize*_3dScaleFactor : feedbackSize;
+   // final feedbackHeight = (enable3dAssets)? (feedbackWidth/img.width.toDouble()) * img.height.toDouble() : feedbackSize;
+    
     final pos = positionNotifier.value;
     final dst = Rect.fromLTWH(
       pos.dx + feedbackOffset.dx,
       pos.dy + feedbackOffset.dy,
       feedbackSize,
-      feedbackSize,
+      feedbackSize
+    //  feedbackWidth,
+    //  feedbackHeight,
     );
     final src = Rect.fromLTWH(0, 0, img.width.toDouble(), img.height.toDouble());
     final paint = Paint()..filterQuality = FilterQuality.medium;
@@ -691,12 +697,12 @@ Rect _squareRect(Square square, double squareSize, Side orientation) {
   return Rect.fromLTWH(x * squareSize, y * squareSize, squareSize, squareSize);
 }
 
+/// Create a rect for 3d piece dimensions
 Rect _oblongRect(Square square, double squareSize, Side orientation, double imageWidth, double imageHeight){
-
 	final x = orientation == Side.black ? 7 - square.file : square.file;
- final y = orientation == Side.black ? square.rank : 7 - square.rank;
-
-// TODO: Possibly cache the width and height instead of calculating it over and over
+	final y = orientation == Side.black ? square.rank : 7 - square.rank;
+	
+	// TODO: Possibly cache the width and height instead of calculating it over and over
 	final width  = squareSize*_3dScaleFactor;
 	final height = (width/imageWidth) * imageHeight;	
 
@@ -720,7 +726,6 @@ bool _isUpsideDown(
   PieceOrientationBehavior.sideToPlay => sideToMove == orientation.opposite,
 };
 
-/// Scale 3D Images to appropriate width relative to board square 
-///  to give a convincing appearance of a 3d piece placed on a flat board
+/// Scale 3D Images to appropriate width relative to board square to give a convincing appearance of a 3d piece placed on a flat board
 final double _3dScaleFactor = 1.4;
 
