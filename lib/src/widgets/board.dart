@@ -185,6 +185,7 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     final settings = widget.settings;
+    debugPrint("widget.settings.enable3dAssets = " + settings.enable3dAssets.toString());
     final colorScheme = settings.colorScheme;
     final shapes = {...widget.shapes, ..._controller.drawnShapes};
     final annotations = widget.annotations;
@@ -216,6 +217,7 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
       piecesNotifier: _controller.piecesNotifier,
       translatingPiecesNotifier: _controller.translatingPiecesNotifier,
       pieceAssets: settings.pieceAssets,
+      enable3dAssets: settings.enable3dAssets,
       squareSize: widget.squareSize,
       orientation: widget.orientation,
       draggedPieceSquareNotifier: _draggedPieceSquareNotifier,
@@ -231,6 +233,7 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
       squareSize: widget.squareSize,
       orientation: widget.orientation,
       pieceAssets: settings.pieceAssets,
+      enable3dAssets: settings.enable3dAssets,
       blindfoldMode: settings.blindfoldMode,
       pieceOrientationBehavior: settings.pieceOrientationBehavior,
       gameNotifier: _controller.gameNotifier,
@@ -242,6 +245,7 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
       squareSize: widget.squareSize,
       orientation: widget.orientation,
       pieceAssets: settings.pieceAssets,
+      enable3dAssets: settings.enable3dAssets,
       blindfoldMode: settings.blindfoldMode,
       pieceOrientationBehavior: settings.pieceOrientationBehavior,
       gameNotifier: _controller.gameNotifier,
@@ -1146,6 +1150,7 @@ class _DragAvatar {
                   feedbackOffset: feedbackOffset,
                   upsideDown: upsideDown,
                   positionNotifier: _positionNotifier,
+                  // enable3dAssets:widget.settings.enable3dAssets, //TODO figure out whatever tf is going wrong here
                 ),
               ),
             ),

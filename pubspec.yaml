@@ -25,6 +25,7 @@ flutter:
   assets:
     - assets/piece_sets/alpha/
     - assets/piece_sets/anarcandy/
+    - assets/piece_sets/basic/
     - assets/piece_sets/california/
     - assets/piece_sets/caliente/
     - assets/piece_sets/cardinal/
@@ -36,6 +37,7 @@ flutter:
     - assets/piece_sets/companion/
     - assets/piece_sets/disguised/
     - assets/piece_sets/dubrovny/
+    - assets/piece_sets/experimental/
     - assets/piece_sets/fantasy/
     - assets/piece_sets/firi/
     - assets/piece_sets/fresca/
@@ -50,17 +52,21 @@ flutter:
     - assets/piece_sets/maestro/
     - assets/piece_sets/merida/
     - assets/piece_sets/monarchy/
+    - assets/piece_sets/modernwood/
     - assets/piece_sets/mpchess/
     - assets/piece_sets/pirouetti/
     - assets/piece_sets/pixel/
     - assets/piece_sets/reillycraig/
     - assets/piece_sets/rhosgfx/
     - assets/piece_sets/riohacha/
+    - assets/piece_sets/redvblue/
     - assets/piece_sets/shapes/
     - assets/piece_sets/spatial/
     - assets/piece_sets/staunty/
     - assets/piece_sets/symmetric/
     - assets/piece_sets/tatiana/
     - assets/piece_sets/totoy/
+    - assets/piece_sets/trimmed/
+    - assets/piece_sets/wood/
     - assets/piece_sets/xkcd/
     - assets/boards/

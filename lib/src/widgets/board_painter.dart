@@ -228,6 +228,7 @@ class PiecesPainter extends CustomPainter {
     required this.piecesNotifier,
     required this.translatingPiecesNotifier,
     required this.pieceAssets,
+    required this.enable3dAssets,
     required this.squareSize,
     required this.orientation,
     required ValueNotifier<Square?>? draggedPieceSquareNotifier,
@@ -262,6 +263,9 @@ class PiecesPainter extends CustomPainter {
 
   /// The assets used to render each piece kind.
   final PieceAssets pieceAssets;
+
+  /// Scale piece images based on usage of 3d piece and board assets
+  final bool enable3dAssets;
 
   /// The size of a single square in logical pixels.
   final double squareSize;
@@ -305,7 +309,13 @@ class PiecesPainter extends CustomPainter {
     final promotionMoveFrom = pendingPromotionNotifier.value?.from;
     final sideToMove = game?.sideToMove;
     final paint = Paint()..filterQuality = FilterQuality.medium;
-    for (final entry in pieces.entries) {
+
+    final piecesToPaint = ( enable3dAssets == false) ? pieces.entries : // If using 2D Assets , leave piece entries as they are
+     // If using 3D assets, we must paint pieces in a particular order so that they overlap properly to give the illusion of a 3D board
+    (orientation == Side.white) ? (pieces.entries.toList()..sort((a, b) => b.key.compareTo(a.key))) :  // If side is white, sort in ascending order
+    (pieces.entries.toList()..sort((a, b) => a.key.compareTo(b.key))); // If side is black, sort in descending order
+
+    for (final entry in piecesToPaint ) {
       final square = entry.key;
       if (translatingPieces.containsKey(square) ||
           square == draggedPieceSquare ||
@@ -317,7 +327,10 @@ class PiecesPainter extends CustomPainter {
       final image = ChessgroundImages.instance.get(asset);
       if (image == null) continue;
 
-      final dst = _squareRect(square, squareSize, orientation);
+      
+       final dst = (enable3dAssets) ?  _oblongRect(square,squareSize,orientation, image.width.toDouble(), image.height.toDouble()) : _squareRect(square, squareSize, orientation);
+
+
       final src = Rect.fromLTWH(0, 0, image.width.toDouble(), image.height.toDouble());
       if (_isUpsideDown(
         entry.value.color,
@@ -348,6 +361,8 @@ class PiecesPainter extends CustomPainter {
   }
 }
 
+
+
 /// Paints all fading-out pieces for the current animation frame.
 ///
 /// Driven by [animation] as the repaint listenable — only [paint] runs per
@@ -359,6 +374,7 @@ class FadingPiecesPainter extends CustomPainter {
     required this.squareSize,
     required this.orientation,
     required this.pieceAssets,
+    required this.enable3dAssets,
     required this.blindfoldMode,
     required this.pieceOrientationBehavior,
     required this.gameNotifier,
@@ -380,6 +396,10 @@ class FadingPiecesPainter extends CustomPainter {
 
   /// The assets used to render each piece kind.
   final PieceAssets pieceAssets;
+
+  // Scale piece images based on whether 3d piece or board assets are used
+  // to give the illusion of 3d board and pieces
+  final bool enable3dAssets;
 
   /// Whether pieces should be hidden (blindfold mode).
   final bool blindfoldMode;
@@ -413,7 +433,8 @@ class FadingPiecesPainter extends CustomPainter {
       final image = ChessgroundImages.instance.get(asset);
       if (image == null) continue;
 
-      final dst = _squareRect(square, squareSize, orientation);
+      final dst = (enable3dAssets)? _oblongRect(square,squareSize,orientation, image.width.toDouble(), image.height.toDouble()) : _squareRect(square, squareSize, orientation) ; 
+ ;
       final src = Rect.fromLTWH(0, 0, image.width.toDouble(), image.height.toDouble());
 
       if (_isUpsideDown(
@@ -455,6 +476,7 @@ class TranslatingPiecesPainter extends CustomPainter {
     required this.squareSize,
     required this.orientation,
     required this.pieceAssets,
+    required this.enable3dAssets,
     required this.blindfoldMode,
     required this.pieceOrientationBehavior,
     required this.gameNotifier,
@@ -476,6 +498,9 @@ class TranslatingPiecesPainter extends CustomPainter {
 
   /// The assets used to render each piece kind.
   final PieceAssets pieceAssets;
+
+  //TODO put description here
+  final bool enable3dAssets;
 
   /// Whether pieces should be hidden (blindfold mode).
   final bool blindfoldMode;
@@ -511,12 +536,17 @@ class TranslatingPiecesPainter extends CustomPainter {
       final dx = -(toSquare.file - fromSquare.file).toDouble() * orientationFactor;
       final dy = (toSquare.rank - fromSquare.rank).toDouble() * orientationFactor;
 
-      final toRect = _squareRect(toSquare, squareSize, orientation);
+      final toRect = (enable3dAssets)? _oblongRect(toSquare,squareSize,orientation, image.width.toDouble(), image.height.toDouble()) :  _squareRect(toSquare, squareSize, orientation);
+      
+      final width = (enable3dAssets)? squareSize*_3dScaleFactor : squareSize;
+      final height = (enable3dAssets)? (width/image.width.toDouble()) * image.height.toDouble() : squareSize; 
+      
+      
       final dst = Rect.fromLTWH(
-        toRect.left + dx * squareSize * (1.0 - t),
-        toRect.top + dy * squareSize * (1.0 - t),
-        squareSize,
-        squareSize,
+       toRect.left + dx * width * (1.0 - t),
+       toRect.top + dy * height * (1.0 - t),
+       width,
+       height,
       );
       final src = Rect.fromLTWH(0, 0, image.width.toDouble(), image.height.toDouble());
 
@@ -560,6 +590,7 @@ class DragPiecePainter extends CustomPainter {
     required this.feedbackOffset,
     required this.upsideDown,
     required this.positionNotifier,
+//    required this.enable3dAssets, //TODO: figure out how to pass to this one
   }) : super(repaint: positionNotifier);
 
   /// The image of the dragged piece, or null if not yet loaded.
@@ -581,12 +612,18 @@ class DragPiecePainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final img = image;
     if (img == null) return;
+    
+   // final feedbackWidth = (enable3dAssets)? feedbackSize*_3dScaleFactor : feedbackSize;
+   // final feedbackHeight = (enable3dAssets)? (feedbackWidth/img.width.toDouble()) * img.height.toDouble() : feedbackSize;
+    
     final pos = positionNotifier.value;
     final dst = Rect.fromLTWH(
       pos.dx + feedbackOffset.dx,
       pos.dy + feedbackOffset.dy,
       feedbackSize,
-      feedbackSize,
+      feedbackSize
+    //  feedbackWidth,
+    //  feedbackHeight,
     );
     final src = Rect.fromLTWH(0, 0, img.width.toDouble(), img.height.toDouble());
     final paint = Paint()..filterQuality = FilterQuality.medium;
@@ -660,6 +697,24 @@ Rect _squareRect(Square square, double squareSize, Side orientation) {
   return Rect.fromLTWH(x * squareSize, y * squareSize, squareSize, squareSize);
 }
 
+/// Create a rect for 3d piece dimensions
+Rect _oblongRect(Square square, double squareSize, Side orientation, double imageWidth, double imageHeight){
+	final x = orientation == Side.black ? 7 - square.file : square.file;
+	final y = orientation == Side.black ? square.rank : 7 - square.rank;
+	
+	// TODO: Possibly cache the width and height instead of calculating it over and over
+	final width  = squareSize*_3dScaleFactor;
+	final height = (width/imageWidth) * imageHeight;	
+
+	final yOffset = (squareSize - height) / _3dScaleFactor; 
+	final xOffset = (squareSize - width) / _3dScaleFactor;
+	
+	final double left = x * squareSize + (squareSize - width ) / 2;
+	final double top = (y + 1 ) * squareSize - height;
+
+  	return Rect.fromLTWH(left,top , width, height);
+}
+
 bool _isUpsideDown(
   Side pieceColor, {
   required PieceOrientationBehavior behavior,
@@ -670,3 +725,7 @@ bool _isUpsideDown(
   PieceOrientationBehavior.opponentUpsideDown => pieceColor == orientation.opposite,
   PieceOrientationBehavior.sideToPlay => sideToMove == orientation.opposite,
 };
+
+/// Scale 3D Images to appropriate width relative to board square to give a convincing appearance of a 3d piece placed on a flat board
+final double _3dScaleFactor = 1.4;
+

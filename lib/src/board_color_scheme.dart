@@ -772,4 +772,283 @@ class ChessboardColorScheme {
     validMoves: Color(0x4014551e),
     validPremoves: Color(0x40203085),
   );
+
+/// 3D Boards
+static const wax = ChessboardColorScheme(
+    lightSquare: Color(0xfff2f9bb),
+    darkSquare: Color(0xff59935d),
+    background: ImageChessboardBackground(
+      lightSquare: Color(0xfff2f9bb),
+      darkSquare: Color(0xff59935d),
+      image: AssetImage('$_boardsPath/Wax.webp', package: 'chessground'),
+    ),
+    whiteCoordBackground: ImageChessboardBackground(
+      lightSquare: Color(0xfff2f9bb),
+      darkSquare: Color(0xff59935d),
+      image: AssetImage('$_boardsPath/Wax.webp', package: 'chessground'),
+      coordinates: true,
+    ),
+    blackCoordBackground: ImageChessboardBackground(
+      lightSquare: Color(0xfff2f9bb),
+      darkSquare: Color(0xff59935d),
+      image: AssetImage('$_boardsPath/Wax.webp', package: 'chessground'),
+      coordinates: true,
+      orientation: Side.black,
+    ),
+    lastMove: HighlightDetails(solidColor: Color.fromRGBO(0, 155, 199, 0.41)),
+    selected: HighlightDetails(solidColor: Color.fromRGBO(216, 85, 0, 0.3)),
+    validMoves: Color(0x4014551e),
+    validPremoves: Color(0x40203085),
+  );
+
+static const rosewood = ChessboardColorScheme(
+    lightSquare: Color(0xfff2f9bb),
+    darkSquare: Color(0xff59935d),
+    background: ImageChessboardBackground(
+      lightSquare: Color(0xfff2f9bb),
+      darkSquare: Color(0xff59935d),
+      image: AssetImage('$_boardsPath/Rosewood.webp', package: 'chessground'),
+    ),
+    whiteCoordBackground: ImageChessboardBackground(
+      lightSquare: Color(0xfff2f9bb),
+      darkSquare: Color(0xff59935d),
+      image: AssetImage('$_boardsPath/Rosewood.webp', package: 'chessground'),
+      coordinates: true,
+    ),
+    blackCoordBackground: ImageChessboardBackground(
+      lightSquare: Color(0xfff2f9bb),
+      darkSquare: Color(0xff59935d),
+      image: AssetImage('$_boardsPath/Rosewood.webp', package: 'chessground'),
+      coordinates: true,
+      orientation: Side.black,
+    ),
+    lastMove: HighlightDetails(solidColor: Color.fromRGBO(0, 155, 199, 0.41)),
+    selected: HighlightDetails(solidColor: Color.fromRGBO(216, 85, 0, 0.3)),
+    validMoves: Color(0x4014551e),
+    validPremoves: Color(0x40203085),
+  );
+
+static const powercoated = ChessboardColorScheme(
+    lightSquare: Color(0xfff2f9bb),
+    darkSquare: Color(0xff59935d),
+    background: ImageChessboardBackground(
+      lightSquare: Color(0xfff2f9bb),
+      darkSquare: Color(0xff59935d),
+      image: AssetImage('$_boardsPath/Power-Coated.webp', package: 'chessground'),
+    ),
+    whiteCoordBackground: ImageChessboardBackground(
+      lightSquare: Color(0xfff2f9bb),
+      darkSquare: Color(0xff59935d),
+      image: AssetImage('$_boardsPath/Power-Coated.webp', package: 'chessground'),
+      coordinates: true,
+    ),
+    blackCoordBackground: ImageChessboardBackground(
+      lightSquare: Color(0xfff2f9bb),
+      darkSquare: Color(0xff59935d),
+      image: AssetImage('$_boardsPath/Power-Coated.webp', package: 'chessground'),
+      coordinates: true,
+      orientation: Side.black,
+    ),
+    lastMove: HighlightDetails(solidColor: Color.fromRGBO(0, 155, 199, 0.41)),
+    selected: HighlightDetails(solidColor: Color.fromRGBO(216, 85, 0, 0.3)),
+    validMoves: Color(0x4014551e),
+    validPremoves: Color(0x40203085),
+  );
+
+static const lightwood = ChessboardColorScheme(
+    lightSquare: Color(0xfff2f9bb),
+    darkSquare: Color(0xff59935d),
+    background: ImageChessboardBackground(
+      lightSquare: Color(0xfff2f9bb),
+      darkSquare: Color(0xff59935d),
+      image: AssetImage('$_boardsPath/Light-Wood.webp', package: 'chessground'),
+    ),
+    whiteCoordBackground: ImageChessboardBackground(
+      lightSquare: Color(0xfff2f9bb),
+      darkSquare: Color(0xff59935d),
+      image: AssetImage('$_boardsPath/Light-Wood.webp', package: 'chessground'),
+      coordinates: true,
+    ),
+    blackCoordBackground: ImageChessboardBackground(
+      lightSquare: Color(0xfff2f9bb),
+      darkSquare: Color(0xff59935d),
+      image: AssetImage('$_boardsPath/Light-Wood.webp', package: 'chessground'),
+      coordinates: true,
+      orientation: Side.black,
+    ),
+    lastMove: HighlightDetails(solidColor: Color.fromRGBO(0, 155, 199, 0.41)),
+    selected: HighlightDetails(solidColor: Color.fromRGBO(216, 85, 0, 0.3)),
+    validMoves: Color(0x4014551e),
+    validPremoves: Color(0x40203085),
+  );
+static const jade = ChessboardColorScheme(
+    lightSquare: Color(0xfff2f9bb),
+    darkSquare: Color(0xff59935d),
+    background: ImageChessboardBackground(
+      lightSquare: Color(0xfff2f9bb),
+      darkSquare: Color(0xff59935d),
+      image: AssetImage('$_boardsPath/Jade.webp', package: 'chessground'),
+    ),
+    whiteCoordBackground: ImageChessboardBackground(
+      lightSquare: Color(0xfff2f9bb),
+      darkSquare: Color(0xff59935d),
+      image: AssetImage('$_boardsPath/Jade.webp', package: 'chessground'),
+      coordinates: true,
+    ),
+    blackCoordBackground: ImageChessboardBackground(
+      lightSquare: Color(0xfff2f9bb),
+      darkSquare: Color(0xff59935d),
+      image: AssetImage('$_boardsPath/Jade.webp', package: 'chessground'),
+      coordinates: true,
+      orientation: Side.black,
+    ),
+    lastMove: HighlightDetails(solidColor: Color.fromRGBO(0, 155, 199, 0.41)),
+    selected: HighlightDetails(solidColor: Color.fromRGBO(216, 85, 0, 0.3)),
+    validMoves: Color(0x4014551e),
+    validPremoves: Color(0x40203085),
+  );
+
+
+static const chinascarlet = ChessboardColorScheme(
+    lightSquare: Color(0xfff2f9bb),
+    darkSquare: Color(0xff59935d),
+    background: ImageChessboardBackground(
+      lightSquare: Color(0xfff2f9bb),
+      darkSquare: Color(0xff59935d),
+      image: AssetImage('$_boardsPath/China-Scarlet.webp', package: 'chessground'),
+    ),
+    whiteCoordBackground: ImageChessboardBackground(
+      lightSquare: Color(0xfff2f9bb),
+      darkSquare: Color(0xff59935d),
+      image: AssetImage('$_boardsPath/China-Scarlet.webp', package: 'chessground'),
+      coordinates: true,
+    ),
+    blackCoordBackground: ImageChessboardBackground(
+      lightSquare: Color(0xfff2f9bb),
+      darkSquare: Color(0xff59935d),
+      image: AssetImage('$_boardsPath/China-Scarlet.webp', package: 'chessground'),
+      coordinates: true,
+      orientation: Side.black,
+    ),
+    lastMove: HighlightDetails(solidColor: Color.fromRGBO(0, 155, 199, 0.41)),
+    selected: HighlightDetails(solidColor: Color.fromRGBO(216, 85, 0, 0.3)),
+    validMoves: Color(0x4014551e),
+    validPremoves: Color(0x40203085),
+  );
+
+static const chinagrey = ChessboardColorScheme(
+    lightSquare: Color(0xfff2f9bb),
+    darkSquare: Color(0xff59935d),
+    background: ImageChessboardBackground(
+      lightSquare: Color(0xfff2f9bb),
+      darkSquare: Color(0xff59935d),
+      image: AssetImage('$_boardsPath/China-Grey.webp', package: 'chessground'),
+    ),
+    whiteCoordBackground: ImageChessboardBackground(
+      lightSquare: Color(0xfff2f9bb),
+      darkSquare: Color(0xff59935d),
+      image: AssetImage('$_boardsPath/China-Grey.webp', package: 'chessground'),
+      coordinates: true,
+    ),
+    blackCoordBackground: ImageChessboardBackground(
+      lightSquare: Color(0xfff2f9bb),
+      darkSquare: Color(0xff59935d),
+      image: AssetImage('$_boardsPath/China-Grey.webp', package: 'chessground'),
+      coordinates: true,
+      orientation: Side.black,
+    ),
+    lastMove: HighlightDetails(solidColor: Color.fromRGBO(0, 155, 199, 0.41)),
+    selected: HighlightDetails(solidColor: Color.fromRGBO(216, 85, 0, 0.3)),
+    validMoves: Color(0x4014551e),
+    validPremoves: Color(0x40203085),
+  );
+
+static const chinagreen = ChessboardColorScheme(
+    lightSquare: Color(0xfff2f9bb),
+    darkSquare: Color(0xff59935d),
+    background: ImageChessboardBackground(
+      lightSquare: Color(0xfff2f9bb),
+      darkSquare: Color(0xff59935d),
+      image: AssetImage('$_boardsPath/China-Green.webp', package: 'chessground'),
+    ),
+    whiteCoordBackground: ImageChessboardBackground(
+      lightSquare: Color(0xfff2f9bb),
+      darkSquare: Color(0xff59935d),
+      image: AssetImage('$_boardsPath/China-Green.webp', package: 'chessground'),
+      coordinates: true,
+    ),
+    blackCoordBackground: ImageChessboardBackground(
+      lightSquare: Color(0xfff2f9bb),
+      darkSquare: Color(0xff59935d),
+      image: AssetImage('$_boardsPath/China-Green.webp', package: 'chessground'),
+      coordinates: true,
+      orientation: Side.black,
+    ),
+    lastMove: HighlightDetails(solidColor: Color.fromRGBO(0, 155, 199, 0.41)),
+    selected: HighlightDetails(solidColor: Color.fromRGBO(216, 85, 0, 0.3)),
+    validMoves: Color(0x4014551e),
+    validPremoves: Color(0x40203085),
+  );
+
+static const chinablue = ChessboardColorScheme(
+    lightSquare: Color(0xfff2f9bb),
+    darkSquare: Color(0xff59935d),
+    background: ImageChessboardBackground(
+      lightSquare: Color(0xfff2f9bb),
+      darkSquare: Color(0xff59935d),
+      image: AssetImage('$_boardsPath/China-Blue.webp', package: 'chessground'),
+    ),
+    whiteCoordBackground: ImageChessboardBackground(
+      lightSquare: Color(0xfff2f9bb),
+      darkSquare: Color(0xff59935d),
+      image: AssetImage('$_boardsPath/China-Blue.webp', package: 'chessground'),
+      coordinates: true,
+    ),
+    blackCoordBackground: ImageChessboardBackground(
+      lightSquare: Color(0xfff2f9bb),
+      darkSquare: Color(0xff59935d),
+      image: AssetImage('$_boardsPath/China-Blue.webp', package: 'chessground'),
+      coordinates: true,
+      orientation: Side.black,
+    ),
+    lastMove: HighlightDetails(solidColor: Color.fromRGBO(0, 155, 199, 0.41)),
+    selected: HighlightDetails(solidColor: Color.fromRGBO(216, 85, 0, 0.3)),
+    validMoves: Color(0x4014551e),
+    validPremoves: Color(0x40203085),
+  );
+
+static const blackwhitealuminium = ChessboardColorScheme(
+    lightSquare: Color(0xfff2f9bb),
+    darkSquare: Color(0xff59935d),
+    background: ImageChessboardBackground(
+      lightSquare: Color(0xfff2f9bb),
+      darkSquare: Color(0xff59935d),
+      image: AssetImage('$_boardsPath/Black-White-Aluminium.webp', package: 'chessground'),
+    ),
+    whiteCoordBackground: ImageChessboardBackground(
+      lightSquare: Color(0xfff2f9bb),
+      darkSquare: Color(0xff59935d),
+      image: AssetImage('$_boardsPath/Black-White-Aluminium.webp', package: 'chessground'),
+      coordinates: true,
+    ),
+    blackCoordBackground: ImageChessboardBackground(
+      lightSquare: Color(0xfff2f9bb),
+      darkSquare: Color(0xff59935d),
+      image: AssetImage('$_boardsPath/Black-White-Aluminium.webp', package: 'chessground'),
+      coordinates: true,
+      orientation: Side.black,
+    ),
+    lastMove: HighlightDetails(solidColor: Color.fromRGBO(0, 155, 199, 0.41)),
+    selected: HighlightDetails(solidColor: Color.fromRGBO(216, 85, 0, 0.3)),
+    validMoves: Color(0x4014551e),
+    validPremoves: Color(0x40203085),
+  );
+
+
+
+
 }
+
+
+
+
