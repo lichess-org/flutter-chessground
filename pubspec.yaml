@@ -13,8 +13,9 @@ dependencies:
   dartchess: ^0.13.1
   flutter:
     sdk: flutter
+  material_ui: any
   meta: ^1.18.0
-
+  
 dev_dependencies:
   flutter_test:
     sdk: flutter

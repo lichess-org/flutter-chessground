@@ -2,9 +2,9 @@ import 'dart:async';
 import 'dart:math';
 import 'package:board_example/atomic_game_page.dart';
 import 'package:board_example/board_editor_page.dart';
-import 'package:flutter/material.dart';
 import 'package:chessground/chessground.dart';
 import 'package:dartchess/dartchess.dart';
+import 'package:material_ui/material_ui.dart';
 
 import 'board_theme.dart';
 import 'board_thumbnails.dart';
@@ -14,7 +14,7 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   // This widget is the root of your application.
   @override
@@ -63,7 +63,7 @@ const buttonsSplitter = screenPadding;
 const smallButtonsSplitter = screenPadding / 2;
 
 class HomePage extends StatefulWidget {
-  const HomePage({Key? key, required this.title}) : super(key: key);
+  const HomePage({super.key, required this.title});
 
   final String title;
 
@@ -688,6 +688,13 @@ class SettingsButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        padding: const EdgeInsets.symmetric(
+          horizontal: 18.0,
+          vertical: 4,
+        ),
+      ),
+      onPressed: onPressed,
       child: Column(
         children: [
           Text(label,
@@ -701,13 +708,6 @@ class SettingsButton extends StatelessWidget {
               )),
         ],
       ),
-      style: ElevatedButton.styleFrom(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 18.0,
-          vertical: 4,
-        ),
-      ),
-      onPressed: onPressed,
     );
   }
 }

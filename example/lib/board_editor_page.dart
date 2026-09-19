@@ -1,8 +1,8 @@
 import 'package:board_example/board_theme.dart';
-import 'package:flutter/material.dart';
+import 'package:collection/collection.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:chessground/chessground.dart';
 import 'package:dartchess/dartchess.dart';
-import 'package:collection/collection.dart';
 
 class BoardEditorPage extends StatefulWidget {
   const BoardEditorPage({super.key});
@@ -171,7 +171,7 @@ class PieceMenu extends StatelessWidget {
                 ),
               );
             },
-          ).toList(),
+          ),
           Container(
             color: pointerMode == EditorPointerMode.edit && pieceEdition == null
                 ? Colors.red
