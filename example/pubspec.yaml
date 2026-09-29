@@ -36,7 +36,7 @@ dependencies:
   cupertino_icons: ^1.0.2
   chessground:
     path: ../
-  dartchess: ^0.13.0
+  dartchess: ^0.14.0
   collection: ^1.19.1
 
   material_ui: any

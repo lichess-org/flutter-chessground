@@ -10,7 +10,7 @@ environment:
   flutter: ">=3.29.0"
 
 dependencies:
-  dartchess: ^0.13.1
+  dartchess: ^0.14.0
   flutter:
     sdk: flutter
   material_ui: any
