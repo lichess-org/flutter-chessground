@@ -1,3 +1,8 @@
+## 10.3.0
+
+- Removed dependency on Flutter's material library.
+- Update dartchess to 0.14.0
+
 ## 10.2.0
 
 - Add `CustomShape`: a `Shape` that draws an arbitrary widget on a square.
