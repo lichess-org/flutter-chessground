@@ -32,7 +32,7 @@ class BoardShapeWidget extends StatelessWidget with ChessboardGeometry {
   @override
   Widget build(BuildContext context) {
     switch (shape) {
-      case Arrow(color: final color, orig: final orig, dest: final dest, scale: final scale):
+      case Arrow(:final color, :final orig, :final dest, :final scale):
         return SizedBox.square(
           dimension: size,
           child: CustomPaint(
@@ -45,7 +45,7 @@ class BoardShapeWidget extends StatelessWidget with ChessboardGeometry {
             ),
           ),
         );
-      case Circle(color: final color, orig: final orig, scale: final scale):
+      case Circle(:final color, :final orig, :final scale):
         return SizedBox.square(
           dimension: size,
           child: CustomPaint(
@@ -53,12 +53,12 @@ class BoardShapeWidget extends StatelessWidget with ChessboardGeometry {
           ),
         );
       case PieceShape(
-        color: final color,
-        orig: final orig,
-        piece: final piece,
-        pieceAssets: final pieceAssets,
-        opacity: final opacity,
-        scale: final scale,
+        :final color,
+        :final orig,
+        :final piece,
+        :final pieceAssets,
+        :final opacity,
+        :final scale,
       ):
         {
           final asset = pieceAssets[piece.kind]!;
@@ -77,7 +77,7 @@ class BoardShapeWidget extends StatelessWidget with ChessboardGeometry {
             ),
           );
         }
-      case CustomShape(orig: final orig, child: final child, scale: final scale):
+      case CustomShape(:final orig, :final child, :final scale):
         return PositionedSquare(
           size: size,
           orientation: orientation,

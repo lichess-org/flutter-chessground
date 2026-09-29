@@ -87,7 +87,7 @@ class ChessgroundImages {
   /// resolution than the default.
   Future<ui.Image> load(AssetImage asset, {double? devicePixelRatio}) async {
     final key = await asset.obtainKey(ImageConfiguration(devicePixelRatio: devicePixelRatio));
-    return (_assets[asset] ??= _ImageEntry.future(
+    return await (_assets[asset] ??= _ImageEntry.future(
           _fetchToMemory(asset.bundle ?? rootBundle, key.name),
         ))
         .retrieveAsync();
@@ -133,7 +133,7 @@ class ChessgroundImages {
   Future<ui.Image> _fetchToMemory(AssetBundle bundle, String name) async {
     final data = await bundle.load(name);
     final bytes = Uint8List.view(data.buffer);
-    return decodeImageFromList(bytes);
+    return await decodeImageFromList(bytes);
   }
 }
 

@@ -1,8 +1,8 @@
 import 'package:chessground/src/widgets/geometry.dart';
 import 'package:dartchess/dartchess.dart';
 import 'package:flutter/widgets.dart';
-import './highlight.dart';
-import './piece.dart';
+import 'highlight.dart';
+import 'piece.dart';
 
 /// Board aware [Positioned] widget.
 ///

@@ -1,7 +1,7 @@
 import 'package:dartchess/dartchess.dart' show Side;
 import 'package:flutter/widgets.dart';
-import './widgets/background.dart';
-import './models.dart';
+import 'widgets/background.dart';
+import 'models.dart';
 
 const _boardsPath = 'assets/boards';
 

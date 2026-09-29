@@ -1,6 +1,6 @@
 import 'package:dartchess/dartchess.dart';
 
-import './models.dart';
+import 'models.dart';
 
 /// Returns the read-only set of squares that the piece on [square] can potentially premove to.
 Set<Square> premovesOf(Square square, Pieces pieces, {bool canCastle = false}) {
