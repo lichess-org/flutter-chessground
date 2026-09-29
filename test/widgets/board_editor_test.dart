@@ -1,5 +1,5 @@
 import 'package:dartchess/dartchess.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/gestures.dart' show PointerDeviceKind;
 import 'package:dartchess/dartchess.dart' as dc;
 import 'package:flutter_test/flutter_test.dart';

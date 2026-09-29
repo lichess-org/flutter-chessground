@@ -37,7 +37,9 @@ dependencies:
   chessground:
     path: ../
   dartchess: ^0.13.0
+  collection: ^1.19.1
 
+  material_ui: any
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -47,7 +49,7 @@ dev_dependencies:
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_lints: ^1.0.0
+  flutter_lints: ^6.0.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
