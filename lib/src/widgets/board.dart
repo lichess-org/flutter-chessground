@@ -216,6 +216,7 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
       piecesNotifier: _controller.piecesNotifier,
       translatingPiecesNotifier: _controller.translatingPiecesNotifier,
       pieceAssets: settings.pieceAssets,
+      enable3dAssets: settings.enable3dAssets,
       squareSize: widget.squareSize,
       orientation: widget.orientation,
       draggedPieceSquareNotifier: _draggedPieceSquareNotifier,
@@ -231,6 +232,7 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
       squareSize: widget.squareSize,
       orientation: widget.orientation,
       pieceAssets: settings.pieceAssets,
+      enable3dAssets: settings.enable3dAssets,
       blindfoldMode: settings.blindfoldMode,
       pieceOrientationBehavior: settings.pieceOrientationBehavior,
       gameNotifier: _controller.gameNotifier,
@@ -242,6 +244,7 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
       squareSize: widget.squareSize,
       orientation: widget.orientation,
       pieceAssets: settings.pieceAssets,
+      enable3dAssets: settings.enable3dAssets,
       blindfoldMode: settings.blindfoldMode,
       pieceOrientationBehavior: settings.pieceOrientationBehavior,
       gameNotifier: _controller.gameNotifier,
@@ -965,6 +968,7 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
         upsideDown: upsideDown,
         targetKind: targetKind,
         squareSize: widget.squareSize,
+        enable3dAssets: widget.settings.enable3dAssets,
       );
     }
   }
@@ -1010,6 +1014,7 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
       upsideDown: false,
       targetKind: targetKind,
       squareSize: widget.squareSize,
+      enable3dAssets: widget.settings.enable3dAssets,
     );
   }
 
@@ -1132,6 +1137,8 @@ class _DragAvatar {
     required bool upsideDown,
     required DragTargetKind targetKind,
     required double squareSize,
+    required bool enable3dAssets,
+    
   }) : _positionNotifier = ValueNotifier<Offset>(initialPosition),
        _squareTargetNotifier = ValueNotifier<Offset?>(initialTargetPosition) {
     // Only the paint phase runs on each pointer move.
@@ -1146,6 +1153,7 @@ class _DragAvatar {
                   feedbackOffset: feedbackOffset,
                   upsideDown: upsideDown,
                   positionNotifier: _positionNotifier,
+                  enable3dAssets: enable3dAssets,
                 ),
               ),
             ),

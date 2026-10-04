@@ -82,6 +82,7 @@ class ChessboardSettings {
     // theme
     this.colorScheme = ChessboardColorScheme.brown,
     this.pieceAssets = PieceSet.cburnettAssets,
+    this.enable3dAssets = false,
     // visual settings
     this.border,
     this.borderRadius = BorderRadius.zero,
@@ -117,6 +118,11 @@ class ChessboardSettings {
 
   /// Piece set
   final PieceAssets pieceAssets;
+ 
+  /// Setting to scale piece images based on whether they are 3D or 2D
+  /// A value of false will size Piece Image Assets based on the square size
+  /// A value of true will size Piece Images Assets larger than the square size to give the illusion of 3D pieces
+  final bool enable3dAssets;
 
   /// Optional border of the board
   final BoardBorder? border;
@@ -218,6 +224,7 @@ class ChessboardSettings {
     return other is ChessboardSettings &&
         other.colorScheme == colorScheme &&
         other.pieceAssets == pieceAssets &&
+        other.enable3dAssets == enable3dAssets &&
         other.border == border &&
         other.borderRadius == borderRadius &&
         other.boxShadow == boxShadow &&
@@ -247,6 +254,7 @@ class ChessboardSettings {
   int get hashCode => Object.hashAll([
     colorScheme,
     pieceAssets,
+    enable3dAssets,
     border,
     borderRadius,
     boxShadow,
@@ -277,6 +285,7 @@ class ChessboardSettings {
     double? brightness,
     double? hue,
     PieceAssets? pieceAssets,
+    bool? enable3dAssets,
     BoardBorder? border,
     BorderRadiusGeometry? borderRadius,
     List<BoxShadow>? boxShadow,
@@ -304,6 +313,7 @@ class ChessboardSettings {
       brightness: brightness ?? this.brightness,
       hue: hue ?? this.hue,
       pieceAssets: pieceAssets ?? this.pieceAssets,
+      enable3dAssets: enable3dAssets ?? this.enable3dAssets,
       border: border ?? this.border,
       borderRadius: borderRadius ?? this.borderRadius,
       boxShadow: boxShadow ?? this.boxShadow,
@@ -342,6 +352,7 @@ class StaticChessboardSettings {
   const StaticChessboardSettings({
     this.colorScheme = ChessboardColorScheme.brown,
     this.pieceAssets = PieceSet.cburnettAssets,
+    this.enable3dAssets = false,
     this.border,
     this.borderRadius = BorderRadius.zero,
     this.boxShadow = const <BoxShadow>[],
@@ -360,6 +371,7 @@ class StaticChessboardSettings {
     return StaticChessboardSettings(
       colorScheme: settings.colorScheme,
       pieceAssets: settings.pieceAssets,
+      enable3dAssets: settings.enable3dAssets,
       border: settings.border,
       borderRadius: settings.borderRadius,
       boxShadow: settings.boxShadow,
@@ -378,6 +390,9 @@ class StaticChessboardSettings {
 
   /// Piece set
   final PieceAssets pieceAssets;
+
+  //TODO put description here
+  final bool enable3dAssets;
 
   /// Optional border of the board
   final BoardBorder? border;
@@ -412,6 +427,7 @@ class StaticChessboardSettings {
   StaticChessboardSettings copyWith({
     ChessboardColorScheme? colorScheme,
     PieceAssets? pieceAssets,
+    bool? enable3dAssets,
     BoardBorder? border,
     BorderRadiusGeometry? borderRadius,
     List<BoxShadow>? boxShadow,
@@ -426,6 +442,7 @@ class StaticChessboardSettings {
     return StaticChessboardSettings(
       colorScheme: colorScheme ?? this.colorScheme,
       pieceAssets: pieceAssets ?? this.pieceAssets,
+      enable3dAssets: enable3dAssets ?? false,
       border: border ?? this.border,
       borderRadius: borderRadius ?? this.borderRadius,
       boxShadow: boxShadow ?? this.boxShadow,

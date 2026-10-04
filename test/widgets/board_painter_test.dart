@@ -6,6 +6,7 @@ import 'package:chessground/chessground.dart';
 
 const boardSize = 200.0;
 const squareSize = boardSize / 8;
+const enable3dAssets = false; // Assume 2D assets for these tests for now
 
 /// Renders a solid 45x45 image (the content is irrelevant: the `paints` matcher
 /// inspects the Canvas calls, not pixels).
@@ -64,6 +65,7 @@ void main() {
         blindfoldMode: blindfoldMode,
         pieceOrientationBehavior: PieceOrientationBehavior.facingUser,
         imagesLoaded: true,
+        enable3dAssets:enable3dAssets,
       );
     }
 
@@ -134,6 +136,7 @@ void main() {
         pieceOrientationBehavior: PieceOrientationBehavior.facingUser,
         gameNotifier: ValueNotifier<GameData?>(null),
         animation: AlwaysStoppedAnimation<double>(t),
+        enable3dAssets:enable3dAssets,
       );
     }
 
@@ -321,6 +324,7 @@ void main() {
         pieceOrientationBehavior: PieceOrientationBehavior.facingUser,
         gameNotifier: ValueNotifier<GameData?>(null),
         animation: AlwaysStoppedAnimation<double>(t),
+        enable3dAssets:enable3dAssets,
       );
     }
 
@@ -393,6 +397,7 @@ void main() {
         feedbackOffset: feedbackOffset,
         upsideDown: upsideDown,
         positionNotifier: ValueNotifier(position),
+        enable3dAssets:enable3dAssets,
       );
     }
 
