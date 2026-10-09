@@ -2585,6 +2585,26 @@ void main() {
       expect(_isPremoveHighlight(tester, Square.f5), isFalse);
     });
 
+    testWidgets('setting the same premove again by drag keeps it', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        const _TestApp(
+          fen: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
+          initialPlayerSide: PlayerSide.white,
+        ),
+      );
+
+      // set premove
+      await makeMove(tester, Square.e4, Square.f5);
+      expect(_isPremoveHighlight(tester, Square.e4), isTrue);
+      expect(_isPremoveHighlight(tester, Square.f5), isTrue);
+
+      // dragging the very same premove again must not cancel it
+      await tester.dragFrom(squareOffset(tester, Square.e4), const Offset(squareSize, -squareSize));
+      await tester.pump();
+      expect(_isPremoveHighlight(tester, Square.e4), isTrue);
+      expect(_isPremoveHighlight(tester, Square.f5), isTrue);
+    });
+
     testWidgets('set and change by tap', (WidgetTester tester) async {
       await tester.pumpWidget(
         const _TestApp(
@@ -2598,9 +2618,9 @@ void main() {
       expect(_isPremoveHighlight(tester, Square.f3), isTrue);
       await tester.tapAt(squareOffset(tester, Square.d2));
       await tester.pump();
-      // premove is still set
-      expect(_isPremoveHighlight(tester, Square.d1), isTrue);
-      expect(_isPremoveHighlight(tester, Square.f3), isTrue);
+      // premove is unset, and the newly touched piece is selected
+      expect(_isPremoveHighlight(tester, Square.d1), isFalse);
+      expect(_isPremoveHighlight(tester, Square.f3), isFalse);
       expect(_moveDestHighlightCount(tester) + _premoveDestHighlightCount(tester), 4);
       await tester.tapAt(squareOffset(tester, Square.d4));
       await tester.pump();
@@ -2646,7 +2666,7 @@ void main() {
       expect(_isSelectedHighlight(tester, Square.e4), isFalse);
     });
 
-    testWidgets('select another piece from same side does not unset', (WidgetTester tester) async {
+    testWidgets('select another piece from same side unsets', (WidgetTester tester) async {
       await tester.pumpWidget(
         const _TestApp(
           fen: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
@@ -2660,8 +2680,8 @@ void main() {
 
       await tester.tapAt(squareOffset(tester, Square.e1));
       await tester.pump();
-      expect(_isPremoveHighlight(tester, Square.d1), isTrue);
-      expect(_isPremoveHighlight(tester, Square.c2), isTrue);
+      expect(_isPremoveHighlight(tester, Square.d1), isFalse);
+      expect(_isPremoveHighlight(tester, Square.c2), isFalse);
     });
 
     testWidgets('play premove', (WidgetTester tester) async {

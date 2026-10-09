@@ -120,10 +120,11 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
   /// but to allow the deselection when the user taps on the selected piece.
   bool _shouldDeselectOnTapUp = false;
 
-  /// Whether the premove should be canceled on the next tap up event.
+  /// Whether the pending premove should be canceled on the next tap up event.
   ///
-  /// This is used to prevent the premove from being canceled when the user drags
-  /// a piece, but to allow the cancelation when the user taps on the origin square of the premove.
+  /// Any interaction with the board cancels a pending premove, as on the web. The
+  /// cancelation is deferred to the pointer up event, and a gesture that sets a new
+  /// premove resets this flag, so it doesn't cancel its own premove.
   bool _shouldCancelPremoveOnTapUp = false;
 
   /// Avatar for the piece that is currently being dragged.
@@ -698,6 +699,9 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
     // events can be matched against it
     _gesturePointerDownEvent = details;
 
+    // a pending premove is canceled on pointer up, unless this gesture sets a new one
+    _shouldCancelPremoveOnTapUp = _controller.premove != null;
+
     // a piece was selected and the user taps on a different square:
     // - try to move the piece to the target square
     // - if the move was not possible but there is a movable piece under the
@@ -741,12 +745,6 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
     else if (_controller.premove != null) {
       _controller.premove = null;
       _setSelection(null);
-    }
-
-    // there is a premove set from the touched square:
-    // - cancel the premove on the next tap up event
-    if (_controller.premove case NormalMove(:final from) when from == square) {
-      _shouldCancelPremoveOnTapUp = true;
     }
 
     // prevent moving the piece by 2 taps when the piece shift method is drag only
@@ -834,6 +832,13 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
 
     final square = widget.offsetSquare(details.localPosition);
 
+    // any interaction with the board cancels a pending premove; a new one may
+    // still be set below
+    if (_shouldCancelPremoveOnTapUp) {
+      _shouldCancelPremoveOnTapUp = false;
+      _controller.premove = null;
+    }
+
     // handle pointer up while choosing a moveOnRelease destination: commit the
     // move on the square under the released pointer
     if (_releaseMoveTarget != null) {
@@ -844,7 +849,6 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
         _setSelection(null);
       }
       _shouldDeselectOnTapUp = false;
-      _shouldCancelPremoveOnTapUp = false;
       _gesturePointerDownEvent = null;
       return;
     }
@@ -855,19 +859,11 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
 
       if (square != null) {
         if (square != selected) {
-          final couldMove = _tryMoveOrPremoveTo(square, drop: true);
-          // if the premove was not possible, cancel the current premove
-          if (!couldMove && _controller.premove != null) {
-            _controller.premove = null;
-          }
+          _tryMoveOrPremoveTo(square, drop: true);
         } else {
           // if piece shift method is drag only we always deselect the piece after a drag
           shouldDeselect = widget.settings.pieceShiftMethod == PieceShiftMethod.drag;
         }
-      }
-      // if the user drags a piece outside the board, cancel the premove
-      else if (_controller.premove != null) {
-        _controller.premove = null;
       }
       _onDragEnd();
       if (shouldDeselect) _setSelection(null);
@@ -881,16 +877,7 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
       }
     }
 
-    // cancel premove if the user taps on the origin square of the premove
-    if (_shouldCancelPremoveOnTapUp) {
-      if (_controller.premove case NormalMove(:final from) when from == square) {
-        _shouldCancelPremoveOnTapUp = false;
-        _controller.premove = null;
-      }
-    }
-
     _shouldDeselectOnTapUp = false;
-    _shouldCancelPremoveOnTapUp = false;
     _gesturePointerDownEvent = null;
   }
 
@@ -1105,6 +1092,8 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
               ? NormalMove(from: selected!, to: square, promotion: Role.queen)
               : NormalMove(from: selected!, to: square);
       _controller.premove = premove;
+      // don't cancel the premove this gesture just set
+      _shouldCancelPremoveOnTapUp = false;
       return true;
     }
     return false;
