@@ -1,0 +1,72 @@
+Şahî (Shahi) Chess & Shatranj Font License  
+No-Modification / No-Derivatives / No-Brand-Removal License  
+Version 1.0 — January 2024  
+Copyright © 2024  
+Tamer Karatekin — DeepSeaChess LLC  
+www.deepseachess.com/shahi
+www.shahimasterset.com
+
+Permission is granted, free of charge, to download, install, use, display, embed, and redistribute the original, unmodified versions of the Şahî (Shahi) Chess and Shatranj Font files (the “Font”) for personal, educational, non-profit, and commercial purposes.
+
+This License is non-exclusive, worldwide, and royalty-free, with the following conditions:
+
+1. Preservation of Artistic Integrity
+The Şahî (Shahi) Font is designed to be culturally and spiritually inclusive, to bring forth the unifying power of chess in the classrooms and school settings. Alterations that introduce or modify religious, political, ideological, or culturally sensitive symbols—such as adding crosses, crescents, Stars of David, halos, or any other iconographic elements—are prohibited. The artwork must remain in its original, neutral form at all times.
+
+2. Non-Modification  
+The Font is provided in vector formats such as SVG. Although the artwork is vector-based, the vector paths, shapes, proportions, and outlines must remain unchanged. The Font may not be edited, redrawn, converted, adjusted, re-vectorized, or altered in any way. You can reduce/enlarge the size or convert to pgn or other format if necessary to publish/use with your software/printing stack.
+
+3. No Derivative Works  
+Creating new fonts, icons, artwork, or modified versions based on the Font or its glyphs is not permitted. The artwork is provided for use as-is and must remain in its original form.
+
+4. Branding and Attribution  
+All names, metadata, and references associated with the Şahî (Shahi) identity must remain intact. Removal, replacement, or obscuring of branding, authorship information, or embedded identifiers is not allowed.
+
+5. Redistribution  
+Redistribution of the Font is permitted only if:  
+a) all files remain unmodified,  
+b) all original file names and metadata are preserved, and  
+c) this License is included in full.
+
+6. Embedding and Commercial Use  
+The Font may be embedded in websites, software, mobile apps, games, educational materials, printed works, videos, and other media, including commercial products, provided the Font files remain unaltered.
+
+7. Machine-Learning and AI Systems  
+The Font and its artwork may not be used in training datasets, automated extraction systems, generative AI models, or similar technologies without written permission from DeepSeaChess LLC.
+
+8. Intellectual Property  
+All rights in the design, artwork, and visual identity of the Şahî (Shahi) Font belong solely to:
+
+Tamer Karatekin  
+DeepSeaChess LLC  
+www.deepseachess.com/shahi
+
+This License permits broad usage of the Font but does not transfer ownership of the artwork or any underlying rights.
+
+9. Trademark Notice  
+“Şahî” (Shahi) is a trademark of DeepSeaChess LLC. Use of the name is permitted only to refer to this Font in its original form and context.  
+Additional information about the Şahî Chess Set, its artistic philosophy, and the broader design vision can be found at www.shahimasterset.com and in the creator’s **TEDx talk**, titled "Chess: Bridging Cultures, Inspiring AI, and Redefining Education" https://www.youtube.com/watch?v=BDLiXo_acLg
+
+10. Relationship to the Şahî Physical Chess Set  
+The Şahî Font and the Şahî Physical Chess Set are complementary but distinct works.  
+This License applies only to the Font artwork.  
+It does not grant any rights to copy, modify, reproduce, manufacture, or distribute the physical Şahî Chess Set or its sculptural designs.  
+All rights to the physical chess pieces remain exclusively with Tamer Karatekin and DeepSeaChess LLC.
+
+11. Cultural Terminology (Non-Binding Recommendation)
+The Şahî (Shahi) Font reflects historical chess and shatranj heritage and is designed with culturally and spiritiually inclusive, religiously neutral principles. Chess pieces have been called with different meanings across languages, eras, and civilizations. https://en.wikipedia.org/wiki/Chess_piece 
+
+When I explain chess to beginners or to people who want a fresh artistic look at the game, I describe the "king" piece as the spiritual leader of the army, and the "queen" piece as the military leader of the army. With these 2 abstract roles, there is room for exploration for the all the different multilingual terminology of chess.
+
+For example, the chess piece known in English as “bishop” is called “elephant” in the majority of the world’s languages, such as Spanish, Chinese, Russian, and Arabic. In old English, this piece was once called an archer. Likewise, the piece called “queen” in modern English chess is associated with an advisor, vizier, or statesman figure in many linguistic traditions, and is also understood as a military leader in languages such as Polish and Hungarian. The French and German word "dame" for the queen piece evolved from the word "firz", which means advisor/vizier. For English-language educational use, the creator’s preferred terminology for the chess pieces is: shah, vizier, rook, elephant, horse, and pawn. These correspond respectively to the king, queen, rook, bishop, knight, and pawn. 
+
+In summary, platforms and educators are welcome and encouraged to use multilingual terminology where appropriate. This recommendation is offered to support cultural context and educational clarity and is not a mandatory naming requirement. Non-English languages are encouraged to continue using their own established chess vocabularies. 
+
+12. No Warranty  
+The Font is provided “as-is,” without warranty of any kind. The copyright holder is not liable for any damages or issues arising from its use.
+
+
+
+
+
+
