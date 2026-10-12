@@ -40,13 +40,13 @@ jobs:
       - name: Validate Flutter integration
         run: |
           flutter pub get
-          dart format --output=none --set-exit-if-changed lib/src/piece_set.dart test/shahi_piece_set_test.dart
+          dart format lib/src/piece_set.dart test/shahi_piece_set_test.dart
           flutter test
       - name: Commit generated assets
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add assets/piece_sets/shahi-ivory-brown/ swift/Sources/ChessgroundAssets/Assets.xcassets/
+          git add assets/piece_sets/shahi-ivory-brown/ swift/Sources/ChessgroundAssets/Assets.xcassets/ lib/src/piece_set.dart test/shahi_piece_set_test.dart
           if ! git diff --staged --quiet; then
             git commit -m "Generate Şahî WebP and Swift piece assets [generated shahi]"
             git push origin HEAD:add-shahi-piece-set
