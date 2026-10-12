@@ -33,6 +33,15 @@ jobs:
             done
             test -s "swift/Sources/ChessgroundAssets/Assets.xcassets/piece_shahiIvoryBrown_${p}.imageset/Contents.json"
           done
+      - name: Install Flutter SDK
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'beta'
+      - name: Validate Flutter integration
+        run: |
+          flutter pub get
+          dart format --output=none --set-exit-if-changed lib/src/piece_set.dart test/shahi_piece_set_test.dart
+          flutter test
       - name: Commit generated assets
         run: |
           git config user.name "github-actions[bot]"
