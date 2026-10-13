@@ -28,8 +28,7 @@ void main() {
       final asset = set.assets[entry.key];
       expect(asset, isA<AssetImage>());
       final image = asset! as AssetImage;
-      expect(image.assetName,
-          'assets/piece_sets/shahi-ivory-brown/${entry.value}.webp');
+      expect(image.assetName, 'assets/piece_sets/shahi-ivory-brown/${entry.value}.webp');
       expect(image.package, 'chessground');
     }
   });
