@@ -189,8 +189,10 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
     final shapes = {...widget.shapes, ..._controller.drawnShapes};
     final annotations = widget.annotations;
 
-    final background = BrightnessHueFilter(
-      hue: widget.settings.hue,
+    final background = ColorAdjustFilter(
+      brightness: settings.brightness,
+      contrast: settings.contrast,
+      hue: settings.hue,
       child:
           settings.border == null && settings.enableCoordinates
               ? widget.orientation == Side.white
@@ -421,10 +423,7 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
     // RepaintBoundary stops board repaints from propagating to the app's widget
     // tree. Without it, every animation tick or piece selection would dirty the
     // nearest ancestor compositing layer outside the board.
-    return BrightnessHueFilter(
-      brightness: widget.settings.brightness,
-      child: RepaintBoundary(child: borderedChessboard),
-    );
+    return RepaintBoundary(child: borderedChessboard);
   }
 
   @override

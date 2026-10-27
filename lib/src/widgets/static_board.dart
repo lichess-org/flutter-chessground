@@ -318,7 +318,9 @@ class _StaticChessboardState extends State<StaticChessboard> with SingleTickerPr
     );
 
     final List<Widget> highlightedBackground = [
-      BrightnessHueFilter(
+      ColorAdjustFilter(
+        brightness: settings.brightness,
+        contrast: settings.contrast,
         hue: settings.hue,
         child: SizedBox.square(dimension: widget.size, child: background),
       ),
@@ -374,6 +376,6 @@ class _StaticChessboardState extends State<StaticChessboard> with SingleTickerPr
       );
     }
 
-    return BrightnessHueFilter(brightness: settings.brightness, child: board);
+    return board;
   }
 }

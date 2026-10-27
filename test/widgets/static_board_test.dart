@@ -56,6 +56,46 @@ void main() {
     expect(find.byType(ColorFiltered), findsOneWidget);
   });
 
+  testWidgets('change in contrast will use a color filter', (WidgetTester tester) async {
+    const board = StaticChessboard(
+      size: boardSize,
+      orientation: Side.white,
+      fen: kInitialFEN,
+      settings: StaticChessboardSettings(contrast: 1.5),
+    );
+
+    await tester.pumpWidget(board);
+
+    expect(find.byType(ColorFiltered), findsOneWidget);
+  });
+
+  testWidgets('brightness is applied before contrast in a single color filter', (
+    WidgetTester tester,
+  ) async {
+    const board = StaticChessboard(
+      size: boardSize,
+      orientation: Side.white,
+      fen: kInitialFEN,
+      settings: StaticChessboardSettings(brightness: 0.5, contrast: 2.0),
+    );
+
+    await tester.pumpWidget(board);
+
+    final filter = tester.widget<ColorFiltered>(find.byType(ColorFiltered));
+    // contrast(brightness(x)) = 2 * (0.5 * x) + 127.5 * (1 - 2)
+    expect(
+      filter.colorFilter,
+      const ColorFilter.matrix(<double>[
+        // dart format off
+        1, 0, 0, 0, -127.5,
+        0, 1, 0, 0, -127.5,
+        0, 0, 1, 0, -127.5,
+        0, 0, 0, 1, 0,
+        // dart format on
+      ]),
+    );
+  });
+
   testWidgets('change in brightness will use a color filter', (WidgetTester tester) async {
     const board = StaticChessboard(
       size: boardSize,

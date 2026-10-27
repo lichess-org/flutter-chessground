@@ -87,6 +87,7 @@ class ChessboardSettings {
     this.borderRadius = BorderRadius.zero,
     this.boxShadow = const <BoxShadow>[],
     this.brightness = 1.0,
+    this.contrast = 1.0,
     this.hue = 0.0,
     this.enableCoordinates = true,
     this.animationDuration = const Duration(milliseconds: 250),
@@ -132,6 +133,12 @@ class ChessboardSettings {
   /// A value under 1.0 darkens the board, while a value over 1.0 brightens it.
   /// A value of 0.0 will make it completely black. Default value is 1.0.
   final double brightness;
+
+  /// Contrast adjustment of the board
+  ///
+  /// A value under 1.0 decreases the contrast, while a value over 1.0 increases it.
+  /// A value of 0.0 will make it completely gray. Default value is 1.0.
+  final double contrast;
 
   /// Hue rotation of the board as an angle in degree from 0.0 to 360.0.
   ///
@@ -222,6 +229,7 @@ class ChessboardSettings {
         other.borderRadius == borderRadius &&
         other.boxShadow == boxShadow &&
         other.brightness == brightness &&
+        other.contrast == contrast &&
         other.hue == hue &&
         other.enableCoordinates == enableCoordinates &&
         other.animationDuration == animationDuration &&
@@ -251,6 +259,7 @@ class ChessboardSettings {
     borderRadius,
     boxShadow,
     brightness,
+    contrast,
     hue,
     enableCoordinates,
     animationDuration,
@@ -275,6 +284,7 @@ class ChessboardSettings {
   ChessboardSettings copyWith({
     ChessboardColorScheme? colorScheme,
     double? brightness,
+    double? contrast,
     double? hue,
     PieceAssets? pieceAssets,
     BoardBorder? border,
@@ -302,6 +312,7 @@ class ChessboardSettings {
     return ChessboardSettings(
       colorScheme: colorScheme ?? this.colorScheme,
       brightness: brightness ?? this.brightness,
+      contrast: contrast ?? this.contrast,
       hue: hue ?? this.hue,
       pieceAssets: pieceAssets ?? this.pieceAssets,
       border: border ?? this.border,
@@ -346,6 +357,7 @@ class StaticChessboardSettings {
     this.borderRadius = BorderRadius.zero,
     this.boxShadow = const <BoxShadow>[],
     this.brightness = 1.0,
+    this.contrast = 1.0,
     this.hue = 0.0,
     this.enableCoordinates = false,
     this.animationDuration = const Duration(milliseconds: 200),
@@ -364,6 +376,7 @@ class StaticChessboardSettings {
       borderRadius: settings.borderRadius,
       boxShadow: settings.boxShadow,
       brightness: settings.brightness,
+      contrast: settings.contrast,
       hue: settings.hue,
       enableCoordinates: settings.enableCoordinates,
       animationDuration: settings.animationDuration,
@@ -391,6 +404,9 @@ class StaticChessboardSettings {
   /// Brightness adjustment of the board
   final double brightness;
 
+  /// Contrast adjustment of the board
+  final double contrast;
+
   /// Hue rotation of the board as an angle in degree from 0.0 to 360.0.
   final double hue;
 
@@ -416,6 +432,7 @@ class StaticChessboardSettings {
     BorderRadiusGeometry? borderRadius,
     List<BoxShadow>? boxShadow,
     double? brightness,
+    double? contrast,
     double? hue,
     bool? enableCoordinates,
     Duration? animationDuration,
@@ -430,6 +447,7 @@ class StaticChessboardSettings {
       borderRadius: borderRadius ?? this.borderRadius,
       boxShadow: boxShadow ?? this.boxShadow,
       brightness: brightness ?? this.brightness,
+      contrast: contrast ?? this.contrast,
       hue: hue ?? this.hue,
       enableCoordinates: enableCoordinates ?? this.enableCoordinates,
       animationDuration: animationDuration ?? this.animationDuration,
@@ -454,6 +472,7 @@ class StaticChessboardSettings {
         other.borderRadius == borderRadius &&
         other.boxShadow == boxShadow &&
         other.brightness == brightness &&
+        other.contrast == contrast &&
         other.hue == hue &&
         other.enableCoordinates == enableCoordinates &&
         other.animationDuration == animationDuration &&
@@ -470,6 +489,7 @@ class StaticChessboardSettings {
     borderRadius,
     boxShadow,
     brightness,
+    contrast,
     hue,
     enableCoordinates,
     animationDuration,

@@ -201,7 +201,9 @@ class _BoardEditorState extends State<ChessboardEditor> {
           );
         }).toList();
 
-    final background = BrightnessHueFilter(
+    final background = ColorAdjustFilter(
+      brightness: widget.settings.brightness,
+      contrast: widget.settings.contrast,
       hue: widget.settings.hue,
       child:
           widget.settings.border == null && widget.settings.enableCoordinates
@@ -265,7 +267,7 @@ class _BoardEditorState extends State<ChessboardEditor> {
             )
             : board;
 
-    return BrightnessHueFilter(brightness: widget.settings.brightness, child: borderedChessboard);
+    return borderedChessboard;
   }
 
   void _onTapEvent(Offset localPosition) {

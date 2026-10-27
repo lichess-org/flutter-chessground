@@ -2,12 +2,13 @@ import 'dart:math' as math;
 
 import 'package:flutter/widgets.dart';
 
-/// Change the brightness and hue of the child widget.
+/// Change the brightness, contrast and hue of the child widget.
 ///
-/// The brightness and hue are applied to the child widget using a [ColorFilter].
-class BrightnessHueFilter extends StatelessWidget {
-  const BrightnessHueFilter({
+/// The adjustments are combined into a single [ColorFilter] matrix.
+class ColorAdjustFilter extends StatelessWidget {
+  const ColorAdjustFilter({
     this.brightness = 1.0,
+    this.contrast = 1.0,
     this.hue = 0.0,
     required this.child,
     super.key,
@@ -20,6 +21,13 @@ class BrightnessHueFilter extends StatelessWidget {
   /// Default value is 1.0.
   final double brightness;
 
+  /// Adjust the contrast of the child.
+  ///
+  /// A value under 1.0 decreases the contrast, while a value over 1.0 increases it.
+  /// A value of 0.0 will make it completely gray.
+  /// Default value is 1.0.
+  final double contrast;
+
   /// Rotates the hue of the child by the given angle in degrees.
   ///
   /// A positive hue rotation increases the hue value, while a negative rotation decreases the hue value.
@@ -30,22 +38,26 @@ class BrightnessHueFilter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (brightness == 1.0 && hue == 0.0) {
+    if (brightness == 1.0 && contrast == 1.0 && hue == 0.0) {
       return child;
     }
+    // Each filter is multiplied on the left so that it applies after the previous ones.
     List<double> matrix = _baseMatrix;
     if (brightness != 1.0) {
-      matrix = _brightnessFilter(matrix, value: brightness);
+      matrix = _multiplyMatrix5(_brightnessMatrix(brightness), matrix);
+    }
+    if (contrast != 1.0) {
+      matrix = _multiplyMatrix5(_contrastMatrix(contrast), matrix);
     }
     if (hue != 0.0) {
-      matrix = _hueFilter(matrix, value: hue);
+      matrix = _multiplyMatrix5(_hueMatrix(hue), matrix);
     }
     return ColorFiltered(colorFilter: ColorFilter.matrix(matrix.sublist(0, 20)), child: child);
   }
 }
 
-List<double> _brightnessFilter(List<double> matrix, {required double value}) {
-  return _multiplyMatrix5(matrix, <double>[
+List<double> _brightnessMatrix(double value) {
+  return <double>[
     // dart format off
     value, 0, 0, 0, 0,
     0, value, 0, 0, 0,
@@ -53,11 +65,27 @@ List<double> _brightnessFilter(List<double> matrix, {required double value}) {
     0, 0, 0, 1, 0,
     0, 0, 0, 0, 1,
     // dart format on
-  ]);
+  ];
+}
+
+/// Same as the CSS `contrast()` filter function.
+///
+/// The offset is expressed in the 0-255 range, as expected by [ColorFilter.matrix].
+List<double> _contrastMatrix(double value) {
+  final double offset = 127.5 * (1 - value);
+  return <double>[
+    // dart format off
+    value, 0, 0, 0, offset,
+    0, value, 0, 0, offset,
+    0, 0, value, 0, offset,
+    0, 0, 0, 1, 0,
+    0, 0, 0, 0, 1,
+    // dart format on
+  ];
 }
 
 /// Check: https://stackoverflow.com/questions/64639589/how-to-adjust-hue-saturation-and-brightness-of-an-image-in-flutter
-List<double> _hueFilter(List<double> matrix, {required double value}) {
+List<double> _hueMatrix(double value) {
   final double v = math.pi * (value / 180.0);
   final double cosVal = math.cos(v);
   final double sinVal = math.sin(v);
@@ -65,7 +93,7 @@ List<double> _hueFilter(List<double> matrix, {required double value}) {
   const double lumG = 0.715;
   const double lumB = 0.072;
 
-  return _multiplyMatrix5(matrix, <double>[
+  return <double>[
     (lumR + (cosVal * (1 - lumR))) + (sinVal * (-lumR)),
     (lumG + (cosVal * (-lumG))) + (sinVal * (-lumG)),
     (lumB + (cosVal * (-lumB))) + (sinVal * (1 - lumB)),
@@ -91,7 +119,7 @@ List<double> _hueFilter(List<double> matrix, {required double value}) {
     0,
     0,
     1,
-  ]);
+  ];
 }
 
 const List<double> _baseMatrix = [
