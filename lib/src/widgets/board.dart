@@ -189,8 +189,9 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
     final shapes = {...widget.shapes, ..._controller.drawnShapes};
     final annotations = widget.annotations;
 
-    final background = BrightnessHueFilter(
+    final background = ColorAdjustFilter(
       brightness: settings.brightness,
+      contrast: settings.contrast,
       hue: settings.hue,
       child:
           settings.border == null && settings.enableCoordinates

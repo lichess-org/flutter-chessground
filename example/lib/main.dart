@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:board_example/atomic_game_page.dart';
+import 'package:board_example/board_color_filter_page.dart';
 import 'package:board_example/board_editor_page.dart';
 import 'package:chessground/chessground.dart';
 import 'package:dartchess/dartchess.dart';
@@ -434,6 +435,17 @@ class _HomePageState extends State<HomePage> {
                 context,
                 MaterialPageRoute(
                   builder: (context) => const BoardEditorPage(),
+                ),
+              );
+            },
+          ),
+          ListTile(
+            title: const Text('Board Color Filter'),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const BoardColorFilterPage(),
                 ),
               );
             },

@@ -1,3 +1,18 @@
+## 11.0.0
+
+### New
+
+- Add a `contrast` setting to `ChessboardSettings` and `StaticChessboardSettings`,
+to adjust the contrast of the board. Brightness, contrast and hue are combined
+into a single color filter and.
+
+### BREAKING CHANGES
+
+- `brightness` is now only applied to the board background, like `hue`. Pieces,
+shapes, highlights, annotations and the board border are no longer affected.
+- `BrightnessHueFilter` is renamed to `ColorAdjustFilter`, and accepts a new
+`contrast` parameter.
+
 ## 10.3.0
 
 - Removed dependency on Flutter's material library.
