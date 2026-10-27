@@ -4,7 +4,7 @@
 
 - Add a `contrast` setting to `ChessboardSettings` and `StaticChessboardSettings`,
 to adjust the contrast of the board. Brightness, contrast and hue are combined
-into a single color filter and.
+into a single color filter.
 
 ### BREAKING CHANGES
 
