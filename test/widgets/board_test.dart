@@ -291,9 +291,33 @@ void main() {
 
       expect(find.byType(ColorFiltered), findsOneWidget);
     });
+
+    testWidgets('change in contrast will use a color filter', (WidgetTester tester) async {
+      const board = StaticChessboard(
+        size: boardSize,
+        orientation: Side.white,
+        fen: kInitialFEN,
+        settings: StaticChessboardSettings(contrast: 1.5),
+      );
+
+      await tester.pumpWidget(board);
+
+      expect(find.byType(ColorFiltered), findsOneWidget);
+    });
   });
 
   group('Interactive board', () {
+    testWidgets('change in contrast will use a color filter', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        const _TestApp(
+          initialPlayerSide: PlayerSide.both,
+          settings: ChessboardSettings(contrast: 1.5),
+        ),
+      );
+
+      expect(find.byType(ColorFiltered), findsOneWidget);
+    });
+
     testWidgets('initial lastMove and checkSquare are highlighted on first paint', (
       WidgetTester tester,
     ) async {
