@@ -31,7 +31,7 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "11.0.0"
+    version: "11.1.0"
   clock:
     dependency: transitive
     description:
@@ -60,18 +60,18 @@ packages:
     dependency: transitive
     description:
       name: cupertino_ui
-      sha256: a47c4e7c66fd7444a063a602597fceb238f705c3f6b1322bc0053d0a2638ee6e
+      sha256: "369e39a1c5c030a6212589c3da1809920b1c2cfade7b02aade7695bfa4b88c3a"
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.4"
+    version: "1.1.6"
   dartchess:
     dependency: "direct main"
     description:
       name: dartchess
-      sha256: "1c5392ff16ec038c66d10b63f09095ac050adcf2d8df368717fb80f785fe3352"
+      sha256: "7f3a8bea6256441779718449f813a4f877592cc7186a938a16dca76a245e8dcd"
       url: "https://pub.dev"
     source: hosted
-    version: "0.14.0"
+    version: "0.15.0"
   fake_async:
     dependency: transitive
     description:
@@ -163,10 +163,10 @@ packages:
     dependency: "direct main"
     description:
       name: material_ui
-      sha256: e4031746f96c8316864d9b92bce375f1320a36ed56e166307e1e1bda9d90b4ab
+      sha256: a30f5d0625b6b83770f53ca3f7aafd6fd9d147cb3853f54a70668541046fe5d6
       url: "https://pub.dev"
     source: hosted
-    version: "1.8.0"
+    version: "1.10.0"
   meta:
     dependency: transitive
     description:

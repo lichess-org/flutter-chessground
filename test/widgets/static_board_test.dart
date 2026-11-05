@@ -109,6 +109,45 @@ void main() {
     expect(find.byType(ColorFiltered), findsOneWidget);
   });
 
+  testWidgets('color filter is applied to the border too', (WidgetTester tester) async {
+    const board = StaticChessboard(
+      size: boardSize,
+      orientation: Side.white,
+      fen: kInitialFEN,
+      settings: StaticChessboardSettings(
+        brightness: 0.8,
+        border: BoardBorder(width: 16.0, color: Color(0xFF000000)),
+      ),
+    );
+
+    await tester.pumpWidget(board);
+
+    expect(
+      find.descendant(of: find.byType(BorderedChessboard), matching: find.byType(ColorFiltered)),
+      findsNWidgets(2),
+    );
+  });
+
+  testWidgets('border has the board radius', (WidgetTester tester) async {
+    const radius = BorderRadius.all(Radius.circular(5.0));
+    const board = StaticChessboard(
+      size: boardSize,
+      orientation: Side.white,
+      fen: kInitialFEN,
+      settings: StaticChessboardSettings(
+        borderRadius: radius,
+        border: BoardBorder(width: 16.0, color: Color(0xFF000000)),
+      ),
+    );
+
+    await tester.pumpWidget(board);
+
+    final clip = tester.widget<ClipRRect>(
+      find.descendant(of: find.byType(BorderedChessboard), matching: find.byType(ClipRRect)),
+    );
+    expect(clip.borderRadius, radius);
+  });
+
   testWidgets('moved piece is animated when the position change', (WidgetTester tester) async {
     const board = StaticChessboard(size: boardSize, orientation: Side.white, fen: kInitialFEN);
 

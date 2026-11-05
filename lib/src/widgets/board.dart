@@ -416,6 +416,11 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
               orientation: widget.orientation,
               border: settings.border!,
               showCoordinates: settings.enableCoordinates,
+              borderRadius: settings.borderRadius,
+              boxShadow: settings.boxShadow,
+              brightness: settings.brightness,
+              contrast: settings.contrast,
+              hue: settings.hue,
               child: board,
             )
             : board;

@@ -2,6 +2,7 @@ import 'package:dartchess/dartchess.dart';
 import 'package:flutter/widgets.dart';
 
 import '../board_settings.dart';
+import 'color_filter.dart';
 import 'geometry.dart';
 import 'board.dart';
 
@@ -27,6 +28,11 @@ class BorderedChessboard extends StatelessWidget with ChessboardGeometry {
     required this.border,
     required this.child,
     this.showCoordinates = true,
+    this.borderRadius = BorderRadius.zero,
+    this.boxShadow = const <BoxShadow>[],
+    this.brightness = 1.0,
+    this.contrast = 1.0,
+    this.hue = 0.0,
     super.key,
   });
 
@@ -45,15 +51,47 @@ class BorderedChessboard extends StatelessWidget with ChessboardGeometry {
   /// Whether to show coordinates on the border.
   final bool showCoordinates;
 
+  /// Radius of the outer corners of the border.
+  final BorderRadiusGeometry borderRadius;
+
+  /// Shadow cast by the border.
+  final List<BoxShadow> boxShadow;
+
+  /// Brightness filter applied to the border color, as for the board background.
+  ///
+  /// See [ColorAdjustFilter.brightness].
+  final double brightness;
+
+  /// Contrast filter applied to the border color, as for the board background.
+  ///
+  /// See [ColorAdjustFilter.contrast].
+  final double contrast;
+
+  /// Hue filter applied to the border color, as for the board background.
+  ///
+  /// See [ColorAdjustFilter.hue].
+  final double hue;
+
   @override
   Widget build(BuildContext context) {
     return Container(
       width: size + border.width * 2,
       height: size + border.width * 2,
-      color: border.color,
+      decoration: BoxDecoration(borderRadius: borderRadius, boxShadow: boxShadow),
       child: Stack(
         alignment: Alignment.center,
         children: [
+          Positioned.fill(
+            child: ClipRRect(
+              borderRadius: borderRadius,
+              child: ColorAdjustFilter(
+                brightness: brightness,
+                contrast: contrast,
+                hue: hue,
+                child: ColoredBox(color: border.color),
+              ),
+            ),
+          ),
           child,
           if (showCoordinates)
             Positioned(

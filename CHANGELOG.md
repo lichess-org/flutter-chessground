@@ -1,3 +1,9 @@
+## 11.1.0
+
+- Apply `brightness`, `contrast` and `hue` to the board border color, like the board background.
+- Apply `borderRadius` and `boxShadow` to the board border when there is one.
+- Update dartchess to 0.15.0
+
 ## 11.0.0
 
 ### New

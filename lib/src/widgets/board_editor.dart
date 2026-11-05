@@ -263,6 +263,11 @@ class _BoardEditorState extends State<ChessboardEditor> {
               orientation: widget.orientation,
               border: widget.settings.border!,
               showCoordinates: widget.settings.enableCoordinates,
+              borderRadius: widget.settings.borderRadius,
+              boxShadow: widget.settings.boxShadow,
+              brightness: widget.settings.brightness,
+              contrast: widget.settings.contrast,
+              hue: widget.settings.hue,
               child: board,
             )
             : board;
