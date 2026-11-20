@@ -22,6 +22,7 @@ class PromotionSelector extends StatelessWidget with ChessboardGeometry {
     required this.onCancel,
     required this.pieceAssets,
     required this.canPromoteToKing,
+    this.colorFilter,
   });
 
   /// The move that is being promoted.
@@ -35,6 +36,9 @@ class PromotionSelector extends StatelessWidget with ChessboardGeometry {
 
   /// Whether the pawn can be promoted to a king (possible for example in Antichess).
   final bool canPromoteToKing;
+
+  /// Filter applied to the piece images, matching the board's color adjustments.
+  final ColorFilter? colorFilter;
 
   @override
   final double size;
@@ -130,6 +134,7 @@ class PromotionSelector extends StatelessWidget with ChessboardGeometry {
                                 size: squareSize - 10.0,
                                 pieceAssets: pieceAssets,
                                 upsideDown: piecesUpsideDown,
+                                colorFilter: colorFilter,
                               ),
                             ),
                           ],

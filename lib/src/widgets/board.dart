@@ -97,6 +97,13 @@ class Chessboard extends StatefulWidget with ChessboardGeometry {
 
 class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
   ChessboardController get _controller => widget.controller;
+
+  /// The color adjustments applied to the pieces, matching the board background.
+  ColorFilter? get _pieceColorFilter => colorAdjustFilter(
+    brightness: widget.settings.brightness,
+    contrast: widget.settings.contrast,
+    hue: widget.settings.hue,
+  );
   bool _controllerDetached = false;
   Side? _lastSideToMove;
 
@@ -226,6 +233,7 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
       blindfoldMode: settings.blindfoldMode,
       pieceOrientationBehavior: settings.pieceOrientationBehavior,
       imagesLoaded: _imagesLoaded,
+      colorFilter: _pieceColorFilter,
     );
 
     final fadingPiecesPainter = FadingPiecesPainter(
@@ -237,6 +245,7 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
       pieceOrientationBehavior: settings.pieceOrientationBehavior,
       gameNotifier: _controller.gameNotifier,
       animation: _controller.fadeAnimation,
+      colorFilter: _pieceColorFilter,
     );
 
     final translatingPiecesPainter = TranslatingPiecesPainter(
@@ -248,6 +257,7 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
       pieceOrientationBehavior: settings.pieceOrientationBehavior,
       gameNotifier: _controller.gameNotifier,
       animation: _controller.translationAnimation,
+      colorFilter: _pieceColorFilter,
     );
 
     final List<Widget> highlightedBackground = [
@@ -383,6 +393,7 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
                 final pawnColor = pieces[pendingMove.from]?.color ?? _controller.game.sideToMove;
                 return PromotionSelector(
                   pieceAssets: settings.pieceAssets,
+                  colorFilter: _pieceColorFilter,
                   move: pendingMove,
                   size: widget.size,
                   color: pawnColor,
@@ -969,6 +980,7 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
         upsideDown: upsideDown,
         targetKind: targetKind,
         squareSize: widget.squareSize,
+        colorFilter: _pieceColorFilter,
       );
     }
   }
@@ -1014,6 +1026,7 @@ class _BoardState extends State<Chessboard> with TickerProviderStateMixin {
       upsideDown: false,
       targetKind: targetKind,
       squareSize: widget.squareSize,
+      colorFilter: _pieceColorFilter,
     );
   }
 
@@ -1123,6 +1136,7 @@ class _DragAvatar {
   final OverlayState overlayState;
   final ValueNotifier<Offset> _positionNotifier;
   final ValueNotifier<Offset?> _squareTargetNotifier;
+  final ColorFilter? colorFilter;
   late final OverlayEntry _pieceEntry;
   late final OverlayEntry _squareTargetEntry;
 
@@ -1136,6 +1150,7 @@ class _DragAvatar {
     required bool upsideDown,
     required DragTargetKind targetKind,
     required double squareSize,
+    required this.colorFilter,
   }) : _positionNotifier = ValueNotifier<Offset>(initialPosition),
        _squareTargetNotifier = ValueNotifier<Offset?>(initialTargetPosition) {
     // Only the paint phase runs on each pointer move.
@@ -1150,6 +1165,7 @@ class _DragAvatar {
                   feedbackOffset: feedbackOffset,
                   upsideDown: upsideDown,
                   positionNotifier: _positionNotifier,
+                  colorFilter: colorFilter,
                 ),
               ),
             ),

@@ -38,22 +38,38 @@ class ColorAdjustFilter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (brightness == 1.0 && contrast == 1.0 && hue == 0.0) {
-      return child;
-    }
-    // Each filter is multiplied on the left so that it applies after the previous ones.
-    List<double> matrix = _baseMatrix;
-    if (brightness != 1.0) {
-      matrix = _multiplyMatrix5(_brightnessMatrix(brightness), matrix);
-    }
-    if (contrast != 1.0) {
-      matrix = _multiplyMatrix5(_contrastMatrix(contrast), matrix);
-    }
-    if (hue != 0.0) {
-      matrix = _multiplyMatrix5(_hueMatrix(hue), matrix);
-    }
-    return ColorFiltered(colorFilter: ColorFilter.matrix(matrix.sublist(0, 20)), child: child);
+    final filter = colorAdjustFilter(brightness: brightness, contrast: contrast, hue: hue);
+    if (filter == null) return child;
+    return ColorFiltered(colorFilter: filter, child: child);
   }
+}
+
+/// Returns a color filter for the given [brightness], [contrast] and [hue] adjustments,
+/// or `null` when none of them is set.
+///
+/// Painters use this to apply the same adjustments to pieces as [ColorAdjustFilter]
+/// applies to the board, without adding a compositing layer around the whole board.
+ColorFilter? colorAdjustFilter({double brightness = 1.0, double contrast = 1.0, double hue = 0.0}) {
+  if (brightness == 1.0 && contrast == 1.0 && hue == 0.0) return null;
+  return ColorFilter.matrix(
+    colorAdjustMatrix(brightness: brightness, contrast: contrast, hue: hue),
+  );
+}
+
+/// The 4x5 color filter matrix for the given adjustments.
+List<double> colorAdjustMatrix({double brightness = 1.0, double contrast = 1.0, double hue = 0.0}) {
+  // Each filter is multiplied on the left so that it applies after the previous ones.
+  List<double> matrix = _baseMatrix;
+  if (brightness != 1.0) {
+    matrix = _multiplyMatrix5(_brightnessMatrix(brightness), matrix);
+  }
+  if (contrast != 1.0) {
+    matrix = _multiplyMatrix5(_contrastMatrix(contrast), matrix);
+  }
+  if (hue != 0.0) {
+    matrix = _multiplyMatrix5(_hueMatrix(hue), matrix);
+  }
+  return matrix.sublist(0, 20);
 }
 
 List<double> _brightnessMatrix(double value) {
