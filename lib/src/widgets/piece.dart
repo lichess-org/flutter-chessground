@@ -13,6 +13,7 @@ class PieceWidget extends StatelessWidget {
     this.opacity,
     this.blindfoldMode = false,
     this.upsideDown = false,
+    this.colorFilter,
   });
 
   /// Specifies the role and color of the piece.
@@ -32,6 +33,9 @@ class PieceWidget extends StatelessWidget {
 
   /// This value is used to animate the opacity of the piece.
   final Animation<double>? opacity;
+
+  /// Filter applied to the piece image, matching the board's color adjustments.
+  final ColorFilter? colorFilter;
 
   /// [AssetImage] provider for the piece.
   AssetImage get imageProvider => pieceAssets[piece.kind]!;
@@ -57,6 +61,8 @@ class PieceWidget extends StatelessWidget {
       opacity: opacity,
     );
 
-    return upsideDown ? Transform.flip(flipY: true, child: image) : image;
+    final filteredImage =
+        colorFilter == null ? image : ColorFiltered(colorFilter: colorFilter!, child: image);
+    return upsideDown ? Transform.flip(flipY: true, child: filteredImage) : filteredImage;
   }
 }

@@ -236,6 +236,7 @@ class PiecesPainter extends CustomPainter {
     required this.blindfoldMode,
     required this.pieceOrientationBehavior,
     required this.imagesLoaded,
+    this.colorFilter,
   }) : _draggedPieceSquareNotifier = draggedPieceSquareNotifier,
        super(
          repaint: Listenable.merge([
@@ -294,6 +295,9 @@ class PiecesPainter extends CustomPainter {
   /// Included in [shouldRepaint] so the painter redraws when images finish loading.
   final bool imagesLoaded;
 
+  /// Filter applied to the piece images, matching the board's color adjustments.
+  final ui.ColorFilter? colorFilter;
+
   @override
   void paint(Canvas canvas, Size size) {
     if (blindfoldMode) return;
@@ -304,7 +308,10 @@ class PiecesPainter extends CustomPainter {
     final draggedPieceSquare = _draggedPieceSquareNotifier?.value;
     final promotionMoveFrom = pendingPromotionNotifier.value?.from;
     final sideToMove = game?.sideToMove;
-    final paint = Paint()..filterQuality = FilterQuality.medium;
+    final paint =
+        Paint()
+          ..filterQuality = FilterQuality.medium
+          ..colorFilter = colorFilter;
     for (final entry in pieces.entries) {
       final square = entry.key;
       if (translatingPieces.containsKey(square) ||
@@ -344,7 +351,8 @@ class PiecesPainter extends CustomPainter {
         orientation != oldDelegate.orientation ||
         blindfoldMode != oldDelegate.blindfoldMode ||
         pieceAssets != oldDelegate.pieceAssets ||
-        pieceOrientationBehavior != oldDelegate.pieceOrientationBehavior;
+        pieceOrientationBehavior != oldDelegate.pieceOrientationBehavior ||
+        colorFilter != oldDelegate.colorFilter;
   }
 }
 
@@ -363,6 +371,7 @@ class FadingPiecesPainter extends CustomPainter {
     required this.pieceOrientationBehavior,
     required this.gameNotifier,
     required Animation<double> animation,
+    this.colorFilter,
   }) : _animation = animation,
        super(repaint: animation);
 
@@ -390,6 +399,9 @@ class FadingPiecesPainter extends CustomPainter {
   /// The current game data, used to determine the side to move.
   final ValueNotifier<GameData?> gameNotifier;
 
+  /// Filter applied to the piece images, matching the board's color adjustments.
+  final ui.ColorFilter? colorFilter;
+
   final Animation<double> _animation;
 
   @override
@@ -402,7 +414,8 @@ class FadingPiecesPainter extends CustomPainter {
     final paint =
         Paint()
           ..filterQuality = FilterQuality.medium
-          ..color = Color.fromARGB(alpha, 255, 255, 255);
+          ..color = Color.fromARGB(alpha, 255, 255, 255)
+          ..colorFilter = colorFilter;
 
     for (final entry in fadingPieces.entries) {
       final square = entry.key;
@@ -440,7 +453,8 @@ class FadingPiecesPainter extends CustomPainter {
         orientation != oldDelegate.orientation ||
         blindfoldMode != oldDelegate.blindfoldMode ||
         pieceAssets != oldDelegate.pieceAssets ||
-        pieceOrientationBehavior != oldDelegate.pieceOrientationBehavior;
+        pieceOrientationBehavior != oldDelegate.pieceOrientationBehavior ||
+        colorFilter != oldDelegate.colorFilter;
   }
 }
 
@@ -459,6 +473,7 @@ class TranslatingPiecesPainter extends CustomPainter {
     required this.pieceOrientationBehavior,
     required this.gameNotifier,
     required Animation<double> animation,
+    this.colorFilter,
   }) : _animation = animation,
        super(repaint: animation);
 
@@ -486,6 +501,9 @@ class TranslatingPiecesPainter extends CustomPainter {
   /// The current game data, used to determine the side to move.
   final ValueNotifier<GameData?> gameNotifier;
 
+  /// Filter applied to the piece images, matching the board's color adjustments.
+  final ui.ColorFilter? colorFilter;
+
   final Animation<double> _animation;
 
   @override
@@ -495,7 +513,10 @@ class TranslatingPiecesPainter extends CustomPainter {
 
     final sideToMove = gameNotifier.value?.sideToMove;
     final t = _animation.value;
-    final paint = Paint()..filterQuality = FilterQuality.medium;
+    final paint =
+        Paint()
+          ..filterQuality = FilterQuality.medium
+          ..colorFilter = colorFilter;
 
     for (final entry in translatingPieces.entries) {
       final toSquare = entry.key;
@@ -544,7 +565,8 @@ class TranslatingPiecesPainter extends CustomPainter {
         orientation != oldDelegate.orientation ||
         blindfoldMode != oldDelegate.blindfoldMode ||
         pieceAssets != oldDelegate.pieceAssets ||
-        pieceOrientationBehavior != oldDelegate.pieceOrientationBehavior;
+        pieceOrientationBehavior != oldDelegate.pieceOrientationBehavior ||
+        colorFilter != oldDelegate.colorFilter;
   }
 }
 
@@ -560,6 +582,7 @@ class DragPiecePainter extends CustomPainter {
     required this.feedbackOffset,
     required this.upsideDown,
     required this.positionNotifier,
+    this.colorFilter,
   }) : super(repaint: positionNotifier);
 
   /// The image of the dragged piece, or null if not yet loaded.
@@ -577,6 +600,9 @@ class DragPiecePainter extends CustomPainter {
   /// The current pointer position the dragged piece follows.
   final ValueNotifier<Offset> positionNotifier;
 
+  /// Filter applied to the piece image, matching the board's color adjustments.
+  final ui.ColorFilter? colorFilter;
+
   @override
   void paint(Canvas canvas, Size size) {
     final img = image;
@@ -589,7 +615,10 @@ class DragPiecePainter extends CustomPainter {
       feedbackSize,
     );
     final src = Rect.fromLTWH(0, 0, img.width.toDouble(), img.height.toDouble());
-    final paint = Paint()..filterQuality = FilterQuality.medium;
+    final paint =
+        Paint()
+          ..filterQuality = FilterQuality.medium
+          ..colorFilter = colorFilter;
     if (upsideDown) {
       canvas.save();
       canvas.translate(dst.center.dx, dst.center.dy);
@@ -607,7 +636,8 @@ class DragPiecePainter extends CustomPainter {
     return image != oldDelegate.image ||
         feedbackSize != oldDelegate.feedbackSize ||
         feedbackOffset != oldDelegate.feedbackOffset ||
-        upsideDown != oldDelegate.upsideDown;
+        upsideDown != oldDelegate.upsideDown ||
+        colorFilter != oldDelegate.colorFilter;
   }
 }
 

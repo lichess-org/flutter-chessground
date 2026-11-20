@@ -134,6 +134,11 @@ class _BoardEditorState extends State<ChessboardEditor> {
 
   @override
   Widget build(BuildContext context) {
+    final pieceColorFilter = colorAdjustFilter(
+      brightness: widget.settings.brightness,
+      contrast: widget.settings.contrast,
+      hue: widget.settings.hue,
+    );
     final List<Widget> squareWidgets =
         Square.values.map((square) {
           final piece = widget.pieces[square];
@@ -171,6 +176,7 @@ class _BoardEditorState extends State<ChessboardEditor> {
                           offset: widget.settings.dragFeedbackOffset,
                           piece: piece,
                           pieceAssets: widget.settings.pieceAssets,
+                          colorFilter: pieceColorFilter,
                         ),
                         childWhenDragging: const SizedBox.shrink(),
                         onDragStarted: () => draggedPieceOrigin = square,
@@ -182,6 +188,7 @@ class _BoardEditorState extends State<ChessboardEditor> {
                           piece: piece,
                           size: widget.squareSize,
                           pieceAssets: widget.settings.pieceAssets,
+                          colorFilter: pieceColorFilter,
                         ),
                       )
                     else if (piece != null)
@@ -189,6 +196,7 @@ class _BoardEditorState extends State<ChessboardEditor> {
                         piece: piece,
                         size: widget.squareSize,
                         pieceAssets: widget.settings.pieceAssets,
+                        colorFilter: pieceColorFilter,
                       ),
                   ],
                 );
@@ -323,6 +331,7 @@ class PieceDragFeedback extends StatelessWidget {
     required this.pieceAssets,
     this.scale = 2.0,
     this.offset = const Offset(0.0, -1.0),
+    this.colorFilter,
   });
 
   /// The piece that is being dragged.
@@ -340,12 +349,20 @@ class PieceDragFeedback extends StatelessWidget {
   /// Piece set
   final PieceAssets pieceAssets;
 
+  /// Filter applied to the piece image, matching the board's color adjustments.
+  final ColorFilter? colorFilter;
+
   @override
   Widget build(BuildContext context) {
     final feedbackSize = squareSize * scale;
     return Transform.translate(
       offset: Offset((offset.dx - 1) * feedbackSize / 2, (offset.dy - 1) * feedbackSize / 2),
-      child: PieceWidget(piece: piece, size: feedbackSize, pieceAssets: pieceAssets),
+      child: PieceWidget(
+        piece: piece,
+        size: feedbackSize,
+        pieceAssets: pieceAssets,
+        colorFilter: colorFilter,
+      ),
     );
   }
 }

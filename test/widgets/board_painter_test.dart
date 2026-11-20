@@ -33,6 +33,14 @@ Future<void> _installFakePieceImages() async {
 void Function(Canvas) _paintOf(CustomPainter painter) =>
     (Canvas canvas) => painter.paint(canvas, const Size.square(boardSize));
 
+/// Matches a `drawImageRect` call whose paint uses exactly [colorFilter].
+bool Function(Symbol, List<dynamic>) _drawsWithColorFilter(ColorFilter colorFilter) =>
+    (Symbol method, List<dynamic> arguments) =>
+        method == #drawImageRect && identical((arguments[3] as Paint).colorFilter, colorFilter);
+
+bool _drawsWithoutColorFilter(Symbol method, List<dynamic> arguments) =>
+    method == #drawImageRect && (arguments[3] as Paint).colorFilter == null;
+
 // Distinct opaque highlight colors so `paints` color assertions are unambiguous.
 const _lastMoveColor = Color(0xFFAA0000);
 const _selectedColor = Color(0xFF00AA00);
@@ -51,6 +59,7 @@ void main() {
       Square? draggedPieceSquare,
       NormalMove? pendingPromotion,
       bool blindfoldMode = false,
+      ColorFilter? colorFilter,
     }) {
       return PiecesPainter(
         piecesNotifier: ValueNotifier(pieces),
@@ -64,6 +73,7 @@ void main() {
         blindfoldMode: blindfoldMode,
         pieceOrientationBehavior: PieceOrientationBehavior.facingUser,
         imagesLoaded: true,
+        colorFilter: colorFilter,
       );
     }
 
@@ -83,6 +93,21 @@ void main() {
           ..drawImageRect(destination: _squareRect(Square.e4), image: whitePawnImage)
           ..drawImageRect(destination: _squareRect(Square.d5), image: blackKnightImage),
       );
+    });
+
+    testWidgets('applies the color filter to the piece images', (tester) async {
+      await _installFakePieceImages();
+      final colorFilter = colorAdjustFilter(brightness: 0.3)!;
+      final painter = buildPainter(pieces: {Square.e4: Piece.whitePawn}, colorFilter: colorFilter);
+
+      expect(_paintOf(painter), paints..something(_drawsWithColorFilter(colorFilter)));
+    });
+
+    testWidgets('leaves piece images unfiltered by default', (tester) async {
+      await _installFakePieceImages();
+      final painter = buildPainter(pieces: {Square.e4: Piece.whitePawn});
+
+      expect(_paintOf(painter), paints..something(_drawsWithoutColorFilter));
     });
 
     testWidgets('skips dragged, translating and promoting squares', (tester) async {
@@ -124,6 +149,7 @@ void main() {
       required Map<Square, ({Piece piece, Square from})> translatingPieces,
       required double t,
       bool blindfoldMode = false,
+      ColorFilter? colorFilter,
     }) {
       return TranslatingPiecesPainter(
         translatingPiecesNotifier: ValueNotifier(translatingPieces),
@@ -134,11 +160,24 @@ void main() {
         pieceOrientationBehavior: PieceOrientationBehavior.facingUser,
         gameNotifier: ValueNotifier<GameData?>(null),
         animation: AlwaysStoppedAnimation<double>(t),
+        colorFilter: colorFilter,
       );
     }
 
     // A knight in flight b1 -> c3 (changes both file and rank).
     const knightInFlight = {Square.c3: (from: Square.b1, piece: Piece.whiteKnight)};
+
+    testWidgets('applies the color filter to the animating piece', (tester) async {
+      await _installFakePieceImages();
+      final colorFilter = colorAdjustFilter(hue: 90)!;
+      final painter = buildPainter(
+        translatingPieces: knightInFlight,
+        t: 0.5,
+        colorFilter: colorFilter,
+      );
+
+      expect(_paintOf(painter), paints..something(_drawsWithColorFilter(colorFilter)));
+    });
 
     testWidgets('draws the piece on its origin square at t=0', (tester) async {
       await _installFakePieceImages();
@@ -311,6 +350,7 @@ void main() {
       required Map<Square, Piece> fadingPieces,
       required double t,
       bool blindfoldMode = false,
+      ColorFilter? colorFilter,
     }) {
       return FadingPiecesPainter(
         fadingPiecesNotifier: ValueNotifier(fadingPieces),
@@ -321,11 +361,20 @@ void main() {
         pieceOrientationBehavior: PieceOrientationBehavior.facingUser,
         gameNotifier: ValueNotifier<GameData?>(null),
         animation: AlwaysStoppedAnimation<double>(t),
+        colorFilter: colorFilter,
       );
     }
 
     // A captured pawn fading out on e5.
     const fadingPawn = {Square.e5: Piece.blackPawn};
+
+    testWidgets('applies the color filter to the fading piece', (tester) async {
+      await _installFakePieceImages();
+      final colorFilter = colorAdjustFilter(contrast: 0.5)!;
+      final painter = buildPainter(fadingPieces: fadingPawn, t: 0.5, colorFilter: colorFilter);
+
+      expect(_paintOf(painter), paints..something(_drawsWithColorFilter(colorFilter)));
+    });
 
     testWidgets('draws the piece fully opaque at t=0', (tester) async {
       await _installFakePieceImages();
@@ -386,6 +435,7 @@ void main() {
       Offset feedbackOffset = const Offset(-25, -25),
       double feedbackSize = 50,
       bool upsideDown = false,
+      ColorFilter? colorFilter,
     }) {
       return DragPiecePainter(
         image: image,
@@ -393,6 +443,7 @@ void main() {
         feedbackOffset: feedbackOffset,
         upsideDown: upsideDown,
         positionNotifier: ValueNotifier(position),
+        colorFilter: colorFilter,
       );
     }
 
@@ -406,6 +457,15 @@ void main() {
         _paintOf(painter),
         paints..drawImageRect(image: image, destination: const Rect.fromLTWH(75, 75, 50, 50)),
       );
+    });
+
+    testWidgets('applies the color filter to the dragged piece', (tester) async {
+      final image = await _createSolidImage();
+      addTearDown(image.dispose);
+      final colorFilter = colorAdjustFilter(brightness: 0.3)!;
+      final painter = buildPainter(image: image, colorFilter: colorFilter);
+
+      expect(_paintOf(painter), paints..something(_drawsWithColorFilter(colorFilter)));
     });
 
     testWidgets('still draws the image when upside down', (tester) async {

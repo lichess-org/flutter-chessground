@@ -255,6 +255,11 @@ class _StaticChessboardState extends State<StaticChessboard> with SingleTickerPr
   Widget build(BuildContext context) {
     final imagesLoaded = _imagesLoaded && !_deferImagesLoading;
     final hasBorder = settings.border != null;
+    final pieceColorFilter = colorAdjustFilter(
+      brightness: settings.brightness,
+      contrast: settings.contrast,
+      hue: settings.hue,
+    );
 
     final background =
         !hasBorder && settings.enableCoordinates
@@ -275,6 +280,7 @@ class _StaticChessboardState extends State<StaticChessboard> with SingleTickerPr
       blindfoldMode: settings.blindfoldMode,
       pieceOrientationBehavior: settings.pieceOrientationBehavior,
       imagesLoaded: imagesLoaded,
+      colorFilter: pieceColorFilter,
     );
 
     final fadingPiecesPainter = FadingPiecesPainter(
@@ -286,6 +292,7 @@ class _StaticChessboardState extends State<StaticChessboard> with SingleTickerPr
       pieceOrientationBehavior: settings.pieceOrientationBehavior,
       gameNotifier: _gameNotifier,
       animation: _fadeAnimation,
+      colorFilter: pieceColorFilter,
     );
 
     final translatingPiecesPainter = TranslatingPiecesPainter(
@@ -297,6 +304,7 @@ class _StaticChessboardState extends State<StaticChessboard> with SingleTickerPr
       pieceOrientationBehavior: settings.pieceOrientationBehavior,
       gameNotifier: _gameNotifier,
       animation: _translationAnimation,
+      colorFilter: pieceColorFilter,
     );
 
     final Map<Square, HighlightDetails> customHighlights = {

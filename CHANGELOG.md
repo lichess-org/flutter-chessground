@@ -1,3 +1,9 @@
+## Unreleased
+
+- Apply the `brightness`, `contrast` and `hue` adjustments to pieces as well as the
+  board. Pieces are filtered with `Paint.colorFilter`, so the board's repaint boundary
+  is preserved.
+
 ## 11.1.0
 
 - Apply `brightness`, `contrast` and `hue` to the board border color, like the board background.
